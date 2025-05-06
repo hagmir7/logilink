@@ -1,9 +1,13 @@
-import { app, BrowserWindow } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { getPreloadPath, isDev } from "./util.js";
+import createLoginWindow from "./windows/loginWindow.js";
 
 
-app.on('ready', () => {
+let mainWindow;
+let loginWindow;
+
+const createMainWindow = () => {
     const mainWindow = new BrowserWindow({
         title: "Production - INTERCOCINA",
         width: 1300,
@@ -18,4 +22,53 @@ app.on('ready', () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), "react-dist/index.html"));
     }
+
+    return mainWindow;
+}
+
+
+
+
+ipcMain.handle('login', async (event, data) => {
+    try {
+        if (data.access_token) {
+
+            if (loginWindow && !loginWindow.isDestroyed()) {
+                loginWindow.close();
+            }
+
+            mainWindow = createMainWindow();
+            return true;
+        }
+        return null;
+    } catch (error) {
+        console.error('Login error:', error);
+        return null;
+    }
+});
+
+
+ipcMain.handle('logout', async (event) => {
+    try {
+        if (mainWindow) {
+            mainWindow.close();
+        }
+
+        if (!loginWindow || loginWindow.isDestroyed()) {
+            loginWindow = createLoginWindow();
+        } else {
+            loginWindow.show();
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error('Logout error:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+
+
+app.on('ready', () => {
+   loginWindow = createLoginWindow()
 })

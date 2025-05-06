@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Table, Input, Button, Space, Tooltip, Badge, Tag } from 'antd';
 import { SearchOutlined, FilterOutlined, DownloadOutlined, PrinterOutlined, EyeOutlined } from '@ant-design/icons';
 import { createStyles } from 'antd-style';
+import { api } from '../utils/api';
 
-// Improved styling with better scrollbar and hover effects
 const useStyle = createStyles(({ css, token }) => {
   const { antCls } = token;
   return {
@@ -11,53 +11,53 @@ const useStyle = createStyles(({ css, token }) => {
       ${antCls}-table {
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
         border-radius: 8px;
-        
+
         ${antCls}-table-thead > tr > th {
           background-color: #f7f9fc;
           font-weight: 600;
         }
-        
+
         ${antCls}-table-tbody > tr:hover > td {
           background-color: #f0f7ff;
         }
-        
+
         ${antCls}-table-container {
           ${antCls}-table-body,
           ${antCls}-table-content {
             scrollbar-width: thin;
             scrollbar-color: #c0c0c0 transparent;
             scrollbar-gutter: stable;
-            
+
             &::-webkit-scrollbar {
               width: 6px;
               height: 6px;
             }
-            
+
             &::-webkit-scrollbar-thumb {
               background: #c0c0c0;
               border-radius: 3px;
             }
-            
+
             &::-webkit-scrollbar-track {
               background: #f0f0f0;
             }
           }
         }
       }
-      
+
       .table-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         margin-bottom: 16px;
       }
-      
+
       .table-title {
         font-size: 18px;
         font-weight: 600;
         color: ${token.colorTextHeading};
       }
-      
+
       .search-wrapper {
         width: 250px;
       }
@@ -65,218 +65,168 @@ const useStyle = createStyles(({ css, token }) => {
   };
 });
 
-// Status component for better visual indication
-const StatusTag = ({ status }) => {
-
-  const statusMap = {
-    pending: { color: 'orange', text: 'En attente' },
-    processing: { color: 'blue', text: 'En cours' },
-    completed: { color: 'green', text: 'Terminé' },
-    delayed: { color: 'red', text: 'Retardé' },
+function getExpedition(exp) {
+  const expeditions = {
+      "1": "EX-WORK",
+      "2": "LA VOIE EXPRESS",
+      "3": "SDTM",
+      "4": "LODIVE",
+      "5": "MTR",
+      "6": "CARRE",
+      "7": "MAROC EXPRESS",
+      "8": "GLOG MAROC",
+      "9": "AL JAZZERA",
+      "10": "C YAHYA",
+      "11": "C YASSIN",
+      "12": "GHAZALA",
+      "13": "GISNAD"
   };
 
-  const config = statusMap[status] || { color: 'default', text: status };
+  return expeditions[exp] || "  ";
+}
 
-  return <Tag color={config.color}>{config.text}</Tag>;
-
-};
 
 const DataTable = () => {
   const { styles } = useStyle();
   const [searchText, setSearchText] = useState('');
   const [filteredInfo, setFilteredInfo] = useState({});
   const [sortedInfo, setSortedInfo] = useState({});
-  
-  // Handle search
+  const [dataSource, setDataSource] = useState([]);
+
   const handleSearch = value => {
     setSearchText(value);
   };
-  
-  // Reset filters and sorters
+
   const handleReset = () => {
     setFilteredInfo({});
     setSortedInfo({});
     setSearchText('');
   };
-  
-  // Enhanced columns with better formatting, sorting and filtering
+
+  const fetchData = async () => {
+    try {
+      const response = await api.get('docentetes/2');
+      const data = response.data.map((item, index) => ({
+        key: index,
+        orderNumber: item.DO_Piece,
+        preparationNumber: item.DO_Reliquat,
+        reference: item.DO_Ref,
+        clientNumber: item.DO_Tiers,
+        documentDate: item.DO_Date,
+        expectedDate: item.DO_DateLivr,
+        shipping: item.DO_Expedit === '1' ? 'standard' : item.DO_Expedit === '2' ? 'express' : 'economic',
+        status: 'pending', // You can change this based on business logic
+      }));
+      setDataSource(data);
+    } catch (err) {
+      console.error('Failed to fetch data:', err);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
   const columns = [
     {
-      title: <span className="whitespace-nowrap font-medium">Bon de commande</span>,
-      width: 150,
+      title: 'Bon de commande',
       dataIndex: 'orderNumber',
       key: 'orderNumber',
-      fixed: 'left',
       sorter: (a, b) => a.orderNumber.localeCompare(b.orderNumber),
       sortOrder: sortedInfo.columnKey === 'orderNumber' && sortedInfo.order,
-      filteredValue: filteredInfo.orderNumber || null,
-      render: (text) => <span className="font-medium text-blue-600">{text}</span>,
     },
     {
-      title: <span className="whitespace-nowrap font-medium">Bon de préparation</span>,
-      width: 150,
+      title: <div className='whitespace-nowrap'>Bon de préparation</div>,
       dataIndex: 'preparationNumber',
       key: 'preparationNumber',
-      fixed: 'left',
-      sorter: (a, b) => a.preparationNumber.localeCompare(b.preparationNumber),
-      sortOrder: sortedInfo.columnKey === 'preparationNumber' && sortedInfo.order,
     },
     {
-      title: <span className="font-medium">Référence</span>,
+      title: 'Référence',
       dataIndex: 'reference',
       key: 'reference',
-      width: 150,
-      sorter: (a, b) => a.reference.localeCompare(b.reference),
-      sortOrder: sortedInfo.columnKey === 'reference' && sortedInfo.order,
     },
     {
-      title: <span className="font-medium">N° Client</span>,
+      title: 'N° Client',
       dataIndex: 'clientNumber',
       key: 'clientNumber',
-      width: 120,
-      sorter: (a, b) => a.clientNumber.localeCompare(b.clientNumber),
-      sortOrder: sortedInfo.columnKey === 'clientNumber' && sortedInfo.order,
     },
     {
-      title: <span className="font-medium">Date du document</span>,
+      title: 'Date du document',
       dataIndex: 'documentDate',
       key: 'documentDate',
-      width: 150,
-      sorter: (a, b) => new Date(a.documentDate) - new Date(b.documentDate),
-      sortOrder: sortedInfo.columnKey === 'documentDate' && sortedInfo.order,
     },
     {
-      title: <span className="font-medium">Date prévue</span>,
+      title: 'Date prévue',
       dataIndex: 'expectedDate',
       key: 'expectedDate',
-      width: 150,
-      sorter: (a, b) => new Date(a.expectedDate) - new Date(b.expectedDate),
-      sortOrder: sortedInfo.columnKey === 'expectedDate' && sortedInfo.order,
       render: (date, record) => {
         const today = new Date();
-        const expectedDate = new Date(date);
-        const isPastDue = expectedDate < today && record.status !== 'completed';
-        
-        return (
-          <span className={isPastDue ? 'text-red-600 font-medium' : ''}>{date}</span>
-        );
-      }
+        const expected = new Date(date);
+        const isLate = expected < today && record.status !== 'completed';
+        return <span className={isLate ? 'text-red-500 font-bold' : ''}>{date}</span>;
+      },
     },
     {
-      title: <span className="font-medium">Expédition</span>,
+      title: 'Expédition',
       dataIndex: 'shipping',
       key: 'shipping',
-      width: 150,
-      filters: [
-        { text: 'Standard', value: 'standard' },
-        { text: 'Express', value: 'express' },
-        { text: 'Économique', value: 'economic' },
-      ],
-      filteredValue: filteredInfo.shipping || null,
-      onFilter: (value, record) => record.shipping === value,
-      render: (shipping) => {
-        const shippingColors = {
+      render: (val) => {
+        const colorMap = {
           standard: 'blue',
           express: 'green',
           economic: 'orange',
         };
-        
-        return <Tag color={shippingColors[shipping]}>{shipping === 'standard' ? 'Standard' : shipping === 'express' ? 'Express' : 'Économique'}</Tag>;
-      }
+        return <Tag color={colorMap[val] || 'default'}>{val}</Tag>;
+      },
     },
     {
-      title: <span className="font-medium">Statut</span>,
+      title: 'Statut',
       dataIndex: 'status',
       key: 'status',
-      width: 120,
-      filters: [
-        { text: 'En attente', value: 'pending' },
-        { text: 'En cours', value: 'processing' },
-        { text: 'Terminé', value: 'completed' },
-        { text: 'Retardé', value: 'delayed' },
-      ],
-      filteredValue: filteredInfo.status || null,
-      onFilter: (value, record) => record.status === value,
-      render: (status) => <StatusTag status={status} />,
+      render: (val) => {
+        const map = {
+          pending: { text: 'En attente', color: 'orange' },
+          processing: { text: 'En cours', color: 'blue' },
+          completed: { text: 'Terminé', color: 'green' },
+          delayed: { text: 'Retardé', color: 'red' },
+        };
+        const config = map[val] || { text: val, color: 'default' };
+        return <Tag color={config.color}>{config.text}</Tag>;
+      },
     },
     {
-      title: <span className="font-medium">Action</span>,
+      title: 'Action',
       key: 'action',
-      fixed: 'right',
-      width: 120,
-      render: (_, record) => (
-        <Space size="small">
+      render: () => (
+        <Space>
           <Tooltip title="Voir les détails">
-            <Button type="text" icon={<EyeOutlined />} size="middle" />
+            <Button icon={<EyeOutlined />} />
           </Tooltip>
           <Tooltip title="Imprimer">
-            <Button type="text" icon={<PrinterOutlined />} size="middle" />
+            <Button icon={<PrinterOutlined />} />
           </Tooltip>
         </Space>
       ),
     },
   ];
 
-  // Generate more realistic data
-  const generateData = () => {
-    const statuses = ['pending', 'processing', 'completed', 'delayed'];
-    const shippingMethods = ['standard', 'express', 'economic'];
-    
-    return Array.from({ length: 100 }).map((_, i) => {
-      const orderNum = `CMD-${String(2000 + i).padStart(4, '0')}`;
-      const prepNum = `PREP-${String(3000 + i).padStart(4, '0')}`;
-      
-      // Generate random dates within a reasonable range
-      const documentDate = new Date();
-      documentDate.setDate(documentDate.getDate() - Math.floor(Math.random() * 30));
-      
-      const expectedDate = new Date();
-      expectedDate.setDate(expectedDate.getDate() + Math.floor(Math.random() * 30) - 10);
-      
-      return {
-        key: i,
-        orderNumber: orderNum,
-        preparationNumber: prepNum,
-        reference: `REF-${String(Math.floor(Math.random() * 10000)).padStart(4, '0')}`,
-        clientNumber: `CL-${String(Math.floor(1000 + Math.random() * 9000)).padStart(4, '0')}`,
-        documentDate: documentDate.toLocaleDateString('fr-FR'),
-        expectedDate: expectedDate.toLocaleDateString('fr-FR'),
-        shipping: shippingMethods[Math.floor(Math.random() * shippingMethods.length)],
-        status: statuses[Math.floor(Math.random() * statuses.length)],
-      };
-    });
-  };
-
-  const dataSource = generateData();
-  
-  // Filter data based on search text
-  const filteredData = dataSource.filter(item => {
+  const filteredData = dataSource.filter((item) => {
     if (!searchText) return true;
-    const searchLower = searchText.toLowerCase();
-    
+    const search = searchText.toLowerCase();
     return (
-      item.orderNumber.toLowerCase().includes(searchLower) ||
-      item.preparationNumber.toLowerCase().includes(searchLower) ||
-      item.reference.toLowerCase().includes(searchLower) ||
-      item.clientNumber.toLowerCase().includes(searchLower)
+      item.orderNumber?.toLowerCase().includes(search) ||
+      item.reference?.toLowerCase().includes(search) ||
+      item.clientNumber?.toLowerCase().includes(search)
     );
   });
 
-  // Handle table change (sorting, filtering)
-  const handleTableChange = (pagination, filters, sorter) => {
-    setFilteredInfo(filters);
-    setSortedInfo(sorter);
-  };
-  
-  // Calculate dynamic table height based on viewport
   const calculateTableHeight = () => {
     const screenHeight = window.innerHeight || document.documentElement.clientHeight;
-    return screenHeight - 220; // Adjust based on other UI elements
+    return screenHeight - 220;
   };
 
   return (
     <div className={styles.customTable}>
-      {/* Table header with search and actions */}
       <div className="table-header">
         <div className="table-title">Gestion des Commandes</div>
         <Space>
@@ -295,35 +245,36 @@ const DataTable = () => {
           <Button onClick={handleReset}>Réinitialiser</Button>
         </Space>
       </div>
-      
-      {/* Summary statistics */}
+
       <div className="flex gap-4 mb-4">
-        <Badge count={dataSource.filter(d => d.status === 'pending').length} showZero color="#faad14">
+        <Badge count={dataSource.filter(d => d.status === 'pending').length} color="orange">
           <div className="px-4 py-2 bg-gray-50 rounded">En attente</div>
         </Badge>
-        <Badge count={dataSource.filter(d => d.status === 'processing').length} showZero color="#1890ff">
+        <Badge count={dataSource.filter(d => d.status === 'processing').length} color="blue">
           <div className="px-4 py-2 bg-gray-50 rounded">En cours</div>
         </Badge>
-        <Badge count={dataSource.filter(d => d.status === 'completed').length} showZero color="#52c41a">
+        <Badge count={dataSource.filter(d => d.status === 'completed').length} color="green">
           <div className="px-4 py-2 bg-gray-50 rounded">Terminé</div>
         </Badge>
-        <Badge count={dataSource.filter(d => d.status === 'delayed').length} showZero color="#f5222d">
+        <Badge count={dataSource.filter(d => d.status === 'delayed').length} color="red">
           <div className="px-4 py-2 bg-gray-50 rounded">Retardé</div>
         </Badge>
       </div>
 
-      {/* Enhanced table */}
       <Table
         columns={columns}
         dataSource={filteredData}
         scroll={{ x: 'max-content', y: calculateTableHeight() }}
-        pagination={{ 
-          pageSize: 15,
+        pagination={{
+          pageSize: 50,
           showSizeChanger: true,
           showQuickJumper: true,
-          showTotal: (total) => `Total ${total} éléments`,
+          showTotal: total => `Total ${total} éléments`,
         }}
-        onChange={handleTableChange}
+        onChange={(pagination, filters, sorter) => {
+          setFilteredInfo(filters);
+          setSortedInfo(sorter);
+        }}
         size="small"
         bordered
       />
