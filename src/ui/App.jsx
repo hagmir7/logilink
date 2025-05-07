@@ -7,6 +7,7 @@ import Login from './pages/Login';
 import Users from './pages/Users';
 import Home from './pages/Home';
 import Profile from './pages/profile';
+import ViewDocument from './pages/ViewDocument';
 
 
 const NotFound = () => {
@@ -21,6 +22,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path='/' element={<Home />} />
           <Route path='/users' element={<Users />} />
+          <Route path='/document' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />
           <Route path='/roles/:id' element={<ViewRole />} />
           <Route path='*' element={<NotFound />} />
@@ -28,7 +30,7 @@ function App() {
         </Route>
       </Routes>
     </>
-  );
+  )
 }
 
 export default App;

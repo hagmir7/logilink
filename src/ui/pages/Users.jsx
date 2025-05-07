@@ -9,7 +9,6 @@ import RegisterForm from '../components/RegisterForm'
 import { useAuth } from '../contexts/AuthContext'
 
 export default function Users() {
-  const [showDropdown, setShowDropdown] = useState(false)
   const [users, setUsers] = useState([])
   const [isLoading, setIsLoading] = useState(true);
   const { roles } = useAuth();
@@ -30,11 +29,6 @@ export default function Users() {
     }
   }
 
-  const toggleDropdown = () => {
-    setShowDropdown(!showDropdown)
-  }
-
-
 
   if (isLoading) {
     return (
@@ -45,8 +39,6 @@ export default function Users() {
   }
 
   return (
-
-
     
     <div className='relative overflow-x-auto shadow-sm rounded-2xl'>
       <div className='flex flex-col sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between p-4 bg-gray-200'>
