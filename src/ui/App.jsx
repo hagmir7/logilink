@@ -1,11 +1,12 @@
 import './App.css';
 import MainLayout from './layouts/MainLayout';
-import DataTable from './components/DataTable';
 import { Routes, Route } from 'react-router-dom';
 import Roles from './pages/Roles';
 import ViewRole from './pages/ViewRole';
 import Login from './pages/Login';
 import Users from './pages/Users';
+import Home from './pages/Home';
+import Profile from './pages/profile';
 
 
 const NotFound = () => {
@@ -18,11 +19,12 @@ function App() {
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route element={<MainLayout />}>
-          <Route path='/' element={<DataTable />} />
+          <Route path='/' element={<Home />} />
           <Route path='/users' element={<Users />} />
           <Route path='/roles' element={<Roles />} />
           <Route path='/roles/:id' element={<ViewRole />} />
           <Route path='*' element={<NotFound />} />
+          <Route path='/profile/:id' element={<Profile />} />
         </Route>
       </Routes>
     </>

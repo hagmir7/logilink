@@ -23,12 +23,10 @@ const Login = () => {
 
   const handleSubmit = (values) => {
     login(values);
-    console.log("Login attempt submitted");
   };
 
   const checkAuth = async () => {
     const access_token = localStorage.getItem('authToken') || false;
-
     if (access_token) {
       const response = await api.get('user', {
         headers: {
@@ -36,13 +34,13 @@ const Login = () => {
         },
       });
 
-      if (!response?.data?.access_token) {
-        localStorage.removeItem("authToken");
-        localStorage.removeItem("user");
-      }
+      // if (!response?.data?.access_token) {
+      //   localStorage.removeItem("authToken");
+      //   localStorage.removeItem("user");
+      // }
 
       if (window.electron) {
-        await window.electron.loginUser({ user: response.data, access_token });
+        await window.electron.user({ user: response.data, access_token });
       } else {
         return navigate('/');
       }

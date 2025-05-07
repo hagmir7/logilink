@@ -6,11 +6,13 @@ import Spinner from '../components/ui/Spinner'
 import { Link } from 'react-router-dom'
 import { api } from '../utils/api'
 import RegisterForm from '../components/RegisterForm'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function Users() {
   const [showDropdown, setShowDropdown] = useState(false)
   const [users, setUsers] = useState([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [isLoading, setIsLoading] = useState(true);
+  const { roles } = useAuth();
 
   useEffect(() => {
     getUsers()
@@ -149,13 +151,19 @@ export default function Users() {
                 <td className='px-6 py-4'>
                   {new Date(user.created_at).toLocaleDateString()}
                 </td>
+               
                 <td className='px-6 py-4'>
-                  <Link
-                    to={`/profile/${user.id}`}
-                    className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
-                  >
-                    <Edit size={19} />
-                  </Link>
+                  {
+                    roles("edit:users") ? (
+                      <Link
+                        to={`/profile/${user.id}`}
+                        className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+                      >
+                        <Edit size={19} />
+                      </Link>
+                    ) : "__"
+                  }
+                 
                 </td>
               </tr>
             ))}

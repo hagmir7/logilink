@@ -1,10 +1,10 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDev } from '../util.js';
 
 export default function createLoginWindow() {
     let loginWindow = new BrowserWindow({
-        width: 400,
+        width: 600,
         height: 600,
         // frame: false,
         // resizable: false,
@@ -12,8 +12,6 @@ export default function createLoginWindow() {
             preload: getPreloadPath(),
         }
     });
-
-    // loginWindow
 
     if (isDev()) {
         loginWindow.loadURL('http://localhost:5123/#login');
@@ -27,23 +25,8 @@ export default function createLoginWindow() {
     //     loginWindow.unmaximize();
     // });
 
-    ipcMain.on('registerUser', (event, payload) => {
-        new UserController().create(payload);
-    });
 
-    ipcMain.on('sendFrameAction', (event, payload) => {
-        switch (payload) {
-            case "CLOSE":
-                loginWindow.close()
-                break;
-            case "MINIMIZE":
-                loginWindow.minimize()
-                break;
-            default:
-                // loginWindow.maximize()
-                break;
-        }
-    })
+
 
     return loginWindow;
 }
