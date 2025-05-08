@@ -1,162 +1,147 @@
-import { RefreshCcw, Loader2 } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowDownCircle } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { Badge, Button, Descriptions, Radio, Tag } from 'antd'
+import {
+  Badge,
+  Button,
+  Card,
+  Descriptions,
+  Empty,
+  Skeleton,
+  Table,
+  Tag,
+  Typography,
+  Space,
+  Divider,
+  Collapse,
+  Row,
+  Col,
+} from 'antd'
 import { getExped, getDocumentType } from '../utils/config'
 import { useParams } from 'react-router-dom'
 
-// Table row component
-const TableRow = ({ data }) => {
-  return (
-    <tr className='hover:bg-gray-100'>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2 flex items-center gap-x-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {data.AR_Ref || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {data.Nom || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {Math.floor(data.Hauteur) || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {Math.floor(data.Largeur) || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {Math.floor(data.Profondeur) || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {Math.floor(data.Langeur) || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {data.Couleur || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {data.Chant || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {Math.floor(data.Episseur) || '__'}
-          </span>
-        </div>
-      </td>
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            <Tag
-              color='green-inverse'
-              className='px-5'
-              style={{ fontSize: '16px' }}
-            >
-              {Math.floor(data.DL_Qte)}
-            </Tag>
-          </span>
-        </div>
-      </td>
-    </tr>
-  )
-}
+const { Title, Text } = Typography
+const { Panel } = Collapse
 
-// Main component
 function ViewDocument() {
-  const labels = [
-    'Ref Article',
-    'Piece',
-    'Hauteur',
-    'Largeur',
-    'Profondeur',
-    'Langeur',
-    'Couleur',
-    'Chant',
-    'Episseur',
-    'Quantity',
-  ]
-
   const { id } = useParams()
-
   const [data, setData] = useState({ doclignes: [] })
-  const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
 
-  
+  const columns = [
+    {
+      title: 'Ref Article',
+      dataIndex: 'AR_Ref',
+      key: 'AR_Ref',
+      render: (text) => <Text>{text || '__'}</Text>,
+      responsive: ['md'],
+    },
+    {
+      title: 'Piece',
+      dataIndex: 'Nom',
+      key: 'Nom',
+      render: (text) => <Text strong>{text || '__'}</Text>,
+    },
+    {
+      title: 'Dimensions',
+      dataIndex: 'dimensions',
+      key: 'dimensions',
+      render: (_, record) => (
+        <Space direction='vertical' size='small'>
+          <Text type='secondary'>H: {Math.floor(record.Hauteur) || '__'}</Text>
+          <Text type='secondary'>L: {Math.floor(record.Largeur) || '__'}</Text>
+          <Text type='secondary'>
+            P: {Math.floor(record.Profondeur) || '__'}
+          </Text>
+        </Space>
+      ),
+    },
+    {
+      title: 'Matériaux',
+      dataIndex: 'materials',
+      key: 'materials',
+      render: (_, record) => (
+        <Space direction='vertical' size='small'>
+          <Text type='secondary'>Couleur: {record.Couleur || '__'}</Text>
+          <Text type='secondary'>Chant: {record.Chant || '__'}</Text>
+          <Text type='secondary'>
+            Epaisseur: {Math.floor(record.Episseur) || '__'}
+          </Text>
+        </Space>
+      ),
+      responsive: ['lg'],
+    },
+    {
+      title: 'Quantité',
+      dataIndex: 'DL_Qte',
+      key: 'DL_Qte',
+      render: (text) => (
+        <Tag color='green' className='px-3 py-1'>
+          {Math.floor(text)}
+        </Tag>
+      ),
+    },
+    {
+      title: 'Actions',
+      key: 'actions',
+      render: (_, record) => (
+        <Space>
+          <Button type='text' icon={<Clipboard size={16} />} />
+        </Space>
+      ),
+      responsive: ['lg'],
+    },
+  ]
+
+  // Mobile card rendering for items
+  const renderMobileCard = (item, index) => (
+    <Card key={index} className='mb-4 shadow-sm' size='small'>
+      <Space direction='vertical' className='w-full'>
+        <Space className='w-full justify-between'>
+          <Text strong>{item.Nom || '__'}</Text>
+          <Tag color='green'>{Math.floor(item.DL_Qte)}</Tag>
+        </Space>
+
+        <Divider className='my-2' />
+
+        <Row gutter={[16, 8]}>
+          <Col span={12}>
+            <Text type='secondary'>
+              Hauteur: {Math.floor(item.Hauteur) || '__'}
+            </Text>
+          </Col>
+          <Col span={12}>
+            <Text type='secondary'>
+              Largeur: {Math.floor(item.Largeur) || '__'}
+            </Text>
+          </Col>
+          <Col span={12}>
+            <Text type='secondary'>
+              Profondeur: {Math.floor(item.Profondeur) || '__'}
+            </Text>
+          </Col>
+          <Col span={12}>
+            <Text type='secondary'>
+              Epaisseur: {Math.floor(item.Episseur) || '__'}
+            </Text>
+          </Col>
+        </Row>
+
+        <Divider className='my-2' />
+
+        <Space direction='vertical' size='small'>
+          <Text type='secondary'>Couleur: {item.Couleur || '__'}</Text>
+          <Text type='secondary'>Chant: {item.Chant || '__'}</Text>
+        </Space>
+      </Space>
+    </Card>
+  )
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
       setData(response.data)
-      setItems([
-        {
-          key: '1',
-          label: 'Client',
-          children: response.data.DO_Tiers,
-        },
-        {
-          key: '2',
-          label: 'Référence',
-          children: response.data.DO_Ref,
-        },
-
-        {
-          key: '4',
-          label: 'Articles',
-          children: <Tag>{response.data.doclignes.length}</Tag>,
-        },
-        {
-          key: '3',
-          label: 'Expédition',
-          children: getExped(response.data.DO_Expedit),
-        },
-
-        {
-          key: '6',
-          label: 'Document Type',
-          children: getDocumentType(response.data.DO_Piece),
-        },
-
-        {
-          key: '5',
-          label: 'Total TTC',
-          children: (
-            <Tag color='green-inverse'>
-              {Math.floor(response.data.DO_TotalTTC)} MAD
-            </Tag>
-          ),
-        },
-      ])
-
       setLoading(false)
     } catch (err) {
       setLoading(false)
@@ -166,82 +151,147 @@ function ViewDocument() {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [id])
+
+  const documentInfo = [
+    {
+      key: '1',
+      label: 'Client',
+      children: data.DO_Tiers || <Skeleton.Button active size='small' />,
+    },
+    {
+      key: '2',
+      label: 'Référence',
+      children: data.DO_Ref || <Skeleton.Button active size='small' />,
+    },
+    {
+      key: '3',
+      label: 'Articles',
+      children: loading ? (
+        <Skeleton.Button active size='small' />
+      ) : (
+        <Tag color='blue'>{data.doclignes?.length || 0}</Tag>
+      ),
+    },
+    {
+      key: '4',
+      label: 'Expédition',
+      children: data.DO_Expedit ? (
+        getExped(data.DO_Expedit)
+      ) : (
+        <Skeleton.Button active size='small' />
+      ),
+    },
+    {
+      key: '5',
+      label: 'Type de document',
+      children: data.DO_Piece ? (
+        getDocumentType(data.DO_Piece)
+      ) : (
+        <Skeleton.Button active size='small' />
+      ),
+    },
+    {
+      key: '6',
+      label: 'Total TTC',
+      children: data.DO_TotalTTC ? (
+        <Tag color='green' className='text-lg px-3 py-1'>
+          {Math.floor(data.DO_TotalTTC)} MAD
+        </Tag>
+      ) : (
+        <Skeleton.Button active size='small' />
+      ),
+    },
+  ]
 
   return (
-    <div className='flex flex-col'>
-      <div className='-m-1.5 overflow-x-auto scrollable '>
-        <div className='p-1.5 min-w-full inline-block align-middle'>
-          <div className='bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden dark:bg-neutral-900 dark:border-neutral-700'>
-            {/* Header */}
-            <div className='px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700'>
-              <Descriptions
-                title={
-                  data.DO_Piece ? (
-                    `Bon de command ${data.DO_Piece}`
-                  ) : (
-                    <>
-                      Bon de command{' '}
-                      <Loader2
-                        className='inline animate-spin text-blue-500'
-                        size={17}
-                      />
-                    </>
-                  )
-                }
-                extra={
-                  <button
-                    type='button'
-                    onClick={fetchData}
-                    className='py-2 px-3 cursor-pointer inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700'
-                  >
-                    {loading ? (
-                      <Loader2
-                        className='animate-spin text-blue-500'
-                        size={17}
-                      />
-                    ) : (
-                      <RefreshCcw size={17} />
-                    )}
-                    Rafraîchir
-                  </button>
-                }
-                items={items}
-              />
-            </div>
-            <table className='min-w-full divide-y divide-gray-200 dark:divide-neutral-700'>
-              <thead className='bg-gray-50 dark:bg-neutral-900'>
-                <tr>
-                  {labels.map((label) => (
-                    <th
-                      scope='col'
-                      key={label}
-                      className='px-6 py-3 text-start'
-                    >
-                      <div className='flex items-center gap-x-2'>
-                        <span className='text-xs font-semibold uppercase text-gray-800 whitespace-nowrap dark:text-neutral-200'>
-                          {label}
-                        </span>
-                      </div>
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody className='divide-y divide-gray-200 dark:divide-neutral-700'>
-                {data?.doclignes?.map((item, index) => (
-                  <TableRow key={index} data={item} />
+    <div className='mx-auto max-w-7xl'>
+      <Card
+        className='mb-6'
+        loading={loading}
+        title={
+          <div className='flex justify-between items-center'>
+            <Space>
+              <Title level={4} className='mb-0'>
+                {data.DO_Piece
+                  ? `Bon de commande ${data.DO_Piece}`
+                  : 'Chargement...'}
+              </Title>
+              {data.DO_Piece && (
+                <Badge
+                  status='processing'
+                  text={getDocumentType(data.DO_Piece)}
+                />
+              )}
+            </Space>
+            <Button
+              onClick={fetchData}
+              icon={
+                loading ? (
+                  <RefreshCcw className='animate-spin' size={16} />
+                ) : (
+                  <RefreshCcw size={16} />
+                )
+              }
+            >
+              Rafraîchir
+            </Button>
+          </div>
+        }
+      >
+        <Descriptions
+          bordered
+          column={{ xs: 1, sm: 2, md: 3 }}
+          items={documentInfo}
+          className='mb-4'
+          size='small'
+        />
+
+        <div className='mt-6'>
+          <div className='flex justify-between items-center mb-4'>
+            <Title level={5} className='mb-0'>
+              Détails des articles
+            </Title>
+            <Button type='primary' icon={<ArrowDownCircle size={16} />}>
+              Exporter
+            </Button>
+          </div>
+
+          {/* For desktop view */}
+          <div className='hidden md:block'>
+            <Table
+              columns={columns}
+              dataSource={data.doclignes?.map((item, index) => ({
+                ...item,
+                key: index,
+              }))}
+              rowKey='key'
+              pagination={{ pageSize: 10 }}
+              size='middle'
+              loading={loading}
+              locale={{
+                emptyText: <Empty description='Aucun article trouvé' />,
+              }}
+              scroll={{ x: 'max-content' }}
+            />
+          </div>
+
+          {/* For mobile view */}
+          <div className='block md:hidden'>
+            {loading ? (
+              <div className='space-y-4'>
+                {[1, 2, 3].map((i) => (
+                  <Card key={i} loading={true} />
                 ))}
-              </tbody>
-            </table>
-            {loading && (
-              <div className='flex justify-center items-center h-64'>
-                <Loader2 className='animate-spin text-blue-500' size={32} />
-                <span className='ml-2 text-gray-600'>Chargement...</span>
               </div>
+            ) : data.doclignes?.length > 0 ? (
+              data.doclignes.map(renderMobileCard)
+            ) : (
+              <Empty description='Aucun article trouvé' />
             )}
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   )
 }
