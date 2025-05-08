@@ -32,12 +32,12 @@ const TableRow = ({ data }) => {
   return (
     <tr
       className='hover:bg-gray-100 cursor-pointer'
-      onClick={() => navigate(`document`)}
+      onClick={() => navigate(`document/${data.cbMarq}`)}
     >
       <td className='size-px whitespace-nowrap'>
         <div className='px-6 py-2 flex items-center gap-x-2'>
           <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            #{data.DO_Reliquat || '__'}
+            {data.DO_Reliquat || '__'}
           </span>
         </div>
       </td>

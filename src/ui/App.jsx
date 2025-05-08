@@ -1,18 +1,18 @@
-import './App.css';
-import MainLayout from './layouts/MainLayout';
-import { Routes, Route } from 'react-router-dom';
-import Roles from './pages/Roles';
-import ViewRole from './pages/ViewRole';
-import Login from './pages/Login';
-import Users from './pages/Users';
-import Home from './pages/Home';
-import Profile from './pages/profile';
-import ViewDocument from './pages/ViewDocument';
-
+import './App.css'
+import MainLayout from './layouts/MainLayout'
+import { Routes, Route } from 'react-router-dom'
+import Roles from './pages/Roles'
+import ViewRole from './pages/ViewRole'
+import Login from './pages/Login'
+import Users from './pages/Users'
+import Home from './pages/Home'
+import Profile from './pages/profile'
+import ViewDocument from './pages/ViewDocument'
+import Document from './pages/Document'
 
 const NotFound = () => {
-  return (<>Page not found 404</>);
-};
+  return <>Page not found 404</>
+}
 
 function App() {
   return (
@@ -22,15 +22,16 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path='/' element={<Home />} />
           <Route path='/users' element={<Users />} />
-          <Route path='/document' element={<ViewDocument />} />
+          <Route path='/document/:id' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />
           <Route path='/roles/:id' element={<ViewRole />} />
           <Route path='*' element={<NotFound />} />
           <Route path='/profile/:id' element={<Profile />} />
+          <Route path='documents' element={<Document />} />
         </Route>
       </Routes>
     </>
   )
 }
 
-export default App;
+export default App

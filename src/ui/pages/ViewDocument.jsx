@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { Badge, Button, Descriptions, Radio, Tag } from 'antd'
 import { getExped, getDocumentType } from '../utils/config'
+import { useParams } from 'react-router-dom'
 
 // Table row component
 const TableRow = ({ data }) => {
@@ -18,36 +19,76 @@ const TableRow = ({ data }) => {
       <td className='size-px whitespace-nowrap'>
         <div className='px-6 py-2'>
           <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            {data.Nom || '__'}
+          </span>
+        </div>
+      </td>
+      {/* <td className='size-px whitespace-nowrap'>
+        <div className='px-6 py-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
             {data.DL_Design || '__'}
           </span>
         </div>
-      </td>
+      </td> */}
       <td className='size-px whitespace-nowrap'>
         <div className='px-6 py-2'>
           <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {Math.floor(data.DL_Qte)}
-          </span>
-        </div>
-      </td>
-
-      <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {data.DO_Type}
+            {Math.floor(data.Hauteur) || '__'}
           </span>
         </div>
       </td>
       <td className='size-px whitespace-nowrap'>
         <div className='px-6 py-2'>
           <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {Math.floor(data.DL_MontantTTC)}
+            {Math.floor(data.Largeur) || '__'}
           </span>
         </div>
       </td>
       <td className='size-px whitespace-nowrap'>
         <div className='px-6 py-2'>
           <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            <Tag color='#f50'>{data.DO_Piece}</Tag>
+            {Math.floor(data.Profondeur) || '__'}
+          </span>
+        </div>
+      </td>
+      <td className='size-px whitespace-nowrap'>
+        <div className='px-6 py-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            {Math.floor(data.Langeur) || '__'}
+          </span>
+        </div>
+      </td>
+      <td className='size-px whitespace-nowrap'>
+        <div className='px-6 py-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            {data.Couleur || '__'}
+          </span>
+        </div>
+      </td>
+      <td className='size-px whitespace-nowrap'>
+        <div className='px-6 py-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            {data.Chant || '__'}
+          </span>
+        </div>
+      </td>
+      <td className='size-px whitespace-nowrap'>
+        <div className='px-6 py-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            {Math.floor(data.Episseur) || '__'}
+          </span>
+        </div>
+      </td>
+      <td className='size-px whitespace-nowrap'>
+        <div className='px-6 py-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            <Tag
+              color='green-inverse'
+              className='px-5'
+              style={{ fontSize: '16px' }}
+            >
+              {Math.floor(data.DL_Qte)}
+            </Tag>
           </span>
         </div>
       </td>
@@ -59,21 +100,29 @@ const TableRow = ({ data }) => {
 function ViewDocument() {
   const labels = [
     'Ref Article',
-    'Désignation',
+    'Piece',
+    'Hauteur',
+    'Largeur',
+    'Profondeur',
+    'Langeur',
+    'Couleur',
+    'Chant',
+    'Episseur',
     'Quantity',
-    'Doc Type',
-    'Montant TTC',
-    'Ref Document',
   ]
+
+  const { id } = useParams()
 
   const [data, setData] = useState({ doclignes: [] })
   const [items, setItems] = useState([])
   const [loading, setLoading] = useState(false)
 
+  
+
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get('docentete/40685')
+      const response = await api.get(`docentete/${id}`)
       setData(response.data)
       setItems([
         {
@@ -86,16 +135,24 @@ function ViewDocument() {
           label: 'Référence',
           children: response.data.DO_Ref,
         },
-        {
-          key: '3',
-          label: 'Expédition',
-          children: getExped(response.data.DO_Expedit),
-        },
+
         {
           key: '4',
           label: 'Articles',
           children: <Tag>{response.data.doclignes.length}</Tag>,
         },
+        {
+          key: '3',
+          label: 'Expédition',
+          children: getExped(response.data.DO_Expedit),
+        },
+
+        {
+          key: '6',
+          label: 'Document Type',
+          children: getDocumentType(response.data.DO_Piece),
+        },
+
         {
           key: '5',
           label: 'Total TTC',
@@ -104,11 +161,6 @@ function ViewDocument() {
               {Math.floor(response.data.DO_TotalTTC)} MAD
             </Tag>
           ),
-        },
-        {
-          key: '6',
-          label: 'Document Type',
-          children: getDocumentType(response.data.DO_Piece),
         },
       ])
 
@@ -125,7 +177,7 @@ function ViewDocument() {
 
   return (
     <div className='flex flex-col'>
-      <div className='-m-1.5 overflow-x-auto'>
+      <div className='-m-1.5 overflow-x-auto scrollable '>
         <div className='p-1.5 min-w-full inline-block align-middle'>
           <div className='bg-white border border-gray-200 rounded-xl shadow-2xs overflow-hidden dark:bg-neutral-900 dark:border-neutral-700'>
             {/* Header */}
