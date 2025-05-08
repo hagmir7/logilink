@@ -1,69 +1,69 @@
-
-import React, { useEffect, useState } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import CModal from '../components/ui/CModal';
-import { PlusCircle, RefreshCcw } from 'lucide-react';
-import { api } from '../utils/api';
-import RoleForm from '../components/RoleForm';
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import CModal from '../components/ui/CModal'
+import { Loader2, PlusCircle, RefreshCcw } from 'lucide-react'
+import { api } from '../utils/api'
+import RoleForm from '../components/RoleForm'
 
 const TableRow = ({ data }) => (
-  
-    <tr className='hover:bg-gray-100'>
-
-      <td className="size-px whitespace-nowrap">
+  <tr className='hover:bg-gray-100'>
+    <td className='size-px whitespace-nowrap'>
       <Link to={`/roles/${data.name}`}>
-        <div className="px-6 py-2 flex items-center gap-x-2">
-          <span className="text-sm text-gray-600 dark:text-neutral-400">#{data.id || "__"}</span>
+        <div className='px-6 py-2 flex items-center gap-x-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            #{data.id || '__'}
+          </span>
         </div>
-        </Link>
-      </td>
-      <td className="size-px whitespace-nowrap">
+      </Link>
+    </td>
+    <td className='size-px whitespace-nowrap'>
       <Link to={`/roles/${data.name}`}>
-        <div className="px-6 py-2">
-          <span className="text-sm text-gray-600 dark:text-neutral-400">{data.name || "__"}</span>
+        <div className='px-6 py-2'>
+          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+            {data.name || '__'}
+          </span>
         </div>
-        </Link>
-      </td>
-      <td className="size-px whitespace-nowrap">
-        <div className="px-6 py-2">
-          <span className="text-sm text-gray-600 dark:text-neutral-400">{data.guard_name}</span>
-        </div>
-      </td>
-    </tr>
-  
-);
+      </Link>
+    </td>
+    <td className='size-px whitespace-nowrap'>
+      <div className='px-6 py-2'>
+        <span className='text-sm text-gray-600 dark:text-neutral-400'>
+          {data.guard_name}
+        </span>
+      </div>
+    </td>
+  </tr>
+)
 
 const Roles = () => {
+  const labels = ['Code', 'Role', 'Gaurdn']
+  const [data, setData] = useState([])
+  const [loading, setLoading] = useState(false)
 
-    const labels = ["Code", "Role", "Gaurdn"]
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
-    const navigate = useNavigate()
+  useEffect(() => {
+    getData()
+  }, [])
 
-    useEffect(() => {
-        getData();
-    }, [])
-
-    const getData = async () => {
-        setLoading(true)
-        const respones = await api.get('roles')
-        if (respones.status !== 200) {
-            console.log(respones);
-            setLoading(false)
-        }
-        setData(respones.data)
-        setLoading(false)
+  const getData = async () => {
+    setLoading(true)
+    const respones = await api.get('roles')
+    if (respones.status !== 200) {
+      console.log(respones)
+      setLoading(false)
     }
+    setData(respones.data)
+    setLoading(false)
+  }
 
-  
-    if (loading) {
-      return (
-        <div className="flex justify-center items-center h-64">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
-        </div>
-      );
-    }
+  // if (loading) {
+  //   return (
+  //     <div className='flex justify-center items-center h-64'>
+  //       <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white'></div>
+  //     </div>
+  //   )
+  // }
 
   return (
     <div className='flex flex-col'>
@@ -76,7 +76,6 @@ const Roles = () => {
                 Roles
               </h2>
               <div className='inline-flex gap-x-2'>
-    
                 <button
                   type='button'
                   onClick={getData}
@@ -122,11 +121,20 @@ const Roles = () => {
                 ))}
               </tbody>
             </table>
+            {loading && (
+              <div className='flex flex-col items-center justify-center h-64'>
+                <Loader2
+                  className='animate-spin text-blue-500 mb-2'
+                  size={32}
+                />
+                <span className='text-gray-600'>Chargement...</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </div>
   )
-};
+}
 
-export default Roles;
+export default Roles

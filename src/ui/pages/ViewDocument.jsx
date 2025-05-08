@@ -23,13 +23,6 @@ const TableRow = ({ data }) => {
           </span>
         </div>
       </td>
-      {/* <td className='size-px whitespace-nowrap'>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {data.DL_Design || '__'}
-          </span>
-        </div>
-      </td> */}
       <td className='size-px whitespace-nowrap'>
         <div className='px-6 py-2'>
           <span className='text-sm text-gray-600 dark:text-neutral-400'>
@@ -215,14 +208,7 @@ function ViewDocument() {
                 }
                 items={items}
               />
-              <h2 className='text-xl font-semibold text-gray-800 dark:text-neutral-200'>
-                {/* Bon de command {data.} */}
-              </h2>
-              {/* <div className='inline-flex gap-x-2'>
-                
-              </div> */}
             </div>
-            {/* Table */}
             <table className='min-w-full divide-y divide-gray-200 dark:divide-neutral-700'>
               <thead className='bg-gray-50 dark:bg-neutral-900'>
                 <tr>

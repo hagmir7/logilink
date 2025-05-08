@@ -26,7 +26,6 @@ const sideMenu = () => {
       key: 'menu-1',
       icon: <ShoppingBag size={20} />,
       label: <span className='text-base'>Commandes</span>,
-      disabled: !roles('view:users'),
       children: [
         {
           key: 'submenu-1',
@@ -257,10 +256,10 @@ const MainLayout = () => {
           }}
         >
           <Content
-            className='mt-4 min-h-screen'
+            className='mt-4 min-h-screen bg-gray-50 shadow'
             style={{
               padding: 16,
-              background: colorBgContainer,
+            //   background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}
           >

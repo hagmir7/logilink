@@ -2,69 +2,53 @@ import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
+import { getExped } from '../utils/config'
+import { Badge } from 'antd'
 
-function getExped(exp) {
-  const expedMap = {
-    1: 'EX-WORK',
-    2: 'LA VOIE EXPRESS',
-    3: 'SDTM',
-    4: 'LODIVE',
-    5: 'MTR',
-    6: 'CARRE',
-    7: 'MAROC EXPRESS',
-    8: 'GLOG MAROC',
-    9: 'AL JAZZERA',
-    10: 'C YAHYA',
-    11: 'C YASSIN',
-    12: 'GHAZALA',
-    13: 'GISNAD',
-  }
-
-  return expedMap[exp] || ''
-}
 
 const OrderCard = ({ data, onSelectOrder }) => {
   return (
-    <div
-      className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'
-      onClick={() => onSelectOrder(data.cbMarq)}
-    >
-      <div className='flex justify-between items-center mb-2'>
-        <div className='flex items-center'>
-          <span className='text-gray-800 font-medium'>
-            {data.DO_Piece || '__'}
-          </span>
-          <span className='text-xs ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded'>
-            {data.DO_Reliquat || '__'}
-          </span>
+    <Badge.Ribbon text='Livrée'>
+      <div
+        className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'
+        onClick={() => onSelectOrder(data.cbMarq)}
+      >
+        <div className='flex justify-between items-center mb-2'>
+          <div className='flex items-center'>
+            <span className='text-gray-800 font-medium'>
+              {data.DO_Piece || '__'}
+            </span>
+            <span className='text-xs ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded'>
+              {data.DO_Reliquat || '__'}
+            </span>
+          </div>
         </div>
-        <ChevronRight size={18} className='text-gray-400' />
-      </div>
 
-      <div className='mb-2'>
-        <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-2'>
-          {getExped(data.DO_Expedit)}
-        </span>
-        <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
-          {data.DO_Tiers}
-        </span>
-      </div>
+        <div className='mb-2'>
+          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-2'>
+            {getExped(data.DO_Expedit)}
+          </span>
+          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
+            {data.DO_Tiers}
+          </span>
+        </div>
 
-      <div className='text-sm text-gray-600'>
-        <div className='flex justify-between mb-1'>
-          <span>Référence:</span>
-          <span className='font-medium'>{data.DO_Ref}</span>
-        </div>
-        <div className='flex justify-between mb-1'>
-          <span>Date du document:</span>
-          <span className='font-medium'>{data.DO_Date}</span>
-        </div>
-        <div className='flex justify-between'>
-          <span>Date prévue:</span>
-          <span className='font-medium'>{data.DO_DateLivr}</span>
+        <div className='text-sm text-gray-600'>
+          <div className='flex justify-between mb-1'>
+            <span>Référence:</span>
+            <span className='font-medium'>{data.DO_Ref}</span>
+          </div>
+          <div className='flex justify-between mb-1'>
+            <span>Date du document:</span>
+            <span className='font-medium'>{data.DO_Date}</span>
+          </div>
+          <div className='flex justify-between'>
+            <span>Date prévue:</span>
+            <span className='font-medium'>{data.DO_DateLivr}</span>
+          </div>
         </div>
       </div>
-    </div>
+    </Badge.Ribbon>
   )
 }
 
@@ -95,7 +79,7 @@ function Document() {
   }, [])
 
   return (
-    <div className='px-4 py-6 bg-gray-50 min-h-screen'>
+    <div className='min-h-screen'>
       {/* Header */}
       <div className='flex justify-between items-center mb-6'>
         <h2 className='text-xl font-semibold text-gray-800'>
@@ -125,6 +109,46 @@ function Document() {
         ) : (
           <>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+              {data.length > 0
+                ? data.map((item, index) => (
+                    <OrderCard
+                      key={index}
+                      data={item}
+                      onSelectOrder={handleSelectOrder}
+                    />
+                  ))
+                : null}
+
+              {data.length > 0
+                ? data.map((item, index) => (
+                    <OrderCard
+                      key={index}
+                      data={item}
+                      onSelectOrder={handleSelectOrder}
+                    />
+                  ))
+                : null}
+
+              {data.length > 0
+                ? data.map((item, index) => (
+                    <OrderCard
+                      key={index}
+                      data={item}
+                      onSelectOrder={handleSelectOrder}
+                    />
+                  ))
+                : null}
+
+              {data.length > 0
+                ? data.map((item, index) => (
+                    <OrderCard
+                      key={index}
+                      data={item}
+                      onSelectOrder={handleSelectOrder}
+                    />
+                  ))
+                : null}
+
               {data.length > 0
                 ? data.map((item, index) => (
                     <OrderCard

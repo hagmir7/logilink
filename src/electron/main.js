@@ -20,10 +20,10 @@ const createMainWindow = () => {
     });
 
     
-    if (isDev) {
+    if (isDev()) {
         mainWindow.loadURL('http://localhost:5123');
     } else {
-        mainWindow.loadFile(path.join(app.getAppPath(), "react-dist/index.html"));
+        mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
     }
 
     return mainWindow;
