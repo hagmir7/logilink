@@ -86,13 +86,13 @@ const sideMenu = ()=>{
             children: [
                 {
                     key: "submenu-8-1",
-                    // disabled: !roles("view:users"),
+                    disabled: !roles("view:users"),
                     icon: <UserCheck size={20} />,
                     label: <Link to="/users">Utilisateurs</Link>,
                 },
                 {
                     key: "submenu-8-2",
-                    // disabled: !roles("view:roles"),
+                    disabled: !roles("view:roles"),
                     icon: <Shield size={20} />,
                     label: <Link to="/roles">Roles</Link>
                 }
@@ -101,7 +101,7 @@ const sideMenu = ()=>{
     ];
 }
 
-const MainLayout = ({ children }) => {
+const MainLayout = () => {
     const { token: { colorBgContainer, borderRadiusLG } } = theme.useToken();
     const [collapsed, setCollapsed] = useState(false);
     const [isMobile, setIsMobile] = useState(false);
