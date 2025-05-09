@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Search, Plus, Edit } from 'lucide-react'
+import { Search, Plus, Edit, Loader2 } from 'lucide-react'
 import CModal from '../components/ui/CModal'
 // import RegisterForm from './Register'
 import Spinner from '../components/ui/Spinner'
@@ -30,16 +30,7 @@ export default function Users() {
   }
 
 
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
-      </div>
-    );
-  }
-
   return (
-    
     <div className='relative overflow-x-auto shadow-sm rounded-2xl'>
       <div className='flex flex-col sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between p-4 bg-gray-200'>
         <div className='relative'>
@@ -69,98 +60,96 @@ export default function Users() {
         </div>
       </div>
 
-      {/* ✅ Loading spinner or message */}
-      {isLoading ? (
-        <div className='text-center p-4 text-gray-600 dark:text-gray-300'>
-         <Spinner />
-        </div>
-      ) : (
-        <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
-          <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
-            <tr>
-              <th scope='col' className='p-4'>
+      <table className='w-full text-sm text-left text-gray-500 dark:text-gray-400'>
+        <thead className='text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400'>
+          <tr>
+            <th scope='col' className='p-4'>
+              <div className='flex items-center'>
+                <input
+                  id='checkbox-all-search'
+                  type='checkbox'
+                  className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
+                />
+                <label htmlFor='checkbox-all-search' className='sr-only'>
+                  checkbox
+                </label>
+              </div>
+            </th>
+            <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
+              Nom et prénom
+            </th>
+            <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
+              Code (Username)
+            </th>
+            <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
+              Email
+            </th>
+            <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
+              Phone
+            </th>
+            <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
+              Créé le
+            </th>
+            <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
+              Action
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {users.map((user) => (
+            <tr
+              key={user.id}
+              className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
+            >
+              <td className='w-4 p-4'>
                 <div className='flex items-center'>
                   <input
-                    id='checkbox-all-search'
+                    id={`checkbox-table-search-${user.id}`}
                     type='checkbox'
                     className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
                   />
-                  <label htmlFor='checkbox-all-search' className='sr-only'>
+                  <label
+                    htmlFor={`checkbox-table-search-${user.id}`}
+                    className='sr-only'
+                  >
                     checkbox
                   </label>
                 </div>
-              </th>
-              <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
-                Nom et prénom
-              </th>
-              <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
-                Code (Username)
-              </th>
-              <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
-                Email
-              </th>
-              <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
-                Phone
-              </th>
-              <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
-                Créé le
-              </th>
-              <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
-                Action
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {users.map((user) => (
-              <tr
-                key={user.id}
-                className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
+              </td>
+              <th
+                scope='row'
+                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
               >
-                <td className='w-4 p-4'>
-                  <div className='flex items-center'>
-                    <input
-                      id={`checkbox-table-search-${user.id}`}
-                      type='checkbox'
-                      className='w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded-sm focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 dark:focus:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600'
-                    />
-                    <label
-                      htmlFor={`checkbox-table-search-${user.id}`}
-                      className='sr-only'
-                    >
-                      checkbox
-                    </label>
-                  </div>
-                </td>
-                <th
-                  scope='row'
-                  className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white'
-                >
-                  {user.full_name}
-                </th>
-                <td className='px-6 py-4'>{user.name}</td>
-                <td className='px-6 py-4'>{user.email}</td>
-                <td className='px-6 py-4'>{user.phone || '__'}</td>
-                <td className='px-6 py-4'>
-                  {new Date(user.created_at).toLocaleDateString()}
-                </td>
-               
-                <td className='px-6 py-4'>
-                  {
-                    roles("edit:users") ? (
-                      <Link
-                        to={`/profile/${user.id}`}
-                        className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
-                      >
-                        <Edit size={19} />
-                      </Link>
-                    ) : "__"
-                  }
-                 
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+                {user.full_name}
+              </th>
+              <td className='px-6 py-4'>{user.name}</td>
+              <td className='px-6 py-4'>{user.email}</td>
+              <td className='px-6 py-4'>{user.phone || '__'}</td>
+              <td className='px-6 py-4'>
+                {new Date(user.created_at).toLocaleDateString()}
+              </td>
+
+              <td className='px-6 py-4'>
+                {roles('edit:users') ? (
+                  <Link
+                    to={`/profile/${user.id}`}
+                    className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+                  >
+                    <Edit size={19} />
+                  </Link>
+                ) : (
+                  '__'
+                )}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+      {isLoading && (
+        <div className='flex flex-col items-center justify-center h-64'>
+          <Loader2 className='animate-spin text-blue-500 mb-2' size={32} />
+          <span className='text-gray-600'>Chargement...</span>
+        </div>
       )}
     </div>
   )
