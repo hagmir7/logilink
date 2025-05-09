@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import {Layout, Menu, theme, Drawer } from 'antd';
-import { ArrowDownUp, BaggageClaim, ClipboardCheck, Layers, Package, Shield, ShoppingBag, UserCheck, Users, Menu as MenuIcon, X } from 'lucide-react';
+import { ArrowDownUp, BaggageClaim, ClipboardCheck, Layers, Package, Shield, ShoppingBag, UserCheck, Users, Menu as MenuIcon, X, RefreshCcw, CircleCheck, CircleCheckBig, Forklift } from 'lucide-react';
 import { Link, Outlet } from 'react-router-dom';
 import DropMenu from '../components/DropMenu';
 import { useAuth } from '../contexts/AuthContext';
@@ -15,70 +15,81 @@ const sideMenu = ()=>{
             key: 'menu-1',
             icon: <ShoppingBag size={20} />,
             label: <span className="text-base">Commandes</span>,
-            disabled: !roles("view:users"),
-            children: [
-                {
-                    key: "submenu-1",
-                    label: <Link to="/">Préparation</Link>
-                }
-            ]
-        },
-        {
-            key: 'menu-2',
-            icon: <Package size={20} />,
-            label: <span className="text-base">Stock</span>,
-            
             children: [
                 {
                     key: "submenu-2",
-                    label: "Préparation"
-                }
-            ]
-        },
-        {
-            key: 'menu-3',
-            icon: <Layers size={20} />,
-            label: <span className="text-base">Inventaire</span>,
-            children: [
+                    icon: <RefreshCcw size={20} />,
+                    label: <Link to="/">Préparation</Link>
+                },
                 {
                     key: "submenu-3",
-                    label: "Préparation"
-                }
-            ]
-        },
-        {
-            key: 'menu-4',
-            icon: <ArrowDownUp size={20} />,
-            label: <span className="text-base">Transfert</span>,
-            children: [
+                    icon: <CircleCheckBig size={20} />,
+                    label: <Link to="/">Validation</Link>
+                },
+
                 {
                     key: "submenu-4",
-                    label: "Préparation"
+                    icon: <Forklift size={20} />,
+                    label: <Link to="/">Expédition</Link>
                 }
             ]
         },
-        {
-            key: 'menu-6',
-            icon: <ClipboardCheck size={20} />,
-            label: <span className="text-base">Reception</span>,
-            children: [
-                {
-                    key: "submenu-6",
-                    label: "Préparation"
-                }
-            ]
-        },
-        {
-            key: 'menu-7',
-            icon: <BaggageClaim size={20} />,
-            label: <span className="text-base">Achat</span>,
-            children: [
-                {
-                    key: "submenu-7",
-                    label: "Group"
-                }
-            ]
-        },
+        // {
+        //     key: 'menu-2',
+        //     icon: <Package size={20} />,
+        //     label: <span className="text-base">Stock</span>,
+            
+        //     children: [
+        //         {
+        //             key: "submenu-2",
+        //             label: "Préparation"
+        //         }
+        //     ]
+        // },
+        // {
+        //     key: 'menu-3',
+        //     icon: <Layers size={20} />,
+        //     label: <span className="text-base">Inventaire</span>,
+        //     children: [
+        //         {
+        //             key: "submenu-3",
+        //             label: "Préparation"
+        //         }
+        //     ]
+        // },
+        // {
+        //     key: 'menu-4',
+        //     icon: <ArrowDownUp size={20} />,
+        //     label: <span className="text-base">Transfert</span>,
+        //     children: [
+        //         {
+        //             key: "submenu-4",
+        //             label: "Préparation"
+        //         }
+        //     ]
+        // },
+        // {
+        //     key: 'menu-6',
+        //     icon: <ClipboardCheck size={20} />,
+        //     label: <span className="text-base">Reception</span>,
+        //     children: [
+        //         {
+        //             key: "submenu-6",
+        //             label: "Préparation"
+        //         }
+        //     ]
+        // },
+        // {
+        //     key: 'menu-7',
+        //     icon: <BaggageClaim size={20} />,
+        //     label: <span className="text-base">Achat</span>,
+        //     children: [
+        //         {
+        //             key: "submenu-7",
+        //             label: "Group"
+        //         }
+        //     ]
+        // },
         {
             key: 'menu-8',
             icon: <Users size={20} />,
@@ -86,13 +97,13 @@ const sideMenu = ()=>{
             children: [
                 {
                     key: "submenu-8-1",
-                    // disabled: !roles("view:users"),
+                    disabled: !roles("view:users"),
                     icon: <UserCheck size={20} />,
                     label: <Link to="/users">Utilisateurs</Link>,
                 },
                 {
                     key: "submenu-8-2",
-                    // disabled: !roles("view:roles"),
+                    disabled: !roles("view:roles"),
                     icon: <Shield size={20} />,
                     label: <Link to="/roles">Roles</Link>
                 }
