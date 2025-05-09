@@ -60,7 +60,6 @@ function Document() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      // Replace with actual API when integrating
       const response = await api.get('docentetes/2')
       setData(response.data)
       setLoading(false)
@@ -109,46 +108,6 @@ function Document() {
         ) : (
           <>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {data.length > 0
-                ? data.map((item, index) => (
-                    <OrderCard
-                      key={index}
-                      data={item}
-                      onSelectOrder={handleSelectOrder}
-                    />
-                  ))
-                : null}
-
-              {data.length > 0
-                ? data.map((item, index) => (
-                    <OrderCard
-                      key={index}
-                      data={item}
-                      onSelectOrder={handleSelectOrder}
-                    />
-                  ))
-                : null}
-
-              {data.length > 0
-                ? data.map((item, index) => (
-                    <OrderCard
-                      key={index}
-                      data={item}
-                      onSelectOrder={handleSelectOrder}
-                    />
-                  ))
-                : null}
-
-              {data.length > 0
-                ? data.map((item, index) => (
-                    <OrderCard
-                      key={index}
-                      data={item}
-                      onSelectOrder={handleSelectOrder}
-                    />
-                  ))
-                : null}
-
               {data.length > 0
                 ? data.map((item, index) => (
                     <OrderCard
