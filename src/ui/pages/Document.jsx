@@ -2,65 +2,30 @@ import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
-import { getExped } from '../utils/config'
-import { Badge } from 'antd'
+import DocumentCard from '../components/ui/DocumentCard'
+import { Button, Select, Space, Input } from 'antd'
 
-
-const OrderCard = ({ data, onSelectOrder }) => {
-  return (
-    <Badge.Ribbon text='Livrée'>
-      <div
-        className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'
-        onClick={() => onSelectOrder(data.cbMarq)}
-      >
-        <div className='flex justify-between items-center mb-2'>
-          <div className='flex items-center'>
-            <span className='text-gray-800 font-medium'>
-              {data.DO_Piece || '__'}
-            </span>
-            <span className='text-xs ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded'>
-              {data.DO_Reliquat || '__'}
-            </span>
-          </div>
-        </div>
-
-        <div className='mb-2'>
-          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800 mr-2'>
-            {getExped(data.DO_Expedit)}
-          </span>
-          <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800'>
-            {data.DO_Tiers}
-          </span>
-        </div>
-
-        <div className='text-sm text-gray-600'>
-          <div className='flex justify-between mb-1'>
-            <span>Référence:</span>
-            <span className='font-medium'>{data.DO_Ref}</span>
-          </div>
-          <div className='flex justify-between mb-1'>
-            <span>Date du document:</span>
-            <span className='font-medium'>{data.DO_Date}</span>
-          </div>
-          <div className='flex justify-between'>
-            <span>Date prévue:</span>
-            <span className='font-medium'>{data.DO_DateLivr}</span>
-          </div>
-        </div>
-      </div>
-    </Badge.Ribbon>
-  )
-}
+const { Search } = Input
 
 function Document() {
-  const [data, setData] = useState([])
+  const [data, setData] = useState({
+    data: [],
+    next_page_url: null,
+    total: 0,
+  })
   const [loading, setLoading] = useState(false)
-  const navigate = useNavigate();
+  const [documentStatus, setDocumentStatus] = useState(2)
+  const [page, setPage] = useState(1)
+  const [moreSpinner, setMoreSpinner] = useState(false)
+  const [searchSpinner, setSearchSpinner] = useState(false)
+  const navigate = useNavigate()
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get('docentetes/2')
+      const response = await api.get(
+        `docentetes?status=${documentStatus}&page=${page}`
+      )
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -75,27 +40,93 @@ function Document() {
 
   useEffect(() => {
     fetchData()
-  }, [])
+  }, [documentStatus])
+
+  const loadMore = async () => {
+    setMoreSpinner(true)
+    setPage(page + 1)
+    try {
+      const response = await api.get(
+        `docentetes?status=${documentStatus}&page=${page}`
+      )
+      setData({
+        data: [...data.data, ...response.data.data],
+        next_page_url: response.data.next_page_url,
+        total: response.data.total,
+      })
+      setMoreSpinner(false)
+    } catch (err) {
+      console.error('Failed to fetch data:', err)
+      setMoreSpinner(false)
+    }
+  }
+
+  const handleChange = (value) => {
+    setDocumentStatus(value)
+  }
+
+  const handleSearch = async (e) => {
+    setSearchSpinner(true)
+    const { value: inputValue } = e.target
+
+    try {
+      const response = await api.get(
+        `docentetes?status=${documentStatus}&search=${inputValue}`
+      )
+      setData({
+        data: response.data.data,
+        next_page_url: response.data.next_page_url,
+        total: response.data.total,
+      })
+      setSearchSpinner(false)
+    } catch (err) {
+      console.error('Failed to fetch data:', err)
+      setSearchSpinner(false)
+    }
+  }
 
   return (
     <div className='min-h-screen'>
       {/* Header */}
+      <h2 className='text-xl font-semibold text-gray-800 mb-2'>
+        Gestion des commandes
+      </h2>
       <div className='flex justify-between items-center mb-6'>
-        <h2 className='text-xl font-semibold text-gray-800'>
-          Gestion des commandes
-        </h2>
-        <button
-          type='button'
-          onClick={fetchData}
-          className='py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50'
-        >
-          {loading ? (
-            <Loader2 className='animate-spin text-blue-500' size={17} />
-          ) : (
-            <RefreshCcw size={17} />
-          )}
-          <span className='hidden sm:inline'>Rafraîchir</span>
-        </button>
+        <div className='flex gap-4'>
+          <Search
+            placeholder='Recherch'
+            loading={searchSpinner}
+            size='large'
+            onChange={handleSearch}
+          />
+          <Select
+            defaultValue='1'
+            style={{ width: 220, height: 40 }}
+            className='py-2'
+            onChange={handleChange}
+            options={[
+              { value: '0', label: 'Devis' },
+              { value: '1', label: 'Bon de command' },
+              { value: '2', label: 'Preparation de livraison' },
+              { value: '3', label: 'Bon de livraison' },
+              { value: '6', label: 'Facture' },
+              { value: 'disabled', label: 'Disabled', disabled: true },
+            ]}
+          />
+
+          <button
+            type='button'
+            onClick={fetchData}
+            className='py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50'
+          >
+            {loading ? (
+              <Loader2 className='animate-spin text-blue-500' size={17} />
+            ) : (
+              <RefreshCcw size={17} />
+            )}
+            <span className='hidden sm:inline'>Rafraîchir</span>
+          </button>
+        </div>
       </div>
 
       {/* Cards Container */}
@@ -108,9 +139,9 @@ function Document() {
         ) : (
           <>
             <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {data.length > 0
-                ? data.map((item, index) => (
-                    <OrderCard
+              {data?.data?.length > 0
+                ? data.data.map((item, index) => (
+                    <DocumentCard
                       key={index}
                       data={item}
                       onSelectOrder={handleSelectOrder}
@@ -121,6 +152,18 @@ function Document() {
           </>
         )}
       </div>
+      {data.next_page_url && (
+        <div className='flex justify-center'>
+          <Button
+            onClick={loadMore}
+            type='primary'
+            loading={moreSpinner}
+            iconPosition='end'
+          >
+            Loading
+          </Button>
+        </div>
+      )}
     </div>
   )
 }
