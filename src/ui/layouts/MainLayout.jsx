@@ -247,9 +247,8 @@ const MainLayout = () => {
         )}
 
         <Layout
-          className='pt-4'
+          className='pt-0 px-0 md:px-4'
           style={{
-            padding: '0 24px 24px',
             marginLeft: isMobile ? 0 : collapsed ? 0 : 0,
           }}
         >
@@ -257,7 +256,6 @@ const MainLayout = () => {
             className='mt-4 min-h-screen bg-gray-50 shadow'
             style={{
               padding: 16,
-            //   background: colorBgContainer,
               borderRadius: borderRadiusLG,
             }}
           >

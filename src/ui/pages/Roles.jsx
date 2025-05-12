@@ -3,7 +3,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import CModal from '../components/ui/CModal'
 import { Loader2, PlusCircle, RefreshCcw } from 'lucide-react'
 import { api } from '../utils/api'
-import RoleForm from '../components/RoleForm'
+import RoleForm from '../components/RoleForm';
+
+
+function strClean(str) {
+  return str.replace(/\w\S*/g, function(txt) {
+      return txt.charAt(0).toUpperCase() + txt.substr(1);
+  }).replace("_", " ");
+}
 
 const TableRow = ({ data }) => (
   <tr className='hover:bg-gray-100'>
@@ -20,7 +27,7 @@ const TableRow = ({ data }) => (
       <Link to={`/roles/${data.name}`}>
         <div className='px-6 py-2'>
           <span className='text-sm text-gray-600 dark:text-neutral-400'>
-            {data.name || '__'}
+            {strClean(data.name) || '__'}
           </span>
         </div>
       </Link>

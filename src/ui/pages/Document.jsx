@@ -110,6 +110,7 @@ function Document() {
               { value: '2', label: 'Preparation de livraison' },
               { value: '3', label: 'Bon de livraison' },
               { value: '6', label: 'Facture' },
+              // { value: 'all', label: 'Tout' },
               { value: 'disabled', label: 'Disabled', disabled: true },
             ]}
           />
@@ -160,7 +161,7 @@ function Document() {
             loading={moreSpinner}
             iconPosition='end'
           >
-            Loading
+            Charger Plus
           </Button>
         </div>
       )}

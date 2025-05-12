@@ -3,12 +3,15 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
 import { useParams } from 'react-router-dom'
+import { Button, message, Popconfirm, Select } from 'antd'
 
 function ViewDocument() {
   const { id } = useParams()
   const [data, setData] = useState({ doclignes: [] })
   const [loading, setLoading] = useState(false)
-  const [currentPage, setCurrentPage] = useState(1)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [selected, setSelected] = useState([]);
+  const [company, setCompany] = useState();
   const itemsPerPage = 10
 
   const fetchData = async () => {
@@ -23,6 +26,8 @@ function ViewDocument() {
     }
   }
 
+
+
   useEffect(() => {
     fetchData()
   }, [id])
@@ -32,21 +37,60 @@ function ViewDocument() {
   const indexOfFirstItem = indexOfLastItem - itemsPerPage
   const currentItems = data.doclignes?.slice(indexOfFirstItem, indexOfLastItem) || []
   const totalPages = Math.ceil((data.doclignes?.length || 0) / itemsPerPage)
-
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
-  // Status badge component
-  const StatusBadge = ({ type }) => (
-    <div className="flex items-center">
-      <div className="h-2 w-2 rounded-full bg-blue-500 mr-2"></div>
-      <span className="text-sm text-gray-600">{type}</span>
-    </div>
-  )
 
   // Loading skeleton component
   const Skeleton = () => (
     <div className="animate-pulse bg-gray-200 h-4 rounded w-24"></div>
   )
+
+  const handleSelect = (id) => {
+    setSelected(prev =>
+      prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
+    );
+    console.log(selected);
+    
+  };
+
+  const handleSelectAll = (e) => {
+    if (e.target.checked) {
+      setSelected(data.doclignes.map(item => item.cbMarq));
+    } else {
+      setSelected([]);
+    }
+  };
+
+
+  const handleChangeCompany = value => {
+    setCompany(value);
+    if (value !== company) {
+      setCompany(value);
+      // setIsPopconfirmVisible(true);
+    }
+  };
+
+
+
+  const transfer = async () => {
+    if(company && selected.length > 0){
+      setCompany(company);
+      const data = {
+        'company' : company,
+        'lines' : selected
+      }
+
+      console.log(data);
+      
+
+      const response = await api.post('docentete/transfer', data);
+      console.log(response);
+      message.success('Company changed successfully');
+    }else{
+      message.error('No selected data');
+    }
+
+  };
 
   return (
     <div className="max-w-7xl mx-auto">
@@ -92,10 +136,19 @@ function ViewDocument() {
       {/* Table Header */}
       <div className="flex justify-between items-center mb-4">
         <h2 className="text-lg font-semibold text-gray-800">Détails des articles</h2>
-        <button className="flex items-center px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md shadow-sm text-sm font-medium transition">
-          <ArrowDownCircle className="h-4 w-4 mr-2" />
-          Exporter
-        </button>
+       <div className='flex gap-3'>
+       <Select
+          defaultValue="Entreprise"
+          style={{ width: 120 }}
+          onChange={handleChangeCompany}
+          options={[
+            { value: 1, label: 'Intercocina' },
+            { value: 2, label: 'Seriemoble' },
+          ]}
+        />
+  
+          <Button onClick={transfer}>Transfer</Button>
+       </div>
       </div>
 
       {/* Desktop Table */}
@@ -103,6 +156,13 @@ function ViewDocument() {
         <table className="min-w-full bg-white border-2 border-gray-200 overflow-hidden">
           <thead className="bg-gray-50 border-gray-200 border-2">
             <tr>
+            <th className="">
+            <input
+                type="checkbox"
+                onChange={handleSelectAll}
+                checked={selected.length === data.doclignes.length && data.doclignes.length > 0}
+              />
+            </th>
               <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Ref Article</th>
               <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Piece</th>
               <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider">Dimensions</th>
@@ -131,8 +191,16 @@ function ViewDocument() {
               ))
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
+
                 <tr key={index} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.AR_Ref || '__'}</td>
+                  <td className="p-3">
+                    <input
+                    type="checkbox"
+                    checked={selected.includes(item.cbMarq)}
+                    onChange={() => handleSelect(item.cbMarq)}
+                  />                    
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{item.AR_Ref || '__'} {item.DO_Piece}</td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{item.Nom || '__'}</td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="text-sm text-gray-500">H: {Math.floor(item.Hauteur) || '__'}</div>
@@ -155,6 +223,7 @@ function ViewDocument() {
                     </button>
                   </td>
                 </tr>
+
               ))
             ) : (
               <tr>
@@ -202,7 +271,7 @@ function ViewDocument() {
                       onClick={() => paginate(number)}
                       className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
                         number === currentPage
-                          ? 'z-10 bg-blue-600 text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
+                          ? 'z-10 bg-blue-600 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
                           : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
                       }`}
                     >
@@ -252,6 +321,7 @@ function ViewDocument() {
         ) : data.doclignes?.length > 0 ? (
           currentItems.map((item, index) => (
             <div key={index} className="bg-white border-1 border-gray-200 p-4 mb-4 shadow-sm">
+
               <div className="flex justify-between items-center">
                 <span className="font-medium text-gray-900">{item.Nom || '__'}</span>
                 <span className="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
@@ -274,6 +344,7 @@ function ViewDocument() {
                 <div className="text-gray-500">Couleur: {item.Couleur || '__'}</div>
                 <div className="text-gray-500">Chant: {item.Chant || '__'}</div>
                 <div className="text-gray-500">Référence: {item.AR_Ref || '__'}</div>
+                
               </div>
               
               <div className="mt-3 flex justify-end">
