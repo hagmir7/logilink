@@ -1,25 +1,33 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Bell, HelpCircle, Menu, Wifi, Phone, Ticket, Layers, Globe } from 'lucide-react';
+import { ArrowLeft, Bell, HelpCircle, Menu, Wifi, Phone, Ticket, Layers, Globe, X } from 'lucide-react';
 import { Badge } from 'antd';
+import { api } from '../utils/api';
 
 export default function Preparation() {
-    const [isMobile, setIsMobile] = useState(true);
 
-    // Handle window resize
-    useEffect(() => {
-        const handleResize = () => {
-            setIsMobile(window.innerWidth < 768);
-        };
 
-        if (typeof window !== 'undefined') {
-            window.addEventListener('resize', handleResize);
-            handleResize();
+    const [article, setArticle] = useState({
+        ref: "",
+        desgin: "",
+        profondeur: "",
+        episseur: "",
+        chant: "",
+        qte: 0,
+        color: ""
+    });
 
-            return () => {
-                window.removeEventListener('resize', handleResize);
-            };
-        }
-    }, []);
+
+    const [palette, setPalette] = useState(null);
+
+
+
+    const handleScan = () => {
+
+    }
+
+    const handleSubmit = async () => {
+        const response = await api.post("");
+    }
 
 
     const passes = [
@@ -68,7 +76,7 @@ export default function Preparation() {
 
     return (
         <div className="min-h-scree">
-            <div className="max-w-md mb-4">
+            <div className="mb-4">
                 {/* QR Code Display */}
                 <div className="flex justify-center mb-6">
                     <div className="border-2 border-gray-300 rounded-lg p-20 flex items-center justify-center bg-gray-50">
@@ -80,47 +88,57 @@ export default function Preparation() {
                     <input
                         type="text"
                         placeholder="Designation"
-                        className="border-2 w-full border-gray-300 text-lg py-2 px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        readOnly
+                        value={article.desgin}
+                        className="border-2 w-full border-gray-300 text-lg py-2 px-4 rounded-md focus:outline-none focus:ring-2 bg-gray-200 focus:ring-blue-500 focus:border-transparent"
                     />
 
                     <div className="grid grid-cols-3 gap-3">
                         <input
-                            className="border-2 py-2 border-gray-300 text-lg w-full px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="border-2 py-2 border-gray-300 text-lg w-full px-4 rounded-md focus:outline-none focus:ring-2 bg-gray-200 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Profondeur"
                             type="text"
+                            value={article.profondeur}
+                            readOnly
                         />
                         <input
-                            className="border-2 py-2 border-gray-300 text-lg w-full px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="border-2 py-2 border-gray-300 text-lg w-full px-4 rounded-md focus:outline-none focus:ring-2 bg-gray-200 focus:ring-blue-500 focus:border-transparent"
                             type="text"
                             placeholder="Chant"
+                            value={article.chant}
+                            readOnly
                         />
                         <input
-                            className="border-2 py-2 border-gray-300 text-lg w-full px-4 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            className="border-2 py-2 border-gray-300 text-lg w-full px-4 rounded-md focus:outline-none focus:ring-2 bg-gray-200 focus:ring-blue-500 focus:border-transparent"
                             type="text"
                             placeholder="Episseur"
+                            value={article.episseur}
+                            readOnly
                         />
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">-</button>
+                        <button onClick={()=>setArticle(prev => ({ ...prev, qte: prev.qte - 1}))} className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">-</button>
                         <input
                             type="text"
                             className="border-2 w-full border-gray-300 text-lg py-2 px-4 text-center rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                             placeholder="Quantity"
-                            value={10}
+                            value={article.qte}
+                            min={1}
+                            onChange={(e) => setArticle({ ...article, qte: e.target.value })}
                         />
-                        <button className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">+</button>
+                        <button onClick={()=>setArticle(prev => ({ ...prev, qte: prev.qte - 1}))} className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">+</button>
                     </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
-                    <button className="text-lg py-3 border-2 border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors">NV Palet</button>
-                    <button className="text-lg py-3 rounded-md bg-blue-600 text-white hover:bg-blue-700 transition-colors">Valider</button>
+                    <button className="text-lg py-3 border-2 border-gray-300 rounded-md bg-white hover:bg-gray-100 transition-colors">NV Palette</button>
+                    <button onClick={handleSubmit} className="text-lg py-3 rounded-md bg-cyan-600 text-white hover:bg-cyan-700 transition-colors">Valider</button>
                 </div>
             </div>
 
 
-            <div className={`${!isMobile ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4' : 'space-y-4'} max-w-6xl mx-auto`}>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                 {passes.map((pass) => (
                     <Badge.Ribbon text="CAB09111" color="cyan">
                         <div key={pass.id} className="rounded-2xl overflow-hidden bg-gray-20 shadow-sm hover:shadow-md transition-shadow duration-300">
@@ -140,9 +158,8 @@ export default function Preparation() {
                                     <div className="flex items-center">
                                         <span className="ml-1 sm:ml-2 md:text-base text-sm sm:text-lg text-gray-600">Profondeur: 58 | Episseur: 18 |  Chant: B</span>
                                     </div>
-
-                                    <button className="bg-red-500 hover:bg-red-700 cursor-pointer text-white font-bold py-1.5 sm:py-2 px-4 sm:px-6 md:px-8 rounded-full text-sm sm:text-base transition duration-200">
-                                        x
+                                    <button className="bg-red-500 hover:bg-red-700 cursor-pointer p-2 text-white font-bold  rounded-full text-sm sm:text-base transition duration-200">
+                                        <X size={20}/>
                                     </button>
                                 </div>
                             </div>
@@ -150,7 +167,6 @@ export default function Preparation() {
                     </Badge.Ribbon>
                 ))}
             </div>
-
         </div>
     );
 }
