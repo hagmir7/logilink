@@ -67,23 +67,31 @@ export const AuthProvider = ({ children }) => {
     }
   }
 
-  const roles = (permission) => {
+  const roles = (role) => {
     try {
       const rolesData = JSON.parse(localStorage.getItem('roles'));
-      const permissions = rolesData?.permissions || [];
-      return permissions.includes(permission);
+      const permissions = rolesData?.roles || [];
+      return permissions.includes(role)
     } catch (error) {
       console.error("Error reading roles from localStorage:", error);
       return false;
     }
   };
-  
 
+  const permissions = (permission) => {
+    try {
+      const rolesData = JSON.parse(localStorage.getItem('roles'))
+      const permissions = rolesData?.permissions || []
+      return permissions.includes(permission)
+    } catch (error) {
+      console.error('Error reading roles from localStorage:', error)
+      return false
+    }
+  }
   
-
 
   return (
-    <AuthContext.Provider value={{ login, register, loading, message, user, roles }}>
+    <AuthContext.Provider value={{ login, register, loading, message, user, roles, permissions }}>
       {children}
     </AuthContext.Provider>
   )

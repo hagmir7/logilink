@@ -1,9 +1,10 @@
-import { RefreshCcw, Clipboard, ArrowDownCircle, Tag } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowDownCircle, ArrowLeft, ArrowRight } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, message, Popconfirm, Select } from 'antd'
+import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd'
+import { useAuth } from '../contexts/AuthContext'
 
 function ViewDocument() {
   const { id } = useParams()
@@ -12,12 +13,17 @@ function ViewDocument() {
   const [currentPage, setCurrentPage] = useState(1);
   const [selected, setSelected] = useState([]);
   const [company, setCompany] = useState();
+  const [transferSpin, setTransferSpin] = useState(false);
+  const { roles } = useAuth();
   const itemsPerPage = 100;
+
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
+      console.log(response);
+      
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -72,8 +78,8 @@ function ViewDocument() {
 
   const getCompany = ($id) => {
     const companies = [
-      { value: 1, label: 'Intercocina' },
-      { value: 2, label: 'Seriemoble' },
+      { value: 1, label: 'Inter' },
+      { value: 2, label: 'Serie' },
     ]
 
     const company = companies.find((c) => c.value === Number($id))
@@ -85,6 +91,7 @@ function ViewDocument() {
 
 
   const transfer = async () => {
+    setTransferSpin(true);
     if(company && selected.length > 0){
       setCompany(company);
       const data = {
@@ -95,10 +102,14 @@ function ViewDocument() {
 
       const response = await api.post('docentete/transfer', data)
       console.log(response);
+      fetchData()
       message.success('Company changed successfully');
     }else{
       message.error('No selected data');
     }
+    setTransferSpin(false);
+    
+  
 
   };
 
@@ -159,19 +170,23 @@ function ViewDocument() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
-        <div className='flex gap-3'>
-          <Select
-            defaultValue='Entreprise'
-            style={{ width: 120 }}
-            onChange={handleChangeCompany}
-            options={[
-              { value: 1, label: 'Inter' },
-              { value: 2, label: 'Serie' },
-            ]}
-          />
+        {roles('commercial') && (
+          <div className='flex gap-3'>
+            <Select
+              defaultValue='Entreprise'
+              style={{ width: 120 }}
+              onChange={handleChangeCompany}
+              options={[
+                { value: 1, label: 'Intercocina' },
+                { value: 2, label: 'Seriemoble' },
+              ]}
+            />
 
-          <Button onClick={transfer}>Transfer</Button>
-        </div>
+            <Button onClick={transfer} loading={transferSpin}>
+              Transfer <ArrowRight size={18} />{' '}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Desktop Table */}
@@ -180,11 +195,16 @@ function ViewDocument() {
           <thead className='bg-gray-50 border-gray-200 border-2'>
             <tr>
               <th className=''>
-                <Checkbox onChange={handleSelectAll} className='px-4 text-center ml-12'
+                <Checkbox
+                  onChange={handleSelectAll}
+                  className='px-4 text-center ml-12'
                   checked={
                     selected.length === data.doclignes.length &&
                     data.doclignes.length > 0
-                  }> </Checkbox>
+                  }
+                >
+                  {' '}
+                </Checkbox>
               </th>
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
                 Ref Article
@@ -231,11 +251,12 @@ function ViewDocument() {
                 <tr key={index} className='hover:bg-gray-50'>
                   <td className='px-4 text-center'>
                     {item.line ? (
-                      <Tag color="#f50">{getCompany(item.line.company_id)}</Tag>
-                      
+                      <Tag color='#f50'>{getCompany(item.line.company_id)}</Tag>
                     ) : (
-                      <Checkbox checked={selected.includes(item.cbMarq)} onChange={() => handleSelect(item.cbMarq)} ></Checkbox>
-                    
+                      <Checkbox
+                        checked={selected.includes(item.cbMarq)}
+                        onChange={() => handleSelect(item.cbMarq)}
+                      ></Checkbox>
                     )}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>

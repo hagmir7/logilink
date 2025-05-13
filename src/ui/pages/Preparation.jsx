@@ -137,15 +137,14 @@ export default function Preparation() {
                 </div>
             </div>
 
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 gap-4">
                 {passes.map((pass) => (
                     <Badge.Ribbon text="CAB09111" color="cyan">
                         <div key={pass.id} className="rounded-2xl overflow-hidden bg-gray-20 shadow-sm hover:shadow-md transition-shadow duration-300">
                             <div className="p-3 sm:p-4 relative bg-amber-50">
                                 <div className="flex justify-between items-start sm:items-center mt-4 sm:mt-6">
                                     <div className="flex flex-col">
-                                        <h3 className="text-sm sm:text-lg md:text-xl text-gray-600 font-bold leading-tight">Caisson Bas Normale 700*700</h3>
+                                        <h3 className="text-md sm:text-md text-gray-600 font-bold leading-tight">Caisson Bas Normale 700*700</h3>
                                         <span className="text-sm sm:text-lg text-gray-600">- Gris </span>
                                     </div>
 

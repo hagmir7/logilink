@@ -4,6 +4,7 @@ import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
 import DocumentCard from '../components/ui/DocumentCard'
 import { Button, Select, Space, Input } from 'antd'
+import { useAuth } from '../contexts/AuthContext'
 
 const { Search } = Input
 
@@ -19,13 +20,17 @@ function Document() {
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
   const navigate = useNavigate()
+  const {roles} = useAuth();
+
+  let url = 'docentetes/preparation';
+  if(roles("commercial")){
+    url = `docentetes/commercial?status=${documentStatus}&page=${page}`
+  }
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(
-        `docentetes?status=${documentStatus}&page=${page}`
-      )
+      const response = await api.get(url)
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -70,8 +75,7 @@ function Document() {
     const { value: inputValue } = e.target
 
     try {
-      const response = await api.get(
-        `docentetes?status=${documentStatus}&search=${inputValue}`
+      const response = await api.get(`${url}&search=${inputValue}`
       )
       setData({
         data: response.data.data,

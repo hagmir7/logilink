@@ -19,7 +19,7 @@ import { useAuth } from '../contexts/AuthContext'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
-  const { roles } = useAuth()
+  const { roles, permissions } = useAuth()
 
   return [
     {
@@ -36,7 +36,7 @@ const sideMenu = () => {
           key: 'submenu-10',
           label: <Link to='/documents'>Preparation Mobile</Link>,
         },
-           {
+        {
           key: 'submenu-11',
           label: <Link to='/preparation'>Livraison</Link>,
         },
@@ -105,13 +105,13 @@ const sideMenu = () => {
       children: [
         {
           key: 'submenu-8-1',
-          disabled: !roles('view:users'),
+          disabled: !permissions('view:users'),
           icon: <UserCheck size={20} />,
           label: <Link to='/users'>Utilisateurs</Link>,
         },
         {
           key: 'submenu-8-2',
-          disabled: !roles('view:roles'),
+          disabled: !permissions('view:roles'),
           icon: <Shield size={20} />,
           label: <Link to='/roles'>Roles</Link>,
         },

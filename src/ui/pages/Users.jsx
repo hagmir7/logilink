@@ -11,7 +11,7 @@ import { useAuth } from '../contexts/AuthContext'
 export default function Users() {
   const [users, setUsers] = useState([])
   const [isLoading, setIsLoading] = useState(true);
-  const { roles } = useAuth();
+  const { roles, permissions } = useAuth();
 
   useEffect(() => {
     getUsers()
@@ -130,7 +130,7 @@ export default function Users() {
               </td>
 
               <td className='px-6 py-4'>
-                {roles('edit:users') ? (
+                {permissions('edit:users') ? (
                   <Link
                     to={`/profile/${user.id}`}
                     className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
