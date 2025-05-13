@@ -9,6 +9,7 @@ import Home from './pages/Home'
 import Profile from './pages/profile'
 import ViewDocument from './pages/ViewDocument'
 import Document from './pages/Document'
+import Preparation from './pages/Preparation'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -28,6 +29,7 @@ function App() {
           <Route path='*' element={<NotFound />} />
           <Route path='/profile/:id' element={<Profile />} />
           <Route path='documents' element={<Document />} />
+           <Route path='preparation' element={<Preparation />} />
         </Route>
       </Routes>
     </>

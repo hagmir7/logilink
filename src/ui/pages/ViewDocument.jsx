@@ -1,9 +1,9 @@
-import { RefreshCcw, Clipboard, ArrowDownCircle } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowDownCircle, Tag } from 'lucide-react'
 import React, { useState, useEffect, useRef } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, message, Popconfirm, Select } from 'antd'
+import { Button, Checkbox, message, Popconfirm, Select } from 'antd'
 
 function ViewDocument() {
   const { id } = useParams()
@@ -165,8 +165,8 @@ function ViewDocument() {
             style={{ width: 120 }}
             onChange={handleChangeCompany}
             options={[
-              { value: 1, label: 'Intercocina' },
-              { value: 2, label: 'Seriemoble' },
+              { value: 1, label: 'Inter' },
+              { value: 2, label: 'Serie' },
             ]}
           />
 
@@ -180,14 +180,11 @@ function ViewDocument() {
           <thead className='bg-gray-50 border-gray-200 border-2'>
             <tr>
               <th className=''>
-                <input
-                  type='checkbox'
-                  onChange={handleSelectAll}
+                <Checkbox onChange={handleSelectAll} className='px-4 text-center ml-12'
                   checked={
                     selected.length === data.doclignes.length &&
                     data.doclignes.length > 0
-                  }
-                />
+                  }> </Checkbox>
               </th>
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
                 Ref Article
@@ -232,15 +229,13 @@ function ViewDocument() {
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <tr key={index} className='hover:bg-gray-50'>
-                  <td className='p-3'>
+                  <td className='px-4 text-center'>
                     {item.line ? (
-                      getCompany(item.line.company_id)
+                      <Tag color="#f50">{getCompany(item.line.company_id)}</Tag>
+                      
                     ) : (
-                      <input
-                        type='checkbox'
-                        checked={selected.includes(item.cbMarq)}
-                        onChange={() => handleSelect(item.cbMarq)}
-                      />
+                      <Checkbox checked={selected.includes(item.cbMarq)} onChange={() => handleSelect(item.cbMarq)} ></Checkbox>
+                    
                     )}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>

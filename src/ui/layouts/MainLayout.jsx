@@ -36,6 +36,10 @@ const sideMenu = () => {
           key: 'submenu-10',
           label: <Link to='/documents'>Preparation Mobile</Link>,
         },
+           {
+          key: 'submenu-11',
+          label: <Link to='/preparation'>Livraison</Link>,
+        },
       ],
     },
     {
