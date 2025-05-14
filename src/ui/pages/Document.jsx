@@ -25,6 +25,8 @@ function Document() {
   let url = 'docentetes/preparation';
   if(roles("commercial")){
     url = `docentetes/commercial?status=${documentStatus}&page=${page}`
+  }else if(roles("fabrication")){
+    url = 'docentetes/fabrication';
   }
 
   const fetchData = async () => {
@@ -51,8 +53,7 @@ function Document() {
     setMoreSpinner(true)
     setPage(page + 1)
     try {
-      const response = await api.get(
-        `docentetes?status=${documentStatus}&page=${page}`
+      const response = await api.get(`${url}&page=${page}`
       )
       setData({
         data: [...data.data, ...response.data.data],

@@ -92,16 +92,16 @@ function ViewDocument() {
 
   const getRoles = (currentRole) => {
     const allRoles = [
-      { id: 1, name: "supper_admin" },
-      { id: 2, name: "admin" },
-      { id: 3, name: "preparateur" },
-      { id: 4, name: "Preparation Cuisine" },
-      { id: 5, name: "Preparation Trailer" },
-      { id: 6, name: "Fabrication" },
-      { id: 7, name: "Montage" },
-      { id: 8, name: "Magasinier" },
-      { id: 9, name: "Commercial" },
-      { id: 10, name: "Expedition" }
+      { id: 2, name: "supper_admin" },
+      { id: 3, name: "admin" },
+      { id: 4, name: "preparateur" },
+      { id: 5, name: "Preparation Cuisine" },
+      { id: 6, name: "Preparation Trailer" },
+      { id: 7, name: "Fabrication" },
+      { id: 8, name: "Montage" },
+      { id: 9, name: "Magasinier" },
+      { id: 10, name: "Commercial" },
+      { id: 11, name: "Expedition" }
     ];
 
     const role = allRoles.find((role) => role.id == currentRole);
@@ -110,7 +110,6 @@ function ViewDocument() {
 
 
 
-  
 
   const transfer = async () => {
     setTransferSpin(true);
@@ -136,29 +135,19 @@ function ViewDocument() {
     setTransferSpin(false);
   }
 
-
-    // 1: Order preparation -
-    // 2: Preparation de livraison -
-    //     - Preparation Cuisine
-    //     - Preparation Trailer
-
-    // 3: Montage 
-    // 4: Fabrication
-    // 5: Magasinier
-
   
 
-   let listTransfer = [];
+  let listTransfer = [];
 
   if (roles('preparateur')) {
     listTransfer = [
-      { value: 4, label: "Preparation Cuisine" },
-      { value: 5, label: "Preparation Trailer" },
-      { value: 6, label: "Fabrication" },
-      { value: 7, label: "Montage" },
-      { value: 8, label: "Magasinier" },
-
-    ];
+      { value: 5, label: 'Preparation Cuisine' },
+      { value: 6, label: 'Preparation Trailer' },
+      { value: 7, label: 'Fabrication' },
+      { value: 8, label: 'Montage' },
+      { value: 9, label: 'Magasinier' },
+  
+    ]
   } else if (roles('commercial')) {
     listTransfer = [
       { value: 1, label: 'Intercocina' },
