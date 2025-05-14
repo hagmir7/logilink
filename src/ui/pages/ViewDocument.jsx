@@ -60,7 +60,12 @@ function ViewDocument() {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelected(data.doclignes.map(item => item.cbMarq));
+      if(roles("commercial")){
+        setSelected(data.doclignes.map(item => item.cbMarq));
+      }else{
+        setSelected(data.doclignes.map(item => item.line.id));
+      }
+      
     } else {
       setSelected([]);
     }
@@ -147,11 +152,12 @@ function ViewDocument() {
 
   if (roles('preparateur')) {
     listTransfer = [
-      { value: 4, label: 'Preparation Cuisine' },
-      { value: 5, label: 'Preparation Trailer' },
-      { value: 3, label: 'Montage' },
-      { value: 6, label: 'Fabrication' },
-      { value: 8, label: 'Magasinier' },
+      { value: 4, label: "Preparation Cuisine" },
+      { value: 5, label: "Preparation Trailer" },
+      { value: 6, label: "Fabrication" },
+      { value: 7, label: "Montage" },
+      { value: 8, label: "Magasinier" },
+
     ];
   } else if (roles('commercial')) {
     listTransfer = [
