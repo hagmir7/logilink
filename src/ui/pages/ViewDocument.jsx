@@ -1,10 +1,11 @@
 import { RefreshCcw, Clipboard, ArrowDownCircle, ArrowLeft, ArrowRight } from 'lucide-react'
-import React, { useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
 import { useParams } from 'react-router-dom'
 import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
+import Skeleton from '../components/ui/Skeleton'
 
 function ViewDocument() {
   const { id } = useParams()
@@ -14,7 +15,7 @@ function ViewDocument() {
   const [selected, setSelected] = useState([]);
   const [selectedTransfer, setSelectedTransfer] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
-  const { roles, user } = useAuth();
+  const { roles } = useAuth();
   const itemsPerPage = 100;
 
 
@@ -31,9 +32,6 @@ function ViewDocument() {
       console.error('Failed to fetch data:', err)
     }
   }
-
-
-
   useEffect(() => {
     fetchData()
   }, [id])
@@ -46,30 +44,30 @@ function ViewDocument() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
 
-  // Loading skeleton component
-  const Skeleton = () => (
-    <div className="animate-pulse bg-gray-200 h-4 rounded w-24"></div>
-  )
+ 
 
   const handleSelect = (id) => {
     setSelected(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
-    
   };
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      if(roles("commercial")){
-        setSelected(data.doclignes.map(item => item.cbMarq));
-      }else{
-        setSelected(data.doclignes.map(item => item.line.id));
+      if (roles('commercial')) {
+        setSelected(data.doclignes.map((item) => item.cbMarq))
+      } else {
+        setSelected(
+          data.doclignes
+            .filter((item) => !item.line?.role_id)
+            .map((item) => item.line.id)
+        )
       }
-      
     } else {
-      setSelected([]);
+      setSelected([])
     }
-  };
+  }
+  
 
 
   const handleChangeTransfer = value => {
