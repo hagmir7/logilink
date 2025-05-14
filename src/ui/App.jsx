@@ -21,7 +21,7 @@ function App() {
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route element={<MainLayout />}>
-          <Route path='/' element={<Home />} />
+          <Route path='/' element={<Document />} />
           <Route path='/users' element={<Users />} />
           <Route path='/document/:id' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />

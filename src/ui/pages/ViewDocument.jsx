@@ -12,10 +12,11 @@ function ViewDocument() {
   const [loading, setLoading] = useState(false)
   const [currentPage, setCurrentPage] = useState(1);
   const [selected, setSelected] = useState([]);
-  const [company, setCompany] = useState();
+  const [selectedTransfer, setSelectedTransfer] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
-  const { roles } = useAuth();
+  const { roles, user } = useAuth();
   const itemsPerPage = 100;
+
 
 
   const fetchData = async () => {
@@ -68,11 +69,10 @@ function ViewDocument() {
   };
 
 
-  const handleChangeCompany = value => {
-    setCompany(value);
-    if (value !== company) {
-      setCompany(value);
-      // setIsPopconfirmVisible(true);
+  const handleChangeTransfer = value => {
+    setSelectedTransfer(value);
+    if (value !== selectedTransfer) {
+      setSelectedTransfer(value);
     }
   };
 
@@ -85,33 +85,78 @@ function ViewDocument() {
     const company = companies.find((c) => c.value === Number($id))
     return company ? company.label : null
   }
-  
-  
 
 
+  const getRoles = (role) =>{
+      const allRoles = [
+      { id: 1, name: "supper_admin" },
+      { id: 2, name: "admin" },
+      { id: 3, name: "preparateur" },
+      { id: 4, name: "Preparation Cuisine" },
+      { id: 5, name: "Preparation Trailer" },
+      { id: 6, name: "Fabrication" },
+      { id: 7, name: "Montage" },
+      { id: 8, name: "Magasinier" },
+      { id: 9, name: "Commercial" },
+      { id: 10, name: "Expedition" }
+    ];
+
+    return allRoles.find((role) => role.id == role) || "Role not exits!"
+  }
+
+  
 
   const transfer = async () => {
     setTransferSpin(true);
-    if(company && selected.length > 0){
-      setCompany(company);
+    if(selectedTransfer && selected.length > 0){
+      setSelectedTransfer(selectedTransfer);
       const data = {
-        'company' : company,
+        'transfer' : selectedTransfer,
         'lines' : selected
       }
-
-
       const response = await api.post('docentete/transfer', data)
       console.log(response);
+      setSelectedTransfer(null)
+      setSelected([]);
       fetchData()
       message.success('Company changed successfully');
     }else{
       message.error('No selected data');
     }
     setTransferSpin(false);
-    
+  }
+
+
+    // 1: Order preparation -
+    // 2: Preparation de livraison -
+    //     - Preparation Cuisine
+    //     - Preparation Trailer
+
+    // 3: Montage 
+    // 4: Fabrication
+    // 5: Magasinier
+
   
 
-  };
+   let listTransfer = [];
+
+  if (roles('preparateur')) {
+    listTransfer = [
+      { value: 4, label: 'Preparation Cuisine' },
+      { value: 5, label: 'Preparation Trailer' },
+      { value: 3, label: 'Montage' },
+      { value: 6, label: 'Fabrication' },
+      { value: 8, label: 'Magasinier' },
+    ];
+  } else if (roles('commercial')) {
+    listTransfer = [
+      { value: 1, label: 'Intercocina' },
+      { value: 2, label: 'Seriemoble' },
+    ];
+  }
+
+
+
 
   return (
     <div className='max-w-7xl mx-auto'>
@@ -170,23 +215,18 @@ function ViewDocument() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
-        {roles('commercial') && (
-          <div className='flex gap-3'>
+         <div className='flex gap-3'>
             <Select
-              defaultValue='Entreprise'
-              style={{ width: 120 }}
-              onChange={handleChangeCompany}
-              options={[
-                { value: 1, label: 'Intercocina' },
-                { value: 2, label: 'Seriemoble' },
-              ]}
+              defaultValue='Transférer vers'
+              style={{ width: 200 }}
+              onChange={handleChangeTransfer}
+              options={listTransfer}
             />
 
             <Button onClick={transfer} loading={transferSpin}>
               Transfer <ArrowRight size={18} />{' '}
             </Button>
           </div>
-        )}
       </div>
 
       {/* Desktop Table */}
@@ -250,15 +290,16 @@ function ViewDocument() {
               currentItems.map((item, index) => (
                 <tr key={index} className='hover:bg-gray-50'>
                   <td className='px-4 text-center'>
-                    {item.line ? (
-                      <Tag color='#f50'>{getCompany(item.line.company_id)}</Tag>
-                    ) : (
-                      <Checkbox
-                        checked={selected.includes(item.cbMarq)}
-                        onChange={() => handleSelect(item.cbMarq)}
-                      ></Checkbox>
-                    )}
+                   {roles("commercial") 
+                      ? (item.line 
+                          ? <Tag color='#f50'>{getCompany(item.line.company_id)}</Tag> 
+                          : <Checkbox checked={selected.includes(item.cbMarq)} onChange={() => handleSelect(item.cbMarq)} />) 
+                      : ""
+                    }
+
+                    {roles("preparateur") ? (item?.line?.role_id ? getRoles(item?.line?.role_id) : <Checkbox checked={selected.includes(item.line?.id)} onChange={() => handleSelect(item.line?.id)} />) : ""}
                   </td>
+
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     {item.AR_Ref || '__'}
                   </td>
