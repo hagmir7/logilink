@@ -23,7 +23,6 @@ function ViewDocument() {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
-      console.log(response);
       
       setData(response.data)
       setLoading(false)
@@ -56,7 +55,6 @@ function ViewDocument() {
     setSelected(prev =>
       prev.includes(id) ? prev.filter(item => item !== id) : [...prev, id]
     );
-    console.log(selected);
     
   };
 
@@ -87,8 +85,8 @@ function ViewDocument() {
   }
 
 
-  const getRoles = (role) =>{
-      const allRoles = [
+  const getRoles = (currentRole) => {
+    const allRoles = [
       { id: 1, name: "supper_admin" },
       { id: 2, name: "admin" },
       { id: 3, name: "preparateur" },
@@ -101,13 +99,19 @@ function ViewDocument() {
       { id: 10, name: "Expedition" }
     ];
 
-    return allRoles.find((role) => role.id == role) || "Role not exits!"
-  }
+    const role = allRoles.find((role) => role.id == currentRole);
+    return role ? role.name : "Role not exists!";
+  };
+
+
 
   
 
   const transfer = async () => {
     setTransferSpin(true);
+    console.log(selected);
+    
+    
     if(selectedTransfer && selected.length > 0){
       setSelectedTransfer(selectedTransfer);
       const data = {
@@ -116,6 +120,7 @@ function ViewDocument() {
       }
       const response = await api.post('docentete/transfer', data)
       console.log(response);
+      
       setSelectedTransfer(null)
       setSelected([]);
       fetchData()
@@ -290,14 +295,26 @@ function ViewDocument() {
               currentItems.map((item, index) => (
                 <tr key={index} className='hover:bg-gray-50'>
                   <td className='px-4 text-center'>
-                   {roles("commercial") 
-                      ? (item.line 
-                          ? <Tag color='#f50'>{getCompany(item.line.company_id)}</Tag> 
-                          : <Checkbox checked={selected.includes(item.cbMarq)} onChange={() => handleSelect(item.cbMarq)} />) 
+                    {roles("commercial")
+                      ? (item.line
+                        ? <Tag color='#f50'>{getCompany(item.line.company_id)}</Tag>
+                        : <Checkbox checked={selected.includes(item.cbMarq)} onChange={() => handleSelect(item.cbMarq)} />)
                       : ""
                     }
 
-                    {roles("preparateur") ? (item?.line?.role_id ? getRoles(item?.line?.role_id) : <Checkbox checked={selected.includes(item.line?.id)} onChange={() => handleSelect(item.line?.id)} />) : ""}
+                    {
+                      roles("preparateur") ? (
+                        item?.line?.role_id ? (
+                          <Tag color='#f50'>{getRoles(item.line.role_id)}</Tag>
+                        ) : (
+                          <Checkbox
+                            checked={selected.includes(item.line?.id)}
+                            onChange={() => handleSelect(item.line?.id)}
+                          />
+                        )
+                      ) : null
+                    }
+
                   </td>
 
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
