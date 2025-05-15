@@ -233,19 +233,19 @@ function ViewDocument() {
                 <div className='px-3'>
                   <Checkbox
                     onChange={handleSelectAll}
-
                     checked={
                       selected.length === data.doclignes.length &&
                       data.doclignes.length > 0
                     }
-                  >
-                  </Checkbox>
+                  ></Checkbox>
                 </div>
+              </th>
+              {!roles('commercial') && (
+                <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+                  Current
+                </th>
+              )}
 
-              </th>
-              <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                Current
-              </th>
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Ref Article
               </th>
@@ -286,50 +286,84 @@ function ViewDocument() {
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <tr key={index} className='hover:bg-gray-50'>
-                  <td className='px-4 text-center'>
-                    <Checkbox
-                      checked={selected.includes(item.line?.id)}
-                      onChange={() => handleSelect(item.line?.id)}
-                    />
-                  </td>
+                  {!roles('commercial') && (
+                    <td className='px-4 text-center'>
+                      <Checkbox
+                        checked={selected.includes(item.line?.id)}
+                        onChange={() => handleSelect(item.line?.id)}
+                      />
+                    </td>
+                  )}
+
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {roles("commercial")
-                      ? (item.line
-                        ? <Tag color='#f50'>{getCompany(item.line.company_id)}</Tag>
-                        : <Checkbox checked={selected.includes(item.cbMarq)} onChange={() => handleSelect(item.cbMarq)} />)
-                      : ""
-                    }
-                    {
-                      roles("preparateur") ? <Tag color='#f50'>{item?.line?.role_id ? getRoles(item.line.role_id) : 'Preparateur'}</Tag> : ""
-                    }
+                    {roles('commercial') ? (
+                      item.line ? (
+                        <Tag color='#f50'>
+                          {getCompany(item.line.company_id)}
+                        </Tag>
+                      ) : (
+                        <Checkbox
+                          checked={selected.includes(item.cbMarq)}
+                          onChange={() => handleSelect(item.cbMarq)}
+                        />
+                      )
+                    ) : (
+                      ''
+                    )}
+
+                    {roles('preparateur') ? (
+                      <Tag color='#f50'>
+                        {item?.line?.role_id
+                          ? getRoles(item.line.role_id)
+                          : 'Preparateur'}
+                      </Tag>
+                    ) : (
+                      ''
+                    )}
                   </td>
 
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     {item.AR_Ref || '__'}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-black'>
-                    {item.article ? item.article.Nom : (item?.Nom || "__")}  {item?.article?.Description || null}
+                    {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
+                    {item?.article?.Description || null}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className='text-sm text-gray-500'>
-                      H: {Math.floor(item.article ? item.article.Hauteur : item.Hauteur) || '__'}
+                      H:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Hauteur : item.Hauteur
+                      ) || '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      L: {Math.floor(item.article ? item.article.Largeur : item.Largeur) || '__'}
+                      L:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Largeur : item.Largeur
+                      ) || '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      P: {Math.floor(item.article ? item.article.Profondeur : item.Profondeur) || '__'}
+                      P:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Profondeur : item.Profondeur
+                      ) || '__'}
                     </div>
                   </td>
                   <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap'>
                     <div className='text-sm text-gray-500'>
-                      Couleur: {(item.article ? item.article.Couleur : item.Couleur) || '__'}
+                      Couleur:{' '}
+                      {(item.article ? item.article.Couleur : item.Couleur) ||
+                        '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      Chant: {(item.article ? item.article.Chant : item.Chant) || '__'}
+                      Chant:{' '}
+                      {(item.article ? item.article.Chant : item.Chant) || '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      Epaisseur: {Math.floor(item.article ? item.article.Episseur : item.Episseur) || '__'}
+                      Epaisseur:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Episseur : item.Episseur
+                      ) || '__'}
                     </div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
@@ -337,7 +371,6 @@ function ViewDocument() {
                       {Math.floor(item.DL_Qte)}
                     </span>
                   </td>
-
                 </tr>
               ))
             ) : (
@@ -394,10 +427,11 @@ function ViewDocument() {
                   <button
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${currentPage === 1
+                    className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${
+                      currentPage === 1
                         ? 'cursor-not-allowed'
                         : 'hover:bg-gray-50'
-                      }`}
+                    }`}
                   >
                     <span className='sr-only'>Previous</span>
                     <svg
@@ -418,10 +452,11 @@ function ViewDocument() {
                       <button
                         key={number}
                         onClick={() => paginate(number)}
-                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${number === currentPage
+                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
+                          number === currentPage
                             ? 'z-10 bg-blue-600 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
                             : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                          }`}
+                        }`}
                       >
                         {number}
                       </button>
@@ -430,10 +465,11 @@ function ViewDocument() {
                   <button
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${currentPage === totalPages
+                    className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${
+                      currentPage === totalPages
                         ? 'cursor-not-allowed'
                         : 'hover:bg-gray-50'
-                      }`}
+                    }`}
                   >
                     <span className='sr-only'>Next</span>
                     <svg
@@ -559,10 +595,11 @@ function ViewDocument() {
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${currentPage === 1
+                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${
+                  currentPage === 1
                     ? 'text-gray-300'
                     : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                  }`}
+                }`}
               >
                 Précédent
               </button>
@@ -572,10 +609,11 @@ function ViewDocument() {
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${currentPage === totalPages
+                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${
+                  currentPage === totalPages
                     ? 'text-gray-300'
                     : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                  }`}
+                }`}
               >
                 Suivant
               </button>
