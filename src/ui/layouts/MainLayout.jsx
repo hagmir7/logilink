@@ -34,11 +34,11 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          label: <Link to='/documents'>Preparation Mobile</Link>,
+          label: <Link to='#!'>Validation</Link>,
         },
         {
           key: 'submenu-11',
-          label: <Link to='/preparation'>Livraison</Link>,
+          label: <Link to='/preparation'>Expédition</Link>,
         },
       ],
     },
@@ -164,7 +164,22 @@ const MainLayout = () => {
 
   return (
     <Layout style={{ minHeight: '100vh' }}>
-      <Header className='flex items-center justify-between' theme='light'>
+      <Header
+        className='flex items-center justify-between shadow-sm top-0 left-0'
+        style={{
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          height: 64,
+          background: '#fff',
+          paddingInline: 16,
+          display: 'flex',
+          alignItems: 'center',
+        }}
+
+        theme='light'>
         <div className='flex items-center'>
           {/* Mobile menu toggle button */}
 
@@ -208,10 +223,12 @@ const MainLayout = () => {
             style={{
               background: colorBgContainer,
               paddingTop: '12px',
-              position: 'relative',
-              height: '100%',
-              zIndex: 10,
-              
+              position: 'fixed',         // Fixed position
+              top: 64,                   // Assuming Header is 64px tall
+              left: 0,
+              height: 'calc(100vh - 64px)', // Full height minus header
+              overflowY: 'auto',         // Enable vertical scroll
+              zIndex: 100,
             }}
           >
             <Menu
@@ -219,7 +236,7 @@ const MainLayout = () => {
               className='space-y-2'
               defaultSelectedKeys={['menu-1']}
               defaultOpenKeys={['menu-1']}
-              style={{ height: '100%', borderRight: 0 }}
+              style={{ borderRight: 0 }}
               items={sideMenu()}
             />
           </Sider>
@@ -254,14 +271,18 @@ const MainLayout = () => {
         <Layout
           className='pt-0 px-0 md:px-4'
           style={{
-            marginLeft: isMobile ? 0 : collapsed ? 0 : 0,
+            marginLeft: !isMobile ? (collapsed ? 80 : 300) : 0,
+            marginTop: 74,
+            transition: 'margin 0.2s ease-in-out',
           }}
         >
           <Content
-            className='mt-4 min-h-screen bg-gray-50 shadow'
+            className='bg-gray-50 shadow'
             style={{
+              minHeight: 'calc(100vh - 64px)',
               padding: 16,
               borderRadius: borderRadiusLG,
+              overflow: 'auto',
             }}
           >
             <Outlet />

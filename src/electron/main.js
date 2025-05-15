@@ -99,3 +99,34 @@ app.on('activate', () => {
         loginWindow = createLoginWindow();
     }
 });
+
+
+
+let printWindow;
+
+ipcMain.on('print', () => {
+  printWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      preload: path.join(__dirname, 'preload.js'),
+      contextIsolation: true
+    }
+  });
+
+  printWindow.loadURL('http://localhost:5123');
+
+  printWindow.webContents.on('did-fail-load', (_, __, errorDescription) => {
+    console.error('Failed to load print window:', errorDescription);
+  });
+});
+
+// Wait for renderer to say "I'm ready!"
+ipcMain.on('print-ready', () => {
+  if (!printWindow) return;
+
+  printWindow.webContents.print({ printBackground: true }, (success, errorType) => {
+    if (!success) console.error('Print failed:', errorType);
+    printWindow.close();
+    printWindow = null;
+  });
+});

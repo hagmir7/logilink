@@ -1,9 +1,9 @@
 @import "tailwindcss";
 
 
-*{
+/* *{
   user-select: none!important;
-}
+} */
 
 .frame{
   -webkit-app-region: drag;

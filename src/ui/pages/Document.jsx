@@ -25,14 +25,13 @@ function Document() {
   let url = 'docentetes/preparation';
   if(roles("commercial")){
     url = `docentetes/commercial?status=${documentStatus}&page=${page}`
-  }else if(roles("fabrication")){
-    url = 'docentetes/fabrication';
   }
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const response = await api.get(url)
+      console.log(response.data);
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -42,12 +41,28 @@ function Document() {
   }
 
   const handleSelectOrder = (orderId) => {
-    navigate(`/document/${orderId}`)
+    if(roles("preparation_cuisine") || roles('preparation_trailer')){
+      navigate(`/preparation/${orderId}`)
+    }else{  
+      navigate(`/document/${orderId}`)
+    }
   }
 
-  useEffect(() => {
-    fetchData()
-  }, [documentStatus])
+
+
+
+    useEffect(() => {
+      const fetchAndNotify = async () => {
+        await fetchData(); // Make sure data is loaded first
+        window.electron?.notifyPrintReady?.();
+      };
+      fetchAndNotify();
+    }, [documentStatus]);
+
+    const handlePrint = () => {
+      window.electron?.print?.();
+    };
+
 
   const loadMore = async () => {
     setMoreSpinner(true)
@@ -76,8 +91,7 @@ function Document() {
     const { value: inputValue } = e.target
 
     try {
-      const response = await api.get(`${url}&search=${inputValue}`
-      )
+      const response = await api.get(`${url}&search=${inputValue}`)
       setData({
         data: response.data.data,
         next_page_url: response.data.next_page_url,

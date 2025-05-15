@@ -29,7 +29,7 @@ function App() {
           <Route path='*' element={<NotFound />} />
           <Route path='/profile/:id' element={<Profile />} />
           <Route path='documents' element={<Document />} />
-           <Route path='preparation' element={<Preparation />} />
+          <Route path='preparation/:id' element={<Preparation />} />
         </Route>
       </Routes>
     </>

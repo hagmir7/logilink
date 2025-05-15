@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { ArrowLeft, Bell, HelpCircle, Menu, Wifi, Phone, Ticket, Layers, Globe, X } from 'lucide-react';
 import { Badge } from 'antd';
 import { api } from '../utils/api';
+import { useParams } from 'react-router-dom';
 
 export default function Preparation() {
 
@@ -17,9 +18,10 @@ export default function Preparation() {
     });
 
 
+    const { id } = useParams()
+
+
     const [palette, setPalette] = useState(null);
-
-
 
     const handleScan = () => {
 
@@ -118,7 +120,7 @@ export default function Preparation() {
                     </div>
 
                     <div className="flex items-center gap-3">
-                        <button onClick={()=>setArticle(prev => ({ ...prev, qte: prev.qte - 1}))} className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">-</button>
+                        <button onClick={() => setArticle(prev => ({ ...prev, qte: prev.qte - 1 }))} className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">-</button>
                         <input
                             type="text"
                             className="border-2 w-full border-gray-300 text-lg py-2 px-4 text-center rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -127,7 +129,7 @@ export default function Preparation() {
                             min={1}
                             onChange={(e) => setArticle({ ...article, qte: e.target.value })}
                         />
-                        <button onClick={()=>setArticle(prev => ({ ...prev, qte: prev.qte - 1}))} className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">+</button>
+                        <button onClick={() => setArticle(prev => ({ ...prev, qte: prev.qte - 1 }))} className="text-xl py-2 px-8 border-2 border-gray-300 rounded-md hover:bg-gray-100 flex-shrink-0">+</button>
                     </div>
                 </div>
 
@@ -158,7 +160,7 @@ export default function Preparation() {
                                         <span className="ml-1 sm:ml-2 md:text-base text-sm sm:text-lg text-gray-600">Profondeur: 58 | Episseur: 18 |  Chant: B</span>
                                     </div>
                                     <button className="bg-red-500 hover:bg-red-700 cursor-pointer p-2 text-white font-bold  rounded-full text-sm sm:text-base transition duration-200">
-                                        <X size={20}/>
+                                        <X size={20} />
                                     </button>
                                 </div>
                             </div>

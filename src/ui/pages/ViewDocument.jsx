@@ -2,7 +2,7 @@ import { RefreshCcw, Clipboard, ArrowDownCircle, ArrowLeft, ArrowRight } from 'l
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
 import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
@@ -16,6 +16,7 @@ function ViewDocument() {
   const [selectedTransfer, setSelectedTransfer] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
   const { roles } = useAuth();
+  const navigate = useNavigate();
   const itemsPerPage = 100;
 
 
@@ -24,7 +25,7 @@ function ViewDocument() {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
-      
+
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -44,7 +45,7 @@ function ViewDocument() {
   const paginate = (pageNumber) => setCurrentPage(pageNumber)
 
 
- 
+
 
   const handleSelect = (id) => {
     setSelected(prev =>
@@ -54,12 +55,13 @@ function ViewDocument() {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
+
       if (roles('commercial')) {
         setSelected(data.doclignes.map((item) => item.cbMarq))
       } else {
         setSelected(
           data.doclignes
-            .filter((item) => !item.line?.role_id)
+            // .filter((item) => !item.line?.role_id)
             .map((item) => item.line.id)
         )
       }
@@ -67,7 +69,7 @@ function ViewDocument() {
       setSelected([])
     }
   }
-  
+
 
 
   const handleChangeTransfer = value => {
@@ -90,14 +92,14 @@ function ViewDocument() {
 
   const getRoles = (currentRole) => {
     const allRoles = [
-      { id: 2, name: "supper_admin" },
-      { id: 3, name: "admin" },
-      { id: 4, name: "preparateur" },
-      { id: 5, name: "Preparation Cuisine" },
-      { id: 6, name: "Preparation Trailer" },
-      { id: 7, name: "Fabrication" },
-      { id: 8, name: "Montage" },
-      { id: 9, name: "Magasinier" },
+      { id: 1, name: "supper_admin" },
+      { id: 2, name: "admin" },
+      { id: 3, name: "preparateur" },
+      { id: 4, name: 'Preparation Cuisine' },
+      { id: 5, name: 'Preparation Trailer' },
+      { id: 6, name: 'Fabrication' },
+      { id: 7, name: 'Montage' },
+      { id: 8, name: 'Magasinier' },
       { id: 10, name: "Commercial" },
       { id: 11, name: "Expedition" }
     ];
@@ -111,40 +113,38 @@ function ViewDocument() {
 
   const transfer = async () => {
     setTransferSpin(true);
-    console.log(selected);
-    
-    
-    if(selectedTransfer && selected.length > 0){
+
+    if (selectedTransfer && selected.length > 0) {
       setSelectedTransfer(selectedTransfer);
       const data = {
-        'transfer' : selectedTransfer,
-        'lines' : selected
+        'transfer': selectedTransfer,
+        'lines': selected
       }
       const response = await api.post('docentete/transfer', data)
       console.log(response);
-      
+
       setSelectedTransfer(null)
       setSelected([]);
       fetchData()
       message.success('Company changed successfully');
-    }else{
+    } else {
       message.error('No selected data');
     }
     setTransferSpin(false);
   }
 
-  
+
 
   let listTransfer = [];
 
   if (roles('preparateur')) {
     listTransfer = [
-      { value: 5, label: 'Preparation Cuisine' },
-      { value: 6, label: 'Preparation Trailer' },
-      { value: 7, label: 'Fabrication' },
-      { value: 8, label: 'Montage' },
-      { value: 9, label: 'Magasinier' },
-  
+      { value: 4, label: 'Preparation Cuisine' },
+      { value: 5, label: 'Preparation Trailer' },
+      { value: 6, label: 'Fabrication' },
+      { value: 7, label: 'Montage' },
+      { value: 8, label: 'Magasinier' },
+
     ]
   } else if (roles('commercial')) {
     listTransfer = [
@@ -153,16 +153,13 @@ function ViewDocument() {
     ];
   }
 
-
-
-
   return (
     <div className='max-w-7xl mx-auto'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>
             {data.docentete.DO_Piece
-              ? `Bon de commande ${data.docentete.DO_Piece}`
+              ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
         </div>
@@ -213,18 +210,18 @@ function ViewDocument() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
-         <div className='flex gap-3'>
-            <Select
-              defaultValue='Transférer vers'
-              style={{ width: 200 }}
-              onChange={handleChangeTransfer}
-              options={listTransfer}
-            />
+        <div className='flex gap-3'>
+          <Select
+            defaultValue='Transférer vers'
+            style={{ width: 200 }}
+            onChange={handleChangeTransfer}
+            options={listTransfer}
+          />
 
-            <Button onClick={transfer} loading={transferSpin}>
-              Transfer <ArrowRight size={18} />{' '}
-            </Button>
-          </div>
+          <Button onClick={transfer} loading={transferSpin}>
+            Transfer <ArrowRight size={18} />{' '}
+          </Button>
+        </div>
       </div>
 
       {/* Desktop Table */}
@@ -233,18 +230,23 @@ function ViewDocument() {
           <thead className='bg-gray-50 border-gray-200 border-2'>
             <tr>
               <th className=''>
-                <Checkbox
-                  onChange={handleSelectAll}
-                  className='px-4 text-center ml-12'
-                  checked={
-                    selected.length === data.doclignes.length &&
-                    data.doclignes.length > 0
-                  }
-                >
-                  {' '}
-                </Checkbox>
+                <div className='px-3'>
+                  <Checkbox
+                    onChange={handleSelectAll}
+
+                    checked={
+                      selected.length === data.doclignes.length &&
+                      data.doclignes.length > 0
+                    }
+                  >
+                  </Checkbox>
+                </div>
+
               </th>
-              <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+                Current
+              </th>
+              <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Ref Article
               </th>
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
@@ -258,9 +260,6 @@ function ViewDocument() {
               </th>
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
                 Quantité
-              </th>
-              <th className='hidden lg:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
-                Actions
               </th>
             </tr>
           </thead>
@@ -288,54 +287,49 @@ function ViewDocument() {
               currentItems.map((item, index) => (
                 <tr key={index} className='hover:bg-gray-50'>
                   <td className='px-4 text-center'>
+                    <Checkbox
+                      checked={selected.includes(item.line?.id)}
+                      onChange={() => handleSelect(item.line?.id)}
+                    />
+                  </td>
+                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     {roles("commercial")
                       ? (item.line
                         ? <Tag color='#f50'>{getCompany(item.line.company_id)}</Tag>
                         : <Checkbox checked={selected.includes(item.cbMarq)} onChange={() => handleSelect(item.cbMarq)} />)
                       : ""
                     }
-
                     {
-                      roles("preparateur") ? (
-                        item?.line?.role_id ? (
-                          <Tag color='#f50'>{getRoles(item.line.role_id)}</Tag>
-                        ) : (
-                          <Checkbox
-                            checked={selected.includes(item.line?.id)}
-                            onChange={() => handleSelect(item.line?.id)}
-                          />
-                        )
-                      ) : null
+                      roles("preparateur") ? <Tag color='#f50'>{item?.line?.role_id ? getRoles(item.line.role_id) : 'Preparateur'}</Tag> : ""
                     }
-
                   </td>
 
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                     {item.AR_Ref || '__'}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-black'>
-                    {item.Nom || '__'}
+                    {item.article ? item.article.Nom : (item?.Nom || "__")}  {item?.article?.Description || null}
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className='text-sm text-gray-500'>
-                      H: {Math.floor(item.Hauteur) || '__'}
+                      H: {Math.floor(item.article ? item.article.Hauteur : item.Hauteur) || '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      L: {Math.floor(item.Largeur) || '__'}
+                      L: {Math.floor(item.article ? item.article.Largeur : item.Largeur) || '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      P: {Math.floor(item.Profondeur) || '__'}
+                      P: {Math.floor(item.article ? item.article.Profondeur : item.Profondeur) || '__'}
                     </div>
                   </td>
                   <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap'>
                     <div className='text-sm text-gray-500'>
-                      Couleur: {item.Couleur || '__'}
+                      Couleur: {(item.article ? item.article.Couleur : item.Couleur) || '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      Chant: {item.Chant || '__'}
+                      Chant: {(item.article ? item.article.Chant : item.Chant) || '__'}
                     </div>
                     <div className='text-sm text-gray-500'>
-                      Epaisseur: {Math.floor(item.Episseur) || '__'}
+                      Epaisseur: {Math.floor(item.article ? item.article.Episseur : item.Episseur) || '__'}
                     </div>
                   </td>
                   <td className='px-6 py-4 whitespace-nowrap'>
@@ -343,11 +337,7 @@ function ViewDocument() {
                       {Math.floor(item.DL_Qte)}
                     </span>
                   </td>
-                  <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap text-right text-sm font-medium'>
-                    <button className='text-gray-500 hover:text-gray-700'>
-                      <Clipboard className='h-4 w-4' />
-                    </button>
-                  </td>
+
                 </tr>
               ))
             ) : (
@@ -404,11 +394,10 @@ function ViewDocument() {
                   <button
                     onClick={() => paginate(currentPage - 1)}
                     disabled={currentPage === 1}
-                    className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${
-                      currentPage === 1
+                    className={`relative inline-flex items-center rounded-l-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${currentPage === 1
                         ? 'cursor-not-allowed'
                         : 'hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     <span className='sr-only'>Previous</span>
                     <svg
@@ -429,11 +418,10 @@ function ViewDocument() {
                       <button
                         key={number}
                         onClick={() => paginate(number)}
-                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${
-                          number === currentPage
+                        className={`relative inline-flex items-center px-4 py-2 text-sm font-semibold ${number === currentPage
                             ? 'z-10 bg-blue-600 text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600'
                             : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                        }`}
+                          }`}
                       >
                         {number}
                       </button>
@@ -442,11 +430,10 @@ function ViewDocument() {
                   <button
                     onClick={() => paginate(currentPage + 1)}
                     disabled={currentPage === totalPages}
-                    className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${
-                      currentPage === totalPages
+                    className={`relative inline-flex items-center rounded-r-md px-2 py-2 text-gray-400 ring-1 ring-inset ring-gray-300 ${currentPage === totalPages
                         ? 'cursor-not-allowed'
                         : 'hover:bg-gray-50'
-                    }`}
+                      }`}
                   >
                     <span className='sr-only'>Next</span>
                     <svg
@@ -572,11 +559,10 @@ function ViewDocument() {
               <button
                 onClick={() => paginate(currentPage - 1)}
                 disabled={currentPage === 1}
-                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${
-                  currentPage === 1
+                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${currentPage === 1
                     ? 'text-gray-300'
                     : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Précédent
               </button>
@@ -586,11 +572,10 @@ function ViewDocument() {
               <button
                 onClick={() => paginate(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${
-                  currentPage === totalPages
+                className={`relative inline-flex items-center rounded-md px-3 py-2 text-sm font-semibold ${currentPage === totalPages
                     ? 'text-gray-300'
                     : 'text-gray-900 ring-1 ring-inset ring-gray-300 hover:bg-gray-50'
-                }`}
+                  }`}
               >
                 Suivant
               </button>
