@@ -1,27 +1,21 @@
-import {
-  RefreshCcw,
-  Clipboard,
-  ArrowRight,
-  Hourglass,
-} from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowRight, Hourglass } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd'
+import { Button, Checkbox, message, Select, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 
-function Commercial() {
-  const { id } = useParams()
-  const [data, setData] = useState({ docentete: {}, doclignes: [] })
-  const [loading, setLoading] = useState(false)
-  const [selected, setSelected] = useState([])
-  const [selectedTransfer, setSelectedTransfer] = useState()
-  const [transferSpin, setTransferSpin] = useState(false)
-  const { roles } = useAuth()
-
+function Controller() {
+  const { id } = useParams();
+  const [data, setData] = useState({ docentete: {}, doclignes: [] });
+  const [loading, setLoading] = useState(false);
+  const [selected, setSelected] = useState([]);
+  const [selectedTransfer, setSelectedTransfer] = useState();
+  const [transferSpin, setTransferSpin] = useState(false);
+  const { roles } = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
@@ -39,8 +33,8 @@ function Commercial() {
     fetchData()
   }, [id])
 
-  const currentItems = data?.doclignes || []
 
+  const currentItems =  data?.doclignes || []
 
   const handleSelect = (id) => {
     setSelected((prev) =>
@@ -53,11 +47,8 @@ function Commercial() {
       if (roles('commercial')) {
         setSelected(data.doclignes.map((item) => item.cbMarq))
       } else {
-        console.log(data.docentete);
-        
-        setSelected(
-          data.doclignes.map((item) => item.line.id)
-        )
+        console.log(data.docentete)
+        setSelected(data.doclignes.map((item) => item.line.id))
       }
     } else {
       setSelected([])
@@ -81,6 +72,23 @@ function Commercial() {
     return company ? company.label : null
   }
 
+  const getRoles = (currentRole) => {
+    const allRoles = [
+      { id: 1, name: 'supper_admin' },
+      { id: 2, name: 'admin' },
+      { id: 3, name: 'preparation' },
+      { id: 4, name: 'Preparation Cuisine' },
+      { id: 5, name: 'Preparation Trailer' },
+      { id: 6, name: 'Fabrication' },
+      { id: 7, name: 'Montage' },
+      { id: 8, name: 'Magasinier' },
+      { id: 10, name: 'Commercial' },
+      { id: 11, name: 'Expedition' },
+    ]
+
+    const role = allRoles.find((role) => role.id == currentRole)
+    return role ? role.name : 'Role not exists!'
+  }
 
   const transfer = async () => {
     setTransferSpin(true)
@@ -104,9 +112,12 @@ function Commercial() {
     setTransferSpin(false)
   }
 
-  const listTransfer = [
-    { value: 1, label: 'Intercocina' },
-    { value: 2, label: 'Seriemoble' },
+  let listTransfer = [
+    { value: 4, label: 'Preparation Cuisine' },
+    { value: 5, label: 'Preparation Trailer' },
+    { value: 6, label: 'Fabrication' },
+    { value: 7, label: 'Montage' },
+    { value: 8, label: 'Magasinier' },
   ]
 
 
@@ -209,7 +220,7 @@ function Commercial() {
               Array(5)
                 .fill(0)
                 .map((_, index) => (
-                  <Tr key={index}>
+                  <tr key={index}>
                     <td colSpan='6' className='px-6 py-4'>
                       <div className='animate-pulse flex space-x-4'>
                         <div className='flex-1 space-y-4 py-1'>
@@ -221,20 +232,14 @@ function Commercial() {
                         </div>
                       </div>
                     </td>
-                  </Tr>
+                  </tr>
                 ))
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index}>
                   <Td>
                     {item?.line ? (
-                      <Tag
-                        color={
-                          item.line.company_id == 1 ? '#87d068' : '#2db7f5'
-                        }
-                      >
-                        {getCompany(item.line.company_id)}
-                      </Tag>
+                      <Tag>{getCompany(item.line.company_id)}</Tag>
                     ) : (
                       <Checkbox
                         checked={selected.includes(
@@ -247,9 +252,24 @@ function Commercial() {
                     )}
                   </Td>
 
-                  <Td>{item.DL_Design || '__'}</Td>
+                  {!roles('commercial') && (
+                    <Td>
+                      {roles('preparation') ? (
+                        item.line?.role_id ? (
+                          <Tag color='#f50'>{getRoles(item.line.role_id)}</Tag>
+                        ) : (
+                          <Hourglass size={20} />
+                        )
+                      ) : (
+                        ''
+                      )}
+                    </Td>
+                  )}
+
+                  <Td>{item.AR_Ref || '__'}</Td>
                   <Td>
-                    {item.AR_Design} {item?.article?.Description || null}
+                    {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
+                    {item?.article?.Description || null}
                   </Td>
                   <Td>
                     <div className='text-sm text-gray-500'>
@@ -426,4 +446,4 @@ function Commercial() {
   )
 }
 
-export default Commercial
+export default Controller;
