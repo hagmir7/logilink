@@ -7,9 +7,10 @@ import Login from './pages/Login'
 import Users from './pages/Users'
 import Home from './pages/Home'
 import Profile from './pages/profile'
-import ViewDocument from './pages/ViewDocument'
 import Document from './pages/Document'
 import Preparation from './pages/Preparation'
+import Fabrication from './pages/Fabrication'
+import ViewDocument from './pages/ViewDocument'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -30,6 +31,7 @@ function App() {
           <Route path='/profile/:id' element={<Profile />} />
           <Route path='documents' element={<Document />} />
           <Route path='preparation/:id' element={<Preparation />} />
+          <Route path='fabrication/:id' element={<Fabrication />} />
         </Route>
       </Routes>
     </>

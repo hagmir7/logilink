@@ -20,10 +20,10 @@ function Document() {
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
   const navigate = useNavigate()
-  const {roles} = useAuth();
+  const { roles } = useAuth()
 
-  let url = 'docentetes/preparation';
-  if(roles("commercial")){
+  let url = 'docentetes/preparation'
+  if (roles('commercial')) {
     url = `docentetes/commercial?status=${documentStatus}&page=${page}`
   }
 
@@ -31,7 +31,7 @@ function Document() {
     setLoading(true)
     try {
       const response = await api.get(url)
-      console.log(response.data);
+      console.log(response.data)
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -41,35 +41,32 @@ function Document() {
   }
 
   const handleSelectOrder = (orderId) => {
-    if(roles("preparation_cuisine") || roles('preparation_trailer')){
+    if (roles('preparation_cuisine') || roles('preparation_trailer')) {
       navigate(`/preparation/${orderId}`)
-    }else{  
+    } else if (roles('fabrication')) {
+      navigate(`/fabrication/${orderId}`)
+    } else {
       navigate(`/document/${orderId}`)
     }
   }
 
+  useEffect(() => {
+    const fetchAndNotify = async () => {
+      await fetchData() // Make sure data is loaded first
+      window.electron?.notifyPrintReady?.()
+    }
+    fetchAndNotify()
+  }, [documentStatus])
 
-
-
-    useEffect(() => {
-      const fetchAndNotify = async () => {
-        await fetchData(); // Make sure data is loaded first
-        window.electron?.notifyPrintReady?.();
-      };
-      fetchAndNotify();
-    }, [documentStatus]);
-
-    const handlePrint = () => {
-      window.electron?.print?.();
-    };
-
+  const handlePrint = () => {
+    window.electron?.print?.()
+  }
 
   const loadMore = async () => {
     setMoreSpinner(true)
     setPage(page + 1)
     try {
-      const response = await api.get(`${url}&page=${page}`
-      )
+      const response = await api.get(`${url}&page=${page}`)
       setData({
         data: [...data.data, ...response.data.data],
         next_page_url: response.data.next_page_url,
