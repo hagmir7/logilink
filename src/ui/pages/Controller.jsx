@@ -87,7 +87,7 @@ function Controller() {
     ]
 
     const role = allRoles.find((role) => role.id == currentRole)
-    return role ? role.name : 'Role not exists!'
+    return role ? role.name : currentRole
   }
 
   const transfer = async () => {
@@ -206,12 +206,13 @@ function Controller() {
                   }
                 />
               </Th>
-              {!roles('commercial') && <Th>Etat</Th>}
               <Th>Ref Article</Th>
               <Th>Piece</Th>
               <Th>Dimensions</Th>
               <Th>Matériaux</Th>
-              <Th>Quantité</Th>
+              <Th>Qte</Th>
+              <Th>Qte Inter</Th>
+              <Th>Qte Serie</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -237,34 +238,14 @@ function Controller() {
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index}>
+    
                   <Td>
-                    {item?.line ? (
-                      <Tag>{getCompany(item.line.company_id)}</Tag>
-                    ) : (
-                      <Checkbox
-                        checked={selected.includes(
-                          item.line?.id || item.cbMarq
-                        )}
-                        onChange={() =>
-                          handleSelect(item.line?.id || item.cbMarq)
-                        }
-                      />
-                    )}
+                    {item.line?.role_id ??
+                      (getRoles(item.line.role_id !== 0) ? (
+                        <Tag color='#f50'>{getRoles(item.line.role_id)}</Tag>
+                      ) : (<Hourglass size={20} />
+                      ))}
                   </Td>
-
-                  {!roles('commercial') && (
-                    <Td>
-                      {roles('preparation') ? (
-                        item.line?.role_id ? (
-                          <Tag color='#f50'>{getRoles(item.line.role_id)}</Tag>
-                        ) : (
-                          <Hourglass size={20} />
-                        )
-                      ) : (
-                        ''
-                      )}
-                    </Td>
-                  )}
 
                   <Td>{item.AR_Ref || '__'}</Td>
                   <Td>
@@ -311,6 +292,18 @@ function Controller() {
                   <Td>
                     <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
                       {Math.floor(item.DL_Qte)}
+                    </span>
+                  </Td>
+
+                  <Td>
+                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                      {item.stock.qte_inter}
+                    </span>
+                  </Td>
+
+                  <Td>
+                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                      {item.stock.qte_serie}
                     </span>
                   </Td>
                 </Tr>
