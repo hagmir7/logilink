@@ -1,17 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { getExped, getDocumentType } from '../utils/config'
+import { getExped, getDocumentType, locale } from '../utils/config'
 import { useParams } from 'react-router-dom'
 import { Button, Checkbox, DatePicker } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
-import locale from 'antd/locale/fr_FR'
-import dayjs from 'dayjs'
-
-import 'dayjs/locale/fr'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-
 import { RefreshCcw, ArrowRight } from 'lucide-react'
+
 
 function Montage() {
   const { id } = useParams()
@@ -19,7 +15,6 @@ function Montage() {
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState([])
   const [complationSpin, setComplationSpin] = useState(false)
-  const { roles } = useAuth()
   const currentItems = data?.doclignes || []
 
   const fetchData = async () => {
@@ -59,6 +54,7 @@ function Montage() {
       complation_date: date,
       lines: selected,
     }
+    setSelected([]);
     const response = await api.post('docentetes/start', data)
     console.log(response)
     fetchData()

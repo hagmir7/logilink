@@ -1,4 +1,4 @@
-import { RefreshCcw, Clipboard, ArrowRight, Hourglass } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
@@ -7,6 +7,8 @@ import { Button, Checkbox, message, Select, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
+import SkeletonTable from '../components/ui/SkeletonTable'
+import EmptyTable from '../components/ui/EmptyTable'
 
 function Controller() {
   const { id } = useParams();
@@ -34,7 +36,7 @@ function Controller() {
   }, [id])
 
 
-  const currentItems =  data?.doclignes || []
+  const currentItems = data?.doclignes || []
 
   const handleSelect = (id) => {
     setSelected((prev) =>
@@ -206,6 +208,7 @@ function Controller() {
                   }
                 />
               </Th>
+              <Th>Etat</Th>
               <Th>Ref Article</Th>
               <Th>Piece</Th>
               <Th>Dimensions</Th>
@@ -216,35 +219,16 @@ function Controller() {
             </Tr>
           </Thead>
           <Tbody>
-            {loading ? (
-              // Loading state
-              Array(5)
-                .fill(0)
-                .map((_, index) => (
-                  <tr key={index}>
-                    <td colSpan='6' className='px-6 py-4'>
-                      <div className='animate-pulse flex space-x-4'>
-                        <div className='flex-1 space-y-4 py-1'>
-                          <div className='h-4 bg-gray-200 rounded w-3/4'></div>
-                          <div className='space-y-2'>
-                            <div className='h-4 bg-gray-200 rounded'></div>
-                            <div className='h-4 bg-gray-200 rounded w-5/6'></div>
-                          </div>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                ))
-            ) : data.doclignes?.length > 0 ? (
+            {loading ? <SkeletonTable /> : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index}>
-    
+
                   <Td>
-                    {item.line?.role_id ??
-                      (getRoles(item.line.role_id !== 0) ? (
-                        <Tag color='#f50'>{getRoles(item.line.role_id)}</Tag>
-                      ) : (<Hourglass size={20} />
-                      ))}
+                   <Checkbox checked={selected.includes(item.line?.id || item.id)} onChange={() => handleSelect(item.line?.id || item.id)} />
+                  </Td>
+
+                  <Td>
+                    {item.line?.role_id > 0 ? <Tag color="#2db7f5">{getRoles(item.line.role_id)}</Tag> : item.line?.completed ? <CheckCircle size={20} color='green'  /> : "__"}
                   </Td>
 
                   <Td>{item.AR_Ref || '__'}</Td>
@@ -290,50 +274,20 @@ function Controller() {
                     </div>
                   </Td>
                   <Td>
-                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                      {Math.floor(item.DL_Qte)}
-                    </span>
+                    <Tag color='green-inverse' >{Math.floor(item.DL_Qte)}</Tag>
                   </Td>
 
                   <Td>
-                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                      {item.stock.qte_inter}
-                    </span>
+                    <Tag color={item?.stock?.qte_inter > 0 ? "green-inverse" : "#f50"}  >{item?.stock?.qte_inter}</Tag>
                   </Td>
 
                   <Td>
-                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                      {item.stock.qte_serie}
-                    </span>
+                    <Tag color={item?.stock?.qte_serie > 0 ? "green-inverse" : "#f50"}  >{item?.stock?.qte_inter}</Tag>
                   </Td>
                 </Tr>
               ))
             ) : (
-              <Tr>
-                <Td
-                  colSpan='7'
-                  className='px-6 py-4 text-center text-sm text-gray-500'
-                >
-                  <div className='flex flex-col items-center justify-center py-6'>
-                    <svg
-                      className='h-12 w-12 text-gray-400'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      stroke='currentColor'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={1}
-                        d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
-                      />
-                    </svg>
-                    <h3 className='mt-2 text-sm font-medium text-gray-900'>
-                      Aucun article trouvé
-                    </h3>
-                  </div>
-                </Td>
-              </Tr>
+              <EmptyTable />
             )}
           </Tbody>
         </Table>
