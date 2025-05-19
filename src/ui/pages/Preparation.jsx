@@ -80,6 +80,8 @@ export default function Preparation() {
 
     try {
       const { data } = await api.post('palettes/scan', payload)
+      console.log(data);
+      
       const dimensions =
         data.docligne?.Hauteur && data.docligne?.Largeur
           ? Math.floor(data.docligne.Hauteur) +
@@ -118,6 +120,9 @@ export default function Preparation() {
         palette: palette?.code,
         line: article.id,
       })
+
+      console.log(data);
+      
       setLines(data.lines || [])
       openNotificationWithIcon('success')
     } catch (err) {
@@ -149,7 +154,7 @@ export default function Preparation() {
   }
 
   return (
-    <div className='min-h-screen p-4'>
+    <div className='min-h-screen md:p-4'>
       {contextHolder}
 
       {/* Scanner input */}

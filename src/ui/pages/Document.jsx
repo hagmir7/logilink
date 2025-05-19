@@ -115,21 +115,23 @@ function Document() {
             size='large'
             onChange={handleSearch}
           />
-          <Select
-            defaultValue='1'
-            style={{ width: 220, height: 40 }}
-            className='py-2'
-            onChange={handleChange}
-            options={[
-              { value: '0', label: 'Devis' },
-              { value: '1', label: 'Bon de command' },
-              { value: '2', label: 'Preparation de livraison' },
-              { value: '3', label: 'Bon de livraison' },
-              { value: '6', label: 'Facture' },
-              // { value: 'all', label: 'Tout' },
-              { value: 'disabled', label: 'Disabled', disabled: true },
-            ]}
-          />
+          {roles('commercial') && (
+            <Select
+              defaultValue='1'
+              style={{ width: 220, height: 40 }}
+              className='py-2'
+              onChange={handleChange}
+              options={[
+                { value: '0', label: 'Devis' },
+                { value: '1', label: 'Bon de command' },
+                { value: '2', label: 'Preparation de livraison' },
+                { value: '3', label: 'Bon de livraison' },
+                { value: '6', label: 'Facture' },
+                // { value: 'all', label: 'Tout' },
+                { value: 'disabled', label: 'Disabled', disabled: true },
+              ]}
+            />
+          )}
 
           <button
             type='button'

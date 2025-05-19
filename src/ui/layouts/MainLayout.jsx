@@ -178,35 +178,33 @@ const MainLayout = () => {
           display: 'flex',
           alignItems: 'center',
         }}
-
-        theme='light'>
-        <div className='flex items-center'>
-          {/* Mobile menu toggle button */}
-
-          <img
-            width={100}
-            src='https://intercocina.com/assets/imgs/intercocina-logo.png'
-            alt='Intercocina logo'
-          />
-        </div>
-        <div className='flex gap-6 items-center'>
-          <div>
-            <DropMenu />
-          </div>
-
-          <div>
+        theme='light'
+      >
+        <div className='flex justify-between w-full items-center'>
+          <div className='flex md:hidden h-full items-center'>
             <button
-              className='block md:hidden'
               style={{ background: 'transparent', border: 'none' }}
               type='button'
               onClick={toggleSidebar}
             >
               {sidebarVisible ? (
-                <X size={24} color='white' />
+                <X size={40} color='black' />
               ) : (
-                <MenuIcon size={24} color='white' />
+                <MenuIcon size={40} color='black' />
               )}
             </button>
+          </div>
+          <div>
+            <Link to={'/'}>
+              <img
+                width={100}
+                src='https://intercocina.com/assets/imgs/intercocina-logo.png'
+                alt='Intercocina logo'
+              />
+            </Link>
+          </div>
+          <div>
+            <DropMenu />
           </div>
         </div>
       </Header>
@@ -223,11 +221,11 @@ const MainLayout = () => {
             style={{
               background: colorBgContainer,
               paddingTop: '12px',
-              position: 'fixed',         // Fixed position
-              top: 64,                   // Assuming Header is 64px tall
+              position: 'fixed', // Fixed position
+              top: 64, // Assuming Header is 64px tall
               left: 0,
               height: 'calc(100vh - 64px)', // Full height minus header
-              overflowY: 'auto',         // Enable vertical scroll
+              overflowY: 'auto', // Enable vertical scroll
               zIndex: 100,
             }}
           >
@@ -262,7 +260,7 @@ const MainLayout = () => {
               mode='inline'
               className='space-y-2'
               defaultSelectedKeys={['menu-1']}
-              style={{ height: '100%', borderRight: 0, position: "fixed" }}
+              style={{ height: '100%', borderRight: 0, position: 'fixed' }}
               items={sideMenu()}
             />
           </Drawer>

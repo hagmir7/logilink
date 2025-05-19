@@ -6,10 +6,10 @@ import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router'
 
 const UserAvatar = () => (
-    <Space direction="vertical" size={16}>
-        <Avatar icon={<UserOutlined />} />
-    </Space>
-);
+  <Space direction='vertical'>
+    <Avatar icon={<UserOutlined />} size={40} />
+  </Space>
+)
 
 const DropMenu = () => {
     const { user } = useAuth();

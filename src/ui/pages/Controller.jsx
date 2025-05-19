@@ -45,13 +45,9 @@ function Controller() {
   }
 
   const handleSelectAll = (e) => {
+    console.log(data.doclignes.map((item) => item.line))
     if (e.target.checked) {
-      if (roles('commercial')) {
-        setSelected(data.doclignes.map((item) => item.cbMarq))
-      } else {
-        console.log(data.docentete)
-        setSelected(data.doclignes.map((item) => item.line.id))
-      }
+      setSelected(data.doclignes.map((item) => item?.line?.id))
     } else {
       setSelected([])
     }

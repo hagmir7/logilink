@@ -9,12 +9,12 @@ const getAuthToken = () => {
 };
 
 export const api = axios.create({
-  baseURL: 'http://localhost:8000/api/',
+  baseURL: 'https://agmir.pdfdrive.me/api/',
   headers: {
     'Content-Type': 'application/json',
-    'Accept': 'application/json'
-  }
-});
+    Accept: 'application/json',
+  },
+})
 
 api.interceptors.request.use(config => {
   const token = getAuthToken();
