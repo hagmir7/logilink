@@ -13,7 +13,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 
 import { RefreshCcw, ArrowRight } from 'lucide-react'
 
-function Fabrication() {
+function Montage() {
   const { id } = useParams()
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
   const [loading, setLoading] = useState(false)
@@ -34,6 +34,7 @@ function Fabrication() {
       console.error('Failed to fetch data:', err)
     }
   }
+
   useEffect(() => {
     fetchData()
   }, [id])
@@ -209,7 +210,7 @@ function Fabrication() {
                     />
                   </Td>
 
-                  <Td className="font-black">
+                  <Td className='font-black'>
                     {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
                     {item?.article?.Description || null}
                   </Td>
@@ -301,4 +302,4 @@ function Fabrication() {
   )
 }
 
-export default Fabrication;
+export default Montage

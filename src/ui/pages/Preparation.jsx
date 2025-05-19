@@ -39,6 +39,7 @@ export default function Preparation() {
         console.log(response.data);
         setPalette(response.data);
     }
+    
 
     const handleScan = async () => {
         const data = {
