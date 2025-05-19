@@ -30,8 +30,7 @@ export default function Preparation() {
   const openNotificationWithIcon = type => {
     notificationApi[type]({
       message: 'Notification Title',
-      description:
-        'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
+      description: 'This is the content of the notification. This is the content of the notification. This is the content of the notification.',
     });
   };
 
@@ -90,7 +89,6 @@ export default function Preparation() {
         palette: palette?.code,
         line: article.id,
       });
-      setPalette(data);
       setLines(data.lines || []);
       console.log(data);
       openNotificationWithIcon('success');
@@ -239,7 +237,7 @@ export default function Preparation() {
                     <span className='text-sm text-gray-600'>‑ {item.article_stock?.color || 'N/A'}</span>
                   </div>
                   <span className='text-3xl font-bold text-gray-600'>
-                    {item.quantity ? Math.floor(item.quantity) : 0}
+                    {item.quantity ? Math.floor(item.pivot.quantity) : 0}
                   </span>
                 </div>
 
