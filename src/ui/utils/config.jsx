@@ -46,3 +46,12 @@ export function getExped(exp) {
 
   return expedMap[exp] || ''
 }
+
+
+
+export function formatDate(date) {
+  const year = date.getFullYear()
+  const month = date.getMonth() + 1 // months are 0-based
+  const day = date.getDate()
+  return `${year}/${month}/${day}`
+}

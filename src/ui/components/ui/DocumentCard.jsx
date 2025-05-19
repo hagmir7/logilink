@@ -1,16 +1,11 @@
 import React from 'react';
 // import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
-import { getExped } from '../../utils/config';
+import { formatDate, getExped } from '../../utils/config';
 import { Badge } from 'antd'
 
 function DocumentCard({ data, onSelectOrder }) {
 
-    function formatDate(date) {
-      const year = date.getFullYear()
-      const month = date.getMonth() + 1 // months are 0-based
-      const day = date.getDate()
-      return `${year}/${month}/${day}`
-    }
+
   return (
     <Badge.Ribbon text='Livrée'>
       <div
