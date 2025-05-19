@@ -1,27 +1,37 @@
 import { RefreshCcw, Clipboard, ArrowDownCircle, ArrowLeft, ArrowRight } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { getExped, getDocumentType } from '../utils/config'
+import { getExped, getDocumentType, formatDate } from '../utils/config'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd'
+import { Button, Checkbox, DatePicker, message, Popconfirm, Select, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 
-function ViewDocument() {
+function Fabrication() {
+
   const { id } = useParams()
+
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
+
   const [loading, setLoading] = useState(false)
+
   const [currentPage, setCurrentPage] = useState(1);
+
   const [selected, setSelected] = useState([]);
+
   const [selectedTransfer, setSelectedTransfer] = useState();
+
   const [transferSpin, setTransferSpin] = useState(false);
+
   const { roles } = useAuth();
+
   const navigate = useNavigate();
+
   const [completionSpin, setCompletionSpin ] = useState(false);
+
   const [startDate, setStartDate] = useState(null);
+
   const itemsPerPage = 100;
-
-
 
   const fetchData = async () => {
     setLoading(true)
@@ -124,30 +134,15 @@ function ViewDocument() {
   };
 
 
-
-
-  const transfer = async () => {
-    setTransferSpin(true);
-
-    if (selectedTransfer && selected.length > 0) {
-      setSelectedTransfer(selectedTransfer);
-      const data = {
-        'transfer': selectedTransfer,
-        'lines': selected
-      }
-      const response = await api.post('docentete/transfer', data)
-      console.log(response);
-
-      setSelectedTransfer(null)
-      setSelected([]);
-      fetchData()
-      message.success('Company changed successfully');
-    } else {
-      message.error('No selected data');
+  const onDateChange = async (date, dateString) => {
+    // console.log(date, dateString);
+    const data = {
+      'complation_date': date,
+      'lines': selected
     }
-    setTransferSpin(false);
-  }
-
+    const response = await api.post("docentetes/start", data)
+    console.log(response);
+  };
 
 
   let listTransfer = [];
@@ -224,27 +219,15 @@ function ViewDocument() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
+
+         <div className='flex gap-3'>
+          <DatePicker placeholder='Date livraison' className='border' onChange={onDateChange} />
         
 
-        {
-          roles('montage') || roles('montage') ? (
-            <Button onClick={completion} loading={completionSpin}>
-                Validation <ArrowRight size={18} />{' '}
-              </Button>
-          ) :
-            (<div className='flex gap-3'><Select
-              defaultValue='Transférer vers'
-              style={{ width: 200 }}
-              onChange={handleChangeTransfer}
-              options={listTransfer}
-            />
-              <Button onClick={transfer} loading={transferSpin}>
-                Transfer <ArrowRight size={18} />{' '}
-              </Button>
-            </div>)
-        }
-        
-         
+        <Button onClick={completion} loading={completionSpin}>
+            Validation <ArrowRight size={18} />{' '}
+        </Button>  
+         </div>
       </div>
 
       {/* Desktop Table */}
@@ -263,43 +246,29 @@ function ViewDocument() {
                   ></Checkbox>
                 </div>
               </th>
-              {roles("preparation") && (
-                <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                  Current
-                </th>
-              )}
-              <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                Etat
-              </th>
 
+        
+
+              <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+                Date livraison
+              </th>
 
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Ref Article
               </th>
+
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
                 Piece
               </th>
+
               <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
                 Dimensions
               </th>
+
               <th className='hidden lg:table-cell px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
                 Matériaux
               </th>
-              <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider'>
-                QTE
-              </th>
-
-              {/* Quantity */}
-              {
-                roles("montage") || roles("fabrication") || roles("commercial") ? null :
-
-                  (<><th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                    QTE Inter
-                  </th>
-                    <th className='px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                      QTE Serie
-                    </th></>)
-              }
+      
             </tr>
           </thead>
           <tbody className='divide-y divide-gray-200'>
@@ -323,132 +292,69 @@ function ViewDocument() {
                   </tr>
                 ))
             ) : data.doclignes?.length > 0 ? (
+
               currentItems.map((item, index) => (
                 <tr key={index} className='hover:bg-gray-50'>
 
-                  {/* For Chef d'entropt */}
-                  {!roles('commercial') && (
                     <td className='px-4 text-center'>
-                      <Checkbox
-                        checked={selected.includes(item.line?.id)}
-                        onChange={() => handleSelect(item.line?.id)}
-                      />
+                        <Checkbox
+                            checked={selected.includes(item.line?.id)}
+                            onChange={() => handleSelect(item.line?.id)}
+                        />
                     </td>
-                  )}
+
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                        {item.line?.complation_date ?? "__"}
+                    </td>
+
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                        {item.AR_Ref || '__'}
+                    </td>
+
+                    <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-black'>
+                        {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
+                        {item?.article?.Description || null}
+                    </td>
 
 
-                    {(roles('commercial') || roles('preparation')) && (
-                      <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                        {roles('commercial') && (
-                          item.line ? (
-                            <Tag color='#f50'>
-                              {getCompany(item.line.company_id)}
-                            </Tag>
-                          ) : (
-                            <Checkbox
-                              checked={selected.includes(item.cbMarq)}
-                              onChange={() => handleSelect(item.cbMarq)}
-                            />
-                          )
-                        )}
+                    <td className='px-6 py-4 whitespace-nowrap'>
+                        <div className='text-sm text-gray-500'>
+                            H:{' '}
+                            {Math.floor(
+                                item.article ? item.article.Hauteur : item.Hauteur
+                            ) || '__'}
+                        </div>
+                        <div className='text-sm text-gray-500'>
+                            L:{' '}
+                            {Math.floor(
+                                item.article ? item.article.Largeur : item.Largeur
+                            ) || '__'}
+                        </div>
+                        <div className='text-sm text-gray-500'>
+                            P:{' '}
+                            {Math.floor(
+                                item.article ? item.article.Profondeur : item.Profondeur
+                            ) || '__'}
+                        </div>
+                    </td>
 
-                        {roles('preparation') && (
-                          <Tag color='#f50'>
-                            {item?.line?.role_id ? getRoles(item.line.role_id) : "--"}
-                          </Tag>
-                        )}
-                      </td>
-                    )}
-
-                  
-                  
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {item.line?.completed ? "Redy" : "Not Redy"}
-                  </td>
-
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                    {item.AR_Ref || '__'}
-                  </td>
-
-                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-black'>
-                    {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
-                    {item?.article?.Description || null}
-                  </td>
-
-
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='text-sm text-gray-500'>
-                      H:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Hauteur : item.Hauteur
-                      ) || '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      L:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Largeur : item.Largeur
-                      ) || '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      P:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Profondeur : item.Profondeur
-                      ) || '__'}
-                    </div>
-                  </td>
-
-                  <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap'>
-                    <div className='text-sm text-gray-500'>
-                      Couleur:{' '}
-                      {(item.article ? item.article.Couleur : item.Couleur) ||
-                        '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      Chant:{' '}
-                      {(item.article ? item.article.Chant : item.Chant) || '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      Epaisseur:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Episseur : item.Episseur
-                      ) || '__'}
-                    </div>
-                  </td>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                      {Math.floor(item.DL_Qte)}
-                    </span>
-                  </td>
-
-
-
-                  {/* Quantity */}
-              {!(roles("montage") || roles("fabrication") || roles("commercial")) && (
-                <>
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <span
-                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full broder ${
-                        item?.stock?.qte_inter > item.DL_Qte ? "text-green-800 bg-green-100" : "text-red-800 bg-red-100"
-                      }`}
-                    >
-                      {item.stock ? Math.floor(item.stock.qte_inter) : 0}
-                    </span>
-                  </td>
-
-                  <td className='px-6 py-4 whitespace-nowrap'>
-                    <span
-                      className={`px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full broder ${
-                        item?.stock?.qte_serie > item.DL_Qte ? "text-green-800 bg-green-100" : "text-red-800 bg-red-100"
-                      }`}
-                    >
-                      {item.stock ? Math.floor(item.stock.qte_serie) : 0}
-                    </span>
-                  </td>
-                </>
-              )}
-
-
-                 
+                    <td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap'>
+                        <div className='text-sm text-gray-500'>
+                            Couleur:{' '}
+                            {(item.article ? item.article.Couleur : item.Couleur) ||
+                                '__'}
+                        </div>
+                        <div className='text-sm text-gray-500'>
+                            Chant:{' '}
+                            {(item.article ? item.article.Chant : item.Chant) || '__'}
+                        </div>
+                        <div className='text-sm text-gray-500'>
+                            Epaisseur:{' '}
+                            {Math.floor(
+                                item.article ? item.article.Episseur : item.Episseur
+                            ) || '__'}
+                        </div>
+                    </td>
                 </tr>
               ))
             ) : (
@@ -703,4 +609,4 @@ function ViewDocument() {
   )
 }
 
-export default ViewDocument
+export default Fabrication

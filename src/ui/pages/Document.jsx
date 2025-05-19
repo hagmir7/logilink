@@ -43,7 +43,9 @@ function Document() {
   const handleSelectOrder = (orderId) => {
     if(roles("preparation_cuisine") || roles('preparation_trailer')){
       navigate(`/preparation/${orderId}`)
-    }else{  
+    }else if(roles("fabrication") ){  
+      navigate(`/fabrication/${orderId}`)
+    }else{
       navigate(`/document/${orderId}`)
     }
   }
