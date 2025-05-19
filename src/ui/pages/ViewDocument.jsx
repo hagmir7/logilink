@@ -6,6 +6,7 @@ import Controller from './Controller'
 
 export default function ViewDocument() {
   const { roles } = useAuth()
+  
   if (roles('commercial')) {
     return <Commercial />
   }
