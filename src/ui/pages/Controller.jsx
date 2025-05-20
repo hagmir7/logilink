@@ -1,14 +1,15 @@
-import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, message, Select, Tag } from 'antd'
-import { useAuth } from '../contexts/AuthContext'
+import { Button, Checkbox, message, Select, Tag, Popconfirm } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable'
+import EmptyTable from '../components/ui/EmptyTable';
+
+
 
 function Controller() {
   const { id } = useParams();
@@ -17,7 +18,6 @@ function Controller() {
   const [selected, setSelected] = useState([]);
   const [selectedTransfer, setSelectedTransfer] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
-  const { roles } = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
@@ -25,6 +25,8 @@ function Controller() {
       const response = await api.get(`docentete/${id}`)
 
       setData(response.data)
+      console.log(response);
+      
       setLoading(false)
     } catch (err) {
       setLoading(false)
@@ -60,15 +62,6 @@ function Controller() {
     }
   }
 
-  const getCompany = ($id) => {
-    const companies = [
-      { value: 1, label: 'Inter' },
-      { value: 2, label: 'Serie' },
-    ]
-
-    const company = companies.find((c) => c.value === Number($id))
-    return company ? company.label : null
-  }
 
   const getRoles = (currentRole) => {
     const allRoles = [
@@ -117,6 +110,32 @@ function Controller() {
     { value: 7, label: 'Montage' },
     { value: 8, label: 'Magasinier' },
   ]
+
+
+
+  const [open, setOpen] = useState(false)
+  const [confirmLoading, setConfirmLoading] = useState(false)
+
+  const showPopconfirm = () => {
+    setOpen(true)
+  }
+
+  const handleOk =  async () => {
+    if(selected.length === 0) return;
+    setConfirmLoading(true)
+    const response = await api.post(`palettes/validate/${id}`, {
+      lines: selected,
+    })
+    console.log(response.data)
+    setOpen(false)
+    setConfirmLoading(false)
+    fetchData();
+  }
+
+
+  const handleCancel = () => {
+    setOpen(false)
+  }
 
 
   return (
@@ -176,18 +195,35 @@ function Controller() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
-        <div className='flex gap-3'>
-          <Select
-            defaultValue='Transférer vers'
-            style={{ width: 200 }}
-            onChange={handleChangeTransfer}
-            options={listTransfer}
-          />
-
-          <Button onClick={transfer} loading={transferSpin}>
-            Transfer <ArrowRight size={18} />{' '}
-          </Button>
-        </div>
+        {data.docentete?.document?.completed == 1 ? (
+          <Popconfirm
+            title='Validation'
+            description='Etes-vous sûr de vouloir valider'
+            open={open}
+            onConfirm={handleOk}
+            okButtonProps={{ loading: confirmLoading }}
+            onCancel={handleCancel}
+            cancelText='Annuler'
+            okText='Valider'
+          >
+            <Button type='primary' color='green' onClick={showPopconfirm}>
+              Valider
+              <CircleCheckBig size={18} />{' '}
+            </Button>
+          </Popconfirm>
+        ) : (
+          <div className='flex gap-3'>
+            <Select
+              defaultValue='Transférer vers'
+              style={{ width: 200 }}
+              onChange={handleChangeTransfer}
+              options={listTransfer}
+            />
+            <Button onClick={transfer} loading={transferSpin}>
+              Transfer <ArrowRight size={18} />{' '}
+            </Button>
+          </div>
+        )}
       </div>
 
       {/* Desktop Table */}
@@ -215,16 +251,30 @@ function Controller() {
             </Tr>
           </Thead>
           <Tbody>
-            {loading ? <SkeletonTable /> : data.doclignes?.length > 0 ? (
+            {loading ? (
+              <SkeletonTable />
+            ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index}>
-
                   <Td>
-                   <Checkbox checked={selected.includes(item.line?.id || item.id)} onChange={() => handleSelect(item.line?.id || item.id)} />
+                    {item.line?.validated ? (
+                      (<CircleCheckBig color='green' size={18} />)
+                    ) : (
+                      <Checkbox
+                        checked={selected.includes(item.line?.id || item.id)}
+                        onChange={() => handleSelect(item.line?.id || item.id)}
+                      />
+                    )}
                   </Td>
 
                   <Td>
-                    {item.line?.role_id > 0 ? <Tag color="#2db7f5">{getRoles(item.line.role_id)}</Tag> : item.line?.completed ? <CheckCircle size={20} color='green'  /> : "__"}
+                    {item.line?.role_id > 0 ? (
+                      <Tag color='#2db7f5'>{getRoles(item.line.role_id)}</Tag>
+                    ) : item.line?.completed ? (
+                      <CheckCircle size={20} color='green' />
+                    ) : (
+                      '__'
+                    )}
                   </Td>
 
                   <Td>{item.AR_Ref || '__'}</Td>
@@ -270,15 +320,27 @@ function Controller() {
                     </div>
                   </Td>
                   <Td>
-                    <Tag color='green-inverse' >{Math.floor(item.DL_Qte)}</Tag>
+                    <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
                   </Td>
 
                   <Td>
-                    <Tag color={item?.stock?.qte_inter > 0 ? "green-inverse" : "#f50"}  >{item?.stock?.qte_inter}</Tag>
+                    <Tag
+                      color={
+                        item?.stock?.qte_inter > 0 ? 'green-inverse' : '#f50'
+                      }
+                    >
+                      {item?.stock?.qte_inter}
+                    </Tag>
                   </Td>
 
                   <Td>
-                    <Tag color={item?.stock?.qte_serie > 0 ? "green-inverse" : "#f50"}  >{item?.stock?.qte_inter}</Tag>
+                    <Tag
+                      color={
+                        item?.stock?.qte_serie > 0 ? 'green-inverse' : '#f50'
+                      }
+                    >
+                      {item?.stock?.qte_inter}
+                    </Tag>
                   </Td>
                 </Tr>
               ))

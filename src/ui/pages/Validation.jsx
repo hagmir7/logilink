@@ -22,14 +22,13 @@ function Validation() {
   const navigate = useNavigate()
   const { roles } = useAuth()
 
-  let url = 'docentetes/validation'
 
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(url)
-      console.log(response.data)
+      const response = await api.get('docentete/validation');
+      console.log(response.data);
       setData(response.data)
       setLoading(false)
     } catch (err) {

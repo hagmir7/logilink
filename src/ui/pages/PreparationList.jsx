@@ -22,6 +22,8 @@ function PreparationList() {
 
       setData(response.data)
       setLoading(false)
+      console.log(response);
+      
     } catch (err) {
       setLoading(false)
       console.error('Failed to fetch data:', err)
@@ -108,17 +110,20 @@ function PreparationList() {
               <Th>Dimensions</Th>
               <Th>Matériaux</Th>
               <Th>Qte</Th>
-               <Th>QR Code</Th>
+              <Th>QR Code</Th>
+              <Th>Etata</Th>
             </Tr>
           </Thead>
           <Tbody>
-            {loading ? <SkeletonTable /> : data.doclignes?.length > 0 ? (
+            {loading ? (
+              <SkeletonTable />
+            ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index}>
                   <Td>
-                    <Tag color="#2db7f5">Prêt</Tag>
+                    <Tag color='#2db7f5'>Prêt</Tag>
                   </Td>
-                  <Td className="font-black text-gray-800">
+                  <Td className='font-black text-gray-800'>
                     {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
                     {item?.article?.Description || null}
                   </Td>
@@ -126,20 +131,28 @@ function PreparationList() {
                   <Td>
                     <div className='text-sm text-gray-500'>
                       H:{' '}
-                      <span className="font-bold text-gray-800">
-                        {Math.floor( item.article ? item.article.Hauteur : item.Hauteur) || '__'}
+                      <span className='font-bold text-gray-800'>
+                        {Math.floor(
+                          item.article ? item.article.Hauteur : item.Hauteur
+                        ) || '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
                       L:{' '}
-                      <span className="font-bold text-gray-800">
-                        {Math.floor( item.article ? item.article.Largeur : item.Largeur ) || '__'}
+                      <span className='font-bold text-gray-800'>
+                        {Math.floor(
+                          item.article ? item.article.Largeur : item.Largeur
+                        ) || '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
                       P:{' '}
                       <span className='font-bold  text-gray-800'>
-                        {Math.floor(item.article ? item.article.Profondeur : item.Profondeur ) || '__'}
+                        {Math.floor(
+                          item.article
+                            ? item.article.Profondeur
+                            : item.Profondeur
+                        ) || '__'}
                       </span>
                     </div>
                   </Td>
@@ -147,33 +160,46 @@ function PreparationList() {
                     <div className='text-sm text-gray-500'>
                       Couleur:{' '}
                       <span className='font-bold text-gray-800'>
-                        {(item.article ? item.article.Couleur : item.Couleur) || '__'}
+                        {(item.article ? item.article.Couleur : item.Couleur) ||
+                          '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
                       Chant:{' '}
                       <span className='font-bold text-gray-800'>
-                        {(item.article ? item.article.Chant : item.Chant) || '__'}
+                        {(item.article ? item.article.Chant : item.Chant) ||
+                          '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
                       Epaisseur:{' '}
                       <span className='font-bold text-gray-800'>
-                        {Math.floor(item.article ? item.article.Episseur : item.Episseur ) || '__'}
+                        {Math.floor(
+                          item.article ? item.article.Episseur : item.Episseur
+                        ) || '__'}
                       </span>
                     </div>
                   </Td>
                   <Td>
-                    <Tag color='green-inverse' >{Math.floor(item.DL_Qte)}</Tag>
+                    <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
                   </Td>
                   {console.log()}
                   <Td>
-                     <QRCode
-                          size={100}
-                          errorLevel="H"
-                          value={`${item.line.id}`}
-                        />
+                    <QRCode
+                      size={100}
+                      errorLevel='H'
+                      value={`${item.line.id}`}
+                    />
                   </Td>
+                  <Td>
+                    {item?.line?.palettes?.reduce(
+                      (sum, palette) =>
+                        sum + Number(palette?.pivot?.quantity || 0),
+                      0
+                    )}
+                    - {Math.floor(item.DL_Qte)}
+                  </Td>
+                  {/* <Td>{item?.line?.palettes.length === Math.floor(item.DL_Qte) ? 'Yes' : 'No'}</Td> */}
                 </Tr>
               ))
             ) : (
@@ -218,11 +244,18 @@ function PreparationList() {
                   {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
                   {item?.article?.Description || null}
                 </span>
-                <Tag color="#2db7f5" className="ml-2">Prêt</Tag>
+                <Tag color='#2db7f5' className='ml-2'>
+                  Prêt
+                </Tag>
               </div>
-              
+
               <div className='flex justify-between items-center mb-2'>
-                <span className='text-sm text-gray-500'>Référence: <span className='font-medium text-gray-700'>{item.AR_Ref || '__'}</span></span>
+                <span className='text-sm text-gray-500'>
+                  Référence:{' '}
+                  <span className='font-medium text-gray-700'>
+                    {item.AR_Ref || '__'}
+                  </span>
+                </span>
                 <Tag color='green-inverse'>{Math.floor(item.DL_Qte || 0)}</Tag>
               </div>
 
@@ -232,25 +265,33 @@ function PreparationList() {
                 <div className='text-sm'>
                   <span className='text-gray-500'>H: </span>
                   <span className='font-bold text-gray-800'>
-                    {Math.floor(item.article ? item.article.Hauteur : item.Hauteur) || '__'}
+                    {Math.floor(
+                      item.article ? item.article.Hauteur : item.Hauteur
+                    ) || '__'}
                   </span>
                 </div>
                 <div className='text-sm'>
                   <span className='text-gray-500'>L: </span>
                   <span className='font-bold text-gray-800'>
-                    {Math.floor(item.article ? item.article.Largeur : item.Largeur) || '__'}
+                    {Math.floor(
+                      item.article ? item.article.Largeur : item.Largeur
+                    ) || '__'}
                   </span>
                 </div>
                 <div className='text-sm'>
                   <span className='text-gray-500'>P: </span>
                   <span className='font-bold text-gray-800'>
-                    {Math.floor(item.article ? item.article.Profondeur : item.Profondeur) || '__'}
+                    {Math.floor(
+                      item.article ? item.article.Profondeur : item.Profondeur
+                    ) || '__'}
                   </span>
                 </div>
                 <div className='text-sm'>
                   <span className='text-gray-500'>Epaisseur: </span>
                   <span className='font-bold text-gray-800'>
-                    {Math.floor(item.article ? item.article.Episseur : item.Episseur) || '__'}
+                    {Math.floor(
+                      item.article ? item.article.Episseur : item.Episseur
+                    ) || '__'}
                   </span>
                 </div>
               </div>
@@ -261,7 +302,8 @@ function PreparationList() {
                 <div className='text-sm'>
                   <span className='text-gray-500'>Couleur: </span>
                   <span className='font-bold text-gray-800'>
-                    {(item.article ? item.article.Couleur : item.Couleur) || '__'}
+                    {(item.article ? item.article.Couleur : item.Couleur) ||
+                      '__'}
                   </span>
                 </div>
                 <div className='text-sm'>

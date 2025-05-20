@@ -34,7 +34,7 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          label: <Link to='#!'>Validation</Link>,
+          label: <Link to='/validation'>Validation</Link>,
         },
         {
           key: 'submenu-11',

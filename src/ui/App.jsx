@@ -11,6 +11,7 @@ import Document from './pages/Document'
 import Preparation from './pages/Preparation'
 import Fabrication from './pages/Fabrication'
 import ViewDocument from './pages/ViewDocument'
+import Validation from './pages/Validation'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -32,6 +33,7 @@ function App() {
           <Route path='documents' element={<Document />} />
           <Route path='preparation/:id' element={<Preparation />} />
           <Route path='fabrication/:id' element={<Fabrication />} />
+          <Route path='validation' element={<Validation />} />
         </Route>
       </Routes>
     </>
