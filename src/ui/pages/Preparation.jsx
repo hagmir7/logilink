@@ -75,7 +75,8 @@ export default function Preparation() {
   const handleScan = async (value) => {
     if (!palette) return
 
-    const payload = { line, document: id, palette: palette.code }
+    const payload = { line: value, document: id, palette: palette.code }
+    setLine(value);
 
     try {
       const { data } = await api.post('palettes/scan', payload)
@@ -152,9 +153,6 @@ export default function Preparation() {
     }
   }
 
-  const onScan = (value) =>{
-    console.log("Scanned");
-  }
 
   return (
     <div className='min-h-screen md:p-4'>
@@ -162,7 +160,7 @@ export default function Preparation() {
 
       {/* Scanner input */}
        <div className='flex items-center justify-center mb-5'>
-        <QScanner onScan={onScan} />
+        <QScanner onScan={handleScan} />
        </div>
       <div className='mb-8 flex justify-center'>
         <div className='border-2 p-3 gap-3 border-gray-300 rounded-lg flex items-center bg-gray-50'>
@@ -208,6 +206,7 @@ export default function Preparation() {
         />
 
         <div className='grid grid-cols-3 gap-3'>
+
           <input
             className='border-2 py-2 border-gray-300 text-lg px-4 rounded-md bg-gray-200'
             placeholder='Profondeur'
@@ -215,6 +214,7 @@ export default function Preparation() {
             value={article.profondeur}
             readOnly
           />
+
           <input
             className='border-2 py-2 border-gray-300 text-lg px-4 rounded-md bg-gray-200'
             type='text'
@@ -222,6 +222,7 @@ export default function Preparation() {
             value={article.chant}
             readOnly
           />
+
           <input
             className='border-2 py-2 border-gray-300 text-lg px-4 rounded-md bg-gray-200'
             type='text'
