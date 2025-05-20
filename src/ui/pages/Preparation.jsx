@@ -46,14 +46,9 @@ export default function Preparation() {
   }
 
   const openNotificationWithIcon = (type) => {
-    const message = type === 'success' ? 'Opération réussie' : 'Notification'
-    const description = type === 'success' 
-      ? 'Palette mise à jour avec succès.' 
-      : 'Une erreur est survenue.'
-    
     notificationApi[type]({
-      message,
-      description,
+      message: 'Notification',
+      description: 'Une erreur est survenue.',
     })
   }
 
@@ -77,22 +72,14 @@ export default function Preparation() {
     if (id) createPalette()
   }, [id])
 
-  const handleScan = async (scannedValue) => {
+  const handleScan = async (value) => {
     if (!palette) return
 
-    // If scannedValue is provided, use it, otherwise use the line state
-    const scanValue = scannedValue || line
-    if (!scanValue.trim()) return
-
-    const payload = { 
-      line: scanValue, 
-      document: id, 
-      palette: palette.code 
-    }
+    const payload = { line, document: id, palette: palette.code }
 
     try {
       const { data } = await api.post('palettes/scan', payload)
-      console.log(data)
+      console.log(data);
       
       const dimensions =
         data.docligne?.Hauteur && data.docligne?.Largeur
@@ -133,7 +120,7 @@ export default function Preparation() {
         line: article.id,
       })
 
-      console.log(data)
+      console.log(data);
       
       setLines(data.lines || [])
       openNotificationWithIcon('success')
@@ -153,7 +140,6 @@ export default function Preparation() {
       setLines(data?.lines || [])
     } catch (err) {
       console.error('Error removing line:', err)
-      openNotificationWithIcon('error')
     }
   }
 
@@ -161,33 +147,13 @@ export default function Preparation() {
     try {
       const { data } = await api.post('palettes/create', { document_id: id })
       console.log(data)
-      
-      // Update state with new palette data if returned
-      if (data.palette) {
-        setPalette(data.palette)
-        setLines(data.palette.lines || [])
-      }
-      if (data.palettes) {
-        setPalettes(data.palettes)
-        setCurrentIndex(data.palettes.length - 1) // Select the newly created palette
-      }
-      
-      openNotificationWithIcon('success')
     } catch (err) {
       console.error('Error creating new palette:', err)
-      openNotificationWithIcon('error')
     }
   }
 
-  const handleQScan = (value) => {
-    if (!value) return
-    
-    // If value represents a palette code, set it
-    setPalette({ code: value })
-    createPalette(value)
-    
-    // You might also want to scan with this value
-    handleScan(value)
+  const onScan = (value) =>{
+    console.log("Scanned");
   }
 
   return (
@@ -195,12 +161,12 @@ export default function Preparation() {
       {contextHolder}
 
       {/* Scanner input */}
-      <div className='flex items-center justify-center mb-5'>
-        <QScanner onScan={handleQScan} />
-      </div>
-      
+       <div className='flex items-center justify-center mb-5'>
+        <QScanner onScan={onScan} />
+       </div>
       <div className='mb-8 flex justify-center'>
         <div className='border-2 p-3 gap-3 border-gray-300 rounded-lg flex items-center bg-gray-50'>
+          
           <input
             type='text'
             value={line}
@@ -209,7 +175,7 @@ export default function Preparation() {
             placeholder='Enter barcode or scan'
           />
           <button
-            onClick={() => handleScan()}
+            onClick={handleScan}
             className='py-2 px-4 border-gray-300 border-2 rounded-md hover:bg-gray-100'
             disabled={!palette || !line.trim()}
           >
@@ -341,7 +307,7 @@ export default function Preparation() {
                     </span>
                   </div>
                   <span className='text-3xl font-bold text-gray-600'>
-                    {item.quantity ? Math.floor(item.quantity) : Math.floor(item.pivot?.quantity) || 0}
+                    {item.quantity ? Math.floor(item.pivot.quantity) : 0}
                   </span>
                 </div>
 
