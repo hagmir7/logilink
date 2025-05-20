@@ -8,8 +8,17 @@ const getAuthToken = () => {
   return '';
 };
 
+let baseURL;
+
+if (import.meta.env.MODE === 'development') {
+  baseURL = 'http://localhost:8000/api/';
+} else {
+  baseURL = 'https://intercocina.space/api/';
+}
+
+
 export const api = axios.create({
-  baseURL: 'https://agmir.pdfdrive.me/api/',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
     Accept: 'application/json',

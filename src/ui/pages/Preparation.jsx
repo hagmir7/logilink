@@ -4,6 +4,7 @@ import { Badge, notification } from 'antd'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BarcodeScanner from '../components/BarcodeScanner'
+import QScanner from '../components/QScanner'
 
 export default function Preparation() {
   const [article, setArticle] = useState({
@@ -29,8 +30,7 @@ export default function Preparation() {
   const currentPalette = palettes[currentIndex]
 
   const goNext = () => {
-    const nextIndex =
-      currentIndex === palettes.length - 1 ? 0 : currentIndex + 1
+    const nextIndex = currentIndex === palettes.length - 1 ? 0 : currentIndex + 1
     const nextPalette = palettes[nextIndex]
     setCurrentIndex(nextIndex)
     setPalette(nextPalette)
@@ -38,8 +38,7 @@ export default function Preparation() {
   }
 
   const goPrevious = () => {
-    const prevIndex =
-      currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
+    const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
     const prevPalette = palettes[prevIndex]
     setCurrentIndex(prevIndex)
     setPalette(prevPalette)
@@ -73,7 +72,7 @@ export default function Preparation() {
     if (id) createPalette()
   }, [id])
 
-  const handleScan = async () => {
+  const handleScan = async (value) => {
     if (!palette) return
 
     const payload = { line, document: id, palette: palette.code }
@@ -153,13 +152,24 @@ export default function Preparation() {
     }
   }
 
+  const onScan = () =>{
+    console.log("Scanned");
+  }
+
   return (
     <div className='min-h-screen md:p-4'>
       {contextHolder}
 
       {/* Scanner input */}
+       <div className='flex items-center justify-center mb-5'>
+        <QScanner onScan={(value)=>{
+          setPalette(value);
+          handleScan()
+        }} />
+       </div>
       <div className='mb-8 flex justify-center'>
         <div className='border-2 p-3 gap-3 border-gray-300 rounded-lg flex items-center bg-gray-50'>
+          
           <input
             type='text'
             value={line}
