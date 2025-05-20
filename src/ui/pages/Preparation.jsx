@@ -120,9 +120,6 @@ export default function Preparation() {
         palette: palette?.code,
         line: article.id,
       })
-
-      console.log(data);
-      
       setLines(data.lines || [])
       openNotificationWithIcon('success')
     } catch (err) {
@@ -173,9 +170,9 @@ export default function Preparation() {
             placeholder='Enter barcode or scan'
           />
           <button
-            onClick={handleScan}
+            onClick={()=> handleScan(line)}
             className='py-2 px-4 border-gray-300 border-2 rounded-md hover:bg-gray-100'
-            disabled={!palette || !line.trim()}
+            disabled={!palette || !line}
           >
             Scanner
           </button>

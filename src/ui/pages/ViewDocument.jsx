@@ -3,6 +3,8 @@ import { useAuth } from '../contexts/AuthContext'
 import Commercial from './Commercial'
 import Montage from './Montage'
 import Controller from './Controller'
+import Preparation from './Preparation'
+import PreparationList from './PreparationList'
 
 export default function ViewDocument() {
   const { roles } = useAuth()
@@ -21,5 +23,10 @@ export default function ViewDocument() {
 
   if (roles('preparation')) {
     return <Controller />
+  }
+
+
+  if(roles('preparation_cuisine') || roles('preparation_trailer')){
+     return <PreparationList />
   }
 }

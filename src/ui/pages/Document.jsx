@@ -41,13 +41,7 @@ function Document() {
   }
 
   const handleSelectOrder = (orderId) => {
-    if (roles('preparation_cuisine') || roles('preparation_trailer')) {
-      navigate(`/preparation/${orderId}`)
-    } else if (roles('fabrication')) {
-      navigate(`/fabrication/${orderId}`)
-    } else {
-      navigate(`/document/${orderId}`)
-    }
+    navigate(`/document/${orderId}`)
   }
 
   useEffect(() => {
@@ -117,10 +111,11 @@ function Document() {
           />
           {roles('commercial') && (
             <Select
-              defaultValue='1'
+              defaultValue="2"
               style={{ width: 220, height: 40 }}
               className='py-2'
               onChange={handleChange}
+
               options={[
                 { value: '0', label: 'Devis' },
                 { value: '1', label: 'Bon de command' },
