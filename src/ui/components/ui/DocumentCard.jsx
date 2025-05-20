@@ -4,10 +4,8 @@ import { formatDate, getExped } from '../../utils/config';
 import { Badge } from 'antd'
 
 function DocumentCard({ data, onSelectOrder }) {
-
-
   return (
-    <Badge.Ribbon text='Livrée'>
+    <Badge.Ribbon color={data?.document?.completed ? 'green' : 'gray'} text={`${data?.document?.completed ? "Préparé"  : "Préparation"}`}>
       <div
         className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'
         onClick={() => onSelectOrder(data.DO_Piece)}
