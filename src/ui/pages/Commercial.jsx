@@ -113,18 +113,17 @@ function Commercial() {
     { value: 2, label: 'Seriemoble' },
   ]
 
-  const reset = () =>{
 
+
+  const reset = async () => {
+    const response = await api.get(`docentetes/reset/${id}`)
+    fetchData()
+    console.log(response);
+    
+    message.success('Réinitialiser avec succès')
   }
+  
 
-  const confirm = e => {
-  console.log(e);
-  message.success('Click on Yes');
-};
-const cancel = e => {
-  console.log(e);
-  message.error('Click on No');
-};
 
 
   return (
@@ -132,7 +131,9 @@ const cancel = e => {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>
-            {data.docentete.DO_Piece ? `Commande ${data.docentete.DO_Piece}` : 'Chargement...'}
+            {data.docentete.DO_Piece
+              ? `Commande ${data.docentete.DO_Piece}`
+              : 'Chargement...'}
           </h1>
         </div>
         <button
@@ -183,20 +184,22 @@ const cancel = e => {
           Détails des articles
         </h2>
         <div className='flex gap-3'>
-          <Popconfirm
-            title="Réinitialiser la commande"
-            description="Êtes-vous sûr de vouloir réinitialiser cette tâche ?"
-            onConfirm={confirm}
-            onCancel={cancel}
-            okText="Réinitialiser"
+          {data.docentete.document ? (
+            <Popconfirm
+              title='Réinitialiser la commande'
+              description='Êtes-vous sûr de vouloir réinitialiser cette tâche ?'
+              onConfirm={reset}
+              okText='Réinitialiser'
+              cancelText='Annuler'
+            >
+              <Button color='red' variant='solid'>
+                Réinitialiser <Undo2 size={18} />{' '}
+              </Button>
+            </Popconfirm>
+          ) : (
+            ''
+          )}
 
-            cancelText="Annuler"
-          >
-            <Button color="red" variant="solid" onClick={reset}>
-              Réinitialiser <Undo2 size={18} />{' '}
-            </Button>
-          </Popconfirm>
-         
           <Select
             defaultValue='Transférer vers'
             style={{ width: 200 }}
@@ -232,71 +235,83 @@ const cancel = e => {
             </Tr>
           </Thead>
           <Tbody>
-            {loading ? <SkeletonTable />
-              : data.doclignes?.length > 0 ? (
-                currentItems.map((item, index) => (
-                  <Tr key={index}>
-                    <Td>
-                      {item?.line ? (
-                        <Tag
-                          color={
-                            item.line.company_id == 1 ? '#87d068' : '#2db7f5'
-                          }
-                        >
-                          {getCompany(item.line.company_id)}
-                        </Tag>
-                      ) : (
-                        <Checkbox
-                          checked={selected.includes(
-                            item.line?.id || item.cbMarq
-                          )}
-                          onChange={() =>
-                            handleSelect(item.line?.id || item.cbMarq)
-                          }
-                        />
-                      )}
-                    </Td>
+            {loading ? (
+              <SkeletonTable />
+            ) : data.doclignes?.length > 0 ? (
+              currentItems.map((item, index) => (
+                <Tr key={index}>
+                  <Td>
+                    {item?.line ? (
+                      <Tag
+                        color={
+                          item.line.company_id == 1 ? '#87d068' : '#2db7f5'
+                        }
+                      >
+                        {getCompany(item.line.company_id)}
+                      </Tag>
+                    ) : (
+                      <Checkbox
+                        checked={selected.includes(
+                          item.line?.id || item.cbMarq
+                        )}
+                        onChange={() =>
+                          handleSelect(item.line?.id || item.cbMarq)
+                        }
+                      />
+                    )}
+                  </Td>
 
-                    <Td>{item.AR_Ref || '__'}</Td>
-                    <Td>
-                      {item.DL_Design} {item?.article?.Description || null}
-                    </Td>
-                    <Td>
-                      <div className='text-sm text-gray-500'>
-                        H:{' '}
-                        {Math.floor(item.article ? item.article.Hauteur : item.Hauteur ) || '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        L:{' '}
-                        {Math.floor( item.article ? item.article.Largeur : item.Largeur ) || '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        P:{' '}
-                        {Math.floor( item.article ? item.article.Profondeur : item.Profondeur ) || '__'}
-                      </div>
-                    </Td>
-                    <Td>
-                      <div className='text-sm text-gray-500'>
-                        Couleur:{' '}
-                        {(item.article ? item.article.Couleur : item.Couleur) || '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        Chant:{' '}
-                        {(item.article ? item.article.Chant : item.Chant) || '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        Epaisseur:{' '}
-                        {Math.floor(item.article ? item.article.Episseur : item.Episseur ) || '__'}
-                      </div>
-                    </Td>
-                    <Td>
-                      <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                        {Math.floor(item.DL_Qte)}
-                      </span>
-                    </Td>
-                  </Tr>
-                ))
-              ) : <EmptyTable />}
+                  <Td>{item.AR_Ref || '__'}</Td>
+                  <Td>
+                    {item.DL_Design} {item?.article?.Description || null}
+                  </Td>
+                  <Td>
+                    <div className='text-sm text-gray-500'>
+                      H:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Hauteur : item.Hauteur
+                      ) || '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      L:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Largeur : item.Largeur
+                      ) || '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      P:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Profondeur : item.Profondeur
+                      ) || '__'}
+                    </div>
+                  </Td>
+                  <Td>
+                    <div className='text-sm text-gray-500'>
+                      Couleur:{' '}
+                      {(item.article ? item.article.Couleur : item.Couleur) ||
+                        '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      Chant:{' '}
+                      {(item.article ? item.article.Chant : item.Chant) || '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      Epaisseur:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Episseur : item.Episseur
+                      ) || '__'}
+                    </div>
+                  </Td>
+                  <Td>
+                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                      {Math.floor(item.DL_Qte)}
+                    </span>
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <EmptyTable />
+            )}
           </Tbody>
         </Table>
       </div>
@@ -327,7 +342,10 @@ const cancel = e => {
           </div>
         ) : data.doclignes?.length > 0 ? (
           currentItems.map((item, index) => (
-            <div key={index} className='bg-white border-1 border-gray-200 p-4 mb-4 shadow-sm'>
+            <div
+              key={index}
+              className='bg-white border-1 border-gray-200 p-4 mb-4 shadow-sm'
+            >
               <div className='flex justify-between items-center'>
                 <span className='font-medium text-gray-900'>
                   {item.Nom || '__'}

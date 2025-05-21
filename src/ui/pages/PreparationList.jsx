@@ -132,8 +132,8 @@ function PreparationList() {
               <Th>Dimensions</Th>
               <Th>Matériaux</Th>
               <Th>Qte</Th>
+              <Th>Qte Préparé</Th>
               <Th>QR Code</Th>
-              <Th>Etata</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -205,7 +205,25 @@ function PreparationList() {
                   <Td>
                     <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
                   </Td>
-                  {console.log()}
+                  <Td>
+                    <Tag
+                      color={
+                        item?.line?.palettes?.reduce(
+                          (sum, palette) =>
+                            sum + Number(palette?.pivot?.quantity || 0),
+                          0
+                        ) == Math.floor(item.DL_Qte)
+                          ? 'green-inverse'
+                          : 'red-inverse'
+                      }
+                    >
+                      {item?.line?.palettes?.reduce(
+                        (sum, palette) =>
+                          sum + Number(palette?.pivot?.quantity || 0),
+                        0
+                      )}
+                    </Tag>
+                  </Td>
                   <Td>
                     <QRCode
                       size={100}
@@ -213,14 +231,7 @@ function PreparationList() {
                       value={`${item.line.id}`}
                     />
                   </Td>
-                  <Td>
-                    {item?.line?.palettes?.reduce(
-                      (sum, palette) =>
-                        sum + Number(palette?.pivot?.quantity || 0),
-                      0
-                    )}
-                    - {Math.floor(item.DL_Qte)}
-                  </Td>
+
                   {/* <Td>{item?.line?.palettes.length === Math.floor(item.DL_Qte) ? 'Yes' : 'No'}</Td> */}
                 </Tr>
               ))

@@ -23,6 +23,8 @@ function Document() {
   const { roles } = useAuth()
 
   let url = 'docentetes/preparation'
+
+  
   if (roles('commercial')) {
     url = `docentetes/commercial?status=${documentStatus}&page=${page}`
   }

@@ -92,7 +92,7 @@ export default function Preparation() {
       setArticle({
         id: data.id,
         ref: data.ref ?? '',
-        design: data.docligne?.Nom ? data.docligne.Nom + ' ' + dimensions : '',
+        design: (data.docligne?.Nom ? data.docligne.Nom + ' ' + dimensions : '') + data.docligne?.Couleur,
         profondeur: data.docligne?.Profondeur ?? '',
         episseur: data.docligne?.Episseur
           ? Math.floor(data.docligne.Episseur).toString()
@@ -121,9 +121,22 @@ export default function Preparation() {
         line: article.id,
       })
       setLines(data.lines || [])
-      openNotificationWithIcon('success');
-      console.log(data);
+
+      openNotificationWithIcon('success')
       
+      setArticle({
+        ref: '',
+        design: '',
+        profondeur: '',
+        episseur: '',
+        chant: '',
+        qte: 0,
+        color: '',
+        height: '',
+        width: '',
+      })
+
+      setLine(null)
     } catch (err) {
       console.error('Error confirming:', err)
       openNotificationWithIcon('error')
