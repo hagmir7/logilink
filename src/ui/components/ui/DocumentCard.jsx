@@ -2,11 +2,15 @@ import React from 'react';
 // import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
 import { formatDate, getExped } from '../../utils/config';
 import { Badge } from 'antd'
+import { Settings } from 'lucide-react';
 
 function DocumentCard({ data, onSelectOrder }) {
 
   return (
-    <Badge.Ribbon color={data?.document?.completed == 1 ? 'green' : 'gray'} text={`${data?.document?.completed == 1 ? "Préparé"  : "Préparation"}`}>
+    <Badge.Ribbon
+      color={data?.document?.status?.color == 1 ? 'green' : 'gray'}
+      text={`${data?.document?.status?.name}`}
+    >
       <div
         className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'
         onClick={() => onSelectOrder(data.DO_Piece)}
@@ -16,9 +20,11 @@ function DocumentCard({ data, onSelectOrder }) {
             <span className='text-gray-800 font-bold'>
               {data.DO_Piece || '__'}
             </span>
-            <span className='text-xs ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded'>
-              {data.DO_Reliquat || '__'}
-            </span>
+            {data.DO_Reliquat === 1 ? (
+              <span className='text-xs ml-2 bg-gray-100 text-gray-600 px-2 py-1 rounded'>
+                <Settings />
+              </span>
+            ) : null}
           </div>
         </div>
 
