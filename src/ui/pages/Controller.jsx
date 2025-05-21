@@ -1,4 +1,4 @@
-import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig, Clock4 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
@@ -137,6 +137,29 @@ function Controller() {
     setOpen(false)
   }
 
+  const statuses = [
+    { id: 1, name: "Transféré" },
+    { id: 2, name: "Reçu" },
+    { id: 3, name: "Fabrication" },
+    { id: 4, name: "Fabriqué" },
+    { id: 5, name: "Montage" },
+    { id: 6, name: "Monté" },
+    { id: 7, name: "Préparation" },
+    { id: 8, name: "Préparé" },
+    { id: 9, name: "Contrôle" },
+    { id: 10, name: "Contrôlé" },
+    { id: 11, name: "Prêt" },
+    { id: 12, name: "À livrer" },
+    { id: 13, name: "Livré" },
+  ];
+
+  function getStatus(id) {
+    const status = statuses.find(status => status.id === Number(id));
+    return status ? status.name : "No Status";
+  }
+
+
+
 
   return (
     <div className='max-w-7xl mx-auto'>
@@ -241,6 +264,7 @@ function Controller() {
                 />
               </Th>
               <Th>Etat</Th>
+              {/* <Th>Mode actuel</Th> */}
               <Th>Ref Article</Th>
               <Th>Piece</Th>
               <Th>Dimensions</Th>
@@ -256,8 +280,9 @@ function Controller() {
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index}>
+
                   <Td>
-                    {item.line?.validated ? (
+                    {item.line?.validated == '1' ? (
                       (<CircleCheckBig color='green' size={18} />)
                     ) : (
                       <Checkbox
@@ -266,16 +291,21 @@ function Controller() {
                       />
                     )}
                   </Td>
-
+                  
                   <Td>
-                    {item.line?.role_id > 0 ? (
-                      <Tag color='#2db7f5'>{getRoles(item.line.role_id)}</Tag>
-                    ) : item.line?.completed ? (
-                      <CheckCircle size={20} color='green' />
-                    ) : (
-                      '__'
-                    )}
+                    <Tag color='#2db7f5'>{getStatus(item.line.status_id)}</Tag>
                   </Td>
+
+                  {/* <Td>
+                    {item.line?.role_id > 0 ? (
+                      <Tag color="#2db7f5">{getRoles(item.line.role_id)}</Tag>
+                    ) : item.line?.status_id == 1 ? (
+                      <Clock4 size={20} color="green" />
+                    ) : (
+                      "__"
+                    )}
+                  </Td> */}
+
 
                   <Td>{item.AR_Ref || '__'}</Td>
                   <Td>

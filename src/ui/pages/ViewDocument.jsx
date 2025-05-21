@@ -5,6 +5,7 @@ import Montage from './Montage'
 import Controller from './Controller'
 import Preparation from './Preparation'
 import PreparationList from './PreparationList'
+import Fabrication from './Fabrication'
 
 export default function ViewDocument() {
   const { roles } = useAuth()

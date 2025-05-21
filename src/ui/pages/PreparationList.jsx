@@ -33,7 +33,29 @@ function PreparationList() {
     fetchData()
   }, [id])
 
-  const currentItems = data?.doclignes || []
+  const currentItems = data?.doclignes || [];
+
+
+  const statuses = [
+    { id: 1, name: "Transféré" },
+    { id: 2, name: "Reçu" },
+    { id: 3, name: "Fabrication" },
+    { id: 4, name: "Fabriqué" },
+    { id: 5, name: "Montage" },
+    { id: 6, name: "Monté" },
+    { id: 7, name: "Préparation" },
+    { id: 8, name: "Préparé" },
+    { id: 9, name: "Contrôle" },
+    { id: 10, name: "Contrôlé" },
+    { id: 11, name: "Prêt" },
+    { id: 12, name: "À livrer" },
+    { id: 13, name: "Livré" },
+  ];
+
+  function getStatus(id) {
+    const status = statuses.find(status => status.id === Number(id));
+    return status ? status.name : "No Status";
+  }
 
   return (
     <div className='max-w-7xl mx-auto'>
@@ -121,7 +143,7 @@ function PreparationList() {
               currentItems.map((item, index) => (
                 <Tr key={index}>
                   <Td>
-                    <Tag color='#2db7f5'>Prêt</Tag>
+                    <Tag color='#2db7f5'>{getStatus(item.line.status_id)}</Tag>
                   </Td>
                   <Td className='font-black text-gray-800'>
                     {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
@@ -244,9 +266,7 @@ function PreparationList() {
                   {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
                   {item?.article?.Description || null}
                 </span>
-                <Tag color='#2db7f5' className='ml-2'>
-                  Prêt
-                </Tag>
+                <Tag color='#2db7f5'>{getStatus(item.line.status_id)}</Tag>
               </div>
 
               <div className='flex justify-between items-center mb-2'>
@@ -312,13 +332,6 @@ function PreparationList() {
                     {(item.article ? item.article.Chant : item.Chant) || '__'}
                   </span>
                 </div>
-              </div>
-
-              <div className='mt-3 flex justify-end'>
-                <button className='p-2 text-gray-500 hover:text-gray-700 flex items-center'>
-                  <Clipboard className='h-4 w-4 mr-1' />
-                  <span className='text-xs'>Copier</span>
-                </button>
               </div>
             </div>
           ))

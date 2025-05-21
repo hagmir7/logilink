@@ -260,7 +260,7 @@ const MainLayout = () => {
               mode='inline'
               className='space-y-2'
               defaultSelectedKeys={['menu-1']}
-              style={{ height: '100%', borderRight: 0, position: 'fixed' }}
+              style={{ height: '100%', borderRight: 0 }}
               items={sideMenu()}
             />
           </Drawer>

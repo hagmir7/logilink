@@ -89,9 +89,7 @@ function Fabrication() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>
-            {data.docentete.DO_Piece
-              ? `Commande ${data.docentete.DO_Piece}`
-              : 'Chargement...'}
+            {data.docentete.DO_Piece ? `Commande ${data.docentete.DO_Piece}` : 'Chargement...'}
           </h1>
         </div>
         <Button onClick={fetchData}>

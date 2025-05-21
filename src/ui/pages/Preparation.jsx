@@ -121,7 +121,9 @@ export default function Preparation() {
         line: article.id,
       })
       setLines(data.lines || [])
-      openNotificationWithIcon('success')
+      openNotificationWithIcon('success');
+      console.log(data);
+      
     } catch (err) {
       console.error('Error confirming:', err)
       openNotificationWithIcon('error')
