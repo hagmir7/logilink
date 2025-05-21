@@ -3,6 +3,8 @@ import {
   Clipboard,
   ArrowRight,
   Hourglass,
+  Undo,
+  Undo2,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
@@ -111,6 +113,19 @@ function Commercial() {
     { value: 2, label: 'Seriemoble' },
   ]
 
+  const reset = () =>{
+
+  }
+
+  const confirm = e => {
+  console.log(e);
+  message.success('Click on Yes');
+};
+const cancel = e => {
+  console.log(e);
+  message.error('Click on No');
+};
+
 
   return (
     <div className='max-w-7xl mx-auto'>
@@ -168,6 +183,20 @@ function Commercial() {
           Détails des articles
         </h2>
         <div className='flex gap-3'>
+          <Popconfirm
+            title="Réinitialiser la commande"
+            description="Êtes-vous sûr de vouloir réinitialiser cette tâche ?"
+            onConfirm={confirm}
+            onCancel={cancel}
+            okText="Réinitialiser"
+
+            cancelText="Annuler"
+          >
+            <Button color="red" variant="solid" onClick={reset}>
+              Réinitialiser <Undo2 size={18} />{' '}
+            </Button>
+          </Popconfirm>
+         
           <Select
             defaultValue='Transférer vers'
             style={{ width: 200 }}
