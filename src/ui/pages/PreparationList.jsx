@@ -9,11 +9,13 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table';
 import SkeletonTable from '../components/ui/SkeletonTable';
 import EmptyTable from '../components/ui/EmptyTable';
 import { QRCode } from 'antd';
+import { useAuth } from '../contexts/AuthContext';
 
 function PreparationList() {
   const { id } = useParams();
   const [data, setData] = useState({ docentete: {}, doclignes: [] });
   const [loading, setLoading] = useState(false);
+  const {roles} = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
@@ -114,11 +116,22 @@ function PreparationList() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
+
+        {(data.docentete.document.status_id === 8 && roles('controleur')) ??
+          <div className='flex gap-3'>
+            <Button href={`#/preparation/${id}`} className='btn'>
+              Controle <ArrowRight size={18} />{' '}
+            </Button>
+          </div>
+        }
+
         <div className='flex gap-3'>
           <Button href={`#/preparation/${id}`} className='btn'>
             Preparation <ArrowRight size={18} />{' '}
           </Button>
         </div>
+        
+
       </div>
 
       {/* Desktop Table */}
@@ -143,7 +156,7 @@ function PreparationList() {
               currentItems.map((item, index) => (
                 <Tr key={index}>
                   <Td>
-                    <Tag color='#2db7f5'>{getStatus(item.line.status_id)}</Tag>
+                    <Tag color={item.line.status.color}>{item.line.status.name}</Tag>
                   </Td>
                   <Td className='font-black text-gray-800'>
                     {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
@@ -277,7 +290,7 @@ function PreparationList() {
                   {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
                   {item?.article?.Description || null}
                 </span>
-                <Tag color='#2db7f5'>{getStatus(item.line.status_id)}</Tag>
+                 <Tag color={item.line.status.color}>{item.line.status.name}</Tag>
               </div>
 
               <div className='flex justify-between items-center mb-2'>
@@ -291,7 +304,6 @@ function PreparationList() {
               </div>
 
               <div className='h-px bg-gray-200 my-3'></div>
-
               <div className='grid grid-cols-2 gap-y-3'>
                 <div className='text-sm'>
                   <span className='text-gray-500'>H: </span>

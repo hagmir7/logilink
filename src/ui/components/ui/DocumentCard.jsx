@@ -5,11 +5,10 @@ import { Badge } from 'antd'
 import { Settings } from 'lucide-react';
 
 function DocumentCard({ data, onSelectOrder }) {
-
   return (
     <Badge.Ribbon
-      color={data?.document?.status?.color == 1 ? 'green' : 'gray'}
-      text={`${data?.document?.status?.name}`}
+      color={data?.document?.status?.color || 'gray'}
+      text={data?.document?.status?.name || "En attente"}
     >
       <div
         className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'

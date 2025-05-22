@@ -8,6 +8,7 @@ import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import SkeletonTable from '../components/ui/SkeletonTable'
 import EmptyTable from '../components/ui/EmptyTable';
+import { useAuth } from '../contexts/AuthContext'
 
 
 
@@ -18,6 +19,7 @@ function Controller() {
   const [selected, setSelected] = useState([]);
   const [selectedTransfer, setSelectedTransfer] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
+  const { roles } = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
@@ -26,7 +28,7 @@ function Controller() {
 
       setData(response.data)
       console.log(response);
-      
+
       setLoading(false)
     } catch (err) {
       setLoading(false)
@@ -62,24 +64,6 @@ function Controller() {
     }
   }
 
-
-  const getRoles = (currentRole) => {
-    const allRoles = [
-      { id: 1, name: 'supper_admin' },
-      { id: 2, name: 'admin' },
-      { id: 3, name: 'preparation' },
-      { id: 4, name: 'Preparation Cuisine' },
-      { id: 5, name: 'Preparation Trailer' },
-      { id: 6, name: 'Fabrication' },
-      { id: 7, name: 'Montage' },
-      { id: 8, name: 'Magasinier' },
-      { id: 10, name: 'Commercial' },
-      { id: 11, name: 'Expedition' },
-    ]
-
-    const role = allRoles.find((role) => role.id == currentRole)
-    return role ? role.name : currentRole
-  }
 
   const transfer = async () => {
     setTransferSpin(true)
@@ -120,8 +104,7 @@ function Controller() {
     setOpen(true)
   }
 
-  const handleOk =  async () => {
-    if(selected.length === 0) return;
+  const handleOk = async () => {
     setConfirmLoading(true)
     const response = await api.post(`palettes/validate/${id}`, {
       lines: selected,
@@ -136,30 +119,6 @@ function Controller() {
   const handleCancel = () => {
     setOpen(false)
   }
-
-  const statuses = [
-    { id: 1, name: "Transféré" },
-    { id: 2, name: "Reçu" },
-    { id: 3, name: "Fabrication" },
-    { id: 4, name: "Fabriqué" },
-    { id: 5, name: "Montage" },
-    { id: 6, name: "Monté" },
-    { id: 7, name: "Préparation" },
-    { id: 8, name: "Préparé" },
-    { id: 9, name: "Contrôle" },
-    { id: 10, name: "Contrôlé" },
-    { id: 11, name: "Prêt" },
-    { id: 12, name: "À livrer" },
-    { id: 13, name: "Livré" },
-  ];
-
-  function getStatus(id) {
-    const status = statuses.find(status => status.id === Number(id));
-    return status ? status.name : "No Status";
-  }
-
-
-
 
   return (
     <div className='max-w-7xl mx-auto'>
@@ -218,7 +177,15 @@ function Controller() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
-        {data.docentete?.document?.completed == 1 ? (
+        {data.docentete?.document?.status_id == 8 && roles('controleur') ?
+          <div className='flex gap-3'>
+            <Button href={`/#/document/palettes/${id}`} className='btn'>
+              Controle
+            </Button>
+          </div> : ""
+        }
+
+        {data.docentete?.document?.status_id == 10 ? (
           <Popconfirm
             title='Validation'
             description='Etes-vous sûr de vouloir valider'
@@ -291,9 +258,9 @@ function Controller() {
                       />
                     )}
                   </Td>
-                  
+
                   <Td>
-                    <Tag color='#2db7f5'>{getStatus(item.line.status_id)}</Tag>
+                    <Tag color={item.line.status.color}>{item.line.status.name}</Tag>
                   </Td>
 
                   {/* <Td>

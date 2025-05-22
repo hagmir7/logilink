@@ -279,7 +279,7 @@ const MainLayout = () => {
             className='bg-gray-50 shadow'
             style={{
               minHeight: 'calc(100vh - 64px)',
-              padding: 16,
+              // padding: 16,
               borderRadius: borderRadiusLG,
               overflow: 'auto',
             }}

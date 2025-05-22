@@ -96,7 +96,7 @@ function Validation() {
     <div className='min-h-screen'>
       {/* Header */}
       <h2 className='text-xl font-semibold text-gray-800 mb-2'>
-        Gestion des commandes
+        Controle et Validation des commandes
       </h2>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex gap-4'>
@@ -106,24 +106,6 @@ function Validation() {
             size='large'
             onChange={handleSearch}
           />
-          {roles('commercial') && (
-            <Select
-              defaultValue="2"
-              style={{ width: 220, height: 40 }}
-              className='py-2'
-              onChange={handleChange}
-
-              options={[
-                { value: '0', label: 'Devis' },
-                { value: '1', label: 'Bon de command' },
-                { value: '2', label: 'Preparation de livraison' },
-                { value: '3', label: 'Bon de livraison' },
-                { value: '6', label: 'Facture' },
-                // { value: 'all', label: 'Tout' },
-                { value: 'disabled', label: 'Disabled', disabled: true },
-              ]}
-            />
-          )}
 
           <button
             type='button'
