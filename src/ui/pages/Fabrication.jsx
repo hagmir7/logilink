@@ -85,7 +85,7 @@ function Fabrication() {
   }
 
   return (
-    <div className='max-w-7xl mx-auto'>
+    <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>

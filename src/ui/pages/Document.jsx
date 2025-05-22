@@ -15,26 +15,28 @@ function Document() {
     total: 0,
   })
   const [loading, setLoading] = useState(false)
-  const [documentStatus, setDocumentStatus] = useState(2)
+  const [documenType, setDocumentType] = useState(2)
+  const [documenStatus, setDocumentStatus] = useState(2)
   const [page, setPage] = useState(1)
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
   const navigate = useNavigate()
   const { roles } = useAuth()
 
-  let url = 'docentetes/preparation'
+  let url = `docentetes/preparation?page=${page}`
 
-  
+
   if (roles('commercial')) {
-    url = `docentetes/commercial?status=${documentStatus}&page=${page}`
+    url = `docentetes/commercial?type=${documenType}&page=${page}&status=${documenStatus}`
   }
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const response = await api.get(url)
-      console.log(response.data)
       setData(response.data)
+      console.log(response.data);
+      
       setLoading(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -46,17 +48,17 @@ function Document() {
     navigate(`/document/${orderId}`)
   }
 
+
+
   useEffect(() => {
     const fetchAndNotify = async () => {
       await fetchData() // Make sure data is loaded first
       window.electron?.notifyPrintReady?.()
     }
     fetchAndNotify()
-  }, [documentStatus])
+  }, [documenType])
 
-  const handlePrint = () => {
-    window.electron?.print?.()
-  }
+
 
   const loadMore = async () => {
     setMoreSpinner(true)
@@ -76,7 +78,7 @@ function Document() {
   }
 
   const handleChange = (value) => {
-    setDocumentStatus(value)
+    setDocumentType(value)
   }
 
   const handleSearch = async (e) => {
@@ -97,35 +99,50 @@ function Document() {
     }
   }
 
+
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen p-2 md:p-5'>
       {/* Header */}
       <h2 className='text-xl font-semibold text-gray-800 mb-2'>
         Gestion des commandes
       </h2>
-      <div className='flex justify-between items-center mb-6'>
-        <div className='flex gap-4'>
+      <div className='flex flex-wrap justify-between items-center gap-4 mb-6'>
+        <div className='flex items-center gap-4'>
           <Search
             placeholder='Recherch'
             loading={searchSpinner}
             size='large'
             onChange={handleSearch}
           />
+
           {roles('commercial') && (
             <Select
-              defaultValue="2"
-              style={{ width: 220, height: 40 }}
-              className='py-2'
+              defaultValue='2'
+              className='h-10 min-w-[220px]'
+              size='large'
               onChange={handleChange}
-
               options={[
                 { value: '0', label: 'Devis' },
                 { value: '1', label: 'Bon de command' },
                 { value: '2', label: 'Preparation de livraison' },
                 { value: '3', label: 'Bon de livraison' },
                 { value: '6', label: 'Facture' },
-                // { value: 'all', label: 'Tout' },
                 { value: 'disabled', label: 'Disabled', disabled: true },
+              ]}
+            />
+          )}
+
+          {roles('commercial') && (
+            <Select
+              defaultValue=''
+              className='h-10 min-w-[220px]'
+              size='large'
+              onChange={(value) => setDocumentStatus(value)}
+              options={[
+                { value: '', label: 'En attente' },
+                { value: '1', label: 'Transféré' },
+                { value: '2', label: 'Reçu' },
+                { value: '3', label: 'Fabrication' },
               ]}
             />
           )}
@@ -133,7 +150,7 @@ function Document() {
           <button
             type='button'
             onClick={fetchData}
-            className='py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50'
+            className='h-10 px-4 inline-flex items-center gap-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-100 disabled:opacity-50'
           >
             {loading ? (
               <Loader2 className='animate-spin text-blue-500' size={17} />

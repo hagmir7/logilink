@@ -127,7 +127,7 @@ function Commercial() {
 
 
   return (
-    <div className='max-w-7xl mx-auto'>
+    <div className='max-w-7xl mx-auto p-2 md:p-6'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>
@@ -150,28 +150,39 @@ function Commercial() {
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border-2 border-gray-200 p-4 mb-6'>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Client</span>
-          <span className='font-medium'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl shadow-sm p-6 mb-8'>
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+            Client
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {data.docentete.DO_Tiers || <Skeleton />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Référence</span>
-          <span className='font-medium'>
+
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+            Référence
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {data.docentete.DO_Ref || <Skeleton />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Expédition</span>
-          <span className='font-medium'>
+
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+            Expédition
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {getExped(data.docentete.DO_Expedit) || <Skeleton />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Type de document</span>
-          <span className='font-medium'>
+
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+            Type de document
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {(data.docentete.DO_Piece &&
               getDocumentType(data.docentete.DO_Piece)) || <Skeleton />}
           </span>

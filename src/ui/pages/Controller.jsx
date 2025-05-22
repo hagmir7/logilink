@@ -1,4 +1,4 @@
-import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig, Clock4 } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig, Clock4, ListTodo } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
@@ -49,9 +49,15 @@ function Controller() {
   }
 
   const handleSelectAll = (e) => {
-    console.log(data.doclignes.map((item) => item.line))
+    console.log(
+      data.doclignes.filter((item) => Number(item.line.status_id) < 8).map(doc=> doc.line.id)
+    )
     if (e.target.checked) {
-      setSelected(data.doclignes.map((item) => item?.line?.id))
+      setSelected(
+        data.doclignes
+          .filter((item) => Number(item.line.status_id) < 8)
+          .map((doc) => doc.line.id)
+      )
     } else {
       setSelected([])
     }
@@ -121,7 +127,7 @@ function Controller() {
   }
 
   return (
-    <div className='max-w-7xl mx-auto'>
+    <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>
@@ -130,17 +136,26 @@ function Controller() {
               : 'Chargement...'}
           </h1>
         </div>
-        <button
-          onClick={fetchData}
-          className='flex items-center px-3 py-2 bg-white border-1 border-gray-300 rounded-md shadow-sm hover:bg-gray-50 text-sm font-medium text-gray-700 transition'
-        >
-          {loading ? (
-            <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
-          ) : (
-            <RefreshCcw className='h-4 w-4 mr-2' />
+
+        <div className='flex gap-2'>
+          {data.docentete?.document?.status_id == 8 && roles('controleur') && (
+            <Button
+              href={`/#/document/palettes/${id}`}
+              size='large'
+              className='btn'
+            >
+              <ListTodo /> Contrôler
+            </Button>
           )}
-          Rafraîchir
-        </button>
+          <Button onClick={fetchData} size='large'>
+            {loading ? (
+              <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
+            ) : (
+              <RefreshCcw className='h-4 w-4 mr-2' />
+            )}
+            Rafraîchir
+          </Button>
+        </div>
       </div>
 
       {/* Document Info */}
@@ -177,13 +192,6 @@ function Controller() {
         <h2 className='text-lg font-semibold text-gray-800'>
           Détails des articles
         </h2>
-        {data.docentete?.document?.status_id == 8 && roles('controleur') ?
-          <div className='flex gap-3'>
-            <Button href={`/#/document/palettes/${id}`} className='btn'>
-              Controle
-            </Button>
-          </div> : ""
-        }
 
         {data.docentete?.document?.status_id == 10 ? (
           <Popconfirm
@@ -204,12 +212,13 @@ function Controller() {
         ) : (
           <div className='flex gap-3'>
             <Select
+              size='large'
               defaultValue='Transférer vers'
               style={{ width: 200 }}
               onChange={handleChangeTransfer}
               options={listTransfer}
             />
-            <Button onClick={transfer} loading={transferSpin}>
+            <Button onClick={transfer} size='large' loading={transferSpin}>
               Transfer <ArrowRight size={18} />{' '}
             </Button>
           </div>
@@ -247,10 +256,11 @@ function Controller() {
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index}>
-
                   <Td>
                     {item.line?.validated == '1' ? (
-                      (<CircleCheckBig color='green' size={18} />)
+                      <CircleCheckBig color='green' size={18} />
+                    ) : Number(item.line?.status_id) >= 8 ? (
+                      ''
                     ) : (
                       <Checkbox
                         checked={selected.includes(item.line?.id || item.id)}
@@ -260,7 +270,9 @@ function Controller() {
                   </Td>
 
                   <Td>
-                    <Tag color={item.line.status.color}>{item.line.status.name}</Tag>
+                    <Tag color={item.line.status.color}>
+                      {item.line.status.name}
+                    </Tag>
                   </Td>
 
                   {/* <Td>
@@ -272,7 +284,6 @@ function Controller() {
                       "__"
                     )}
                   </Td> */}
-
 
                   <Td>{item.AR_Ref || '__'}</Td>
                   <Td>

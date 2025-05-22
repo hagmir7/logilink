@@ -93,7 +93,7 @@ function Validation() {
   }
 
   return (
-    <div className='min-h-screen'>
+    <div className='min-h-screen p-2 md:p-5'>
       {/* Header */}
       <h2 className='text-xl font-semibold text-gray-800 mb-2'>
         Controle et Validation des commandes
