@@ -16,7 +16,7 @@ function Document() {
   })
   const [loading, setLoading] = useState(false)
   const [documenType, setDocumentType] = useState(2)
-  const [documenStatus, setDocumentStatus] = useState(2)
+  const [documenStatus, setDocumentStatus] = useState('')
   const [page, setPage] = useState(1)
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
@@ -52,11 +52,11 @@ function Document() {
 
   useEffect(() => {
     const fetchAndNotify = async () => {
-      await fetchData() // Make sure data is loaded first
+      await fetchData()
       window.electron?.notifyPrintReady?.()
     }
     fetchAndNotify()
-  }, [documenType])
+  }, [documenType, documenStatus])
 
 
 
