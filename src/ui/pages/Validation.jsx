@@ -43,15 +43,11 @@ function Validation() {
 
   useEffect(() => {
     const fetchAndNotify = async () => {
-      await fetchData() // Make sure data is loaded first
+      await fetchData();
       window.electron?.notifyPrintReady?.()
     }
     fetchAndNotify()
-  }, [documentStatus])
-
-  const handlePrint = () => {
-    window.electron?.print?.()
-  }
+  }, [documentStatus]);
 
   const loadMore = async () => {
     setMoreSpinner(true)

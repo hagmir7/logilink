@@ -3,10 +3,12 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
 import DocumentCard from '../components/ui/DocumentCard'
-import { Button, Select, Space, Input } from 'antd'
+import { Button, Select, DatePicker, Input } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 
 const { Search } = Input
+const { RangePicker } = DatePicker;
+
 
 function Document() {
   const [data, setData] = useState({
@@ -20,23 +22,22 @@ function Document() {
   const [page, setPage] = useState(1)
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
-  const navigate = useNavigate()
+  const navigate = useNavigate();
+  const [dateFilter, setDateFilter] = useState(null);
   const { roles } = useAuth()
 
   let url = `docentetes/preparation?page=${page}`
 
 
   if (roles('commercial')) {
-    url = `docentetes/commercial?type=${documenType}&page=${page}&status=${documenStatus}`
+    url = `docentetes/commercial?type=${documenType}&page=${page}&status=${documenStatus}&date=${dateFilter || ''}`
   }
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const response = await api.get(url)
-      setData(response.data)
-      console.log(response.data);
-      
+      setData(response.data)  
       setLoading(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -56,7 +57,7 @@ function Document() {
       window.electron?.notifyPrintReady?.()
     }
     fetchAndNotify()
-  }, [documenType, documenStatus])
+  }, [documenType, documenStatus, dateFilter])
 
 
 
@@ -77,9 +78,6 @@ function Document() {
     }
   }
 
-  const handleChange = (value) => {
-    setDocumentType(value)
-  }
 
   const handleSearch = async (e) => {
     setSearchSpinner(true)
@@ -99,6 +97,10 @@ function Document() {
     }
   }
 
+  const handleChangeDate = (dates, dateStrings) => {
+    setDateFilter(dates)
+  };
+
 
   return (
     <div className='min-h-screen p-2 md:p-5'>
@@ -114,13 +116,14 @@ function Document() {
             size='large'
             onChange={handleSearch}
           />
+          <RangePicker size='large' onChange={handleChangeDate} className='h-10 min-w-[220px]' />
 
-          {roles('commercial') && (
+          {/* {roles('commercial') && (
             <Select
               defaultValue='2'
               className='h-10 min-w-[220px]'
               size='large'
-              onChange={handleChange}
+              onChange={()=>setDocumentType(value)}
               options={[
                 { value: '0', label: 'Devis' },
                 { value: '1', label: 'Bon de command' },
@@ -130,7 +133,7 @@ function Document() {
                 { value: 'disabled', label: 'Disabled', disabled: true },
               ]}
             />
-          )}
+          )} */}
 
           {roles('commercial') && (
             <Select

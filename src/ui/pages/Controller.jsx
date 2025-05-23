@@ -50,12 +50,14 @@ function Controller() {
 
   const handleSelectAll = (e) => {
     console.log(
-      data.doclignes.filter((item) => Number(item.line.status_id) < 8).map(doc=> doc.line.id)
+      data.doclignes
+      // .filter((item) => Number(item.line.status_id) < 8)
+      .map(doc=> doc.line.id)
     )
     if (e.target.checked) {
       setSelected(
         data.doclignes
-          .filter((item) => Number(item.line.status_id) < 8)
+          // .filter((item) => Number(item.line.status_id) < 8)
           .map((doc) => doc.line.id)
       )
     } else {
@@ -140,7 +142,7 @@ function Controller() {
         <div className='flex gap-2'>
           {data.docentete?.document?.status_id == 8 && roles('controleur') && (
             <Button
-              href={`/#/document/palettes/${id}`}
+              href={`#/document/palettes/${id}`}
               size='large'
               className='btn'
             >
@@ -209,7 +211,9 @@ function Controller() {
               <CircleCheckBig size={18} />{' '}
             </Button>
           </Popconfirm>
-        ) : (
+        ) : ""}
+
+        {data.docentete?.document?.status_id < 8 ?
           <div className='flex gap-3'>
             <Select
               size='large'
@@ -221,8 +225,8 @@ function Controller() {
             <Button onClick={transfer} size='large' loading={transferSpin}>
               Transfer <ArrowRight size={18} />{' '}
             </Button>
-          </div>
-        )}
+          </div> : ""
+        }
       </div>
 
       {/* Desktop Table */}
@@ -259,14 +263,10 @@ function Controller() {
                   <Td>
                     {item.line?.validated == '1' ? (
                       <CircleCheckBig color='green' size={18} />
-                    ) : Number(item.line?.status_id) >= 8 ? (
-                      ''
-                    ) : (
-                      <Checkbox
+                    ) : <Checkbox
                         checked={selected.includes(item.line?.id || item.id)}
                         onChange={() => handleSelect(item.line?.id || item.id)}
-                      />
-                    )}
+                      />}
                   </Td>
 
                   <Td>

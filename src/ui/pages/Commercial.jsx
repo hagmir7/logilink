@@ -17,6 +17,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import SkeletonTable from '../components/ui/SkeletonTable'
 import EmptyTable from '../components/ui/EmptyTable'
 
+
 function Commercial() {
   const { id } = useParams()
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
@@ -117,7 +118,6 @@ function Commercial() {
 
   const reset = async () => {
     const response = await api.get(`docentetes/reset/${id}`)
-    fetchData()
     console.log(response);
     
     message.success('Réinitialiser avec succès')
@@ -195,6 +195,7 @@ function Commercial() {
           Détails des articles
         </h2>
         <div className='flex gap-3'>
+     
           {data.docentete.document ? (
             <Popconfirm
               title='Réinitialiser la commande'
