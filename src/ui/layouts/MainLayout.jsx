@@ -34,8 +34,12 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          disabled: !roles('preparation') ,
+          disabled: !roles('preparation'),
           label: <Link to='/validation'>Validation</Link>,
+        },
+        {
+          key: 'submenu-12',
+          label: <Link to='/progress'>Progrès</Link>,
         },
         {
           key: 'submenu-11',

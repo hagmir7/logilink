@@ -48,7 +48,9 @@ export default function PaletteControle() {
                       <h3 className='text-md font-bold text-gray-600'>
                         {item.article_stock?.name || 'N/A'}{' '}
                         {item.article_stock?.width && item.article_stock?.height
-                          ? `${Math.floor(item.article_stock.height)} * ${Math.floor(item.article_stock.width)}`
+                          ? `${Math.floor(
+                              item.article_stock.height
+                            )} * ${Math.floor(item.article_stock.width)}`
                           : ''}
                       </h3>
                       <span className='text-sm text-gray-600'>
@@ -62,7 +64,9 @@ export default function PaletteControle() {
 
                   <div className='flex justify-between items-center mt-4'>
                     <span className='text-sm text-gray-600'>
-                      Profondeur : {item.article_stock?.depth || 'N/A'} | Epaisseur : {item.article_stock?.thickness || 'N/A'} | Chant : {item.article_stock?.chant || 'N/A'}
+                      Profondeur : {item.article_stock?.depth || 'N/A'} |
+                      Epaisseur : {item.article_stock?.thickness || 'N/A'} |
+                      Chant : {item.article_stock?.chant || 'N/A'}
                     </span>
 
                     <button
@@ -74,13 +78,17 @@ export default function PaletteControle() {
                           : 'bg-amber-500 hover:bg-amber-700'
                       }`}
                     >
-                      {isConfirmed ? <CircleCheckBig size={20} /> : <Circle size={20} />}
+                      {isConfirmed ? (
+                        <CircleCheckBig size={20} />
+                      ) : (
+                        <Circle size={20} />
+                      )}
                     </button>
                   </div>
                 </div>
               </div>
             </Badge.Ribbon>
-          );
+          )
         })}
       </div>
     </div>

@@ -127,7 +127,7 @@ function DocumentPalettes() {
               <Link
                 to={`/palette/controle/${palette.code}`}
                 key={palette.id}
-                className="group block transform transition-all duration-200 hover:scale-[1.02] hover:shadow-lg"
+                className="group block transform transition-all duration-200 hover:scale-[1.02]"
               >
                 <div className='bg-white rounded-xl p-6 border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200'>
                   <div className='flex items-center justify-between mb-4'>

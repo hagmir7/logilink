@@ -14,6 +14,7 @@ import ViewDocument from './pages/ViewDocument';
 import Validation from './pages/Validation';
 import DocumentPalettes from './pages/DocumentPalettes';
 import PaletteControle from './pages/PaletteControle'
+import Progress from './pages/Progress'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -34,11 +35,14 @@ function App() {
           <Route path='*' element={<NotFound />} />
           <Route path='/profile/:id' element={<Profile />} />
           <Route path='documents' element={<Document />} />
-          <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
+          <Route
+            path='document/palettes/:piece'
+            element={<DocumentPalettes />}
+          />
           <Route path='preparation/:id' element={<Preparation />} />
           <Route path='fabrication/:id' element={<Fabrication />} />
           <Route path='validation' element={<Validation />} />
-          
+          <Route path='progress' element={<Progress />} />
         </Route>
       </Routes>
     </>
