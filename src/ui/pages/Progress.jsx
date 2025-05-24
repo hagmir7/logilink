@@ -1,16 +1,13 @@
-import React, { useEffect, useState } from 'react'
-import { CheckCircle, Package, User, Calendar, Hash, RefreshCcw, Loader2 } from 'lucide-react'
-import { getExped, locale } from '../utils/config'
-import { Button, Select, DatePicker, Input } from 'antd'
-// import { useAuth } from '../contexts/AuthContext'
-import { api } from '../utils/api'
+import React, { useEffect, useState } from 'react';
+import {User, Calendar, RefreshCcw, Loader2 } from 'lucide-react';
+import { getExped, locale } from '../utils/config';
+import { Select, DatePicker, Input } from 'antd';
+import { api } from '../utils/api';
 
 const { Search } = Input
 const { RangePicker } = DatePicker;
 
 const Progress = () => {
-
-    // const { roles } = useAuth()
     const [documents, setDocuments] = useState([])
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('');

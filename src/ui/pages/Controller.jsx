@@ -17,7 +17,7 @@ function Controller() {
   const [data, setData] = useState({ docentete: {}, doclignes: [] });
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState([]);
-  const [selectedTransfer, setSelectedTransfer] = useState();
+  const [selectedRoles, setSelectedRoles] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
   const { roles } = useAuth();
 
@@ -35,6 +35,8 @@ function Controller() {
       console.error('Failed to fetch data:', err)
     }
   }
+
+
   useEffect(() => {
     fetchData()
   }, [id])
@@ -66,26 +68,27 @@ function Controller() {
   }
 
   const handleChangeTransfer = (value) => {
-    setSelectedTransfer(value)
-    if (value !== selectedTransfer) {
-      setSelectedTransfer(value)
+    setSelectedRoles(value)
+    if (value !== selectedRoles) {
+      setSelectedRoles(value)
     }
   }
 
 
   const transfer = async () => {
     setTransferSpin(true)
+    console.log(selectedRoles);
 
-    if (selectedTransfer && selected.length > 0) {
-      setSelectedTransfer(selectedTransfer)
+    if (selectedRoles && selected.length > 0) {
+      setSelectedRoles(selectedRoles)
       const data = {
-        transfer: selectedTransfer,
+        roles: selectedRoles,
         lines: selected,
       }
       const response = await api.post('docentete/transfer', data)
       console.log(response)
 
-      setSelectedTransfer(null)
+      setSelectedRoles(null)
       setSelected([])
       fetchData()
       message.success('Company changed successfully')
@@ -101,6 +104,10 @@ function Controller() {
     { value: 6, label: 'Fabrication' },
     { value: 7, label: 'Montage' },
     { value: 8, label: 'Magasinier' },
+
+    { value: '6,4', label: 'Fabrication + Pr Cuisine' },
+    { value: '7,5', label: 'Montage + Pr Trailer' },
+    { value: '8,4', label: 'Magasinier + Pr Cuisine' },
   ]
 
 

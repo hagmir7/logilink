@@ -50,7 +50,7 @@ const QScanner = ({ onScan }) => {
           className='flex items-center gap-2 text-blue-600 hover:text-blue-800'
           type='button'
         >
-          <Scan />
+          <Scan size={50} />
         </button>
       )}
     </div>

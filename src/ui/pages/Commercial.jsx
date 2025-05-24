@@ -23,7 +23,7 @@ function Commercial() {
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState([])
-  const [selectedTransfer, setSelectedTransfer] = useState()
+  const [selectedCompany, setSelectedCompany] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
   const { roles } = useAuth()
 
@@ -70,9 +70,9 @@ function Commercial() {
   }
 
   const handleChangeTransfer = (value) => {
-    setSelectedTransfer(value)
-    if (value !== selectedTransfer) {
-      setSelectedTransfer(value)
+    setSelectedCompany(value)
+    if (value !== selectedCompany) {
+      setSelectedCompany(value)
     }
   }
 
@@ -90,16 +90,16 @@ function Commercial() {
   const transfer = async () => {
     setTransferSpin(true)
 
-    if (selectedTransfer && selected.length > 0) {
-      setSelectedTransfer(selectedTransfer)
+    if (selectedCompany && selected.length > 0) {
+      setSelectedCompany(selectedCompany)
       const data = {
-        transfer: selectedTransfer,
+        company: selectedCompany,
         lines: selected,
       }
       const response = await api.post('docentete/transfer', data)
       console.log(response)
 
-      setSelectedTransfer(null)
+      setSelectedCompany(null)
       setSelected([])
       fetchData()
       message.success('Company changed successfully')
@@ -123,8 +123,6 @@ function Commercial() {
     message.success('Réinitialiser avec succès')
   }
   
-
-
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-6'>
