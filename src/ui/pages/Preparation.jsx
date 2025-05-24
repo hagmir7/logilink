@@ -9,12 +9,11 @@ import {
   Plus,
   Minus,
 } from 'lucide-react'
-
-import { Badge } from 'antd';
-import QScanner from '../components/QScanner';
-import { api } from '../utils/api';
-import { useParams } from 'react-router-dom';
-import BackButton from '../components/ui/BackButton';
+import { Badge } from 'antd'
+import QScanner from '../components/QScanner'
+import { api } from '../utils/api'
+import { useParams } from 'react-router-dom'
+import BackButton from '../components/ui/BackButton'
 
 export default function Preparation() {
   const [article, setArticle] = useState({
@@ -29,7 +28,7 @@ export default function Preparation() {
     width: '',
   })
 
-  const { id } = useParams();
+  const { id } = useParams()
   const [palette, setPalette] = useState(null)
   const [line, setLine] = useState('')
   const [lines, setLines] = useState([])
@@ -51,7 +50,6 @@ export default function Preparation() {
     setLoadingStates((prev) => ({ ...prev, [key]: value }))
   }
 
-
   const openNotificationWithIcon = (type) => {
     console.log(`${type}: Notification`)
   }
@@ -66,7 +64,8 @@ export default function Preparation() {
   }
 
   const goPrevious = () => {
-    const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
+    const prevIndex =
+      currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
     const prevPalette = palettes[prevIndex]
     setCurrentIndex(prevIndex)
     setPalette(prevPalette)
@@ -207,56 +206,52 @@ export default function Preparation() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
-      {/* Header with back button */}
+      {/* Header */}
       <div className='bg-white border-b border-gray-200'>
-        <div className='max-w-7xl mx-auto px-4 py-4'>
-          <div className='flex items-center gap-4'>
-            <BackButton />
+        <div className='mx-auto px-4 py-3 sm:py-4'>
+          <div className='flex items-center gap-3'>
+            <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
-            <h1 className='text-xl font-bold text-gray-900'>
+            <h1 className='text-sm md:text-xl font-bold text-gray-900 truncate'>
               Préparation des Palettes
             </h1>
           </div>
         </div>
       </div>
 
-      <div className='max-w-7xl mx-auto p-4 space-y-8'>
+      <div className='mx-auto p-2 md:p-4 space-y-3 sm:space-y-8 max-w-7xl'>
         {/* Scanner Section */}
-        <div className='bg-white rounded-2xl border border-gray-200 p-6'>
-          <div className='flex items-center gap-3 mb-6'>
+        <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6'>
+          <div className='flex justify-center items-center gap-3 mb-4 sm:mb-6'>
             <div className='p-2 bg-blue-100 rounded-lg'>
-              <QScanner /> 
+              <QScanner onScan={handleScan} />
             </div>
-            <h2 className='text-lg font-semibold text-gray-900'>
-              Scanner d'articles
-            </h2>
           </div>
 
-          <div className='flex gap-3'>
-            <div className='flex-1'>
-              <input
-                type='text'
-                value={line}
-                onChange={(e) => setLine(e.target.value)}
-                className='w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all'
-                placeholder='Entrez le code-barres ou scannez'
-                disabled={loadingStates.scan}
-              />
-            </div>
+          <div className='flex flex-col sm:flex-row gap-3'>
+            <input
+              type='text'
+              value={line}
+              onChange={(e) => setLine(e.target.value)}
+              className='w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base'
+              placeholder='Code-barres...'
+              disabled={loadingStates.scan}
+            />
             <button
               onClick={() => handleScan(line)}
               disabled={!palette || !line || loadingStates.scan}
-              className='px-6 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center gap-2 font-medium'
+              className='px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-lg sm:rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 font-medium text-sm sm:text-base'
             >
               {loadingStates.scan ? (
                 <>
                   <Loader2 className='w-4 h-4 animate-spin' />
-                  Scan...
+                  <span className='hidden sm:inline'>Scan...</span>
                 </>
               ) : (
                 <>
                   <Search className='w-4 h-4' />
-                  Scanner
+                  <span className='hidden sm:inline'>Scanner</span>
+                  <span className='sm:hidden'>OK</span>
                 </>
               )}
             </button>
@@ -264,31 +259,31 @@ export default function Preparation() {
         </div>
 
         {/* Palette Navigation */}
-        <div className='bg-white rounded-2xl border border-gray-200 p-6'>
-          <div className='flex items-center justify-between mb-6'>
+        <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6'>
+          <div className='flex items-center justify-between mb-4 sm:mb-6'>
             <button
               onClick={goPrevious}
               disabled={loadingStates.createPalette}
-              className='p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
+              className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
             >
-              <ArrowLeftCircle className='w-8 h-8 text-gray-600' />
+              <ArrowLeftCircle className='w-6 h-6 sm:w-8 sm:h-8 text-gray-600' />
             </button>
 
-            <div className='text-center'>
+            <div className='text-center flex-1 px-2'>
               {loadingStates.createPalette ? (
-                <div className='flex items-center gap-2'>
-                  <Loader2 className='w-5 h-5 animate-spin text-blue-600' />
-                  <span className='text-lg font-semibold text-gray-900'>
+                <div className='flex items-center justify-center gap-2'>
+                  <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin text-blue-600' />
+                  <span className='text-sm sm:text-lg font-semibold text-gray-900'>
                     Chargement...
                   </span>
                 </div>
               ) : (
                 <>
-                  <h3 className='text-2xl font-bold text-gray-900'>
+                  <h3 className='text-xl sm:text-2xl font-bold text-gray-900 truncate'>
                     {palette ? currentPalette?.code : 'Aucune palette'}
                   </h3>
-                  <p className='text-sm text-gray-500'>
-                    Palette #{currentIndex + 1} sur {palettes.length}
+                  <p className='text-xs sm:text-sm text-gray-500'>
+                    #{currentIndex + 1} sur {palettes.length}
                   </p>
                 </>
               )}
@@ -297,61 +292,61 @@ export default function Preparation() {
             <button
               onClick={goNext}
               disabled={loadingStates.createPalette}
-              className='p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
+              className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
             >
-              <ArrowRightCircle className='w-8 h-8 text-gray-600' />
+              <ArrowRightCircle className='w-6 h-6 sm:w-8 sm:h-8 text-gray-600' />
             </button>
           </div>
 
-          {/* Article Details Form */}
-          <div className='space-y-4'>
+          {/* Article Details */}
+          <div className='space-y-3 sm:space-y-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
                 Désignation
               </label>
               <input
                 type='text'
                 value={article.design}
                 readOnly
-                className='w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-gray-900'
+                className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base text-gray-900'
                 placeholder='Aucun article scanné'
               />
             </div>
 
-            <div className='grid grid-cols-1 md:grid-cols-3 gap-4'>
+            <div className='grid grid-cols-3 gap-2 sm:gap-4'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
                   Profondeur
                 </label>
                 <input
                   type='text'
                   value={article.profondeur}
                   readOnly
-                  className='w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl'
+                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
                   placeholder='-'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
                   Chant
                 </label>
                 <input
                   type='text'
                   value={article.chant}
                   readOnly
-                  className='w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl'
+                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
                   placeholder='-'
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-2'>
+                <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
                   Épaisseur
                 </label>
                 <input
                   type='text'
                   value={article.episseur}
                   readOnly
-                  className='w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl'
+                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
                   placeholder='-'
                 />
               </div>
@@ -359,10 +354,10 @@ export default function Preparation() {
 
             {/* Quantity Controls */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-2'>
+              <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
                 Quantité
               </label>
-              <div className='flex items-center gap-3'>
+              <div className='flex items-center gap-2 sm:gap-3 w-full'>
                 <button
                   onClick={() =>
                     setArticle((prev) => ({
@@ -371,9 +366,9 @@ export default function Preparation() {
                     }))
                   }
                   disabled={article.qte <= 0}
-                  className='p-3 border border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all'
+                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1'
                 >
-                  <Minus className='w-5 h-5' />
+                  <Minus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
                 </button>
 
                 <input
@@ -381,21 +376,24 @@ export default function Preparation() {
                   value={article.qte}
                   min={0}
                   onChange={(e) =>
-                    setArticle({
-                      ...article,
+                    setArticle((prev) => ({
+                      ...prev,
                       qte: Math.max(0, Number(e.target.value)),
-                    })
+                    }))
                   }
-                  className='flex-1 px-4 py-3 text-center border border-gray-300 rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent'
+                  className='w-full max-w-[100px] px-3 py-2 text-center border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base'
                 />
 
                 <button
                   onClick={() =>
-                    setArticle((prev) => ({ ...prev, qte: prev.qte + 1 }))
+                    setArticle((prev) => ({
+                      ...prev,
+                      qte: prev.qte + 1,
+                    }))
                   }
-                  className='p-3 border border-gray-300 rounded-xl hover:bg-gray-50 transition-all'
+                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1'
                 >
-                  <Plus className='w-5 h-5' />
+                  <Plus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
                 </button>
               </div>
             </div>
@@ -403,37 +401,36 @@ export default function Preparation() {
         </div>
 
         {/* Action Buttons */}
-        <div className='grid grid-cols-1 md:grid-cols-2 gap-4'>
-          <button
-            onClick={create}
-            disabled={loadingStates.create}
-            className='flex items-center justify-center gap-2 px-6 py-4 bg-white border-2 border-gray-300 text-gray-700 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium'
-          >
-            {loadingStates.create ? (
-              <>
-                <Loader2 className='w-5 h-5 animate-spin' />
-                Création...
-              </>
-            ) : (
-              <>
-                <Package className='w-5 h-5' />
-                Nouvelle Palette
-              </>
-            )}
-          </button>
-
+        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'>
           <button
             onClick={handleSubmit}
             disabled={!palette || !article.id || loadingStates.submit}
-            className='flex items-center justify-center gap-2 px-6 py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all font-medium'
+            className='px-4 py-3 sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base'
           >
             {loadingStates.submit ? (
               <>
-                <Loader2 className='w-5 h-5 animate-spin' />
+                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />
                 Validation...
               </>
             ) : (
               "Valider l'article"
+            )}
+          </button>
+          <button
+            onClick={create}
+            disabled={loadingStates.create}
+            className='px-4 py-3 sm:px-6 sm:py-4 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base'
+          >
+            {loadingStates.create ? (
+              <>
+                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />
+                Création...
+              </>
+            ) : (
+              <>
+                <Package className='w-4 h-4 sm:w-5 sm:h-5' />
+                Nouvelle Palette
+              </>
             )}
           </button>
         </div>
@@ -442,10 +439,10 @@ export default function Preparation() {
         <div className='space-y-4'>
           <div className='flex items-center gap-3'>
             <div className='p-2 bg-emerald-100 rounded-lg'>
-              <Package className='w-6 h-6 text-emerald-600' />
+              <Package className='w-5 h-5 sm:w-6 sm:h-6 text-emerald-600' />
             </div>
-            <h2 className='text-lg font-semibold text-gray-900'>
-              Articles de la palette ({lines.length})
+            <h2 className='text-base sm:text-lg font-semibold text-gray-900'>
+              Articles ({lines.length})
             </h2>
           </div>
 
@@ -458,8 +455,8 @@ export default function Preparation() {
             </div>
           )}
 
-          <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6'>
-            {lines.map((item, index) => (
+          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+            {lines?.map((item, index) => (
               <div key={item.id || index} className='relative'>
                 <div className='absolute -top-2 -right-2 z-10'>
                   <span className='px-3 py-1 bg-cyan-500 text-white text-xs font-medium rounded-full'>
@@ -467,39 +464,39 @@ export default function Preparation() {
                   </span>
                 </div>
 
-                <div className='bg-white rounded-2xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow'>
-                  <div className='p-6 bg-gradient-to-r from-amber-50 to-orange-50'>
-                    <div className='flex justify-between items-start mb-4'>
-                      <div className='flex-1'>
-                        <h3 className='text-lg font-bold text-gray-900 mb-1'>
+                <div className='bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow'>
+                  <div className='p-4 bg-gradient-to-r from-amber-50 to-orange-50'>
+                    <div className='flex justify-between items-start mb-3'>
+                      <div className='flex-1 pr-2'>
+                        <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate'>
                           {item.article_stock?.name || 'N/A'}
                         </h3>
                         {item.article_stock?.width &&
                           item.article_stock?.height && (
-                            <p className='text-sm text-gray-600 mb-1'>
+                            <p className='text-xs text-gray-600 mt-1'>
                               {Math.floor(item.article_stock.height)} ×{' '}
                               {Math.floor(item.article_stock.width)} mm
                             </p>
                           )}
-                        <span className='inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full'>
+                        <span className='inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full mt-2'>
                           {item.article_stock?.color || 'N/A'}
                         </span>
                       </div>
                       <div className='text-right'>
-                        <div className='text-3xl font-bold text-gray-900'>
+                        <div className='text-xl sm:text-2xl font-bold text-gray-900'>
                           {item.pivot?.quantity
                             ? Math.floor(item.pivot.quantity)
                             : 0}
                         </div>
-                        <div className='text-xs text-gray-500'>unités</div>
+                        <div className='text-xs text-gray-500'>Unités</div>
                       </div>
                     </div>
 
                     <div className='flex justify-between items-center pt-4 border-t border-gray-200'>
-                      <div className='text-xs text-gray-600 space-y-1'>
-                        <div>Prof: {item.article_stock?.depth || 'N/A'}</div>
-                        <div>Ép: {item.article_stock?.thickness || 'N/A'}</div>
-                        <div>Chant: {item.article_stock?.chant || 'N/A'}</div>
+                      <div className='text-xs md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
+                        <div>Prof: <strong>{item.article_stock?.depth || 'N/A'}</strong></div>
+                        <div>Ép: <strong>{item.article_stock?.thickness || 'N/A'}</strong></div>
+                        <div>Chant: <strong>{item.article_stock?.chant || 'N/A'}</strong></div>
                       </div>
 
                       <button
@@ -516,7 +513,7 @@ export default function Preparation() {
             ))}
           </div>
 
-          {lines.length === 0 && !loadingStates.remove && (
+          {lines?.length === 0 && !loadingStates.remove && (
             <div className='text-center py-12'>
               <Package className='w-16 h-16 text-gray-300 mx-auto mb-4' />
               <p className='text-gray-500 text-lg'>

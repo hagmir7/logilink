@@ -6,9 +6,9 @@ const QScanner = ({ onScan }) => {
   const [showScanner, setShowScanner] = useState(false)
 
   return (
-    <div>
+    <div className='flex justify-center'>
       {showScanner ? (
-        <div className='bg-gray-100 p-4 rounded-md'>
+        <div className='bg-gray-100 p-4 rounded-md w-1/2'>
           <Scanner
             onScan={(result) => {
               let scanValue = ''

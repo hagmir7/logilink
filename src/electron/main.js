@@ -3,6 +3,7 @@ import path from "path";
 import { getPreloadPath, isDev } from "./util.js";
 import createLoginWindow from "./windows/loginWindow.js";
 
+
 let mainWindow;
 let loginWindow;
 
