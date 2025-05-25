@@ -168,30 +168,60 @@ function Controller() {
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border-2 border-gray-200 p-4 mb-6'>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Client</span>
-          <span className='font-medium'>
-            {data.docentete.DO_Tiers || <Skeleton />}
+      <div className='grid grid-cols-3 gap-4 md:gap-6 bg-white/80 backdrop-blur-sm border border-gray-300/80 rounded-xl transition-all duration-300 p-5 md:p-6 mb-6 group'>
+        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200'>
+          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
+            Client
+          </span>
+          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
+            {data.docentete.DO_Tiers || <Skeleton className='h-5 w-24' />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Référence</span>
-          <span className='font-medium'>
-            {data.docentete.DO_Ref || <Skeleton />}
+
+        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-75'>
+          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
+            Référence
+          </span>
+          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
+            {data.docentete.DO_Ref || <Skeleton className='h-5 w-20' />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Expédition</span>
-          <span className='font-medium'>
-            {getExped(data.docentete.DO_Expedit) || <Skeleton />}
+
+        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-75'>
+          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
+            Etat
+          </span>
+          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
+            {data.docentete?.document?.status ? (
+              <Tag color={data.docentete.document.status.color}>
+                {data.docentete.document.status.name}
+              </Tag>
+            ) : (
+              <Skeleton className='h-5 w-20' />
+            )}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Type de document</span>
-          <span className='font-medium'>
+
+        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-150'>
+          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
+            Expédition
+          </span>
+          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
+            {getExped(data.docentete.DO_Expedit) || (
+              <Skeleton className='h-5 w-28' />
+            )}
+          </span>
+        </div>
+
+        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-225'>
+          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
+            Type de document
+          </span>
+          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
             {(data.docentete.DO_Piece &&
-              getDocumentType(data.docentete.DO_Piece)) || <Skeleton />}
+              getDocumentType(data.docentete.DO_Piece)) || (
+              <Skeleton className='h-5 w-32' />
+            )}
           </span>
         </div>
       </div>
@@ -218,9 +248,11 @@ function Controller() {
               <CircleCheckBig size={18} />{' '}
             </Button>
           </Popconfirm>
-        ) : ""}
+        ) : (
+          ''
+        )}
 
-        {data.docentete?.document?.status_id < 8 ?
+        {data.docentete?.document?.status_id < 8 ? (
           <div className='flex gap-3'>
             <Select
               size='large'
@@ -232,108 +264,151 @@ function Controller() {
             <Button onClick={transfer} size='large' loading={transferSpin}>
               Transfer <ArrowRight size={18} />{' '}
             </Button>
-          </div> : ""
-        }
+          </div>
+        ) : (
+          ''
+        )}
       </div>
 
       {/* Desktop Table */}
       <div className='hidden md:block overflow-x-auto'>
-        <Table className='min-w-full bg-white border-2 border-gray-200 overflow-hidden'>
-          <Thead className='bg-gray-50 border-gray-200 border-2'>
-            <Tr>
+        <Table className='min-w-full'>
+          <Thead>
+            <Tr hoverable={false}>
               <Th>
                 <Checkbox
                   onChange={handleSelectAll}
                   checked={
-                    selected.length === data.doclignes.length &&
-                    data.doclignes.length > 0
+                    selected.length ===
+                      data.doclignes.filter(
+                        (item) => item.line?.validated !== '1'
+                      ).length &&
+                    data.doclignes.filter(
+                      (item) => item.line?.validated !== '1'
+                    ).length > 0
                   }
                 />
               </Th>
-              <Th>Etat</Th>
-              {/* <Th>Mode actuel</Th> */}
+              <Th>État</Th>
+              <Th>Pièce</Th>
               <Th>Ref Article</Th>
-              <Th>Piece</Th>
               <Th>Dimensions</Th>
               <Th>Matériaux</Th>
-              <Th>Qte</Th>
-              <Th>Qte Inter</Th>
-              <Th>Qte Serie</Th>
+              <Th>Qté</Th>
+              <Th>Qté Inter</Th>
+              <Th>Qté Série</Th>
             </Tr>
           </Thead>
           <Tbody>
             {loading ? (
-              <SkeletonTable />
+              <Tr>
+                <Td colSpan={9} className='text-center py-8'>
+                  <div className='animate-pulse'>Chargement...</div>
+                </Td>
+              </Tr>
             ) : data.doclignes?.length > 0 ? (
-              currentItems.map((item, index) => (
+              data.doclignes.map((item, index) => (
                 <Tr key={index}>
                   <Td>
-                    {item.line?.validated == '1' ? (
-                      <CircleCheckBig color='green' size={18} />
-                    ) : <Checkbox
+                    {item.line?.validated === '1' ? (
+                      <div className='flex items-center justify-center'>
+                        <svg
+                          className='w-5 h-5 text-green-500'
+                          fill='currentColor'
+                          viewBox='0 0 20 20'
+                        >
+                          <path
+                            fillRule='evenodd'
+                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                            clipRule='evenodd'
+                          />
+                        </svg>
+                      </div>
+                    ) : (
+                      <Checkbox
                         checked={selected.includes(item.line?.id || item.id)}
                         onChange={() => handleSelect(item.line?.id || item.id)}
-                      />}
+                      />
+                    )}
                   </Td>
 
                   <Td>
-                    <Tag color={item.line.status.color}>
+                    <Tag color={item.line?.status?.color}>
                       {item.line.status.name}
                     </Tag>
                   </Td>
-
-                  {/* <Td>
-                    {item.line?.role_id > 0 ? (
-                      <Tag color="#2db7f5">{getRoles(item.line.role_id)}</Tag>
-                    ) : item.line?.status_id == 1 ? (
-                      <Clock4 size={20} color="green" />
-                    ) : (
-                      "__"
+                  <Td>
+                    <div className='font-bold text-gray-900'>
+                      {item.article ? item.article.Nom : item?.Nom || '__'}
+                    </div>
+                    {item?.article?.Description && (
+                      <div className='text-sm text-gray-500'>
+                        {item.article.Description}
+                      </div>
                     )}
-                  </Td> */}
+                  </Td>
 
-                  <Td>{item.AR_Ref || '__'}</Td>
+                  <Td className='font-mono text-sm'>{item.AR_Ref || '__'}</Td>
+
                   <Td>
-                    {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
-                    {item?.article?.Description || null}
-                  </Td>
-                  <Td>
-                    <div className='text-sm text-gray-500'>
-                      H:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Hauteur : item.Hauteur
-                      ) || '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      L:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Largeur : item.Largeur
-                      ) || '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      P:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Profondeur : item.Profondeur
-                      ) || '__'}
-                    </div>
-                  </Td>
-                  <Td>
-                    <div className='text-sm text-gray-500'>
-                      Couleur:{' '}
-                      {(item.article ? item.article.Couleur : item.Couleur) ||
-                        '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      Chant:{' '}
-                      {(item.article ? item.article.Chant : item.Chant) || '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      Epaisseur:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Episseur : item.Episseur
-                      ) || '__'}
+                    <div className='space-y-1'>
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>H:</span>{' '}
+                        <span className='font-bold'>
+                          {Math.floor(
+                            item.article ? item.article.Hauteur : item.Hauteur
+                          ) || '__'}{' '}
+                        </span>
+                      </div>
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>L:</span>{' '}
+                        <span className='font-bold'>
+                          {Math.floor(
+                            item.article ? item.article.Largeur : item.Largeur
+                          ) || '__'}{' '}
+                        </span>
+                      </div>
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>P:</span>{' '}
+                        <span className='font-bold'>
+                          {Math.floor(
+                            item.article
+                              ? item.article.Profondeur
+                              : item.Profondeur
+                          ) || '__'}{' '}
+                        </span>
+                      </div>
                     </div>
                   </Td>
+
+                  <Td>
+                    <div className='space-y-1'>
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>Couleur:</span>{' '}
+                        <span className='font-bold'>
+                          {(item.article
+                            ? item.article.Couleur
+                            : item.Couleur) || '__'}
+                        </span>
+                      </div>
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>Chant:</span>{' '}
+                        <span className='font-bold'>
+                          {(item.article ? item.article.Chant : item.Chant) ||
+                            '__'}
+                        </span>
+                      </div>
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>Épaisseur:</span>{' '}
+                        <span className='font-bold'>
+                          {Math.floor(
+                            item.article ? item.article.Episseur : item.Episseur
+                          ) || '__'}{' '}
+                        </span>
+                      </div>
+                    </div>
+                  </Td>
+
                   <Td>
                     <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
                   </Td>
@@ -354,13 +429,17 @@ function Controller() {
                         item?.stock?.qte_serie > 0 ? 'green-inverse' : '#f50'
                       }
                     >
-                      {item?.stock?.qte_inter}
+                      {item?.stock?.qte_serie}
                     </Tag>
                   </Td>
                 </Tr>
               ))
             ) : (
-              <EmptyTable />
+              <Tr>
+                <Td colSpan={9} className='text-center py-8 text-gray-500'>
+                  Aucune donnée disponible
+                </Td>
+              </Tr>
             )}
           </Tbody>
         </Table>

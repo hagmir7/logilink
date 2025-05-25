@@ -15,6 +15,7 @@ import Validation from './pages/Validation';
 import DocumentPalettes from './pages/DocumentPalettes';
 import PaletteControle from './pages/PaletteControle'
 import Progress from './pages/Progress'
+import Shipping from './pages/Shipping'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -43,6 +44,7 @@ function App() {
           <Route path='fabrication/:id' element={<Fabrication />} />
           <Route path='validation' element={<Validation />} />
           <Route path='progress' element={<Progress />} />
+          <Route path='shipping' element={<Shipping />} />
         </Route>
       </Routes>
     </>

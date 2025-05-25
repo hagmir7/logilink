@@ -225,8 +225,8 @@ function Commercial() {
 
       {/* Desktop Table */}
       <div className='hidden md:block overflow-x-auto'>
-        <Table className='min-w-full bg-white border-2 border-gray-200 overflow-hidden'>
-          <Thead className='bg-gray-50 border-gray-200 border-2'>
+        <Table>
+          <Thead>
             <Tr>
               <Th>
                 <Checkbox
