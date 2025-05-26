@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { RefreshCcw, ArrowRight } from 'lucide-react'
-
+import PrintDocument from '../components/PrintDocument';
 
 function Montage() {
   const { id } = useParams()
@@ -102,6 +102,7 @@ function Montage() {
           )}
           Rafraîchir
         </Button>
+         <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
       </div>
 
       {/* Document Info */}

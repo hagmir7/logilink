@@ -8,7 +8,8 @@ import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { RefreshCcw, ArrowRight } from 'lucide-react'
 import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable'
+import EmptyTable from '../components/ui/EmptyTable';
+import PrintDocument from '../components/PrintDocument'
 
 function Fabrication() {
   const { id } = useParams()
@@ -100,6 +101,7 @@ function Fabrication() {
           )}
           Rafraîchir
         </Button>
+          <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
       </div>
 
       {/* Document Info */}

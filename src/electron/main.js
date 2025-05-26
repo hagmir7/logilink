@@ -121,13 +121,17 @@ ipcMain.on('print', () => {
   });
 });
 
-// Wait for renderer to say "I'm ready!"
-ipcMain.on('print-ready', () => {
-  if (!printWindow) return;
 
-  printWindow.webContents.print({ printBackground: true }, (success, errorType) => {
-    if (!success) console.error('Print failed:', errorType);
-    printWindow.close();
-    printWindow = null;
+
+
+ipcMain.on("print-content", (event, htmlContent) => {
+  const printWindow = new BrowserWindow({ show: false });
+  printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+
+  printWindow.webContents.on("did-finish-load", () => {
+    printWindow.webContents.print({}, (success) => {
+      if (!success) console.log("Print failed");
+      printWindow.close();
+    });
   });
 });

@@ -34,7 +34,6 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          disabled: !roles('preparation'),
           label: <Link to='/validation'>Validation</Link>,
         },
         {

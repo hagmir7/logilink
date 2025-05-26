@@ -1,4 +1,4 @@
-import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig, Clock4, ListTodo } from 'lucide-react'
+import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig, Clock4, ListTodo, Printer } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType } from '../utils/config'
@@ -9,6 +9,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import SkeletonTable from '../components/ui/SkeletonTable'
 import EmptyTable from '../components/ui/EmptyTable';
 import { useAuth } from '../contexts/AuthContext'
+import PrintDocument from '../components/PrintDocument'
 
 
 
@@ -101,13 +102,10 @@ function Controller() {
   let listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },
     { value: 5, label: 'Preparation Trailer' },
-    { value: 6, label: 'Fabrication' },
-    { value: 7, label: 'Montage' },
-    { value: 8, label: 'Magasinier' },
-
-    { value: '6,4', label: 'Fabrication + Pr Cuisine' },
+    { value: '6,4', label: 'Montage + Pr Cuisine' },
     { value: '7,5', label: 'Montage + Pr Trailer' },
-    { value: '8,4', label: 'Magasinier + Pr Cuisine' },
+    { value: '6,4', label: 'Fabrication + Pr Cuisine' },
+    { value: 8, label: 'Magasinier' },
   ]
 
 
@@ -134,6 +132,10 @@ function Controller() {
   const handleCancel = () => {
     setOpen(false)
   }
+
+
+
+  
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -164,6 +166,8 @@ function Controller() {
             )}
             Rafraîchir
           </Button>
+
+          <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
         </div>
       </div>
 
@@ -271,7 +275,7 @@ function Controller() {
       </div>
 
       {/* Desktop Table */}
-      <div className='hidden md:block overflow-x-auto'>
+      <div className='hidden md:block overflow-x-auto' id="print-section">
         <Table className='min-w-full'>
           <Thead>
             <Tr hoverable={false}>

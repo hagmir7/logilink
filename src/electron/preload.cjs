@@ -1,10 +1,24 @@
-const electron = require("electron");
+// preload.js
 
+const { contextBridge, ipcRenderer } = require("electron");
 
-electron.contextBridge.exposeInMainWorld('electron', {
-    login: (payload) => electron.ipcRenderer.invoke('login', payload),
-    logout: () => electron.ipcRenderer.invoke("logout"),
-    user: (payload) => electron.ipcRenderer.invoke('user', payload),
-    print: () => electron.ipcRenderer.send('print'),
-    notifyPrintReady: () => electron.ipcRenderer.send('print-ready'),
-})
+contextBridge.exposeInMainWorld("electron", {
+  login: (payload) => ipcRenderer.invoke("login", payload),
+  logout: () => ipcRenderer.invoke("logout"),
+  user: (payload) => ipcRenderer.invoke("user", payload),
+  print: () => ipcRenderer.send("print"),
+
+  ipcRenderer: {
+    send: (channel, data) => {
+      ipcRenderer.send(channel, data);
+    },
+    on: (channel, func) => {
+      const subscription = (event, ...args) => func(...args);
+      ipcRenderer.on(channel, subscription);
+      return () => {
+        ipcRenderer.removeListener(channel, subscription);
+      };
+    },
+    invoke: (channel, data) => ipcRenderer.invoke(channel, data),
+  },
+});

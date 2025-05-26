@@ -15,7 +15,8 @@ import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable'
+import EmptyTable from '../components/ui/EmptyTable';
+import PrintDocument from '../components/PrintDocument';
 
 
 function Commercial() {
@@ -119,7 +120,6 @@ function Commercial() {
   const reset = async () => {
     const response = await api.get(`docentetes/reset/${id}`)
     console.log(response);
-    
     message.success('Réinitialiser avec succès')
   }
   
@@ -134,7 +134,8 @@ function Commercial() {
               : 'Chargement...'}
           </h1>
         </div>
-        <button
+       <div className='flex gap-3'>
+         <button
           onClick={fetchData}
           className='flex items-center px-3 py-2 bg-white border-1 border-gray-300 rounded-md shadow-sm hover:bg-gray-50 text-sm font-medium text-gray-700 transition'
         >
@@ -145,12 +146,15 @@ function Commercial() {
           )}
           Rafraîchir
         </button>
+
+         <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+       </div>
       </div>
 
       {/* Document Info */}
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl shadow-sm p-6 mb-8'>
         <div className='flex flex-col space-y-1'>
-          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Client
           </span>
           <span className='text-base font-semibold text-gray-800'>
@@ -159,7 +163,7 @@ function Commercial() {
         </div>
 
         <div className='flex flex-col space-y-1'>
-          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Référence
           </span>
           <span className='text-base font-semibold text-gray-800'>
@@ -168,7 +172,7 @@ function Commercial() {
         </div>
 
         <div className='flex flex-col space-y-1'>
-          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Expédition
           </span>
           <span className='text-base font-semibold text-gray-800'>
@@ -177,7 +181,7 @@ function Commercial() {
         </div>
 
         <div className='flex flex-col space-y-1'>
-          <span className='text-sm text-gray-500 uppercase tracking-wide'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Type de document
           </span>
           <span className='text-base font-semibold text-gray-800'>
@@ -276,40 +280,44 @@ function Commercial() {
                     {item.DL_Design} {item?.article?.Description || null}
                   </Td>
                   <Td>
-                    <div className='text-sm text-gray-500'>
+                    <div className='text-sm text-gray-800'>
                       H:{' '}
-                      {Math.floor(
+                      <strong>{Math.floor(
                         item.article ? item.article.Hauteur : item.Hauteur
-                      ) || '__'}
+                      ) || '__'}</strong>
                     </div>
-                    <div className='text-sm text-gray-500'>
+                    <div className='text-sm text-gray-800'>
                       L:{' '}
-                      {Math.floor(
+                      <strong>{Math.floor(
                         item.article ? item.article.Largeur : item.Largeur
-                      ) || '__'}
+                      ) || '__'}</strong>
                     </div>
-                    <div className='text-sm text-gray-500'>
+                    <div className='text-sm text-gray-800'>
                       P:{' '}
-                      {Math.floor(
+                      <strong>
+                        {Math.floor(
                         item.article ? item.article.Profondeur : item.Profondeur
                       ) || '__'}
+                      </strong>
                     </div>
                   </Td>
                   <Td>
-                    <div className='text-sm text-gray-500'>
+                    <div className='text-sm text-gray-800'>
                       Couleur:{' '}
-                      {(item.article ? item.article.Couleur : item.Couleur) ||
-                        '__'}
+                      <strong>{(item.article ? item.article.Couleur : item.Couleur) ||
+                        '__'}</strong>
                     </div>
-                    <div className='text-sm text-gray-500'>
+                    <div className='text-sm text-gray-800'>
                       Chant:{' '}
-                      {(item.article ? item.article.Chant : item.Chant) || '__'}
+                      <strong>{(item.article ? item.article.Chant : item.Chant) || '__'}</strong>
                     </div>
-                    <div className='text-sm text-gray-500'>
+                    <div className='text-sm text-gray-800'>
                       Epaisseur:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Episseur : item.Episseur
-                      ) || '__'}
+                      <strong>
+                        {Math.floor(
+                          item.article ? item.article.Episseur : item.Episseur
+                        ) || '__'}
+                      </strong>
                     </div>
                   </Td>
                   <Td>
@@ -368,16 +376,16 @@ function Commercial() {
               <div className='h-px bg-gray-200 my-3'></div>
 
               <div className='grid grid-cols-2 gap-y-2 text-sm'>
-                <div className='text-gray-500'>
+                <div className='text-gray-800'>
                   Hauteur: {Math.floor(item.Hauteur) || '__'}
                 </div>
-                <div className='text-gray-500'>
+                <div className='text-gray-800'>
                   Largeur: {Math.floor(item.Largeur) || '__'}
                 </div>
-                <div className='text-gray-500'>
+                <div className='text-gray-800'>
                   Profondeur: {Math.floor(item.Profondeur) || '__'}
                 </div>
-                <div className='text-gray-500'>
+                <div className='text-gray-800'>
                   Epaisseur: {Math.floor(item.Episseur) || '__'}
                 </div>
               </div>
@@ -385,17 +393,17 @@ function Commercial() {
               <div className='h-px bg-gray-200 my-3'></div>
 
               <div className='space-y-1 text-sm'>
-                <div className='text-gray-500'>
+                <div className='text-gray-800'>
                   Couleur: {item.Couleur || '__'}
                 </div>
-                <div className='text-gray-500'>Chant: {item.Chant || '__'}</div>
-                <div className='text-gray-500'>
+                <div className='text-gray-800'>Chant: {item.Chant || '__'}</div>
+                <div className='text-gray-800'>
                   Référence: {item.AR_Ref || '__'}
                 </div>
               </div>
 
               <div className='mt-3 flex justify-end'>
-                <button className='p-2 text-gray-500 hover:text-gray-700'>
+                <button className='p-2 text-gray-800 hover:text-gray-700'>
                   <Clipboard className='h-4 w-4' />
                 </button>
               </div>
