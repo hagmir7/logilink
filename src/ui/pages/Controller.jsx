@@ -158,6 +158,13 @@ function Controller() {
               <ListTodo /> Contrôler
             </Button>
           )}
+          <Button
+            href={`#/document/palettes/${id}`}
+            size='large'
+            className='btn'
+          >
+            <ListTodo /> Contrôler
+          </Button>
           <Button onClick={fetchData} size='large'>
             {loading ? (
               <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
