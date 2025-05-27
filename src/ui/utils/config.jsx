@@ -109,3 +109,28 @@ export const locale = {
     "placeholder": "Sélectionner l’heure"
   }
 }
+
+
+
+
+
+const statuses = [
+  { id: 1, name: "Transféré", color: "#f39c12" },
+  { id: 2, name: "Reçu", color: "#27ae60" },
+  { id: 3, name: "Fabrication", color: "#2980b9" },
+  { id: 4, name: "Fabriqué", color: "#3498db" },
+  { id: 5, name: "Montage", color: "#9b59b6" },
+  { id: 6, name: "Monté", color: "#8e44ad" },
+  { id: 7, name: "Préparation", color: "#16a085" },
+  { id: 8, name: "Préparé", color: "#1abc9c" },
+  { id: 9, name: "Contrôle", color: "#d35400" },
+  { id: 10, name: "Contrôlé", color: "#e67e22" },
+  { id: 11, name: "Validé", color: "#2ecc71" },
+  { id: 12, name: "Prêt", color: "#34495e" },
+  { id: 13, name: "À livrer", color: "#e74c3c" },
+  { id: 14, name: "Livré", color: "#2c3e50" }
+];
+
+export function getStatus(id) {
+  return statuses.find(status => status.id === id) || null;
+}

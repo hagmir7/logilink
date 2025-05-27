@@ -64,8 +64,7 @@ export default function Preparation() {
   }
 
   const goPrevious = () => {
-    const prevIndex =
-      currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
+    const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
     const prevPalette = palettes[prevIndex]
     setCurrentIndex(prevIndex)
     setPalette(prevPalette)
@@ -150,10 +149,10 @@ export default function Preparation() {
         palette: palette?.code,
         line: article.id,
       })
+      console.log(data);
+      
 
-      setLines(data.lines || [])
-
-      openNotificationWithIcon('success')
+      setLines(data.lines ||  [])
 
       setArticle({
         ref: '',
@@ -409,8 +408,7 @@ export default function Preparation() {
           >
             {loadingStates.submit ? (
               <>
-                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />
-                Validation...
+                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' /> Validation...
               </>
             ) : (
               "Valider l'article"

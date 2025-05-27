@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom'
 import DocumentCard from '../components/ui/DocumentCard'
 import { Button, Select, DatePicker, Input } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
+import DocumentCardCommercial from '../components/ui/DocumentCartCommercial'
 
 const { Search } = Input
 const { RangePicker } = DatePicker;
@@ -173,19 +174,28 @@ function Document() {
             <span className='text-gray-600'>Chargement...</span>
           </div>
         ) : (
-          <>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {data?.data?.length > 0
-                ? data.data.map((item, index) => (
+       <>
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
+            {data?.data?.length > 0
+              ? data.data.map((item, index) =>
+                  roles('commercial') ? (
+                    <DocumentCardCommercial
+                      key={index}
+                      data={item}
+                      onSelectOrder={handleSelectOrder}
+                    />
+                  ) : (
                     <DocumentCard
                       key={index}
                       data={item}
                       onSelectOrder={handleSelectOrder}
                     />
-                  ))
-                : null}
-            </div>
-          </>
+                  )
+                )
+              : null}
+          </div>
+        </>
+
         )}
       </div>
       {data.next_page_url && (

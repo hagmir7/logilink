@@ -20,7 +20,8 @@ function Controller() {
   const [selected, setSelected] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
-  const { roles } = useAuth();
+  const [documentCompany, setDocumentCompany] = useState({})
+  const { roles, user } = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
@@ -28,14 +29,18 @@ function Controller() {
       const response = await api.get(`docentete/${id}`)
 
       setData(response.data)
-      console.log(response);
-
+      setDocumentCompany(response.data.docentete?.document?.companies?.find(item => item.id === Number(user.company_id)))
+ 
+   
+      
       setLoading(false)
     } catch (err) {
       setLoading(false)
       console.error('Failed to fetch data:', err)
     }
   }
+
+     console.log(data.docentete?.document?.status_id);
 
 
   useEffect(() => {
@@ -122,7 +127,6 @@ function Controller() {
     const response = await api.post(`palettes/validate/${id}`, {
       lines: selected,
     })
-    console.log(response.data)
     setOpen(false)
     setConfirmLoading(false)
     fetchData();
@@ -133,6 +137,9 @@ function Controller() {
     setOpen(false)
   }
 
+
+
+  
 
 
   
@@ -149,7 +156,7 @@ function Controller() {
         </div>
 
         <div className='flex gap-2'>
-          {data.docentete?.document?.status_id == 8 && roles('controleur') && (
+          {data.docentete?.document?.status_id === 8 && roles('controleur') && (
             <Button
               href={`#/document/palettes/${id}`}
               size='large'
@@ -158,13 +165,13 @@ function Controller() {
               <ListTodo /> Contrôler
             </Button>
           )}
-          <Button
+          {/* <Button
             href={`#/document/palettes/${id}`}
             size='large'
             className='btn'
           >
             <ListTodo /> Contrôler
-          </Button>
+          </Button> */}
           <Button onClick={fetchData} size='large'>
             {loading ? (
               <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
@@ -229,10 +236,7 @@ function Controller() {
             Type de document
           </span>
           <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {(data.docentete.DO_Piece &&
-              getDocumentType(data.docentete.DO_Piece)) || (
-              <Skeleton className='h-5 w-32' />
-            )}
+            {(data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece)) || (  <Skeleton className='h-5 w-32' /> )}
           </span>
         </div>
       </div>
@@ -243,7 +247,7 @@ function Controller() {
           Détails des articles
         </h2>
 
-        {data.docentete?.document?.status_id == 10 ? (
+        {documentCompany?.pivot?.status_id == 10 ? (
           <Popconfirm
             title='Validation'
             description='Etes-vous sûr de vouloir valider'
@@ -263,7 +267,7 @@ function Controller() {
           ''
         )}
 
-        {data.docentete?.document?.status_id < 8 ? (
+        { !documentCompany?.pivot?.status_id && documentCompany?.pivot?.status_id !==7 ? (
           <div className='flex gap-3'>
             <Select
               size='large'

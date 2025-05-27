@@ -1,20 +1,14 @@
 import React from 'react';
 // import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
-import { formatDate, getExped, getStatus } from '../../utils/config';
+import { formatDate, getExped } from '../../utils/config';
 import { Badge } from 'antd'
 import { Settings } from 'lucide-react';
-import { useAuth } from '../../contexts/AuthContext';
 
-function DocumentCard({ data, onSelectOrder }) {
-
-  const { user } = useAuth();
-
-  const company = data?.document?.companies?.find(item => item.id === Number(user.company_id))
-  
+function DocumentCardCommercial({ data, onSelectOrder }) {
   return (
     <Badge.Ribbon
-      color={company?.pivot?.status_id  ? getStatus(Number(company.pivot.status_id)).color : 'gray'}
-      text={ company?.pivot?.status_id  ? getStatus(Number(company.pivot.status_id)).name : "En attente"}
+      color={data?.document?.status?.color || 'gray'}
+      text={data?.document?.status?.name || "En attente"}
     >
       <div
         className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'
@@ -63,4 +57,4 @@ function DocumentCard({ data, onSelectOrder }) {
   )
 }
 
-export default DocumentCard;
+export default DocumentCardCommercial;
