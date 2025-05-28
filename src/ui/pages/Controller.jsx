@@ -1,7 +1,7 @@
 import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig, Clock4, ListTodo, Printer } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { getExped, getDocumentType } from '../utils/config'
+import { getExped, getDocumentType, getStatus } from '../utils/config'
 import { useParams } from 'react-router-dom'
 import { Button, Checkbox, message, Select, Tag, Popconfirm } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
@@ -14,38 +14,46 @@ import PrintDocument from '../components/PrintDocument'
 
 
 function Controller() {
+
   const { id } = useParams();
   const [data, setData] = useState({ docentete: {}, doclignes: [] });
   const [loading, setLoading] = useState(false);
   const [selected, setSelected] = useState([]);
   const [selectedRoles, setSelectedRoles] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
-  const [documentCompany, setDocumentCompany] = useState({})
+  const [documentCompany, setDocumentCompany] = useState({});
   const { roles, user } = useAuth();
+  const [open, setOpen] = useState(false)
+  const [confirmLoading, setConfirmLoading] = useState(false);
+  const [status, setStatus] = useState({});
 
   const fetchData = async () => {
-    setLoading(true)
+    setLoading(true);
     try {
-      const response = await api.get(`docentete/${id}`)
+      const response = await api.get(`docentete/${id}`);
 
-      setData(response.data)
-      setDocumentCompany(response.data.docentete?.document?.companies?.find(item => item.id === Number(user.company_id)))
- 
-   
-      
-      setLoading(false)
+      setData(response.data);
+      setStatus(getStatus(Number(response.data?.docentete?.document?.companies?.find(item => item.id === Number(user.company_id)).pivot.status_id)))
+
+      const companies = response.data.docentete?.document?.companies || [];
+      const company = companies.find(
+        (item) => item.id === Number(user?.company_id)
+      );
+
+      setDocumentCompany(company || {});
+
     } catch (err) {
-      setLoading(false)
-      console.error('Failed to fetch data:', err)
+      console.error('Failed to fetch data:', err);
+    } finally {
+      setLoading(false);
     }
-  }
-
-     console.log(data.docentete?.document?.status_id);
-
+  };
 
   useEffect(() => {
     fetchData()
   }, [id])
+
+  
 
 
   const currentItems = data?.doclignes || []
@@ -57,17 +65,8 @@ function Controller() {
   }
 
   const handleSelectAll = (e) => {
-    console.log(
-      data.doclignes
-      // .filter((item) => Number(item.line.status_id) < 8)
-      .map(doc=> doc.line.id)
-    )
     if (e.target.checked) {
-      setSelected(
-        data.doclignes
-          // .filter((item) => Number(item.line.status_id) < 8)
-          .map((doc) => doc.line.id)
-      )
+      setSelected(data.doclignes.map((doc) => doc.line.id))
     } else {
       setSelected([])
     }
@@ -107,16 +106,12 @@ function Controller() {
   let listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },
     { value: 5, label: 'Preparation Trailer' },
-    { value: '6,4', label: 'Montage + Pr Cuisine' },
+    { value: '7,4', label: 'Montage + Pr Cuisine' },
     { value: '7,5', label: 'Montage + Pr Trailer' },
     { value: '6,4', label: 'Fabrication + Pr Cuisine' },
     { value: 8, label: 'Magasinier' },
   ]
 
-
-
-  const [open, setOpen] = useState(false)
-  const [confirmLoading, setConfirmLoading] = useState(false)
 
   const showPopconfirm = () => {
     setOpen(true)
@@ -138,12 +133,6 @@ function Controller() {
   }
 
 
-
-  
-
-
-  
-
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
@@ -156,7 +145,7 @@ function Controller() {
         </div>
 
         <div className='flex gap-2'>
-          {data.docentete?.document?.status_id === 8 && roles('controleur') && (
+          {documentCompany?.pivot?.status_id == 8 && roles('controleur') && (
             <Button
               href={`#/document/palettes/${id}`}
               size='large'
@@ -210,10 +199,10 @@ function Controller() {
             Etat
           </span>
           <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {data.docentete?.document?.status ? (
-              <Tag color={data.docentete.document.status.color}>
-                {data.docentete.document.status.name}
-              </Tag>
+            {status ? (
+              <Tag color={status.color}>
+                {status.name}
+              </Tag> || 'En attend'
             ) : (
               <Skeleton className='h-5 w-20' />
             )}
@@ -236,7 +225,7 @@ function Controller() {
             Type de document
           </span>
           <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {(data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece)) || (  <Skeleton className='h-5 w-32' /> )}
+            {(data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece)) || (<Skeleton className='h-5 w-32' />)}
           </span>
         </div>
       </div>
@@ -247,6 +236,7 @@ function Controller() {
           Détails des articles
         </h2>
 
+        {/* Validation */}
         {documentCompany?.pivot?.status_id == 10 ? (
           <Popconfirm
             title='Validation'
@@ -267,7 +257,8 @@ function Controller() {
           ''
         )}
 
-        { !documentCompany?.pivot?.status_id && documentCompany?.pivot?.status_id !==7 ? (
+        {/* Transfer */}
+        {!documentCompany?.pivot?.status_id && documentCompany?.pivot?.status_id !== 7 ? (
           <div className='flex gap-3'>
             <Select
               size='large'
@@ -295,12 +286,8 @@ function Controller() {
                   onChange={handleSelectAll}
                   checked={
                     selected.length ===
-                      data.doclignes.filter(
-                        (item) => item.line?.validated !== '1'
-                      ).length &&
-                    data.doclignes.filter(
-                      (item) => item.line?.validated !== '1'
-                    ).length > 0
+                    data.doclignes.filter((item) => item.line?.validated !== '1').length &&
+                    data.doclignes.filter((item) => item.line?.validated !== '1').length > 0
                   }
                 />
               </Th>
