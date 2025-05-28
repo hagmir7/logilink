@@ -62,8 +62,8 @@ function PreparationList() {
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
-        <div className='flex items-center space-x-3'>
-          <h1 className='text-xl font-bold text-gray-800'>
+        <div className='flex items-center space-x-2'>
+          <h1 className='text-lg md:text-xl font-bold text-gray-800'>
             {data.docentete.DO_Piece
               ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
@@ -83,28 +83,39 @@ function PreparationList() {
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border-2 border-gray-200 p-4 mb-6'>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Client</span>
-          <span className='font-medium'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl shadow-sm p-6 mb-8'>
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
+            Client
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {data.docentete.DO_Tiers || <Skeleton />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Référence</span>
-          <span className='font-medium'>
+
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
+            Référence
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {data.docentete.DO_Ref || <Skeleton />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Expédition</span>
-          <span className='font-medium'>
+
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
+            Expédition
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {getExped(data.docentete.DO_Expedit) || <Skeleton />}
           </span>
         </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Type de document</span>
-          <span className='font-medium'>
+
+        <div className='flex flex-col space-y-1'>
+          <span className='text-sm text-gray-800 uppercase tracking-wide'>
+            Type de document
+          </span>
+          <span className='text-base font-semibold text-gray-800'>
             {(data.docentete.DO_Piece &&
               getDocumentType(data.docentete.DO_Piece)) || <Skeleton />}
           </span>
@@ -114,30 +125,20 @@ function PreparationList() {
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
         <h2 className='text-lg font-semibold text-gray-800'>
-          Détails des articles
+          Détails des articles ({data.doclignes.length})
         </h2>
 
-        {(data.docentete?.document?.status_id === 8 && roles('controleur')) ??
-          <div className='flex gap-3'>
-            <Button href={`#/preparation/${id}`} className='btn'>
-              Controle <ArrowRight size={18} />{' '}
-            </Button>
-          </div>
-        }
-
         <div className='flex gap-3'>
-          <Button href={`#/preparation/${id}`} className='btn'>
+          <Button size='large' href={`#/preparation/${id}`} className='btn'>
             Preparation <ArrowRight size={18} />{' '}
           </Button>
         </div>
-        
-
       </div>
 
       {/* Desktop Table */}
       <div className='hidden md:block overflow-x-auto'>
-        <Table className='min-w-full bg-white border-2 border-gray-200 overflow-hidden'>
-          <Thead className='bg-gray-50 border-gray-200 border-2'>
+        <Table>
+          <Thead>
             <Tr>
               <Th>Etat</Th>
               <Th>Piece</Th>
@@ -156,7 +157,9 @@ function PreparationList() {
               currentItems.map((item, index) => (
                 <Tr key={index}>
                   <Td>
-                    <Tag color={item.line.status.color}>{item.line.status.name}</Tag>
+                    <Tag color={item.line.status.color}>
+                      {item.line?.status?.name}
+                    </Tag>
                   </Td>
                   <Td className='font-black text-gray-800'>
                     {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
@@ -283,14 +286,16 @@ function PreparationList() {
           currentItems.map((item, index) => (
             <div
               key={index}
-              className='bg-white border-2 border-gray-200 rounded-md p-4 mb-4 shadow-sm'
+              className='bg-white border-2 border-gray-200 rounded-lg p-4 mb-4 shadow-sm'
             >
               <div className='flex justify-between items-center mb-2'>
                 <span className='font-black text-gray-800 text-lg'>
                   {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
                   {item?.article?.Description || null}
                 </span>
-                 <Tag color={item.line.status.color}>{item.line.status.name}</Tag>
+                <Tag color={item.line.status.color}>
+                  {item.line?.status?.name}
+                </Tag>
               </div>
 
               <div className='flex justify-between items-center mb-2'>

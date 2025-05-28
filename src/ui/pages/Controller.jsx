@@ -336,7 +336,7 @@ function Controller() {
 
                   <Td>
                     <Tag color={item.line?.status?.color}>
-                      {item.line.status.name}
+                      {item.line?.status?.name}
                     </Tag>
                   </Td>
                   <Td>
