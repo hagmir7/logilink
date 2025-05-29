@@ -44,6 +44,10 @@ const sideMenu = () => {
           key: 'submenu-11',
           label: <Link to='/shipping'>Expédition</Link>,
         },
+        {
+          key: 'submenu-13',
+          label: <Link to='/shargement'>Chargement</Link>,
+        },
       ],
     },
     {
