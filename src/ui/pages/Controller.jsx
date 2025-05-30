@@ -341,7 +341,7 @@ function Controller() {
                   </Td>
                   <Td>
                     <div className='font-bold text-gray-900'>
-                      {item.article ? item.article.Nom : item?.Nom || '__'}
+                      { item?.Nom || item.article.Nom || '__'}
                     </div>
                     {item?.article?.Description && (
                       <div className='text-sm text-gray-500'>
@@ -357,27 +357,19 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>H:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(
-                            item.article ? item.article.Hauteur : item.Hauteur
-                          ) || '__'}{' '}
+                          {Math.floor(item.Hauteur) || '__'}{' '}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>L:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(
-                            item.article ? item.article.Largeur : item.Largeur
-                          ) || '__'}{' '}
+                          {Math.floor(item.Largeur ? item.Largeur : item.article.Largeur) || '__'}{' '}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>P:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(
-                            item.article
-                              ? item.article.Profondeur
-                              : item.Profondeur
-                          ) || '__'}{' '}
+                          {Math.floor(item.Profondeur ? item.Profondeur : item.article.Profondeur ) || '__'}{' '}
                         </span>
                       </div>
                     </div>
@@ -388,9 +380,7 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Couleur:</span>{' '}
                         <span className='font-bold'>
-                          {(item.article
-                            ? item.article.Couleur
-                            : item.Couleur) || '__'}
+                          {(item.Couleur ? item.Couleur : item.article.Couleur) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
@@ -403,9 +393,7 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Épaisseur:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(
-                            item.article ? item.article.Episseur : item.Episseur
-                          ) || '__'}{' '}
+                          {Math.floor(item.Episseur ? item.Episseur : item.article.Episseur) || '__'}
                         </span>
                       </div>
                     </div>

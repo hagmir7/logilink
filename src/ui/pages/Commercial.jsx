@@ -281,20 +281,20 @@ function Commercial() {
                     <div className='text-sm text-gray-800'>
                       H:{' '}
                       <strong>{Math.floor(
-                        item.article ? item.article.Hauteur : item.Hauteur
+                        item.Hauteur ? item.Hauteur : item.article.Hauteur
                       ) || '__'}</strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       L:{' '}
                       <strong>{Math.floor(
-                        item.article ? item.article.Largeur : item.Largeur
+                        item.Largeur ? item.Largeur : item.article.Largeur
                       ) || '__'}</strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       P:{' '}
                       <strong>
                         {Math.floor(
-                        item.article ? item.article.Profondeur : item.Profondeur
+                        item.Profondeur? item.Profondeur : item.article.Profondeur
                       ) || '__'}
                       </strong>
                     </div>
@@ -302,12 +302,12 @@ function Commercial() {
                   <Td>
                     <div className='text-sm text-gray-800'>
                       Couleur:{' '}
-                      <strong>{(item.article ? item.article.Couleur : item.Couleur) ||
+                      <strong>{(item.Couleur ? item.Couleur : item.article.Couleur) ||
                         '__'}</strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       Chant:{' '}
-                      <strong>{(item.article ? item.article.Chant : item.Chant) || '__'}</strong>
+                      <strong>{(item.Chant ? item.Chant : item.article.Chant) || '__'}</strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       Epaisseur:{' '}
