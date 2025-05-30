@@ -280,9 +280,11 @@ function Commercial() {
                   <Td>
                     <div className='text-sm text-gray-800'>
                       H:{' '}
-                      <strong>{Math.floor(
-                        item.Hauteur ? item.Hauteur : item.article.Hauteur
-                      ) || '__'}</strong>
+                      {
+                        item.Hauteur > 0 ?  <strong>{Math.floor(item.Hauteur)}</strong> :
+                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                      }
+                     
                     </div>
                     <div className='text-sm text-gray-800'>
                       L:{' '}
