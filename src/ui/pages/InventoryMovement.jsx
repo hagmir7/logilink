@@ -83,7 +83,6 @@ export default function InventoryMovement() {
     }
 
     console.log('Submitting movement data:', movementData)
-    // Here you would typically send this data to your API
     alert('Movement data ready for submission (check console)')
   }
 
@@ -113,7 +112,8 @@ export default function InventoryMovement() {
             type='text'
             value={emplacementCode}
             onChange={(e) => setEmplacementCode(e.target.value)}
-            placeholder='Enter emplacement code (e.g., K-1A1-01)'
+            autoFocus
+            placeholder='Emplacement'
             className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
           />
           <button
@@ -156,7 +156,7 @@ export default function InventoryMovement() {
             type='text'
             value={articleCode}
             onChange={(e) => setArticleCode(e.target.value)}
-            placeholder='Enter article code (e.g., AC011015)'
+            placeholder='Article'
             className='flex-1 px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500'
           />
           <button
@@ -208,7 +208,7 @@ export default function InventoryMovement() {
               htmlFor='quantity'
               className='text-md font-semibold text-gray-700 mb-4'
             >
-              Quantity
+              Quantité
             </label>
             <input
               id='quantity'
@@ -216,7 +216,7 @@ export default function InventoryMovement() {
               step='0.1'
               value={quantity}
               onChange={(e) => setQuantity(e.target.value)}
-              placeholder='Enter quantity'
+              placeholder='Quantité'
               className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500'
             />
           </div>
