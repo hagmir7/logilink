@@ -58,7 +58,7 @@ const sideMenu = () => {
       children: [
         {
           key: 'submenu-2',
-          label: 'Préparation',
+          label: <Link to='/inventories'>Inventaire</Link>,
         },
       ],
     },

@@ -134,3 +134,10 @@ const statuses = [
 export function getStatus(id) {
   return statuses.find(status => status.id === id) || null;
 }
+
+
+export function uppercaseFirst(str) {
+  if (!str) return ''
+  return str.charAt(0).toUpperCase() + str.slice(1)
+}
+

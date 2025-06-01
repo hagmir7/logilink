@@ -288,15 +288,13 @@ function Commercial() {
                     </div>
                     <div className='text-sm text-gray-800'>
                       L:{' '}
-                      <strong>{Math.floor(
-                        item.Largeur ? item.Largeur : item.article.Largeur
-                      ) || '__'}</strong>
+                      <strong>{Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur ) || '__'}</strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       P:{' '}
                       <strong>
                         {Math.floor(
-                        item.Profondeur? item.Profondeur : item.article.Profondeur
+                        item.Profondeur? item?.Profondeur : item?.article?.Profondeur
                       ) || '__'}
                       </strong>
                     </div>
@@ -304,19 +302,17 @@ function Commercial() {
                   <Td>
                     <div className='text-sm text-gray-800'>
                       Couleur:{' '}
-                      <strong>{(item.Couleur ? item.Couleur : item.article.Couleur) ||
+                      <strong>{(item.Couleur ? item.Couleur : item?.article?.Couleur) ||
                         '__'}</strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       Chant:{' '}
-                      <strong>{(item.Chant ? item.Chant : item.article.Chant) || '__'}</strong>
+                      <strong>{(item.Chant ? item.Chant : item?.article?.Chant) || '__'}</strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       Epaisseur:{' '}
                       <strong>
-                        {Math.floor(
-                          item.article ? item.article.Episseur : item.Episseur
-                        ) || '__'}
+                        {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
                       </strong>
                     </div>
                   </Td>

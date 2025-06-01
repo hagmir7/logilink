@@ -17,6 +17,8 @@ import PaletteControle from './pages/PaletteControle'
 import Progress from './pages/Progress'
 import Shipping from './pages/Shipping'
 import Chargement from './pages/Chargement'
+import InvetroryList from './pages/InvetroryList'
+import InventoryMovement from './pages/InventoryMovement'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -47,6 +49,9 @@ function App() {
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
           <Route path='shargement' element={<Chargement />} />
+
+          <Route path='inventories' element={<InvetroryList />} />
+          <Route path='inventories/:id' element={<InventoryMovement />} />
         </Route>
       </Routes>
     </>
