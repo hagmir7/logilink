@@ -3,14 +3,10 @@
 export function getDocumentType(DO_Piece) {
   const prefixMap = {
     DE: { type: 'Devis', code: 0 },
-    BPL: { type: 'Bon de préparation', code: 2 },
-    PL: { type: 'Bon de préparation', code: 2 },
-    BC: { type: 'Bon de commande', code: 3 },
+    PL: { type: 'Préparation de livraison', code: 2 },
     BL: { type: 'Bon de livraison', code: 3 },
-    BLX: { type: 'Bon de livraison', code: 13 },
     FA: { type: 'Facture', code: 6 },
-    BFA: { type: 'Facture', code: 6 },
-    BDE: { type: 'Bon de demande d’achat', code: 0 },
+    BLX: { type: 'Bon d’achat', code: 13 },  
   }
 
   const piece = DO_Piece.slice(2);
