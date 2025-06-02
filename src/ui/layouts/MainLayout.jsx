@@ -60,6 +60,10 @@ const sideMenu = () => {
           key: 'submenu-2',
           label: <Link to='/inventories'>Inventaire</Link>,
         },
+        {
+          key: 'submenu-3',
+          label: <Link to='/depots'>Depots</Link>,
+        },
       ],
     },
     {
@@ -283,10 +287,9 @@ const MainLayout = () => {
           }}
         >
           <Content
-            className='bg-gray-50 shadow'
+            className='bg-gray-50 shadow mb-4'
             style={{
               minHeight: 'calc(100vh - 64px)',
-              // padding: 16,
               borderRadius: borderRadiusLG,
               overflow: 'auto',
             }}

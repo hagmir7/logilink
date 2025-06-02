@@ -124,33 +124,33 @@ function Commercial() {
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-6'>
-      <div className='flex justify-between items-center mb-6'>
-        <div className='flex items-center space-x-3'>
-          <h1 className='text-xl font-bold text-gray-800'>
+      <div className='md:flex justify-between items-center mb-6 space-x-3'>
+        <div className='flex items-center space-x-3 mb-4 md:mb-0'>
+          <h1 className='text-lg font-semibold text-gray-800'>
             {data.docentete.DO_Piece
               ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
         </div>
-       <div className='flex gap-3'>
-         <button
-          onClick={fetchData}
-          className='flex items-center px-3 py-2 bg-white border-1 border-gray-300 rounded-md shadow-sm hover:bg-gray-50 text-sm font-medium text-gray-700 transition'
-        >
-          {loading ? (
-            <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
-          ) : (
-            <RefreshCcw className='h-4 w-4 mr-2' />
-          )}
-          Rafraîchir
-        </button>
+        <div className='flex gap-3'>
+          <Button size='large' onClick={fetchData}>
+            {loading ? (
+              <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
+            ) : (
+              <RefreshCcw className='h-4 w-4 mr-2' />
+            )}
+            Rafraîchir
+          </Button>
 
-         <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
-       </div>
+          <PrintDocument
+            doclignes={data.doclignes}
+            docentete={data.docentete}
+          />
+        </div>
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl shadow-sm p-6 mb-8'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl p-6 mb-8'>
         <div className='flex flex-col space-y-1'>
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Client
@@ -195,7 +195,6 @@ function Commercial() {
           Détails des articles
         </h2>
         <div className='flex gap-3'>
-     
           {data.docentete.document ? (
             <Popconfirm
               title='Réinitialiser la commande'
@@ -204,7 +203,7 @@ function Commercial() {
               okText='Réinitialiser'
               cancelText='Annuler'
             >
-              <Button color='red' variant='solid'>
+              <Button color='red' size='large' variant='solid'>
                 Réinitialiser <Undo2 size={18} />{' '}
               </Button>
             </Popconfirm>
@@ -214,12 +213,13 @@ function Commercial() {
 
           <Select
             defaultValue='Transférer vers'
+            size='large'
             style={{ width: 200 }}
             onChange={handleChangeTransfer}
             options={listTransfer}
           />
 
-          <Button onClick={transfer} loading={transferSpin}>
+          <Button size='large' onClick={transfer} loading={transferSpin}>
             Transfer <ArrowRight size={18} />{' '}
           </Button>
         </div>
@@ -280,39 +280,55 @@ function Commercial() {
                   <Td>
                     <div className='text-sm text-gray-800'>
                       H:{' '}
-                      {
-                        item.Hauteur > 0 ?  <strong>{Math.floor(item.Hauteur)}</strong> :
+                      {item.Hauteur > 0 ? (
+                        <strong>{Math.floor(item.Hauteur)}</strong>
+                      ) : (
                         <strong>{Math.floor(item.article?.Hauteur)}</strong>
-                      }
-                     
+                      )}
                     </div>
                     <div className='text-sm text-gray-800'>
                       L:{' '}
-                      <strong>{Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur ) || '__'}</strong>
+                      <strong>
+                        {Math.floor(
+                          item.Largeur ? item.Largeur : item?.article?.Largeur
+                        ) || '__'}
+                      </strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       P:{' '}
                       <strong>
                         {Math.floor(
-                        item.Profondeur? item?.Profondeur : item?.article?.Profondeur
-                      ) || '__'}
+                          item.Profondeur
+                            ? item?.Profondeur
+                            : item?.article?.Profondeur
+                        ) || '__'}
                       </strong>
                     </div>
                   </Td>
                   <Td>
                     <div className='text-sm text-gray-800'>
                       Couleur:{' '}
-                      <strong>{(item.Couleur ? item.Couleur : item?.article?.Couleur) ||
-                        '__'}</strong>
+                      <strong>
+                        {(item.Couleur
+                          ? item.Couleur
+                          : item?.article?.Couleur) || '__'}
+                      </strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       Chant:{' '}
-                      <strong>{(item.Chant ? item.Chant : item?.article?.Chant) || '__'}</strong>
+                      <strong>
+                        {(item.Chant ? item.Chant : item?.article?.Chant) ||
+                          '__'}
+                      </strong>
                     </div>
                     <div className='text-sm text-gray-800'>
                       Epaisseur:{' '}
                       <strong>
-                        {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
+                        {Math.floor(
+                          item.article
+                            ? item?.article?.Episseur
+                            : item?.Episseur
+                        ) || '__'}
                       </strong>
                     </div>
                   </Td>
@@ -330,7 +346,7 @@ function Commercial() {
         </Table>
       </div>
 
-      {/* Mobile Cards */}
+      {/* Improved Mobile Cards with structure similar to desktop */}
       <div className='block md:hidden'>
         {loading ? (
           // Mobile loading skeleton
@@ -338,14 +354,14 @@ function Commercial() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className='bg-white border-1 border-gray-200 p-4 space-y-3 animate-pulse'
+                className='bg-white border-2 border-gray-200 rounded-md p-4 space-y-3 animate-pulse'
               >
                 <div className='flex justify-between'>
-                  <div className='h-4 bg-gray-200 rounded w-1/3'></div>
-                  <div className='h-4 bg-gray-200 rounded w-16'></div>
+                  <div className='h-5 bg-gray-200 rounded w-2/3'></div>
+                  <div className='h-6 bg-gray-200 rounded w-16'></div>
                 </div>
                 <div className='h-px bg-gray-200'></div>
-                <div className='grid grid-cols-2 gap-2'>
+                <div className='grid grid-cols-2 gap-3'>
                   <div className='h-4 bg-gray-200 rounded'></div>
                   <div className='h-4 bg-gray-200 rounded'></div>
                   <div className='h-4 bg-gray-200 rounded'></div>
@@ -358,55 +374,85 @@ function Commercial() {
           currentItems.map((item, index) => (
             <div
               key={index}
-              className='bg-white border-1 border-gray-200 p-4 mb-4 shadow-sm'
+              className='bg-white border-2 border-gray-200 rounded-lg p-4 mb-4'
             >
-              <div className='flex justify-between items-center'>
-                <span className='font-medium text-gray-900'>
-                  {item.Nom || '__'}
+              <div className='flex justify-between items-center mb-2'>
+                <span className='font-black text-gray-800 text-lg'>
+                  {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
+                  {item?.article?.Description || null}
                 </span>
-                <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                  {Math.floor(item.DL_Qte)}
+                {/* <Tag color={item.line.status.color}>
+                  {item.line?.status?.name}
+                </Tag> */}
+              </div>
+
+              <div className='flex justify-between items-center mb-2'>
+                <span className='text-sm text-gray-500'>
+                  Référence:{' '}
+                  <span className='font-medium text-gray-700'>
+                    {item.AR_Ref || '__'}
+                  </span>
                 </span>
+                <Tag color='green-inverse'>{Math.floor(item.DL_Qte || 0)}</Tag>
+              </div>
+
+              <div className='h-px bg-gray-200 my-3'></div>
+              <div className='grid grid-cols-2 gap-y-3'>
+                <div className='text-sm'>
+                  <span className='text-gray-500'>H: </span>
+                  <span className='font-bold text-gray-800'>
+                    {Math.floor(
+                      item.article ? item.article.Hauteur : item.Hauteur
+                    ) || '__'}
+                  </span>
+                </div>
+                <div className='text-sm'>
+                  <span className='text-gray-500'>L: </span>
+                  <span className='font-bold text-gray-800'>
+                    {Math.floor(
+                      item.article ? item.article.Largeur : item.Largeur
+                    ) || '__'}
+                  </span>
+                </div>
+                <div className='text-sm'>
+                  <span className='text-gray-500'>P: </span>
+                  <span className='font-bold text-gray-800'>
+                    {Math.floor(
+                      item.article ? item.article.Profondeur : item.Profondeur
+                    ) || '__'}
+                  </span>
+                </div>
+                <div className='text-sm'>
+                  <span className='text-gray-500'>Epaisseur: </span>
+                  <span className='font-bold text-gray-800'>
+                    {Math.floor(
+                      item.article ? item.article.Episseur : item.Episseur
+                    ) || '__'}
+                  </span>
+                </div>
               </div>
 
               <div className='h-px bg-gray-200 my-3'></div>
 
-              <div className='grid grid-cols-2 gap-y-2 text-sm'>
-                <div className='text-gray-800'>
-                  Hauteur: {Math.floor(item.Hauteur) || '__'}
+              <div className='grid grid-cols-2 gap-y-3'>
+                <div className='text-sm'>
+                  <span className='text-gray-500'>Couleur: </span>
+                  <span className='font-bold text-gray-800'>
+                    {(item.article ? item.article.Couleur : item.Couleur) ||
+                      '__'}
+                  </span>
                 </div>
-                <div className='text-gray-800'>
-                  Largeur: {Math.floor(item.Largeur) || '__'}
+                <div className='text-sm'>
+                  <span className='text-gray-500'>Chant: </span>
+                  <span className='font-bold text-gray-800'>
+                    {(item.article ? item.article.Chant : item.Chant) || '__'}
+                  </span>
                 </div>
-                <div className='text-gray-800'>
-                  Profondeur: {Math.floor(item.Profondeur) || '__'}
-                </div>
-                <div className='text-gray-800'>
-                  Epaisseur: {Math.floor(item.Episseur) || '__'}
-                </div>
-              </div>
-
-              <div className='h-px bg-gray-200 my-3'></div>
-
-              <div className='space-y-1 text-sm'>
-                <div className='text-gray-800'>
-                  Couleur: {item.Couleur || '__'}
-                </div>
-                <div className='text-gray-800'>Chant: {item.Chant || '__'}</div>
-                <div className='text-gray-800'>
-                  Référence: {item.AR_Ref || '__'}
-                </div>
-              </div>
-
-              <div className='mt-3 flex justify-end'>
-                <button className='p-2 text-gray-800 hover:text-gray-700'>
-                  <Clipboard className='h-4 w-4' />
-                </button>
               </div>
             </div>
           ))
         ) : (
-          <div className='bg-white border-1 border-gray-200 p-8 text-center'>
+          <div className='bg-white border-2 border-gray-200 rounded-md p-8 text-center'>
             <svg
               className='mx-auto h-12 w-12 text-gray-400'
               fill='none'

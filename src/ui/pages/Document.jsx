@@ -6,6 +6,7 @@ import DocumentCard from '../components/ui/DocumentCard'
 import { Button, Select, DatePicker, Input } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import DocumentCardCommercial from '../components/ui/DocumentCartCommercial'
+import DocumentTable from '../components/DocumentTable'
 
 const { Search } = Input
 const { RangePicker } = DatePicker;
@@ -104,12 +105,14 @@ function Document() {
 
 
   return (
-    <div className='min-h-screen p-2 md:p-5'>
-      {/* Header */}
-      <h2 className='text-xl font-semibold text-gray-800 mb-2'>
-        Gestion des commandes
+    <div className='min-h-screen'>
+      {/* Title */}
+      <h2 className='text-xl font-semibold text-gray-800 mb-1 p-2 md:p-4'>
+        Gestion de la préparation
       </h2>
-      <div className='flex flex-wrap justify-between items-center gap-4 mb-6'>
+
+      {/* Header */}
+      <div className='flex flex-wrap justify-between items-center gap-4 mb-4 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
           <Search
             placeholder='Recherch'
@@ -117,29 +120,17 @@ function Document() {
             size='large'
             onChange={handleSearch}
           />
-          <RangePicker size='large' onChange={handleChangeDate} className='h-10 min-w-[220px]' />
 
-          {/* {roles('commercial') && (
-            <Select
-              defaultValue='2'
-              className='h-10 min-w-[220px]'
-              size='large'
-              onChange={()=>setDocumentType(value)}
-              options={[
-                { value: '0', label: 'Devis' },
-                { value: '1', label: 'Bon de command' },
-                { value: '2', label: 'Preparation de livraison' },
-                { value: '3', label: 'Bon de livraison' },
-                { value: '6', label: 'Facture' },
-                { value: 'disabled', label: 'Disabled', disabled: true },
-              ]}
-            />
-          )} */}
+          <RangePicker
+            size='large'
+            onChange={handleChangeDate}
+            className='min-w-[220px] block md:hidden'
+          />
 
           {roles('commercial') && (
             <Select
               defaultValue=''
-              className='h-10 min-w-[220px]'
+              className='min-w-[220px] block md:hidden'
               size='large'
               onChange={(value) => setDocumentStatus(value)}
               options={[
@@ -151,55 +142,42 @@ function Document() {
             />
           )}
 
-          <button
-            type='button'
-            onClick={fetchData}
-            className='h-10 px-4 inline-flex items-center gap-2 text-sm font-medium rounded-md border border-gray-300 bg-white text-gray-700 shadow-sm hover:bg-gray-100 disabled:opacity-50'
-          >
+          <Button onClick={fetchData} size='large'>
             {loading ? (
               <Loader2 className='animate-spin text-blue-500' size={17} />
             ) : (
               <RefreshCcw size={17} />
             )}
             <span className='hidden sm:inline'>Rafraîchir</span>
-          </button>
+          </Button>
         </div>
       </div>
 
-      {/* Cards Container */}
-      <div className='space-y-4'>
-        {loading ? (
-          <div className='flex flex-col items-center justify-center h-64'>
-            <Loader2 className='animate-spin text-blue-500 mb-2' size={32} />
-            <span className='text-gray-600'>Chargement...</span>
-          </div>
-        ) : (
-       <>
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-            {data?.data?.length > 0
-              ? data.data.map((item, index) =>
-                  roles('commercial') ? (
-                    <DocumentCardCommercial
-                      key={index}
-                      data={item}
-                      onSelectOrder={handleSelectOrder}
-                    />
-                  ) : (
-                    <DocumentCard
-                      key={index}
-                      data={item}
-                      onSelectOrder={handleSelectOrder}
-                    />
-                  )
-                )
-              : null}
-          </div>
-        </>
+      {/* Commercail Table */}
+      {roles('commercial') && (
+        <DocumentTable
+          documents={data.data}
+          onSelectOrder={handleSelectOrder}
+        />
+      )}
 
-        )}
-      </div>
+      {/* Cards Container */}
+      {!roles('commercial') && (
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
+          {data?.data?.length > 0
+            ? data.data.map((item, index) => (
+                <DocumentCard
+                  key={index}
+                  data={item}
+                  onSelectOrder={handleSelectOrder}
+                />
+              ))
+            : null}
+        </div>
+      )}
+
       {data.next_page_url && (
-        <div className='flex justify-center'>
+        <div className='flex justify-center py-6'>
           <Button
             onClick={loadMore}
             type='primary'
