@@ -6,14 +6,14 @@ export function getDocumentType(DO_Piece) {
     PL: { type: 'Préparation de livraison', code: 2 },
     BL: { type: 'Bon de livraison', code: 3 },
     FA: { type: 'Facture', code: 6 },
-    BLX: { type: 'Bon d’achat', code: 13 },  
+    BLX: { type: 'Bon d’achat', code: 13 },
   }
 
   const piece = DO_Piece.slice(2);
 
-  for (const key of ["BFA", "BPL", "BLX", "BDE", "DE", "PL", "BC", "BL", "FA"]) {
+  for (const key of ["DE", "PL", "BL", "FA", "BLX", "PL", "BC", "BL", "FA"]) {
     if (piece.startsWith(key)) {
-      return prefixMap[key].type;
+      return prefixMap[key]?.type;
     }
   }
 
@@ -105,9 +105,6 @@ export const locale = {
     "placeholder": "Sélectionner l’heure"
   }
 }
-
-
-
 
 
 const statuses = [

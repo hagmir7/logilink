@@ -72,7 +72,7 @@ const sideMenu = () => {
       label: <span className='text-base'>Inventaire</span>,
       children: [
         {
-          key: 'submenu-3',
+          key: 'submenu-5',
           label: 'Préparation',
         },
       ],
