@@ -2,6 +2,8 @@ import React from 'react'
 import { Settings } from 'lucide-react'
 import { Tag } from 'antd'
 import { getExped } from '../utils/config'
+import { useAuth } from '../contexts/AuthContext'
+import Spinner from './ui/Spinner'
 
 // Mock utility functions for demo
 const formatDate = (date) => {
@@ -10,56 +12,8 @@ const formatDate = (date) => {
 
 function ShippingTable({ documents = [], onSelectOrder }) {
   // Sample data for demonstration  
-  const data =
-    documents.length > 0
-      ? documents
-      : [
-          {
-            DO_Piece: 'DOC-001',
-            DO_Reliquat: 1,
-            DO_Expedit: 1,
-            DO_Tiers: 'Client A',
-            DO_Ref: 'REF-001',
-            DO_Date: '2024-01-15',
-            DO_DateLivr: '2024-01-20',
-            document: {
-              status: {
-                color: 'green',
-                name: 'Validé',
-              },
-            },
-          },
-          {
-            DO_Piece: 'DOC-002',
-            DO_Reliquat: 0,
-            DO_Expedit: 2,
-            DO_Tiers: 'Client B',
-            DO_Ref: 'REF-002',
-            DO_Date: '2024-01-16',
-            DO_DateLivr: '2024-01-22',
-            document: {
-              status: {
-                color: 'orange',
-                name: 'En cours',
-              },
-            },
-          },
-          {
-            DO_Piece: 'DOC-003',
-            DO_Reliquat: 0,
-            DO_Expedit: 3,
-            DO_Tiers: 'Client C',
-            DO_Ref: 'REF-003',
-            DO_Date: '2024-01-17',
-            DO_DateLivr: '2024-01-25',
-            document: {
-              status: {
-                color: 'red',
-                name: 'En attente',
-              },
-            },
-          },
-        ]
+
+  const { roles } = useAuth();
 
   const getStatusBadgeColor = (color) => {
     const colorMap = {
@@ -88,9 +42,13 @@ function ShippingTable({ documents = [], onSelectOrder }) {
         <table className='w-full'>
           <thead className='bg-gray-50 border-b border-gray-200'>
             <tr>
+              {
+                roles('commercial') &&
               <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 Document
               </th>
+              }
+              
                <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 Préparation
               </th>
@@ -115,17 +73,21 @@ function ShippingTable({ documents = [], onSelectOrder }) {
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-200'>
-            {data.map((item, index) => (
+            {documents.map((item, index) => (
               <tr
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
                 onClick={() => onSelectOrder && onSelectOrder(item.piece_bl || item.DO_Piece)}
               >
-                <td className='px-6 py-4 whitespace-nowrap'>
-                  <div className='text-sm font-bold text-gray-900'>
-                    {item.piece_bl || item.DO_Piece || '__'}
-                  </div>
-                </td>
+                {
+                  roles('commercial') ??
+                  <td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='text-sm font-bold text-gray-900'>
+                      {item.piece_bl || item.DO_Piece || '__'}
+                    </div>
+                  </td>
+                }
+               
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <div className='text-sm font-bold text-gray-900'>
                     {item.piece || '__'}
@@ -156,9 +118,12 @@ function ShippingTable({ documents = [], onSelectOrder }) {
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                   {formatDate(new Date(item?.docentete?.DO_Date || item.DO_Date))}
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(new Date(item?.docentete?.DO_DateLivr || item.DO_DateLivr))}
-                </td>
+                 
+                  <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                    {formatDate(new Date(item?.docentete?.DO_DateLivr || item.DO_DateLivr))}
+                  </td>
+     
+               
               </tr>
             ))}
           </tbody>
@@ -167,17 +132,22 @@ function ShippingTable({ documents = [], onSelectOrder }) {
 
       {/* Mobile Card View */}
       <div className='lg:hidden'>
-        {data.map((item, index) => (
+        {documents.map((item, index) =>{
+          const pieceBL = item.piece_bl || item?.docentete?.DO_Piece || '__';
+          const piecePL = item?.piece || '__';
+
+          return (
           <div
             key={index}
             className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200'
-            onClick={() => onSelectOrder && onSelectOrder(item.piece_bl || item.DO_Piece)}
+            onClick={() => onSelectOrder(piecePL) }
           >
             {/* Header with document number and status */}
             <div className='flex justify-between items-start mb-3'>
               <div className='flex items-center'>
                 <span className='text-lg font-bold text-gray-900'>
-                  {item.piece_bl || item.DO_Piece || '__'}
+                
+                  {roles('commercial') ? pieceBL : piecePL}
                 </span>
                 {(item.DO_Reliquat === 1 || item.reliquat === 1) && (
                   <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded'>
@@ -227,16 +197,15 @@ function ShippingTable({ documents = [], onSelectOrder }) {
                 </span>
               </div>
             </div>
-          </div>
-        ))}
+          </div>)
+        })}
       </div>
 
-      {/* Empty state */}
-      {data.length === 0 && (
-        <div className='text-center py-12'>
-          <p className='text-gray-500'>Aucun document à afficher</p>
-        </div>
+      {documents.length === 0 && (
+        <Spinner />
       )}
+
+    
     </div>
   )
 }

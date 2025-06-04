@@ -233,7 +233,7 @@ function Controller() {
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
         <h2 className='text-lg font-semibold text-gray-800'>
-          Détails des articles
+          Articles
         </h2>
 
         {/* Validation */}
@@ -380,7 +380,7 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Couleur:</span>{' '}
                         <span className='font-bold'>
-                          {(item.Couleur ? item.Couleur : item.article.Couleur) || '__'}
+                            {(item.article ? item.article.Couleur : item.Couleur) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>

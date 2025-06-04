@@ -10,7 +10,8 @@ const { Search } = Input
 const { RangePicker } = DatePicker
 
 function Shipping() {
-  const [data, setData] = useState({
+ 
+  const [documents, setDocuments] = useState({
     data: [],
     next_page_url: null,
     total: 0,
@@ -21,18 +22,20 @@ function Shipping() {
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
   const navigate = useNavigate()
-  const [dateFilter, setDateFilter] = useState(null)
+  const [dateFilter, setDateFilter] = useState(null);
   const { roles } = useAuth()
-
-
-
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get('document/livraison')
-
-      setData(response.data)
+      const response = await api.get(`document/livraison?status=${documenStatus}`);
+      setDocuments(prev => ({
+        ...prev,
+        data: response.data.data,
+        next_page_url: response.data.next_page_url,
+        total: response.data.total
+      }))
+      
       setLoading(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -40,9 +43,10 @@ function Shipping() {
     }
   }
 
+
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [documenStatus]);
 
   const handleSelectOrder = (orderId) => {
     navigate(`/document/${orderId}`)
@@ -54,7 +58,7 @@ function Shipping() {
     setPage(page + 1)
     try {
       const response = await api.get(`${url}&page=${page}`)
-      setData({
+      setDocuments({
         data: [...data.data, ...response.data.data],
         next_page_url: response.data.next_page_url,
         total: response.data.total,
@@ -72,7 +76,7 @@ function Shipping() {
 
     try {
       const response = await api.get(`${url}&search=${inputValue}`)
-      setData({
+      setDocuments({
         data: response.data.data,
         next_page_url: response.data.next_page_url,
         total: response.data.total,
@@ -87,6 +91,8 @@ function Shipping() {
   const handleChangeDate = (dates, dateStrings) => {
     setDateFilter(dates)
   }
+
+  
 
   return (
     <div className='min-h-screen'>
@@ -111,20 +117,17 @@ function Shipping() {
             className='min-w-[220px] block md:hidden'
           />
 
-          {roles('commercial') && (
-            <Select
-              defaultValue=''
-              className='min-w-[220px] block md:hidden'
-              size='large'
-              onChange={(value) => setDocumentStatus(value)}
-              options={[
-                { value: '', label: 'En attente' },
-                { value: '1', label: 'Transféré' },
-                { value: '2', label: 'Reçu' },
-                { value: '3', label: 'Fabrication' },
-              ]}
-            />
-          )}
+          <Select
+            defaultValue=''
+            className='min-w-[220px] block md:hidden'
+            size='large'
+            onChange={(value) => setDocumentStatus(value)}
+            options={[
+              { value: '', label: 'Tout' },
+              { value: '11', label: 'Validé' },
+              { value: '12', label: 'Livraison' },
+            ]}
+          />
 
           <Button onClick={fetchData} size='large'>
             {loading ? (
@@ -136,13 +139,11 @@ function Shipping() {
           </Button>
         </div>
       </div>
-      {roles('commercial') && (
-        <ShippingTable
-          documents={data.data}
+     <ShippingTable
+          documents={documents.data}
           onSelectOrder={handleSelectOrder}
         />
-      )}
-      {data.next_page_url && (
+      {documents.next_page_url && (
         <div className='flex justify-center'>
           <Button
             onClick={loadMore}

@@ -119,9 +119,9 @@ const statuses = [
   { id: 9, name: "Contrôle", color: "#d35400" },
   { id: 10, name: "Contrôlé", color: "#e67e22" },
   { id: 11, name: "Validé", color: "#2ecc71" },
-  { id: 12, name: "Prêt", color: "#34495e" },
-  { id: 13, name: "À livrer", color: "#e74c3c" },
-  { id: 14, name: "Livré", color: "#2c3e50" }
+  { id: 12, name: "Livraison", color: "#34495e" },
+  { id: 13, name: "Livré", color: "#e74c3c" },
+  // { id: 14, name: "Livré", color: "#2c3e50" }
 ];
 
 export function getStatus(id) {

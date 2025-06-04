@@ -24,8 +24,6 @@ function PreparationList() {
 
       setData(response.data)
       setLoading(false)
-      console.log(response);
-      
     } catch (err) {
       setLoading(false)
       console.error('Failed to fetch data:', err)
@@ -37,27 +35,6 @@ function PreparationList() {
 
   const currentItems = data?.doclignes || [];
 
-
-  const statuses = [
-    { id: 1, name: "Transféré" },
-    { id: 2, name: "Reçu" },
-    { id: 3, name: "Fabrication" },
-    { id: 4, name: "Fabriqué" },
-    { id: 5, name: "Montage" },
-    { id: 6, name: "Monté" },
-    { id: 7, name: "Préparation" },
-    { id: 8, name: "Préparé" },
-    { id: 9, name: "Contrôle" },
-    { id: 10, name: "Contrôlé" },
-    { id: 11, name: "Prêt" },
-    { id: 12, name: "À livrer" },
-    { id: 13, name: "Livré" },
-  ];
-
-  function getStatus(id) {
-    const status = statuses.find(status => status.id === Number(id));
-    return status ? status.name : "No Status";
-  }
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -125,7 +102,7 @@ function PreparationList() {
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
         <h2 className='text-lg font-semibold text-gray-800'>
-          Détails des articles ({data.doclignes.length})
+          Articles ({data.doclignes.length})
         </h2>
 
         <div className='flex gap-3'>
@@ -198,8 +175,7 @@ function PreparationList() {
                     <div className='text-sm text-gray-500'>
                       Couleur:{' '}
                       <span className='font-bold text-gray-800'>
-                        {(item.article ? item.article.Couleur : item.Couleur) ||
-                          '__'}
+                        {(item.article ? item.article.Couleur : item.Couleur) || '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
