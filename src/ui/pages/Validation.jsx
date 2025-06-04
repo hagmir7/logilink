@@ -3,8 +3,9 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
 import DocumentCard from '../components/ui/DocumentCard'
-import { Button, Select, Space, Input } from 'antd'
+import { Button, Select, Space, Input, Empty } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
+import Spinner from '../components/ui/Spinner'
 
 const { Search } = Input
 
@@ -103,18 +104,18 @@ function Validation() {
             onChange={handleSearch}
           />
 
-          <button
-            type='button'
+          <Button
             onClick={fetchData}
-            className='py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-sm hover:bg-gray-50 disabled:opacity-50'
-          >
+            size='large'
+
+            >
             {loading ? (
               <Loader2 className='animate-spin text-blue-500' size={17} />
             ) : (
               <RefreshCcw size={17} />
             )}
             <span className='hidden sm:inline'>Rafraîchir</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -138,6 +139,17 @@ function Validation() {
                   ))
                 : null}
             </div>
+
+            {loading ? (
+              <Spinner />
+            ) : (
+              data?.data?.length === 0 && (
+                <Empty
+                  className='mt-10'
+                  description='Aucun document à afficher'
+                />
+              )
+            )}
           </>
         )}
       </div>

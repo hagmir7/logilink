@@ -1,7 +1,8 @@
 import React from 'react'
 import { Settings } from 'lucide-react'
-import { Tag } from 'antd'
+import { Empty, Tag } from 'antd'
 import { getExped } from '../utils/config'
+import Spinner from './ui/Spinner'
 
 // Mock utility functions for demo
 const formatDate = (date) => {
@@ -9,58 +10,8 @@ const formatDate = (date) => {
 }
 
 
-function DocumentTable({ documents = [], onSelectOrder }) {
-  // Sample data for demonstration
-  const sampleDocuments =
-    documents.length > 0
-      ? documents
-      : [
-          {
-            DO_Piece: 'DOC-001',
-            DO_Reliquat: 1,
-            DO_Expedit: 1,
-            DO_Tiers: 'Client A',
-            DO_Ref: 'REF-001',
-            DO_Date: '2024-01-15',
-            DO_DateLivr: '2024-01-20',
-            document: {
-              status: {
-                color: 'green',
-                name: 'Validé',
-              },
-            },
-          },
-          {
-            DO_Piece: 'DOC-002',
-            DO_Reliquat: 0,
-            DO_Expedit: 2,
-            DO_Tiers: 'Client B',
-            DO_Ref: 'REF-002',
-            DO_Date: '2024-01-16',
-            DO_DateLivr: '2024-01-22',
-            document: {
-              status: {
-                color: 'orange',
-                name: 'En cours',
-              },
-            },
-          },
-          {
-            DO_Piece: 'DOC-003',
-            DO_Reliquat: 0,
-            DO_Expedit: 3,
-            DO_Tiers: 'Client C',
-            DO_Ref: 'REF-003',
-            DO_Date: '2024-01-17',
-            DO_DateLivr: '2024-01-25',
-            document: {
-              status: {
-                color: 'red',
-                name: 'En attente',
-              },
-            },
-          },
-        ]
+function DocumentTable({ documents = [], onSelectOrder, loading }) {
+
 
   const getStatusBadgeColor = (color) => {
     const colorMap = {
@@ -113,7 +64,7 @@ function DocumentTable({ documents = [], onSelectOrder }) {
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-200'>
-            {sampleDocuments.map((data, index) => (
+            {documents.map((data, index) => (
               <tr
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
@@ -137,7 +88,10 @@ function DocumentTable({ documents = [], onSelectOrder }) {
                   >
                     {data?.document?.status?.color}
                   </span> */}
-                  <Tag color={data?.document?.status?.color} className='text-xl'>
+                  <Tag
+                    color={data?.document?.status?.color}
+                    className='text-xl'
+                  >
                     {data?.document?.status?.name || 'En attente'}
                   </Tag>
                 </td>
@@ -172,7 +126,7 @@ function DocumentTable({ documents = [], onSelectOrder }) {
 
       {/* Mobile Card View */}
       <div className='lg:hidden'>
-        {sampleDocuments.map((data, index) => (
+        {documents.map((data, index) => (
           <div
             key={index}
             className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200'
@@ -236,11 +190,12 @@ function DocumentTable({ documents = [], onSelectOrder }) {
         ))}
       </div>
 
-      {/* Empty state */}
-      {sampleDocuments.length === 0 && (
-        <div className='text-center py-12'>
-          <p className='text-gray-500'>Aucun document à afficher</p>
-        </div>
+      {loading ? (
+        <Spinner />
+      ) : (
+        documents.length === 0 && (
+          <Empty className='mt-10' description='Aucun document à afficher' />
+        )
       )}
     </div>
   )

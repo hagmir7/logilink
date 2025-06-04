@@ -13,6 +13,8 @@ import {
   Menu as MenuIcon,
   X,
   Warehouse,
+  Layers2,
+  FileDown,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -38,11 +40,11 @@ const sideMenu = () => {
           label: <Link to='/validation'>Validation</Link>,
         },
         {
-          key: 'submenu-12',
+          key: 'submenu-21',
           label: <Link to='/progress'>Progrès</Link>,
         },
         {
-          key: 'submenu-11',
+          key: 'submenu-15',
           label: <Link to='/shipping'>Expédition</Link>,
         },
         // {
@@ -59,8 +61,13 @@ const sideMenu = () => {
       children: [
         {
           key: 'submenu-2',
-          icon: <Layers size={20} />,
+          icon: <ClipboardCheck size={20} />,
           label: <Link to='/inventories'>Inventaire</Link>,
+        },
+        {
+          key: 'submenu-12',
+          icon: <Layers size={20} />,
+          label: <Link to='/articles'>Articles</Link>,
         },
         {
           key: 'submenu-3',
@@ -68,16 +75,17 @@ const sideMenu = () => {
           label: <Link to='/depots'>Depots</Link>,
         },
         {
-           key: 'submenu-100',
+          key: 'submenu-13',
           icon: <ArrowDownUp size={20} />,
           label: <span className='text-base'>Transfert</span>,
-        }
+        },
       ],
     },
 
     {
       key: 'menu-6',
-      icon: <ClipboardCheck size={20} />,
+      icon: <FileDown size={20} />,
+      disabled: true,
       label: <span className='text-base'>Reception</span>,
       children: [
         {
@@ -89,6 +97,7 @@ const sideMenu = () => {
     {
       key: 'menu-7',
       icon: <BaggageClaim size={20} />,
+      disabled: true,
       label: <span className='text-base'>Achat</span>,
       children: [
         {

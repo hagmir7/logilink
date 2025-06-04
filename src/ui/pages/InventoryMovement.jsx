@@ -3,6 +3,10 @@ import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
+import { Button, Modal, Space } from 'antd';
+
+
+
 
 export default function InventoryMovement() {
   const {id} = useParams()
@@ -37,6 +41,8 @@ export default function InventoryMovement() {
       setLoadingEmplacement(false)
     }
   }
+
+
 
   const fetchArticleData = async (code) => {
     if (!code.trim()) return
@@ -75,16 +81,42 @@ export default function InventoryMovement() {
       return
     }
 
-    const movementData = {
-      movement_id: id,
-      emplacement: emplacementData,
-      article: articleData,
-      quantity: parseFloat(quantity),
-    }
 
-    console.log('Submitting movement data:', movementData)
-    alert('Movement data ready for submission (check console)')
   }
+
+
+  const info = () => {
+    Modal.info({
+      title: ' Movement Summary',
+      content: (
+        <div>
+          {/* Summary Section */}
+          {emplacementData && articleData && quantity && (
+            <div className='bg-blue-50 rounded-lg p-2'>
+              <div className='text-sm text-blue-700 space-y-1'>
+                <div>
+                  <span className='font-medium'>Movement ID:</span> {id}
+                </div>
+                <div>
+                  <span className='font-medium'>From Emplacement:</span>{' '}
+                  {emplacementData.code} (Depot: {emplacementData.depot_id})
+                </div>
+                <div>
+                  <span className='font-medium'>Article:</span>{' '}
+                  {articleData.name} ({articleData.code})
+                </div>
+                <div>
+                  <span className='font-medium'>Quantity:</span> {quantity}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      ),
+      onOk() {},
+    })
+  }
+
 
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
@@ -221,40 +253,24 @@ export default function InventoryMovement() {
             />
           </div>
 
-          <button
+          {/* <button
             onClick={handleFinalSubmit}
-            disabled={!emplacementData || !articleData || !quantity}
             className='w-full px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 disabled:bg-gray-400 disabled:cursor-not-allowed'
           >
             Submit Movement
-          </button>
+          </button> */}
+
+          <Button
+            disabled={!emplacementData || !articleData || !quantity}
+            onClick={info}
+            className='w-full'
+          >
+            Save
+          </Button>
         </div>
       </div>
 
-      {/* Summary Section */}
-      {emplacementData && articleData && quantity && (
-        <div className='bg-blue-50 rounded-lg p-6'>
-          <h2 className='text-lg font-semibold text-blue-800 mb-4'>
-            Movement Summary
-          </h2>
-          <div className='text-sm text-blue-700 space-y-1'>
-            <div>
-              <span className='font-medium'>Movement ID:</span> {id}
-            </div>
-            <div>
-              <span className='font-medium'>From Emplacement:</span>{' '}
-              {emplacementData.code} (Depot: {emplacementData.depot_id})
-            </div>
-            <div>
-              <span className='font-medium'>Article:</span> {articleData.name} (
-              {articleData.code})
-            </div>
-            <div>
-              <span className='font-medium'>Quantity:</span> {quantity}
-            </div>
-          </div>
-        </div>
-      )}
+
     </div>
   )
 }

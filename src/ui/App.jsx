@@ -20,6 +20,7 @@ import Chargement from './pages/Chargement'
 import InvetroryList from './pages/InvetroryList'
 import InventoryMovement from './pages/InventoryMovement'
 import Depots from './pages/Depots'
+import Article from './pages/Article'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -54,6 +55,7 @@ function App() {
           <Route path='inventories' element={<InvetroryList />} />
           <Route path='inventories/:id' element={<InventoryMovement />} />
           <Route path='depots' element={<Depots />} />
+          <Route path='articles' element={<Article />} />
         </Route>
       </Routes>
     </>

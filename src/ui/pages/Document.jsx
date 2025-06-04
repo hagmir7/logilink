@@ -156,6 +156,7 @@ function Document() {
       {/* Commercail Table */}
       {roles('commercial') && (
         <DocumentTable
+          loading={loading}
           documents={data.data}
           onSelectOrder={handleSelectOrder}
         />
