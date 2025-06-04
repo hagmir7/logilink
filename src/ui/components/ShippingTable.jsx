@@ -1,6 +1,6 @@
 import React from 'react'
 import { Settings } from 'lucide-react'
-import { Tag } from 'antd'
+import { Empty, Tag } from 'antd'
 import { getExped } from '../utils/config'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'
@@ -10,7 +10,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function ShippingTable({ documents = [], onSelectOrder }) {
+function ShippingTable({ documents = [], onSelectOrder, loading }) {
   // Sample data for demonstration  
 
   const { roles } = useAuth();
@@ -201,11 +201,7 @@ function ShippingTable({ documents = [], onSelectOrder }) {
         })}
       </div>
 
-      {documents.length === 0 && (
-        <Spinner />
-      )}
-
-    
+      {loading ? <Spinner /> : (documents.length === 0 && (<Empty className='mt-10' description="Aucune documentation existe." />))}
     </div>
   )
 }

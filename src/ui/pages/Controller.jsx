@@ -357,19 +357,25 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>H:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(item.Hauteur) || '__'}{' '}
+                         {Math.floor( item.article ? item.article.Hauteur : item.Hauteur ) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>L:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(item.Largeur ? item.Largeur : item.article.Largeur) || '__'}{' '}
+                          {Math.floor(item.Largeur  ? item.article : item.article.Largeur ) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>P:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(item.Profondeur ? item.Profondeur : item.article.Profondeur ) || '__'}{' '}
+                          <span className='font-bold  text-gray-800'>
+                            {Math.floor(
+                              item.article
+                                ? item.article.Profondeur
+                                : item.Profondeur
+                            ) || '__'}
+                          </span>
                         </span>
                       </div>
                     </div>

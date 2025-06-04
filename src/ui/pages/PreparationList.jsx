@@ -1,4 +1,4 @@
-import { RefreshCcw, Clipboard, ArrowRight } from 'lucide-react';
+import { RefreshCcw, Clipboard, ArrowRight, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getExped, getDocumentType } from '../utils/config';
@@ -41,26 +41,22 @@ function PreparationList() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-2'>
           <h1 className='text-lg md:text-xl font-bold text-gray-800'>
-            {data.docentete.DO_Piece
-              ? `Commande ${data.docentete.DO_Piece}`
+            {data.docentete.DO_Piece ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
         </div>
-        <button
-          onClick={fetchData}
-          className='flex items-center px-3 py-2 bg-white border-1 border-gray-300 rounded-md shadow-sm hover:bg-gray-50 text-sm font-medium text-gray-700 transition'
-        >
-          {loading ? (
-            <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
-          ) : (
-            <RefreshCcw className='h-4 w-4 mr-2' />
-          )}
-          Rafraîchir
-        </button>
+        <Button onClick={fetchData} size='large'>
+            {loading ? (
+              <Loader2 className='animate-spin text-blue-500' size={17} />
+            ) : (
+              <RefreshCcw size={17} />
+            )}
+            <span className='hidden sm:inline'>Rafraîchir</span>
+          </Button>
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl shadow-sm p-6 mb-8'>
+      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl p-6 mb-8'>
         <div className='flex flex-col space-y-1'>
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Client
@@ -147,17 +143,13 @@ function PreparationList() {
                     <div className='text-sm text-gray-500'>
                       H:{' '}
                       <span className='font-bold text-gray-800'>
-                        {Math.floor(
-                          item.article ? item.article.Hauteur : item.Hauteur
-                        ) || '__'}
+                        {Math.floor( item.article ? item.article.Hauteur : item.Hauteur ) || '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
                       L:{' '}
                       <span className='font-bold text-gray-800'>
-                        {Math.floor(
-                          item.article ? item.article.Largeur : item.Largeur
-                        ) || '__'}
+                        {Math.floor(item.article ? item.article.Largeur : item.Largeur ) || '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>

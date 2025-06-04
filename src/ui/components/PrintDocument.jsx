@@ -153,15 +153,16 @@ export default function PrintDocument({ docentete, doclignes }) {
           <tbody>
             {doclignes.map((item, index) => {
               const art = item.article || {};
+              
               return (
                 <tr key={index}>
                   <td>
                     {
                       roles("commercial") || roles("admin") ? <strong>{item?.DL_Design || '__'} </strong>
-                        : <strong>{item?.Nom || '__'} </strong>
+                        : <strong>{art?.Nom || '__'} </strong>
                     }
                     <span style={{ fontSize: '11px', color: '#000' }}>
-                      {art.Description ? `(${art.Description})` : ''}
+                      { art.Description ? `(${art.Description})` : '' }
                     </span>
                   </td>
                   <td>

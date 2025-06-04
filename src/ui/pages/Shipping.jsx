@@ -23,12 +23,13 @@ function Shipping() {
   const [searchSpinner, setSearchSpinner] = useState(false)
   const navigate = useNavigate()
   const [dateFilter, setDateFilter] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
   const { roles } = useAuth()
 
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(`document/livraison?status=${documenStatus}`);
+      const response = await api.get(`document/livraison?status=${documenStatus}&search=${searchQuery}`);
       setDocuments(prev => ({
         ...prev,
         data: response.data.data,
@@ -46,7 +47,7 @@ function Shipping() {
 
   useEffect(() => {
     fetchData();
-  }, [documenStatus]);
+  }, [documenStatus, searchQuery]);
 
   const handleSelectOrder = (orderId) => {
     navigate(`/document/${orderId}`)
@@ -108,14 +109,14 @@ function Shipping() {
             placeholder='Recherch'
             loading={searchSpinner}
             size='large'
-            onChange={handleSearch}
+            onChange={(e)=> setSearchQuery(e.target.value)}
           />
 
-          <RangePicker
+          {/* <RangePicker
             size='large'
             onChange={handleChangeDate}
             className='min-w-[220px] block md:hidden'
-          />
+          /> */}
 
           <Select
             defaultValue=''
@@ -140,6 +141,7 @@ function Shipping() {
         </div>
       </div>
      <ShippingTable
+          loading={loading}
           documents={documents.data}
           onSelectOrder={handleSelectOrder}
         />
