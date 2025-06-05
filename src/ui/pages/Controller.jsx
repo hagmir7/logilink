@@ -96,7 +96,7 @@ function Controller() {
       setSelectedRoles(null)
       setSelected([])
       fetchData()
-      message.success('Company changed successfully')
+      message.success('Articles transférés avec succès')
     } else {
       message.error('No selected data')
     }
@@ -349,9 +349,7 @@ function Controller() {
                       </div>
                     )}
                   </Td>
-
                   <Td className='font-mono text-sm'>{item.AR_Ref || '__'}</Td>
-
                   <Td>
                     <div className='space-y-1'>
                       <div className='text-sm text-gray-600'>

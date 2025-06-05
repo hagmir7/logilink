@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react'
-import {
-  ArrowLeftCircle,
+import { ArrowLeftCircle,
   ArrowRightCircle,
   X,
   Loader2,
@@ -9,7 +8,6 @@ import {
   Plus,
   Minus,
 } from 'lucide-react'
-import { Badge } from 'antd'
 import QScanner from '../components/QScanner'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
@@ -82,7 +80,6 @@ export default function Preparation() {
       setPalette(data.palette)
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
-      console.log(data)
     } catch (err) {
       console.error('Error creating palette:', err)
       openNotificationWithIcon('error')
@@ -104,34 +101,24 @@ export default function Preparation() {
 
     try {
       const { data } = await api.post('palettes/scan', payload)
-      console.log(data)
 
-      const dimensions =
-        data.docligne?.Hauteur && data.docligne?.Largeur
-          ? Math.floor(data.docligne.Hauteur) +
-            ' * ' +
-            Math.floor(data.docligne.Largeur)
-          : ''
+      const height = Math.floor(data.docligne?.Hauteur) || Math.floor(data.article_stock?.height) || false;
+      const width = Math.floor(data.docligne.Largeur) || Math.floor(data.article_stock?.width) || false
+
+      const dimensions = height && width ? height + " * " + width : (width || height);
 
       setArticle({
         id: data.id,
         ref: data.ref ?? '',
-        design:
-          (data.docligne?.Nom ? data.docligne.Nom + ' ' + dimensions : '') +
-          data.docligne?.Couleur,
-        profondeur: data.docligne?.Profondeur ?? '',
-        episseur: data.docligne?.Episseur
-          ? Math.floor(data.docligne.Episseur).toString()
-          : '',
-        chant: data.docligne?.Chant ?? '',
+        design: data.article_stock?.name + " " + dimensions,
+        profondeur: data.article_stock?.depth ?? '',
+        episseur: data.article_stock?.thickness || '',
+
+        chant: data.docligne?.Chant || data.article_stock.chant,
         qte: data.quantity ? Math.floor(data.quantity) : 0,
-        color: data.docligne?.Couleur ?? '',
-        height: data.docligne?.Hauteur
-          ? Math.floor(data.docligne.Hauteur).toString()
-          : '',
-        width: data.docligne?.Largeur
-          ? Math.floor(data.docligne.Largeur).toString()
-          : '',
+        color: data.article_stock?.color || '',
+        height: height,
+        width: width,
       })
     } catch (err) {
       console.error('Error scanning:', err)
@@ -149,10 +136,9 @@ export default function Preparation() {
         palette: palette?.code,
         line: article.id,
       })
-      console.log(data);
-      
 
-      setLines(data.lines ||  [])
+
+      setLines(data.lines || [])
 
       setArticle({
         ref: '',
@@ -195,7 +181,6 @@ export default function Preparation() {
     setLoading('create', true)
     try {
       const { data } = await api.post('palettes/create', { document_id: id })
-      console.log(data)
     } catch (err) {
       console.error('Error creating new palette:', err)
     } finally {

@@ -101,7 +101,7 @@ function Commercial() {
       setSelectedCompany(null)
       setSelected([])
       fetchData()
-      message.success('Company changed successfully')
+      message.success('Articles transférés avec succès')
     } else {
       message.error('No selected data')
     }
