@@ -1,9 +1,10 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Settings } from 'lucide-react'
-import { Empty, Tag } from 'antd'
+import { Empty, message, Select, Tag } from 'antd'
 import { getExped } from '../utils/config'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'
+import { api } from '../utils/api'
 
 // Mock utility functions for demo
 const formatDate = (date) => {
@@ -14,6 +15,30 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
   // Sample data for demonstration  
 
   const { roles } = useAuth();
+  const [users, setUsers] = useState([]);
+
+
+
+  const fetchData = async () => {
+    try {
+      const response = await api.get('roles/chargement');
+      setUsers(response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+
+  const handleChange = async (value, document_id) => {
+    console.log(value);
+    const response = api.post(`/documents/chargement/${document_id}`, {'user_id' : value});
+    message.success('Agent attribué avec succès');
+  };
+
 
   const getStatusBadgeColor = (color) => {
     const colorMap = {
@@ -47,7 +72,6 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   Document
                 </th>
               )}
-
               <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
                 Préparation
               </th>
@@ -76,7 +100,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
               <tr
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
-                onClick={() =>
+                onDoubleClick={() =>
                   onSelectOrder && onSelectOrder(item.piece_bl || item.docentete.DO_Piece)
                 }
               >
@@ -117,15 +141,25 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   {item.ref || item.DO_Ref}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(
-                    new Date(item?.docentete?.DO_Date || item.DO_Date)
-                  )}
+                  {formatDate(new Date(item?.docentete?.DO_Date || item.DO_Date))}
                 </td>
 
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(
-                    new Date(item?.docentete?.DO_DateLivr || item.DO_DateLivr)
-                  )}
+                  {formatDate(new Date(item?.docentete?.DO_DateLivr || item.DO_DateLivr))}
+                </td>
+                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                  {
+                    (item.status_id == '12' && roles('preparation')) && <Select
+                      placeholder="Agent de chargement"
+                      defaultValue={item.user_id}
+                      style={{ width: 170 }}
+                      allowClear
+                      // loading
+                      onChange={(value) => handleChange(value, item.id)}
+                      options={users}
+                    />
+                  }
+                  
                 </td>
               </tr>
             ))}
