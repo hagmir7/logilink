@@ -77,13 +77,13 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
                 onClick={() =>
-                  onSelectOrder && onSelectOrder(item.piece_bl || item.DO_Piece)
+                  onSelectOrder && onSelectOrder(item.piece_bl || item.docentete.DO_Piece)
                 }
               >
-                {roles('commercial') ?? (
+                {roles('commercial') && (
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className='text-sm font-bold text-gray-900'>
-                      {item.piece_bl || item.DO_Piece || '__'}
+                      {item.piece_bl || item?.docentete?.DO_Piece || '__'}
                     </div>
                   </td>
                 )}
