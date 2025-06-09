@@ -98,16 +98,12 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                     color={item?.status?.color || item?.document?.status?.color}
                     className='text-xl'
                   >
-                    {item?.status?.name ||
-                      item?.document?.status?.name ||
-                      'En attente'}
+                    {item?.status?.name || item?.document?.status?.name || 'En attente'}
                   </Tag>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(
-                      item.expedition || item.DO_Expedit
-                    )}`}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(item.expedition || item.DO_Expedit)}`}
                   >
                     {getExped(item.expedition || item.DO_Expedit)}
                   </span>
