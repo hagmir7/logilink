@@ -50,7 +50,7 @@ function App() {
           <Route path='validation' element={<Validation />} />
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
-          <Route path='shargement' element={<Chargement />} />
+          <Route path='shargement/:id' element={<Chargement />} />
 
           <Route path='inventories' element={<InvetroryList />} />
           <Route path='inventories/:id' element={<InventoryMovement />} />

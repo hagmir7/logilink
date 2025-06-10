@@ -16,22 +16,21 @@ import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 
 export default function Chargement() {
-  const [article, setArticle] = useState({
-    ref: '',
-    design: '',
-    profondeur: '',
+
+  const [palette, setPalette] = useState({
+    document_piece: '',
+    code: '',
+    company: '',
+    articles: '',
     episseur: '',
-    chant: '',
-    qte: 0,
-    color: '',
-    height: '',
-    width: '',
   })
 
+
+  const [paletteCode, setPaletteCode] = useState();
+
   const { id } = useParams()
-  const [palette, setPalette] = useState(null)
-  const [line, setLine] = useState('')
-  const [lines, setLines] = useState([])
+
+  const [palettes, setPalettes] = useState([])
 
   // Loading states for each API operation
   const [loadingStates, setLoadingStates] = useState({
@@ -53,46 +52,20 @@ export default function Chargement() {
   }, [id])
 
   const handleScan = async (value) => {
-    if (!palette) return
-
-    const payload = { line: value, document: id, palette: palette.code }
-    setLine(value)
     setLoading('scan', true)
-
     try {
-      const { data } = await api.post('palettes/scan', payload)
+      const { data } = await api.get(`palettes/scan/${value}`)
+      setPalette({
+        document_piece: data?.document?.piece,
+        code: data.code,
+        company: data?.company?.name,
+        articles: data.lines_count,
+        quantity: data.quantity,
+      })
       console.log(data)
 
-      const dimensions =
-        data.docligne?.Hauteur && data.docligne?.Largeur
-          ? Math.floor(data.docligne.Hauteur) +
-            ' * ' +
-            Math.floor(data.docligne.Largeur)
-          : ''
-
-      setArticle({
-        id: data.id,
-        ref: data.ref ?? '',
-        design:
-          (data.docligne?.Nom ? data.docligne.Nom + ' ' + dimensions : '') +
-          data.docligne?.Couleur,
-        profondeur: data.docligne?.Profondeur ?? '',
-        episseur: data.docligne?.Episseur
-          ? Math.floor(data.docligne.Episseur).toString()
-          : '',
-        chant: data.docligne?.Chant ?? '',
-        qte: data.quantity ? Math.floor(data.quantity) : 0,
-        color: data.docligne?.Couleur ?? '',
-        height: data.docligne?.Hauteur
-          ? Math.floor(data.docligne.Hauteur).toString()
-          : '',
-        width: data.docligne?.Largeur
-          ? Math.floor(data.docligne.Largeur).toString()
-          : '',
-      })
     } catch (err) {
       console.error('Error scanning:', err)
-      openNotificationWithIcon('error')
     } finally {
       setLoading('scan', false)
     }
@@ -101,63 +74,16 @@ export default function Chargement() {
   const handleSubmit = async () => {
     setLoading('submit', true)
     try {
-      const { data } = await api.post('palettes/confirm', {
-        quantity: article.qte,
-        palette: palette?.code,
-        line: article.id,
-      })
+      const { data } = await api.post(`palettes/confirm/${paletteCode}`);
       console.log(data)
-
-      setLines(data.lines || [])
-
-      setArticle({
-        ref: '',
-        design: '',
-        profondeur: '',
-        episseur: '',
-        chant: '',
-        qte: 0,
-        color: '',
-        height: '',
-        width: '',
-      })
-
-      setLine(null)
     } catch (err) {
       console.error('Error confirming:', err)
-      openNotificationWithIcon('error')
     } finally {
       setLoading('submit', false)
     }
   }
 
-  const remove = async (ln) => {
-    setLoading('remove', true)
-    try {
-      const { data } = await api.post('palettes/detach', {
-        line: ln,
-        palette: palette.code,
-      })
-      setPalette(data)
-      setLines(data?.lines || [])
-    } catch (err) {
-      console.error('Error removing line:', err)
-    } finally {
-      setLoading('remove', false)
-    }
-  }
 
-  const create = async () => {
-    setLoading('create', true)
-    try {
-      const { data } = await api.post('palettes/create', { document_id: id })
-      console.log(data)
-    } catch (err) {
-      console.error('Error creating new palette:', err)
-    } finally {
-      setLoading('create', false)
-    }
-  }
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
@@ -168,7 +94,7 @@ export default function Chargement() {
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
             <h1 className='text-sm md:text-xl font-bold text-gray-900 truncate'>
-              Préparation des Palettes
+              {id}
             </h1>
           </div>
         </div>
@@ -186,15 +112,15 @@ export default function Chargement() {
           <div className='flex flex-col sm:flex-row gap-3'>
             <input
               type='text'
-              value={line}
-              onChange={(e) => setLine(e.target.value)}
+              value={paletteCode}
+              onChange={(e) => setPaletteCode(e.target.value)}
               className='w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base'
               placeholder='Code-barres...'
               disabled={loadingStates.scan}
             />
             <button
-              onClick={() => handleScan(line)}
-              disabled={!palette || !line || loadingStates.scan}
+              onClick={() => handleScan(paletteCode)}
+              disabled={!palette || !paletteCode || loadingStates.scan}
               className='px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-lg sm:rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 font-medium text-sm sm:text-base'
             >
               {loadingStates.scan ? (
@@ -215,49 +141,29 @@ export default function Chargement() {
 
         {/* Palette Navigation */}
         <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6'>
-          <div className='flex items-center justify-between mb-4 sm:mb-6'>
-            <button
-            //   onClick={goPrevious}
-            //   disabled={loadingStates.createPalette}
-              className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
-            >
-              <ArrowLeftCircle className='w-6 h-6 sm:w-8 sm:h-8 text-gray-600' />
-            </button>
-
-
-
-            <button
-            //   onClick={goNext}
-            //   disabled={loadingStates.createPalette}
-              className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
-            >
-              <ArrowRightCircle className='w-6 h-6 sm:w-8 sm:h-8 text-gray-600' />
-            </button>
-          </div>
-
           {/* Article Details */}
           <div className='space-y-3 sm:space-y-4'>
             <div>
               <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
-                Désignation
+                Document Piece
               </label>
               <input
                 type='text'
-                value={article.design}
+                value={palette.document_piece}
                 readOnly
                 className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base text-gray-900'
-                placeholder='Aucun article scanné'
+                placeholder='Aucun palette scanné'
               />
             </div>
 
             <div className='grid grid-cols-3 gap-2 sm:gap-4'>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
-                  Profondeur
+                  Entreprise
                 </label>
                 <input
                   type='text'
-                  value={article.profondeur}
+                  value={palette.company}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
                   placeholder='-'
@@ -265,11 +171,11 @@ export default function Chargement() {
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
-                  Chant
+                  Articles
                 </label>
                 <input
                   type='text'
-                  value={article.chant}
+                  value={palette.articles}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
                   placeholder='-'
@@ -281,68 +187,22 @@ export default function Chargement() {
                 </label>
                 <input
                   type='text'
-                  value={article.episseur}
+                  value={palette.quantity}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
                   placeholder='-'
                 />
               </div>
             </div>
-
-            {/* Quantity Controls */}
-            <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
-                Quantité
-              </label>
-              <div className='flex items-center gap-2 sm:gap-3 w-full'>
-                <button
-                  onClick={() =>
-                    setArticle((prev) => ({
-                      ...prev,
-                      qte: Math.max(prev.qte - 1, 0),
-                    }))
-                  }
-                  disabled={article.qte <= 0}
-                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1'
-                >
-                  <Minus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
-                </button>
-
-                <input
-                  type='number'
-                  value={article.qte}
-                  min={0}
-                  onChange={(e) =>
-                    setArticle((prev) => ({
-                      ...prev,
-                      qte: Math.max(0, Number(e.target.value)),
-                    }))
-                  }
-                  className='w-full max-w-[100px] px-3 py-2 text-center border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base'
-                />
-
-                <button
-                  onClick={() =>
-                    setArticle((prev) => ({
-                      ...prev,
-                      qte: prev.qte + 1,
-                    }))
-                  }
-                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1'
-                >
-                  <Plus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
-                </button>
-              </div>
-            </div>
           </div>
         </div>
 
         {/* Action Buttons */}
-        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'>
+        <div className='gap-3 sm:grid-cols-2 sm:gap-4'>
           <button
             onClick={handleSubmit}
-            disabled={!palette || !article.id || loadingStates.submit}
-            className='px-4 py-3 sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base'
+            disabled={!palette || !palette.document_piece || loadingStates.submit}
+            className='px-4 py-3 sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl w-full hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base'
           >
             {loadingStates.submit ? (
               <>
@@ -350,36 +210,19 @@ export default function Chargement() {
                 Validation...
               </>
             ) : (
-              "Valider l'article"
-            )}
-          </button>
-          <button
-            onClick={create}
-            disabled={loadingStates.create}
-            className='px-4 py-3 sm:px-6 sm:py-4 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base'
-          >
-            {loadingStates.create ? (
-              <>
-                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />
-                Création...
-              </>
-            ) : (
-              <>
-                <Package className='w-4 h-4 sm:w-5 sm:h-5' />
-                Nouvelle Palette
-              </>
+              "Valider la palette"
             )}
           </button>
         </div>
 
-        {/* Lines List */}
+        {/* palettes List */}
         <div className='space-y-4'>
           <div className='flex items-center gap-3'>
             <div className='p-2 bg-emerald-100 rounded-lg'>
               <Package className='w-5 h-5 sm:w-6 sm:h-6 text-emerald-600' />
             </div>
             <h2 className='text-base sm:text-lg font-semibold text-gray-900'>
-              Articles ({lines.length})
+              Palettes ({palettes.length})
             </h2>
           </div>
 
@@ -393,7 +236,7 @@ export default function Chargement() {
           )}
 
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
-            {lines?.map((item, index) => (
+            {palettes?.map((item, index) => (
               <div key={item.id || index} className='relative'>
                 <div className='absolute -top-2 -right-2 z-10'>
                   <span className='px-3 py-1 bg-cyan-500 text-white text-xs font-medium rounded-full'>
@@ -406,17 +249,17 @@ export default function Chargement() {
                     <div className='flex justify-between items-start mb-3'>
                       <div className='flex-1 pr-2'>
                         <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate'>
-                          {item.article_stock?.name || 'N/A'}
+                          {item.palette_stock?.name || 'N/A'}
                         </h3>
-                        {item.article_stock?.width &&
-                          item.article_stock?.height && (
+                        {item.palette_stock?.width &&
+                          item.palette_stock?.height && (
                             <p className='text-xs text-gray-600 mt-1'>
-                              {Math.floor(item.article_stock.height)} ×{' '}
-                              {Math.floor(item.article_stock.width)} mm
+                              {Math.floor(item.palette_stock.height)} ×{' '}
+                              {Math.floor(item.palette_stock.width)} mm
                             </p>
                           )}
                         <span className='inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full mt-2'>
-                          {item.article_stock?.color || 'N/A'}
+                          {item.palette_stock?.color || 'N/A'}
                         </span>
                       </div>
                       <div className='text-right'>
@@ -433,17 +276,17 @@ export default function Chargement() {
                       <div className='text-xs md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
                         <div>
                           Prof:{' '}
-                          <strong>{item.article_stock?.depth || 'N/A'}</strong>
+                          <strong>{item.palette_stock?.depth || 'N/A'}</strong>
                         </div>
                         <div>
                           Ép:{' '}
                           <strong>
-                            {item.article_stock?.thickness || 'N/A'}
+                            {item.palette_stock?.thickness || 'N/A'}
                           </strong>
                         </div>
                         <div>
                           Chant:{' '}
-                          <strong>{item.article_stock?.chant || 'N/A'}</strong>
+                          <strong>{item.palette_stock?.chant || 'N/A'}</strong>
                         </div>
                       </div>
 
@@ -461,14 +304,14 @@ export default function Chargement() {
             ))}
           </div>
 
-          {lines?.length === 0 && !loadingStates.remove && (
+          {palettes?.length === 0 && !loadingStates.remove && (
             <div className='text-center py-12'>
               <Package className='w-16 h-16 text-gray-300 mx-auto mb-4' />
               <p className='text-gray-500 text-lg'>
-                Aucun article dans cette palette
+                Aucun palette dans cette livraison
               </p>
               <p className='text-gray-400 text-sm'>
-                Scannez un code-barres pour ajouter des articles
+                Scannez un code-barres pour ajouter des palettes
               </p>
             </div>
           )}

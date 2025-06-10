@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Settings } from 'lucide-react'
-import { Empty, message, Select, Tag } from 'antd'
+import { Badge, Button, Empty, message, Select, Tag } from 'antd'
 import { getExped } from '../utils/config'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'
@@ -154,7 +154,6 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                       defaultValue={item.user_id}
                       style={{ width: 170 }}
                       allowClear
-                      // loading
                       onChange={(value) => handleChange(value, item.id)}
                       options={users}
                     />
@@ -177,10 +176,10 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
             <div
               key={index}
               className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200'
-              onClick={() => onSelectOrder(piecePL)}
+              
             >
               {/* Header with document number and status */}
-              <div className='flex justify-between items-start mb-3'>
+              <div className='flex justify-between items-start mb-3' onClick={() => onSelectOrder(piecePL)}>
                 <div className='flex items-center'>
                   <span className='text-lg font-bold text-gray-900'>
                     {roles('commercial') ? pieceBL : piecePL}
@@ -204,11 +203,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
 
               {/* Expedition and Client badges */}
               <div className='flex flex-wrap gap-2 mb-3'>
-                <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(
-                    item.expedition || item.DO_Expedit
-                  )}`}
-                >
+                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(item.expedition || item.DO_Expedit )}`}>
                   {getExped(item.expedition || item.DO_Expedit)}
                 </span>
                 <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
@@ -224,14 +219,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                     {item.ref || item.DO_Ref}
                   </span>
                 </div>
-                <div className='flex justify-between'>
-                  <span className='text-gray-500'>Date du document:</span>
-                  <span className='font-medium text-gray-900'>
-                    {formatDate(
-                      new Date(item?.docentete?.DO_Date || item.DO_Date)
-                    )}
-                  </span>
-                </div>
+          
                 <div className='flex justify-between'>
                   <span className='text-gray-500'>Date prévue:</span>
                   <span className='font-medium text-gray-900'>
@@ -240,7 +228,15 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                     )}
                   </span>
                 </div>
+                <div className='flex justify-between'>
+                  <span className='text-gray-500'>Palettes:</span>
+                  <Tag className='font-blold text-gray-900'>
+                    <span className='font-bold text-[16px] p-4'>{item?.palettes_count}</span>
+                  </Tag>
+                </div>
               </div>
+
+              <Button className='mt-3 w-full' href={`/#/shargement/${item.id}`}> Chargement </Button>
             </div>
           )
         })}

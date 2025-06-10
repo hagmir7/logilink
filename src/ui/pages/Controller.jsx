@@ -51,8 +51,10 @@ function Controller() {
 
   useEffect(() => {
     fetchData()
+   
+    
   }, [id])
-
+ console.log(documentCompany);
   
 
 
@@ -145,7 +147,7 @@ function Controller() {
         </div>
 
         <div className='flex gap-2'>
-          {documentCompany?.pivot?.status_id == 8 && roles('controleur') && (
+          {Number(documentCompany?.pivot?.status_id) === 8 && roles('controleur') && (
             <Button
               href={`#/document/palettes/${id}`}
               size='large'
