@@ -158,6 +158,7 @@ export default function InventoryList() {
                 key={item.id}
                 className='hover:border-red-500 border-4'
                 bodyStyle={{ padding: '24px' }}
+                
               >
                 <div className='flex justify-between items-start mb-4'>
                   <h3 className='text-lg font-semibold text-gray-900 truncate flex-1 mr-2'>
@@ -188,11 +189,19 @@ export default function InventoryList() {
 
                   <div className='text-xs text-gray-400 mt-3 pt-3 border-t border-gray-100'>
                     <Button
-                      href={`/#/inventories/${item.id}`}
+                      href={`/#/inventories/in/${item.id}`}
                       className='w-full'
                       color='green'
                     >
                       Traitement
+                    </Button>
+
+                    <Button
+                      href={`/#/inventories/${item.id}`}
+                      className='w-full mt-3'
+                      color='green'
+                    >
+                      Voir
                     </Button>
                   </div>
                 </Space>

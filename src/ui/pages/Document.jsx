@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
 import DocumentCard from '../components/ui/DocumentCard'
-import { Button, Select, DatePicker, Input } from 'antd'
+import { Button, Select, DatePicker, Input, Empty } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import DocumentCardCommercial from '../components/ui/DocumentCartCommercial'
 import DocumentTable from '../components/DocumentTable'
@@ -188,6 +188,10 @@ function Document() {
             Charger Plus
           </Button>
         </div>
+      )}
+
+      {data.length === 0 && (
+        <Empty className='mt-10' description='Aucun document à afficher' />
       )}
     </div>
   )

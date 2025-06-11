@@ -66,13 +66,34 @@ export default function InventoryMovement() {
     }
   }
 
-  const handleFinalSubmit = () => {
+  const handleFinalSubmit = async () => {
     if (!emplacementData || !articleData || !quantity) {
-      alert('Please fill all fields and fetch both emplacement and article data')
-      return
+      alert('Please fill all fields and fetch both emplacement and article data');
+      return;
     }
-    // Final logic here
-  }
+
+    try {
+      const payload = {
+        emplacement_code: emplacementData.code,
+        article_code: articleData.code,
+        quantity: Number(quantity),
+      };
+
+      console.log(payload)
+
+      const response = await api.post(`inventory/insert/${id}`, payload);
+
+      if (response.status === 200) {
+        alert('Inventory successfully updated');
+      } else {
+        // alert('Failed to update inventory');
+      }
+    } catch (error) {
+      // console.error('Error submitting inventory:', error);
+      alert('An error occurred while submitting the inventory.');
+    }
+  };
+
 
   const showModal = () => setIsModalOpen(true)
   const handleOk = () => {

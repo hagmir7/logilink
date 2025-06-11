@@ -75,6 +75,7 @@ export default function Depots() {
                   <Button>
                     <Trash size={15} />
                   </Button>
+                 
                   <Button>
                     <Edit size={15} />
                   </Button>
