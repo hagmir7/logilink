@@ -4,6 +4,7 @@ import { ArrowDownUp, ChartBar, Package } from 'lucide-react';
 import InventoryArticles from './InventoryArticles';
 import MovementsList from './MovementsList';
 import { useParams } from 'react-router-dom';
+import InventoryOverview from '../components/InventoryOverview';
 
 const ViewInventory = () => {
     const [activeKey, setActiveKey] = useState('1');
@@ -18,11 +19,7 @@ const ViewInventory = () => {
                 </span>
             ),
             key: '1',
-            children: ( <div>
-                    <h3>Catalogue de Articles</h3>
-                    <p>Parcourez et gérez votre catalogue de produits ici.</p>
-                    
-                </div>),
+            children: <InventoryOverview />,
         },
         {
             label: (

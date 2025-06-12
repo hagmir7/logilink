@@ -108,18 +108,6 @@ function MovementsList() {
   }
 
 
-
-    const onFilterChange = (dates, dateStrings) => {
-        // dates is moment array, dateStrings is array of formatted strings, e.g. ["2025-06-01 14:00:00", "2025-06-10 18:00:00"]
-
-        const payload = {
-            date_range: dateStrings,  // send this directly to backend
-            // ... other filters like types, per_page
-        };
-
-        // Send payload to backend via fetch/axios
-    };
-
   return (
     <div className='w-full'>
       {/* Header */}

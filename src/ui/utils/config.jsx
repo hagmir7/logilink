@@ -134,3 +134,18 @@ export function uppercaseFirst(str) {
   return str.charAt(0).toUpperCase() + str.slice(1)
 }
 
+
+
+export const categories = [
+  { value: 'panneaux', label: 'Panneaux' },
+  { value: 'caissons', label: 'Caissons' },
+  { value: 'facades', label: 'Façades' },
+  { value: 'vitrines', label: 'Vitrines' },
+  { value: 'chant', label: 'Chant' },
+  { value: 'parquet', label: 'Parquet' },
+  { value: 'accessoires', label: 'Accessoires' },
+  { value: 'plan-de-travail', label: 'Plan de travail' },
+  { value: 'acc-de-montage', label: 'Acc de montage' },
+  { value: 'emballage-colle', label: 'Emballage & Colle' },
+  { value: 'peinture-et-consommable', label: 'Peinture et consommable' },
+];

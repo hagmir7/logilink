@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Loader2, RefreshCcw, Settings } from 'lucide-react'
-import { Button, Empty, Input } from 'antd'
+import { Button, Empty, Input, Select } from 'antd'
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../contexts/AuthContext'
-import { uppercaseFirst } from '../utils/config'
+import { categories, uppercaseFirst } from '../utils/config'
 import { useParams } from 'react-router-dom'
 
 // Utility to format date (if needed elsewhere)
@@ -74,6 +74,14 @@ function InventoryArticles() {
             )}
             <span className='hidden sm:inline'>Rafraîchir</span>
           </Button>
+
+          <Select
+              defaultValue="panneaux"
+              placeholder="Filter"
+              size='middle'
+              style={{ width: 300 }}
+              options={categories}
+          />
         </div>
       </div>
       {/* Desktop Table View */}

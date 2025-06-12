@@ -20,6 +20,7 @@ import {
 } from '@ant-design/icons'
 import { locale } from '../utils/config'
 import dayjs from 'dayjs'
+import { CirclePlus } from 'lucide-react'
 
 const { TextArea } = Input
 
@@ -115,7 +116,7 @@ export default function InventoryList() {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Header */}
-      <div className='mb-8'>
+      <div className='mb-2'>
         <div className='flex justify-between items-centerp-2 p-4'>
           <div className=''>
             {/* Title */}
@@ -129,17 +130,18 @@ export default function InventoryList() {
           <Button
             // type='primary'
             size='large'
-            icon={<PlusOutlined />}
+            color="cyan" variant="solid"
+            icon={<CirclePlus size={18} />}
             onClick={showModal}
-            // className='shadow-lg hover:shadow-xl transition-shadow'
+            className='flex items-center'
           >
-            Nouvel inventaire
+            Créer
           </Button>
         </div>
       </div>
 
       {/* Content */}
-      <div className='px-6'>
+      <div className='px-4'>
         {loading ? (
           <div className='flex justify-center items-center py-20'>
             <Spin size='large' />
@@ -154,9 +156,9 @@ export default function InventoryList() {
         ) : (
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6'>
             {inventories.map((item) => (
-              <Card
+              <div
                 key={item.id}
-                className='hover:border-red-500 border-4'
+                className='bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow'
                 bodyStyle={{ padding: '24px' }}
                 
               >
@@ -187,25 +189,26 @@ export default function InventoryList() {
                     </div>
                   )}
 
-                  <div className='text-xs text-gray-400 mt-3 pt-3 border-t border-gray-100'>
+                  <div className='text-xs text-gray-400 mt-3 pt-3 border-t border-gray-100 flex gap-3'>
                     <Button
                       href={`/#/inventories/in/${item.id}`}
                       className='w-full'
                       color='green'
+                      variant='solid'
                     >
                       Traitement
                     </Button>
 
                     <Button
                       href={`/#/inventories/${item.id}`}
-                      className='w-full mt-3'
+                      className='w-full'
                       color='green'
                     >
                       Voir
                     </Button>
                   </div>
                 </Space>
-              </Card>
+              </div>
             ))}
           </div>
         )}
