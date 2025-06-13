@@ -5,7 +5,6 @@ import {
   Input,
   Modal,
   DatePicker,
-  Card,
   Tag,
   Space,
   message,
@@ -14,13 +13,12 @@ import {
 } from 'antd'
 import {
   PlusOutlined,
-  CalendarOutlined,
-  FileTextOutlined,
   CheckCircleOutlined,
 } from '@ant-design/icons'
 import { locale } from '../utils/config'
 import dayjs from 'dayjs'
-import { CirclePlus } from 'lucide-react'
+import { CalendarArrowDown, CirclePlus } from 'lucide-react'
+import { Link } from 'react-router-dom'
 
 const { TextArea } = Input
 
@@ -77,7 +75,6 @@ export default function InventoryList() {
       message.success('Inventaire créé avec succès')
       fetchInventories()
       setOpen(false)
-      // Reset form
       setInventory({
         name: '',
         date: null,
@@ -93,7 +90,6 @@ export default function InventoryList() {
 
   const handleCancel = () => {
     setOpen(false)
-    // Reset form on cancel
     setInventory({
       name: '',
       date: null,
@@ -128,7 +124,6 @@ export default function InventoryList() {
             </p>
           </div>
           <Button
-            // type='primary'
             size='large'
             color="cyan" variant="solid"
             icon={<CirclePlus size={18} />}
@@ -160,7 +155,7 @@ export default function InventoryList() {
                 key={item.id}
                 className='bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow'
                 bodyStyle={{ padding: '24px' }}
-                
+
               >
                 <div className='flex justify-between items-start mb-4'>
                   <h3 className='text-lg font-semibold text-gray-900 truncate flex-1 mr-2'>
@@ -176,13 +171,14 @@ export default function InventoryList() {
 
                 <Space direction='vertical' size='small' className='w-full'>
                   <div className='flex items-center text-gray-600'>
-                    <CalendarOutlined className='mr-2' />
+                    {/* <CalendarOutlined className='mr-2' /> */}
+                    <CalendarArrowDown className='mr-3' size={18} />
                     <span className='text-sm'>{formatDate(item.date)}</span>
                   </div>
 
                   {item.description && (
                     <div className='flex items-start text-gray-600'>
-                      <FileTextOutlined className='mr-2 mt-1 flex-shrink-0' />
+                      {/* <FileTextOutlined className='mr-2 mt-1 flex-shrink-0' /> */}
                       <span className='text-sm line-clamp-2'>
                         {item.description}
                       </span>
@@ -190,22 +186,17 @@ export default function InventoryList() {
                   )}
 
                   <div className='text-xs text-gray-400 mt-3 pt-3 border-t border-gray-100 flex gap-3'>
-                    <Button
-                      href={`/#/inventories/in/${item.id}`}
-                      className='w-full'
-                      color='green'
-                      variant='solid'
-                    >
-                      Traitement
-                    </Button>
+                   <Link to={`/inventories/in/${item.id}`} className='w-full'>
+                      <Button className='w-full' color='green' variant='solid'>
+                        Traitement
+                      </Button>
+                    </Link>
 
-                    <Button
-                      href={`/#/inventories/${item.id}`}
-                      className='w-full'
-                      color='green'
-                    >
-                      Voir
-                    </Button>
+                    <Link to={`/inventories/${item.id}`} className='w-full'>
+                      <Button className='w-full' color='green'>
+                        Voir
+                      </Button>
+                    </Link>
                   </div>
                 </Space>
               </div>

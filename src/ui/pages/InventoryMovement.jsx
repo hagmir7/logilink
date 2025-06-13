@@ -3,9 +3,8 @@ import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
-import { Button, Input, Modal, Select } from 'antd'
+import { Button, Input, Modal, Radio, Select } from 'antd'
 import {
-  AlertTriangle,
   Building2,
   Package,
   Hash,
@@ -29,7 +28,16 @@ export default function InventoryMovement() {
   const [emplacementError, setEmplacementError] = useState('')
   const [articleError, setArticleError] = useState('')
 
-  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [palette, setPalette] = useState(1)
+
+
+  const options = [
+    { label: 'Palette', value: 1 },
+    { label: 'Aucun', value: 0 },
+    // { label: 'Orange', value: 'Orange' },
+  ];
+
 
   const fetchEmplacementData = async (code) => {
     if (!code.trim()) return
@@ -76,20 +84,17 @@ export default function InventoryMovement() {
       const payload = {
         emplacement_code: emplacementData.code,
         article_code: articleData.code,
-        quantity: Number(quantity),
+        quantity: articleData?.condition ? Number(quantity) * condition : Number(quantity),
       };
-
-      console.log(payload)
 
       const response = await api.post(`inventory/insert/${id}`, payload);
 
       if (response.status === 200) {
         alert('Inventory successfully updated');
       } else {
-        // alert('Failed to update inventory');
+    
       }
     } catch (error) {
-      // console.error('Error submitting inventory:', error);
       alert('An error occurred while submitting the inventory.');
     }
   };
@@ -152,7 +157,6 @@ export default function InventoryMovement() {
                 <span className='font-medium'>Depot:</span>{' '}
                 <strong>{emplacementData?.depot?.name || emplacementData.depot_id}</strong>
               </div>
-              
             </div>
           </div>
         )}
@@ -199,7 +203,6 @@ export default function InventoryMovement() {
                   <strong>{articleData.color}</strong>
                 </div>
               )}
-
             </div>
           </div>
         )}
@@ -236,6 +239,13 @@ export default function InventoryMovement() {
           />
 
           <div className='mt-3'></div>
+          <Radio.Group
+            block
+            options={options}
+            // defaultValue="Apple"
+            optionType="button"
+            buttonStyle="solid"
+          />
           <Button className='w-full mt-3' size='large' disabled={!emplacementData || !articleData || !quantity} type='primary' onClick={showModal}>
             Vérifier
           </Button>
