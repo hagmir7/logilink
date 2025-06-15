@@ -28,7 +28,7 @@ function Document() {
   const [dateFilter, setDateFilter] = useState(null);
   const { roles } = useAuth()
 
-  let url = `docentetes/preparation?page=${page}`
+  let url = `documents/preparation-list`
 
 
   if (roles('commercial')) {
@@ -170,6 +170,7 @@ function Document() {
                 <DocumentCard
                   key={index}
                   data={item}
+                  loading={loading}
                   onSelectOrder={handleSelectOrder}
                 />
               ))
@@ -190,7 +191,7 @@ function Document() {
         </div>
       )}
 
-      {data.length === 0 && (
+      {(data.data.length === 0 && !loading) && (
         <Empty className='mt-10' description='Aucun document à afficher' />
       )}
     </div>

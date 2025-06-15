@@ -1,4 +1,14 @@
-import { RefreshCcw, Clipboard, ArrowRight, Hourglass, CheckCircle, CircleCheckBig, Clock4, ListTodo, Printer } from 'lucide-react'
+import {
+  RefreshCcw,
+  Clipboard,
+  ArrowRight,
+  Hourglass,
+  CheckCircle,
+  CircleCheckBig,
+  Clock4,
+  ListTodo,
+  Printer,
+} from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType, getStatus } from '../utils/config'
@@ -7,56 +17,58 @@ import { Button, Checkbox, message, Select, Tag, Popconfirm } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable';
+import EmptyTable from '../components/ui/EmptyTable'
 import { useAuth } from '../contexts/AuthContext'
 import PrintDocument from '../components/PrintDocument'
 
-
-
 function Controller() {
-
-  const { id } = useParams();
-  const [data, setData] = useState({ docentete: {}, doclignes: [] });
-  const [loading, setLoading] = useState(false);
-  const [selected, setSelected] = useState([]);
-  const [selectedRoles, setSelectedRoles] = useState();
-  const [transferSpin, setTransferSpin] = useState(false);
-  const [documentCompany, setDocumentCompany] = useState({});
-  const { roles, user } = useAuth();
+  const { id } = useParams()
+  const [data, setData] = useState({ docentete: {}, doclignes: [] })
+  const [loading, setLoading] = useState(false)
+  const [selected, setSelected] = useState([])
+  const [selectedRoles, setSelectedRoles] = useState()
+  const [transferSpin, setTransferSpin] = useState(false)
+  const [documentCompany, setDocumentCompany] = useState({})
+  const { roles, user } = useAuth()
   const [open, setOpen] = useState(false)
-  const [confirmLoading, setConfirmLoading] = useState(false);
-  const [status, setStatus] = useState({});
+  const [confirmLoading, setConfirmLoading] = useState(false)
+  const [status, setStatus] = useState({})
 
   const fetchData = async () => {
-    setLoading(true);
+    setLoading(true)
     try {
-      const response = await api.get(`docentete/${id}`);
+      const response = await api.get(`docentete/${id}`)
 
-      setData(response.data);
-      setStatus(getStatus(Number(response.data?.docentete?.document?.companies?.find(item => item.id === Number(user.company_id)).pivot.status_id)))
+      setData(response.data)
+      setStatus(
+        getStatus(
+          Number(
+            response.data?.docentete?.document?.companies?.find(
+              (item) => item.id === Number(user.company_id)
+            ).pivot.status_id
+          )
+        )
+      )
 
-      const companies = response.data.docentete?.document?.companies || [];
+      const companies = response.data.docentete?.document?.companies || []
       const company = companies.find(
         (item) => item.id === Number(user?.company_id)
-      );
+      )
 
-      setDocumentCompany(company || {});
+      console.log(response.data)
 
+      setDocumentCompany(company || {})
     } catch (err) {
-      console.error('Failed to fetch data:', err);
+      console.error('Failed to fetch data:', err)
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   useEffect(() => {
     fetchData()
-   
-    
   }, [id])
- console.log(documentCompany);
-  
-
+  console.log(documentCompany)
 
   const currentItems = data?.doclignes || []
 
@@ -81,10 +93,9 @@ function Controller() {
     }
   }
 
-
   const transfer = async () => {
     setTransferSpin(true)
-    console.log(selectedRoles);
+    console.log(selectedRoles)
 
     if (selectedRoles && selected.length > 0) {
       setSelectedRoles(selectedRoles)
@@ -114,7 +125,6 @@ function Controller() {
     { value: 8, label: 'Magasinier' },
   ]
 
-
   const showPopconfirm = () => {
     setOpen(true)
   }
@@ -126,14 +136,12 @@ function Controller() {
     })
     setOpen(false)
     setConfirmLoading(false)
-    fetchData();
+    fetchData()
   }
-
 
   const handleCancel = () => {
     setOpen(false)
   }
-
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -147,7 +155,9 @@ function Controller() {
         </div>
 
         <div className='flex gap-2'>
-          {Number(documentCompany?.pivot?.status_id) === 8 && roles('controleur') && (
+          {(Number(documentCompany?.pivot?.status_id) === 8 ||
+            (Number(documentCompany?.pivot?.status_id) === 9 &&
+              roles('controleur'))) && (
             <Button
               href={`#/document/palettes/${id}`}
               size='large'
@@ -156,6 +166,7 @@ function Controller() {
               <ListTodo /> Contrôler
             </Button>
           )}
+
           {/* <Button
             href={`#/document/palettes/${id}`}
             size='large'
@@ -172,13 +183,16 @@ function Controller() {
             Rafraîchir
           </Button>
 
-          <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+          <PrintDocument
+            doclignes={data.doclignes}
+            docentete={data.docentete}
+          />
         </div>
       </div>
 
       {/* Document Info */}
       <div className='grid grid-cols-3 gap-4 md:gap-6 bg-white/80 backdrop-blur-sm border border-gray-300/80 rounded-xl transition-all duration-300 p-5 md:p-6 mb-6 group'>
-        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200'>
+        <div className='flex flex-col space-y-1.5'>
           <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
             Client
           </span>
@@ -187,7 +201,7 @@ function Controller() {
           </span>
         </div>
 
-        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-75'>
+        <div className='flex flex-col space-y-1.5'>
           <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
             Référence
           </span>
@@ -196,22 +210,20 @@ function Controller() {
           </span>
         </div>
 
-        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-75'>
+        <div className='flex flex-col space-y-1.5'>
           <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
             Etat
           </span>
           <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
             {status ? (
-              <Tag color={status.color}>
-                {status.name}
-              </Tag> || 'En attend'
+              <Tag color={status.color}>{status.name}</Tag> || 'En attend'
             ) : (
               <Skeleton className='h-5 w-20' />
             )}
           </span>
         </div>
 
-        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-150'>
+        <div className='flex flex-col space-y-1.5 delay-150'>
           <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
             Expédition
           </span>
@@ -222,64 +234,68 @@ function Controller() {
           </span>
         </div>
 
-        <div className='flex flex-col space-y-1.5 group-hover:transform group-hover:scale-[1.02] transition-transform duration-200 delay-225'>
+        <div className='flex flex-col space-y-1.5 delay-225'>
           <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
             Type de document
           </span>
           <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {(data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece)) || (<Skeleton className='h-5 w-32' />)}
+            {(data.docentete.DO_Piece &&
+              getDocumentType(data.docentete.DO_Piece)) || (
+              <Skeleton className='h-5 w-32' />
+            )}
           </span>
         </div>
       </div>
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-lg font-semibold text-gray-800'>
-          Articles
-        </h2>
+        <h2 className='text-lg font-semibold text-gray-800'>Articles</h2>
 
-        {/* Validation */}
-        {documentCompany?.pivot?.status_id == 10 ? (
-          <Popconfirm
-            title='Validation'
-            description='Etes-vous sûr de vouloir valider'
-            open={open}
-            onConfirm={handleOk}
-            okButtonProps={{ loading: confirmLoading }}
-            onCancel={handleCancel}
-            cancelText='Annuler'
-            okText='Valider'
-          >
-            <Button type='primary' color='green' onClick={showPopconfirm}>
-              Valider
-              <CircleCheckBig size={18} />{' '}
-            </Button>
-          </Popconfirm>
-        ) : (
-          ''
-        )}
+        <div className='flex gap-3 items-center'>
+          {/* Validation Button */}
+          {Number(documentCompany?.pivot?.status_id) === 10 && (
+            <Popconfirm
+              title='Validation'
+              description='Etes-vous sûr de vouloir valider'
+              open={open}
+              onConfirm={handleOk}
+              okButtonProps={{ loading: confirmLoading }}
+              onCancel={handleCancel}
+              cancelText='Annuler'
+              okText='Valider'
+              color='success'
+            >
+              <Button
+                color='success'
+                variant='solid'
+                size='large'
+                onClick={showPopconfirm}
+              >
+                Valider <CircleCheckBig size={18} />
+              </Button>
+            </Popconfirm>
+          )}
 
-        {/* Transfer */}
-        {!documentCompany?.pivot?.status_id && documentCompany?.pivot?.status_id !== 7 ? (
-          <div className='flex gap-3'>
-            <Select
-              size='large'
-              defaultValue='Transférer vers'
-              style={{ width: 200 }}
-              onChange={handleChangeTransfer}
-              options={listTransfer}
-            />
-            <Button onClick={transfer} size='large' loading={transferSpin}>
-              Transfer <ArrowRight size={18} />{' '}
-            </Button>
-          </div>
-        ) : (
-          ''
-        )}
+          {/* Transfer Section */}
+          {Number(documentCompany?.pivot?.status_id) < 8 && (
+            <>
+              <Select
+                size='large'
+                defaultValue='Transférer vers'
+                style={{ width: 200 }}
+                onChange={handleChangeTransfer}
+                options={listTransfer}
+              />
+              <Button onClick={transfer} size='large' loading={transferSpin}>
+                Transfer <ArrowRight size={18} />
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Desktop Table */}
-      <div className='hidden md:block overflow-x-auto' id="print-section">
+      <div className='hidden md:block overflow-x-auto' id='print-section'>
         <Table className='min-w-full'>
           <Thead>
             <Tr hoverable={false}>
@@ -288,8 +304,12 @@ function Controller() {
                   onChange={handleSelectAll}
                   checked={
                     selected.length ===
-                    data.doclignes.filter((item) => item.line?.validated !== '1').length &&
-                    data.doclignes.filter((item) => item.line?.validated !== '1').length > 0
+                      data.doclignes.filter(
+                        (item) => item.line?.validated !== '1'
+                      ).length &&
+                    data.doclignes.filter(
+                      (item) => item.line?.validated !== '1'
+                    ).length > 0
                   }
                 />
               </Th>
@@ -343,7 +363,8 @@ function Controller() {
                   </Td>
                   <Td>
                     <div className='font-bold text-gray-900'>
-                      { item?.Nom || item.article.Nom || '__'}
+                      {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
+                      {item?.article?.Description || null}
                     </div>
                     {item?.article?.Description && (
                       <div className='text-sm text-gray-500'>
@@ -357,13 +378,17 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>H:</span>{' '}
                         <span className='font-bold'>
-                         {Math.floor( item.article ? item.article.Hauteur : item.Hauteur ) || '__'}
+                          {Math.floor(
+                            item.article ? item.article.Hauteur : item.Hauteur
+                          ) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>L:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(item.Largeur  ? item.article : item.article.Largeur ) || '__'}
+                          {Math.floor(
+                            item.Largeur ? item.Largeur : item.article.Largeur
+                          ) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
@@ -371,9 +396,9 @@ function Controller() {
                         <span className='font-bold'>
                           <span className='font-bold  text-gray-800'>
                             {Math.floor(
-                              item.article
-                                ? item.article.Profondeur
-                                : item.Profondeur
+                              item.Profondeur
+                                ? item.Profondeur
+                                : item.article?.Profonduer
                             ) || '__'}
                           </span>
                         </span>
@@ -386,7 +411,9 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Couleur:</span>{' '}
                         <span className='font-bold'>
-                            {(item.article ? item.article.Couleur : item.Couleur) || '__'}
+                          {(item.article
+                            ? item.article.Couleur
+                            : item.Couleur) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
@@ -399,7 +426,11 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Épaisseur:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(item.Episseur ? item.Episseur : item.article.Episseur) || '__'}
+                          {Math.floor(
+                            item.Episseur
+                              ? item.Episseur
+                              : item.article.Episseur
+                          ) || '__'}
                         </span>
                       </div>
                     </div>
@@ -541,4 +572,4 @@ function Controller() {
   )
 }
 
-export default Controller;
+export default Controller

@@ -53,7 +53,7 @@ function Article() {
     <div className='w-full'>
       {/* Title */}
       <h2 className='text-xl font-semibold text-gray-800 mb-1 p-2 md:p-4'>
-        Gestion de la préparation
+        Articles
       </h2>
 
       {/* Header */}

@@ -28,8 +28,7 @@ function Validation() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get('docentete/validation');
-      console.log(response.data);
+      const response = await api.get('documents/validation-controller')
       setData(response.data)
       setLoading(false)
     } catch (err) {

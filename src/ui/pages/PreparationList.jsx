@@ -21,6 +21,8 @@ function PreparationList() {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
+      console.log(response.data);
+      
 
       setData(response.data)
       setLoading(false)
@@ -41,18 +43,19 @@ function PreparationList() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-2'>
           <h1 className='text-lg md:text-xl font-bold text-gray-800'>
-            {data.docentete.DO_Piece ? `Commande ${data.docentete.DO_Piece}`
+            {data.docentete.DO_Piece
+              ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
         </div>
         <Button onClick={fetchData} size='large'>
-            {loading ? (
-              <Loader2 className='animate-spin text-blue-500' size={17} />
-            ) : (
-              <RefreshCcw size={17} />
-            )}
-            <span className='hidden sm:inline'>Rafraîchir</span>
-          </Button>
+          {loading ? (
+            <Loader2 className='animate-spin text-blue-500' size={17} />
+          ) : (
+            <RefreshCcw size={17} />
+          )}
+          <span className='hidden sm:inline'>Rafraîchir</span>
+        </Button>
       </div>
 
       {/* Document Info */}
@@ -135,7 +138,7 @@ function PreparationList() {
                     </Tag>
                   </Td>
                   <Td className='font-black text-gray-800'>
-                    {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
+                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
                     {item?.article?.Description || null}
                   </Td>
                   <Td>{item.AR_Ref || '__'}</Td>
@@ -143,22 +146,26 @@ function PreparationList() {
                     <div className='text-sm text-gray-500'>
                       H:{' '}
                       <span className='font-bold text-gray-800'>
-                        {Math.floor( item.article ? item.article.Hauteur : item.Hauteur ) || '__'}
+                        {Math.floor(
+                          item.article ? item.article.Hauteur : item.Hauteur
+                        ) || '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
                       L:{' '}
                       <span className='font-bold text-gray-800'>
-                        {Math.floor(item.article ? item.article.Largeur : item.Largeur ) || '__'}
+                        {Math.floor(
+                          item.article ? item.article.Largeur : item.Largeur
+                        ) || '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>
                       P:{' '}
                       <span className='font-bold  text-gray-800'>
                         {Math.floor(
-                          item.article
-                            ? item.article.Profondeur
-                            : item.Profondeur
+                          item.Profondeur
+                            ? item.Profondeur
+                            : item.article?.Profonduer
                         ) || '__'}
                       </span>
                     </div>
@@ -167,7 +174,8 @@ function PreparationList() {
                     <div className='text-sm text-gray-500'>
                       Couleur:{' '}
                       <span className='font-bold text-gray-800'>
-                        {(item.article ? item.article.Couleur : item.Couleur) || '__'}
+                        {(item.article ? item.article.Couleur : item.Couleur) ||
+                          '__'}
                       </span>
                     </div>
                     <div className='text-sm text-gray-500'>

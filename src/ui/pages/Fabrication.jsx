@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType, locale } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, DatePicker } from 'antd'
+import { Button, Checkbox, DatePicker, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
@@ -90,7 +90,9 @@ function Fabrication() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>
-            {data.docentete.DO_Piece ? `Commande ${data.docentete.DO_Piece}` : 'Chargement...'}
+            {data.docentete.DO_Piece
+              ? `Commande ${data.docentete.DO_Piece}`
+              : 'Chargement...'}
           </h1>
         </div>
         <Button onClick={fetchData}>
@@ -101,7 +103,7 @@ function Fabrication() {
           )}
           Rafraîchir
         </Button>
-          <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+        <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
       </div>
 
       {/* Document Info */}
@@ -143,7 +145,7 @@ function Fabrication() {
             lang='fr'
             className='border-2'
             placeholder='Date de livraison'
-          // dateFormat='dd/MM/yyyy'
+            // dateFormat='dd/MM/yyyy'
           />
         </div>
         <div className='flex gap-3'>
@@ -178,78 +180,85 @@ function Fabrication() {
           </Thead>
 
           <Tbody>
-            {loading ? <SkeletonTable />
-              : data.doclignes?.length > 0 ? (
-                currentItems.map((item, index) => (
-                  <Tr key={index} className='whitespace-nowrap'>
-                    <Td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
-                      <Checkbox
-                        checked={selected.includes(item.line?.id)}
-                        onChange={() => handleSelect(item.line?.id)}
-                      />
-                    </Td>
+            {loading ? (
+              <SkeletonTable />
+            ) : data.doclignes?.length > 0 ? (
+              currentItems.map((item, index) => (
+                <Tr key={index} className='whitespace-nowrap'>
+                  <Td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
+                    <Checkbox
+                      checked={selected.includes(item.line?.id)}
+                      onChange={() => handleSelect(item.line?.id)}
+                    />
+                  </Td>
 
-                    <Td className="font-black">
-                      {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
-                      {item?.article?.Description || null}
-                    </Td>
+                  <Td className='font-black'>
+                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}
+                    {item?.article?.Description || null}
+                  </Td>
 
-                    <Td> {item.AR_Ref || '__'}</Td>
+                  <Td> {item.AR_Ref || '__'}</Td>
 
-                    <Td>
-                      {item.line?.complation_date
-                        ? dateFormat(item.line.complation_date)
-                        : '__'}
-                    </Td>
+                  <Td>
+                    {item.line?.complation_date ? (
+                      <Tag className='font-bold text-lg'>
+                        {dateFormat(item.line.complation_date)}
+                      </Tag>
+                    ) : (
+                      '__'
+                    )}
+                  </Td>
 
-                    <Td className='px-6 py-4 whitespace-nowrap'>
-                      <div className='text-sm text-gray-500'>
-                        H:{' '}
-                        {Math.floor(
-                          item.article ? item.article.Hauteur : item.Hauteur
-                        ) || '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        L:{' '}
-                        {Math.floor(
-                          item.article ? item.article.Largeur : item.Largeur
-                        ) || '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        P:{' '}
-                        {Math.floor(
-                          item.article ? item.article.Profondeur : item.Profondeur
-                        ) || '__'}
-                      </div>
-                    </Td>
+                  <Td className='px-6 py-4 whitespace-nowrap'>
+                    <div className='text-sm text-gray-500'>
+                      H:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Hauteur : item.Hauteur
+                      ) || '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      L:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Largeur : item.Largeur
+                      ) || '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      P:{' '}
+                      {Math.floor(
+                        item.Profondeur
+                          ? item.Profondeur
+                          : item.article?.Profonduer
+                      ) || '__'}
+                    </div>
+                  </Td>
 
-                    <Td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap'>
-                      <div className='text-sm text-gray-500'>
-                        Couleur:{' '}
-                        {(item.article ? item.article.Couleur : item.Couleur) ||
-                          '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        Chant:{' '}
-                        {(item.article ? item.article.Chant : item.Chant) || '__'}
-                      </div>
-                      <div className='text-sm text-gray-500'>
-                        Epaisseur:{' '}
-                        {Math.floor(
-                          item.article ? item.article.Episseur : item.Episseur
-                        ) || '__'}
-                      </div>
-                    </Td>
-                    <Td className='px-6 py-4 whitespace-nowrap'>
-                      <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                        {Math.floor(item.DL_Qte)}
-                      </span>
-                    </Td>
-                  </Tr>
-                ))
-              ) : (
-                <EmptyTable />
-              )}
+                  <Td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap'>
+                    <div className='text-sm text-gray-500'>
+                      Couleur:{' '}
+                      {(item.article ? item.article.Couleur : item.Couleur) ||
+                        '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      Chant:{' '}
+                      {(item.article ? item.article.Chant : item.Chant) || '__'}
+                    </div>
+                    <div className='text-sm text-gray-500'>
+                      Epaisseur:{' '}
+                      {Math.floor(
+                        item.article ? item.article.Episseur : item.Episseur
+                      ) || '__'}
+                    </div>
+                  </Td>
+                  <Td className='px-6 py-4 whitespace-nowrap'>
+                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                      {Math.floor(item.DL_Qte)}
+                    </span>
+                  </Td>
+                </Tr>
+              ))
+            ) : (
+              <EmptyTable />
+            )}
           </Tbody>
         </Table>
       </div>

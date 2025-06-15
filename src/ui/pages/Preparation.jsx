@@ -107,10 +107,12 @@ export default function Preparation() {
 
       const dimensions = height && width ? height + " * " + width : (width || height);
 
+      const color = data?.article_stock?.color || '';
+
       setArticle({
         id: data.id,
         ref: data.ref ?? '',
-        design: data.article_stock?.name + " " + dimensions,
+        design: data.article_stock?.name + " " + dimensions + " " + color,
         profondeur: data.article_stock?.depth ?? '',
         episseur: data.article_stock?.thickness || '',
 

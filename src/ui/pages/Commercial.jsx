@@ -6,7 +6,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { getExped, getDocumentType } from '../utils/config';
+import { getExped, getDocumentType, uppercaseFirst } from '../utils/config';
 import { useParams } from 'react-router-dom';
 import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
@@ -191,9 +191,7 @@ function Commercial() {
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-lg font-semibold text-gray-800'>
-          Articles
-        </h2>
+        <h2 className='text-lg font-semibold text-gray-800'>Articles</h2>
         <div className='flex gap-3'>
           {data.docentete.document ? (
             <Popconfirm
@@ -275,7 +273,8 @@ function Commercial() {
 
                   <Td>{item.AR_Ref || '__'}</Td>
                   <Td>
-                    {item.DL_Design} {item?.article?.Description || null}
+                    {uppercaseFirst(item.DL_Design)}{' '}
+                    {item?.article?.Description || null}
                   </Td>
                   <Td>
                     <div className='text-sm text-gray-800'>
@@ -294,15 +293,17 @@ function Commercial() {
                         ) || '__'}
                       </strong>
                     </div>
-                    <div className='text-sm text-gray-800'>
-                      P:{' '}
-                      <strong>
-                        {Math.floor(
-                          item.Profondeur
-                            ? item?.Profondeur
-                            : item?.article?.Profondeur
-                        ) || '__'}
-                      </strong>
+                    <div className='text-sm text-gray-600'>
+                      <span className='font-medium'>P:</span>{' '}
+                      <span className='font-bold'>
+                        <span className='font-bold  text-gray-800'>
+                          {Math.floor(
+                            item.Profondeur
+                              ? item.Profondeur
+                              : item.article?.Profonduer
+                          ) || '__'}
+                        </span>
+                      </span>
                     </div>
                   </Td>
                   <Td>
@@ -417,8 +418,11 @@ function Commercial() {
                 <div className='text-sm'>
                   <span className='text-gray-500'>P: </span>
                   <span className='font-bold text-gray-800'>
+                    {item.Profondeur}
                     {Math.floor(
-                      item.article ? item.article.Profondeur : item.Profondeur
+                      item.Profondeur
+                        ? item.Profondeur
+                        : item.article?.Profonduer
                     ) || '__'}
                   </span>
                 </div>

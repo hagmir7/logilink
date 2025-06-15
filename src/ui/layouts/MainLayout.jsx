@@ -15,6 +15,10 @@ import {
   Warehouse,
   Layers2,
   FileDown,
+  Truck,
+  RefreshCcw,
+  CircleCheck,
+  AudioWaveform,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -32,19 +36,24 @@ const sideMenu = () => {
       children: [
         {
           key: 'submenu-1',
+          icon: <RefreshCcw size={19} />,
           label: <Link to='/'>Préparation</Link>,
         },
 
         {
           key: 'submenu-10',
+          disabled: !roles('controleur'),
+          icon: <CircleCheck size={19} />,
           label: <Link to='/validation'>Validation</Link>,
         },
         {
           key: 'submenu-21',
+          icon: <AudioWaveform size={19} />,
           label: <Link to='/progress'>Progrès</Link>,
         },
         {
           key: 'submenu-15',
+          icon: <Truck size={19} />,
           label: <Link to='/shipping'>Expédition</Link>,
         },
         // {
@@ -61,22 +70,22 @@ const sideMenu = () => {
       children: [
         {
           key: 'submenu-2',
-          icon: <ClipboardCheck size={20} />,
+          icon: <ClipboardCheck size={19} />,
           label: <Link to='/inventories'>Inventaire</Link>,
         },
         {
           key: 'submenu-12',
-          icon: <Layers size={20} />,
+          icon: <Layers size={19} />,
           label: <Link to='/articles'>Articles</Link>,
         },
         {
           key: 'submenu-3',
-          icon: <Warehouse size={20} />,
+          icon: <Warehouse size={19} />,
           label: <Link to='/depots'>Depots</Link>,
         },
         {
           key: 'submenu-13',
-          icon: <ArrowDownUp size={20} />,
+          icon: <ArrowDownUp size={19} />,
           label: <span className='text-base'>Transfert</span>,
         },
       ],

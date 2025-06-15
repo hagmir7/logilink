@@ -190,13 +190,7 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
         ))}
       </div>
 
-      {loading ? (
-        <Spinner />
-      ) : (
-        documents.length === 0 && (
-          <Empty className='mt-10' description='Aucun document à afficher' />
-        )
-      )}
+      {loading && <Spinner />}
     </div>
   )
 }
