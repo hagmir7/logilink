@@ -2,6 +2,8 @@
   "name": "LOGILINK_PRO",
   "private": true,
   "version": "0.0.0",
+  "description": "logilink App",
+  "title" : "Logy",
   "type": "module",
   "main": "src/electron/main.js",
   "build": {
