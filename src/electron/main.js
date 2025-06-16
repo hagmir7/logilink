@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { getPreloadPath, isDev } from "./util.js";
 import createLoginWindow from "./windows/loginWindow.js";
