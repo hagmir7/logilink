@@ -4,7 +4,8 @@ import { Button, Empty, Input } from 'antd'
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../contexts/AuthContext'
-import { uppercaseFirst } from '../utils/config'
+import { uppercaseFirst } from '../utils/config';
+import { useNavigate } from 'react-router-dom'
 
 // Utility to format date (if needed elsewhere)
 const formatDate = (date) => {
@@ -27,6 +28,8 @@ function Article() {
     total: 0,
   })
 
+  const navigate = useNavigate()
+
   const fetchData = async () => {
     setLoading(true)
     try {
@@ -47,7 +50,19 @@ function Article() {
     fetchData()
   }, [searchQuery])
 
-  console.log(articles?.data)
+  const handleShow = async (id) => {
+    try {
+      const url = `/#/articles/${id}`
+      if (window.electron && typeof window.electron.openShow === 'function') {
+        await window.electron.openShow(url)
+      } else {
+        navigate(`/articles/${id}`)
+      }
+    } catch (error) {
+      console.error('Error navigating to article:', error)
+    }
+  }
+  
 
   return (
     <div className='w-full'>
@@ -65,8 +80,6 @@ function Article() {
             size='large'
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-
-
 
           <Button onClick={fetchData} size='large'>
             {loading ? (
@@ -106,6 +119,7 @@ function Article() {
               <tr
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
+                onClick={() => handleShow(article.code)}
               >
                 <td className='px-6 py-2 whitespace-nowrap'>
                   <div className='flex items-center'>

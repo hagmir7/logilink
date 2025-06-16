@@ -1,7 +1,10 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { getPreloadPath, isDev } from "./util.js";
 import createLoginWindow from "./windows/loginWindow.js";
+import { createShowWindow } from "./windows/showWindow.js";
+
+let showWindow;
 
 
 let mainWindow;
@@ -14,9 +17,7 @@ const createMainWindow = () => {
         height: 800,
         webPreferences: {
             preload: getPreloadPath(),
-            // contextIsolation: true,
             nodeIntegration: true,
-            // sandbox: false,
         },
     });
 
@@ -134,4 +135,21 @@ ipcMain.on("print-content", (event, htmlContent) => {
       printWindow.close();
     });
   });
+});
+
+
+ipcMain.on('openShow', async (event, preload) => {
+    
+    try {
+        if (!showWindow || showWindow.isDestroyed()) {
+            showWindow = createShowWindow(preload);
+        } else {
+            showWindow.show();
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error('Logout error:', error);
+        return { success: false, error: error.message };
+    }
 });
