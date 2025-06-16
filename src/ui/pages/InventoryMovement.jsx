@@ -269,8 +269,6 @@ export default function InventoryMovement() {
           </Button>
         </div>
       </div>
-
-
     </div>
   )
 }
