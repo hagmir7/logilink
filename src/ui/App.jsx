@@ -22,6 +22,7 @@ import InventoryMovement from './pages/InventoryMovement'
 import Depots from './pages/Depots'
 import Article from './pages/Article'
 import ViewInventory from './pages/ViewInventory'
+import ViewDepot from './pages/ViewDepot'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -57,6 +58,7 @@ function App() {
           <Route path='inventories/in/:id' element={<InventoryMovement />} />
           <Route path='inventories/:id' element={<ViewInventory />} />
           <Route path='depots' element={<Depots />} />
+          <Route path='depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
         </Route>
       </Routes>
