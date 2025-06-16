@@ -142,32 +142,36 @@ function PreparationList() {
                     {item?.article?.Description || null}
                   </Td>
                   <Td>{item.AR_Ref || '__'}</Td>
-                  <Td>
-                    <div className='text-sm text-gray-500'>
+                 <Td>
+                    <div className='space-y-1'>
+                     <div className='text-sm text-gray-800'>
                       H:{' '}
-                      <span className='font-bold text-gray-800'>
-                        {Math.floor(
-                          item.article ? item.article.Hauteur : item.Hauteur
-                        ) || '__'}
-                      </span>
+                      {item.Hauteur > 0 ? (
+                        <strong>{Math.floor(item.Hauteur)}</strong>
+                      ) : (
+                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                      )}
                     </div>
-                    <div className='text-sm text-gray-500'>
+                       <div className='text-sm text-gray-800'>
                       L:{' '}
-                      <span className='font-bold text-gray-800'>
+                      <strong>
                         {Math.floor(
-                          item.article ? item.article.Largeur : item.Largeur
+                          item.Largeur ? item.Largeur : item?.article?.Largeur
                         ) || '__'}
-                      </span>
+                      </strong>
                     </div>
-                    <div className='text-sm text-gray-500'>
-                      P:{' '}
-                      <span className='font-bold  text-gray-800'>
-                        {Math.floor(
-                          item.Profondeur
-                            ? item.Profondeur
-                            : item.article?.Profonduer
-                        ) || '__'}
-                      </span>
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>P:</span>{' '}
+                        <span className='font-bold'>
+                          <span className='font-bold  text-gray-800'>
+                            {Math.floor(
+                              item.Profondeur
+                                ? item.Profondeur
+                                : item.article?.Profonduer
+                            ) || '__'}
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </Td>
                   <Td>

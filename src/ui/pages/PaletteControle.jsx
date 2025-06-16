@@ -3,7 +3,7 @@ import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { Badge, Spin } from 'antd'
 import { Circle, CircleCheckBig, Loader } from 'lucide-react'
-import { getExped, getStatus } from '../utils/config'
+import { getExped, getStatus, uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 
 export default function PaletteControle() {
@@ -94,6 +94,7 @@ export default function PaletteControle() {
                     <div>
                       <h3 className='text-base font-semibold text-gray-700'>
                         {item.article_stock?.name || 'N/A'}{' '}
+                        {uppercaseFirst(item.name || item.article_stock?.name || item.design ||  'N/A')}{" - "}
                         {item.article_stock?.width && item.article_stock?.height
                           ? `${Math.floor(
                               item.article_stock.height

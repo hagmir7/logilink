@@ -5,6 +5,7 @@ import { getExped } from '../utils/config'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'
 import { api } from '../utils/api'
+import { Link } from 'react-router-dom'
 
 // Mock utility functions for demo
 const formatDate = (date) => {
@@ -14,8 +15,9 @@ const formatDate = (date) => {
 function ShippingTable({ documents = [], onSelectOrder, loading }) {
   // Sample data for demonstration  
 
-  const { roles } = useAuth();
+  const { roles, user } = useAuth();
   const [users, setUsers] = useState([]);
+  // const [companies, setCompanies] = useState([]);
 
 
 
@@ -23,6 +25,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
     try {
       const response = await api.get('roles/chargement');
       setUsers(response.data);
+      
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -30,6 +33,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
 
   useEffect(() => {
     fetchData();
+  
   }, []);
 
 
@@ -59,6 +63,9 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
     }
     return colorMap[expedit] || 'bg-gray-100 text-gray-800'
   }
+
+  console.log(documents);
+  
 
   return (
     <div className='w-full '>
@@ -148,8 +155,9 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   {formatDate(new Date(item?.docentete?.DO_DateLivr || item.DO_DateLivr))}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                  {/* {JSON.stringify(item.companies.find(company => company.id == user.company_id))} */}
                   {
-                    (item.status_id == '12' && roles('preparation')) && <Select
+                    (item.companies.find(company => company.id == user.company_id)?.pivot.status_id == '11' && roles('preparation')) && <Select
                       placeholder="Agent de chargement"
                       defaultValue={item.user_id}
                       style={{ width: 170 }}
@@ -157,6 +165,10 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                       onChange={(value) => handleChange(value, item.id)}
                       options={users}
                     />
+                  }
+                  
+                  {
+                    roles('chargement') && <Link to={`/chargement/${item.piece}`}><Button >Chargement</Button></Link>
                   }
                   
                 </td>

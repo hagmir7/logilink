@@ -209,26 +209,36 @@ function Fabrication() {
                     )}
                   </Td>
 
-                  <Td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='text-sm text-gray-500'>
+                  <Td>
+                    <div className='space-y-1'>
+                     <div className='text-sm text-gray-800'>
                       H:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Hauteur : item.Hauteur
-                      ) || '__'}
+                      {item.Hauteur > 0 ? (
+                        <strong>{Math.floor(item.Hauteur)}</strong>
+                      ) : (
+                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                      )}
                     </div>
-                    <div className='text-sm text-gray-500'>
+                       <div className='text-sm text-gray-800'>
                       L:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Largeur : item.Largeur
-                      ) || '__'}
+                      <strong>
+                        {Math.floor(
+                          item.Largeur ? item.Largeur : item?.article?.Largeur
+                        ) || '__'}
+                      </strong>
                     </div>
-                    <div className='text-sm text-gray-500'>
-                      P:{' '}
-                      {Math.floor(
-                        item.Profondeur
-                          ? item.Profondeur
-                          : item.article?.Profonduer
-                      ) || '__'}
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>P:</span>{' '}
+                        <span className='font-bold'>
+                          <span className='font-bold  text-gray-800'>
+                            {Math.floor(
+                              item.Profondeur
+                                ? item.Profondeur
+                                : item.article?.Profonduer
+                            ) || '__'}
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </Td>
 

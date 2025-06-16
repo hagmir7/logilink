@@ -1,15 +1,12 @@
 import { useState, useEffect } from 'react'
 import {
-  ArrowLeftCircle,
-  ArrowRightCircle,
   X,
   Loader2,
   Search,
   Package,
-  Plus,
-  Minus,
+
 } from 'lucide-react'
-import { Badge } from 'antd'
+import { message } from 'antd'
 import QScanner from '../components/QScanner'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
@@ -27,6 +24,7 @@ export default function Chargement() {
 
 
   const [paletteCode, setPaletteCode] = useState();
+  const [document, setDocument] = useState({})
 
   const { id } = useParams()
 
@@ -46,9 +44,22 @@ export default function Chargement() {
     setLoadingStates((prev) => ({ ...prev, [key]: value }))
   }
 
+  const loadPalettes = async () => {
+    try {
+      const response = await api.get(`documents/${id}/delivered-palettes`);
+      console.log(response);
+      setDocument(response.data)
+      setPalettes(response.data?.palettes || [])
+    } catch (error) {
+      message.error(error.response.data.message + id, 5)
+      console.error('Error confirming:', error.response.data.error)
+    }
+
+  }
+
 
   useEffect(() => {
-    // if (id) createPalette()
+    if (id) loadPalettes();
   }, [id])
 
   const handleScan = async (value) => {
@@ -74,12 +85,24 @@ export default function Chargement() {
   const handleSubmit = async () => {
     setLoading('submit', true)
     try {
-      const { data } = await api.post(`palettes/confirm/${paletteCode}`);
-      console.log(data)
+      const { data } = await api.post(`palettes/confirm/${paletteCode}/${id}`);
+      loadPalettes()
     } catch (err) {
-      console.error('Error confirming:', err)
+      message.error(err.response.data.message + id, 5)
+      console.error('Error confirming:', err.response.data.error)
     } finally {
       setLoading('submit', false)
+    }
+  }
+  
+
+  const resetPalette = async (code) =>{
+    try {
+      const response = await api.put(`palettes/reset/${code}`);
+      message.success(response.data.message);
+    } catch (error) {
+      message.error(error.response.data.message + id, 5)
+      console.error('Error confirming:', error.response.data.error)
     }
   }
 
@@ -94,7 +117,7 @@ export default function Chargement() {
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
             <h1 className='text-sm md:text-xl font-bold text-gray-900 truncate'>
-              {id}
+              {id} - {document?.palettes_count}
             </h1>
           </div>
         </div>
@@ -235,68 +258,63 @@ export default function Chargement() {
             </div>
           )}
 
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
+          <div className='grid grid-cols-1 gap-4'>
             {palettes?.map((item, index) => (
               <div key={item.id || index} className='relative'>
+                {/* Status Badge - Mobile Optimized */}
                 <div className='absolute -top-2 -right-2 z-10'>
-                  <span className='px-3 py-1 bg-cyan-500 text-white text-xs font-medium rounded-full'>
-                    {item.ref}
-                  </span>
+                  <div className='px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full shadow-md flex items-center gap-1'>
+                    <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
+                      <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
+                    </svg>
+                    Livré
+                  </div>
                 </div>
 
-                <div className='bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow'>
-                  <div className='p-4 bg-gradient-to-r from-amber-50 to-orange-50'>
-                    <div className='flex justify-between items-start mb-3'>
-                      <div className='flex-1 pr-2'>
-                        <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate'>
-                          {item.palette_stock?.name || 'N/A'}
+                {/* Main Card - Mobile First */}
+                <div className='bg-white rounded-lg border border-gray-200 shadow-sm active:shadow-md transition-shadow duration-200'>
+
+                  {/* Header Section */}
+                  <div className='p-4 bg-gradient-to-r  rounded-t-lg'>
+                    <div className='flex items-center justify-between'>
+
+                      {/* Left Content */}
+                      <div className='flex-1 min-w-0'>
+                        <h3 className='text-base font-semibold text-gray-900 truncate mb-2'>
+                          {item.code}
                         </h3>
-                        {item.palette_stock?.width &&
-                          item.palette_stock?.height && (
-                            <p className='text-xs text-gray-600 mt-1'>
-                              {Math.floor(item.palette_stock.height)} ×{' '}
-                              {Math.floor(item.palette_stock.width)} mm
-                            </p>
+
+                        <div className='flex items-center gap-2 mb-3'>
+                          <span className='inline-flex items-center gap-1 px-2 py-1 bg-white/70 text-gray-600 text-xs font-medium rounded-md border'>
+
+                            {id || 'N/A'}
+                          </span>
+                        </div>
+
+                        {/* Status Info */}
+                        <div className='flex items-center gap-2 text-xs text-gray-500'>
+                          <div className='w-2 h-2 bg-green-400 rounded-full'></div>
+                          <span>Livraison terminée</span>
+                        </div>
+                      </div>
+
+                      {/* Right Action - Large Touch Target */}
+                      <div className='ml-4 flex-shrink-0'>
+                        <button
+                          onClick={() => resetPalette(item.code)}
+                          disabled={loadingStates.remove}
+                          className='flex items-center justify-center w-10 h-10 bg-red-500 hover:bg-red-600 active:bg-red-700 text-white rounded-full transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed shadow-sm active:scale-95'
+                        >
+                          {loadingStates.remove ? (
+                            <svg className='w-4 h-4 animate-spin' fill='none' viewBox='0 0 24 24'>
+                              <circle className='opacity-25' cx='12' cy='12' r='10' stroke='currentColor' strokeWidth='4'></circle>
+                              <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'></path>
+                            </svg>
+                          ) : (
+                            <X className='w-4 h-4' />
                           )}
-                        <span className='inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full mt-2'>
-                          {item.palette_stock?.color || 'N/A'}
-                        </span>
+                        </button>
                       </div>
-                      <div className='text-right'>
-                        <div className='text-xl sm:text-2xl font-bold text-gray-900'>
-                          {item.pivot?.quantity
-                            ? Math.floor(item.pivot.quantity)
-                            : 0}
-                        </div>
-                        <div className='text-xs text-gray-500'>Unités</div>
-                      </div>
-                    </div>
-
-                    <div className='flex justify-between items-center pt-4 border-t border-gray-200'>
-                      <div className='text-xs md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
-                        <div>
-                          Prof:{' '}
-                          <strong>{item.palette_stock?.depth || 'N/A'}</strong>
-                        </div>
-                        <div>
-                          Ép:{' '}
-                          <strong>
-                            {item.palette_stock?.thickness || 'N/A'}
-                          </strong>
-                        </div>
-                        <div>
-                          Chant:{' '}
-                          <strong>{item.palette_stock?.chant || 'N/A'}</strong>
-                        </div>
-                      </div>
-
-                      <button
-                        onClick={() => remove(item.id)}
-                        disabled={loadingStates.remove}
-                        className='p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                      >
-                        <X className='w-4 h-4' />
-                      </button>
                     </div>
                   </div>
                 </div>

@@ -12,6 +12,7 @@ import QScanner from '../components/QScanner'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
+import { uppercaseFirst } from '../utils/config'
 
 export default function Preparation() {
   const [article, setArticle] = useState({
@@ -78,6 +79,7 @@ export default function Preparation() {
       })
 
       setPalette(data.palette)
+      
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
     } catch (err) {
@@ -453,8 +455,8 @@ export default function Preparation() {
                   <div className='p-4 bg-gradient-to-r from-amber-50 to-orange-50'>
                     <div className='flex justify-between items-start mb-3'>
                       <div className='flex-1 pr-2'>
-                        <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate'>
-                          {item.article_stock?.name || 'N/A'}
+                        <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate whitespace-normal'>
+                          {uppercaseFirst(item.name || item.article_stock?.name || item.design ||  'N/A')}
                         </h3>
                         {item.article_stock?.width &&
                           item.article_stock?.height && (

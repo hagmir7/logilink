@@ -361,6 +361,7 @@ function Controller() {
                       {item.line?.status?.name}
                     </Tag>
                   </Td>
+
                   <Td>
                     <div className='font-bold text-gray-900'>
                       {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
@@ -372,25 +373,27 @@ function Controller() {
                       </div>
                     )}
                   </Td>
+
                   <Td className='font-mono text-sm'>{item.AR_Ref || '__'}</Td>
+                  
                   <Td>
                     <div className='space-y-1'>
-                      <div className='text-sm text-gray-600'>
-                        <span className='font-medium'>H:</span>{' '}
-                        <span className='font-bold'>
-                          {Math.floor(
-                            item.article ? item.article.Hauteur : item.Hauteur
-                          ) || '__'}
-                        </span>
-                      </div>
-                      <div className='text-sm text-gray-600'>
-                        <span className='font-medium'>L:</span>{' '}
-                        <span className='font-bold'>
-                          {Math.floor(
-                            item.Largeur ? item.Largeur : item.article.Largeur
-                          ) || '__'}
-                        </span>
-                      </div>
+                     <div className='text-sm text-gray-800'>
+                      H:{' '}
+                      {item.Hauteur > 0 ? (
+                        <strong>{Math.floor(item.Hauteur)}</strong>
+                      ) : (
+                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                      )}
+                    </div>
+                       <div className='text-sm text-gray-800'>
+                      L:{' '}
+                      <strong>
+                        {Math.floor(
+                          item.Largeur ? item.Largeur : item?.article?.Largeur
+                        ) || '__'}
+                      </strong>
+                    </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>P:</span>{' '}
                         <span className='font-bold'>

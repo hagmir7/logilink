@@ -33,6 +33,8 @@ function Commercial() {
       const response = await api.get(`docentete/${id}`)
 
       setData(response.data)
+      // console.log(response);
+      
       setLoading(false)
     } catch (err) {
       setLoading(false)

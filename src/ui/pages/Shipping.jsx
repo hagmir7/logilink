@@ -112,12 +112,6 @@ function Shipping() {
             onChange={(e)=> setSearchQuery(e.target.value)}
           />
 
-          {/* <RangePicker
-            size='large'
-            onChange={handleChangeDate}
-            className='min-w-[220px] block md:hidden'
-          /> */}
-
           <Select
             defaultValue=''
             className='min-w-[220px] block md:hidden'
