@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType, locale } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, DatePicker, Tag } from 'antd'
+import { Button, Checkbox, DatePicker, message, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
@@ -27,6 +27,7 @@ function Fabrication() {
 
       setData(response.data)
       setLoading(false)
+      message.success("Fabrication terminée avec succès", 6);
     } catch (err) {
       setLoading(false)
       console.error('Failed to fetch data:', err)
