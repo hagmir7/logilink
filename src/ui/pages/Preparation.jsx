@@ -13,6 +13,7 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
+import BCScanner from '../components/BCScanner'
 
 export default function Preparation() {
   const [article, setArticle] = useState({
