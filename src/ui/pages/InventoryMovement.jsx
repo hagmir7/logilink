@@ -1,9 +1,9 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
-import { Button, Input, Modal, Radio, Select } from 'antd'
+import { Button, Input, message, Modal, Radio, Select } from 'antd'
 import { Building2, Package, Hash, AlertCircle } from 'lucide-react'
 
 export default function InventoryMovement() {
@@ -15,6 +15,7 @@ export default function InventoryMovement() {
 
   const [emplacementData, setEmplacementData] = useState(null)
   const [articleData, setArticleData] = useState(null)
+  const [type, setType] = useState(null);
 
   const [loadingEmplacement, setLoadingEmplacement] = useState(false)
   const [loadingArticle, setLoadingArticle] = useState(false)
@@ -24,14 +25,9 @@ export default function InventoryMovement() {
   const [articleError, setArticleError] = useState('')
 
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [palette, setPalette] = useState(1)
+  const [palette, setPalette] = useState(1);
+  const [conditionList, setConditionList] = useState([])
 
-  const options = [
-    { label: 'Palette', value: 1 },
-    { label: 'Carton', value: 2 },
-    { label: 'Piece', value: 0 },
-    // { label: 'Orange', value: 'Orange' },
-  ]
 
   const fetchEmplacementData = async (code) => {
     if (!code.trim()) return
@@ -50,6 +46,12 @@ export default function InventoryMovement() {
     }
   }
 
+  useEffect(() => {
+  if (articleData) {
+    getCondition();
+  }
+}, [articleData, type]);
+
   const fetchArticleData = async (code) => {
     if (!code.trim()) return
 
@@ -58,21 +60,45 @@ export default function InventoryMovement() {
       const response = await api.get(`inventory/article/${code}`)
       const data = response.data
       setArticleData(data)
-
-      setArticleError('')
+      setArticleError('');
+      // getCondition()
     } catch (error) {
+
+      console.error(error);
+      
       setArticleError(error.message)
       setArticleData(null)
     } finally {
       setLoadingArticle(false)
+      
     }
   }
 
+    const getCondition = async () => {
+    console.log(articleData.palette_condition);
+    console.log(type);
+    
+    
+    if (type === "Palette" && articleData.palette_condition) {
+      setConditionList(
+        articleData.palette_condition.split('|').map((cond) => ({
+          label: cond,
+          value: cond,
+        }))
+      );
+    } else if (articleData.condition) {
+      setConditionList(
+        articleData.condition.split('|').map((cond) => ({
+          label: cond,
+          value: cond,
+        }))
+      );
+    }
+  };
+
   const handleFinalSubmit = async () => {
     if (!emplacementData || !articleData || !quantity) {
-      alert(
-        'Please fill all fields and fetch both emplacement and article data'
-      )
+      message.error("Veuillez remplir tous les champs", 10)
       return
     }
 
@@ -88,13 +114,18 @@ export default function InventoryMovement() {
       const response = await api.post(`inventory/insert/${id}`, payload)
 
       if (response.status === 200) {
-        alert('Inventory successfully updated')
+        message.success("L'opération a été un succès.", 10)
       } else {
       }
     } catch (error) {
-      alert('An error occurred while submitting the inventory.')
+      console.log(error);
+      
+      message.error(error?.response?.data?.message, 10)
     }
   }
+
+
+
 
   const showModal = () => setIsModalOpen(true)
   const handleOk = () => {
@@ -135,7 +166,7 @@ export default function InventoryMovement() {
 
       {/* Emplacement Section */}
       <div className='px-5'>
-        <h2 className='text-md font-semibold text-gray-700 mb-4'>
+        <h2 className='text-md font-semibold text-gray-700 mb-2'>
           Emplacement
         </h2>
         <Input
@@ -176,7 +207,7 @@ export default function InventoryMovement() {
           onChange={changeArticle}
         />
         {articleError && (
-          <div className='text-red-600 text-sm mb-3'>{articleError}</div>
+          <div className='text-red-600 text-sm mb-2'>{articleError}</div>
         )}
 
         {articleData && articleCode !== '' && (
@@ -220,9 +251,26 @@ export default function InventoryMovement() {
         )}
       </div>
 
+      <div className='px-5'>
+        {(articleData && articleData?.condition) && (
+          <Radio.Group
+            block
+            options={[
+              { label: 'Piece', value: "Piece" },
+              { label: 'Palette', value: "Palette" },
+              { label: 'Carton', value: "Carton" },
+            ]}
+            onChange={(e) => setType(e.target.value)}
+            optionType='button'
+            buttonStyle='solid'
+          />
+        )}
+      </div>
+       
+
       {articleData && articleData?.condition ? (
         <div className='px-5'>
-          <h2 className='text-md font-semibold text-gray-700 mb-4'>
+          <h2 className='text-md font-semibold text-gray-700 mb-2'>
             Condition
           </h2>
           <Select
@@ -230,10 +278,7 @@ export default function InventoryMovement() {
             size='large'
             className='w-full'
             onChange={(value) => setCondition(value)}
-            options={articleData.condition.split('|').map((cond) => ({
-              label: cond,
-              value: cond,
-            }))}
+            options={conditionList}
           />
         </div>
       ) : null}
@@ -241,7 +286,7 @@ export default function InventoryMovement() {
       {/* Quantity and Submit Section */}
       <div className='px-5'>
         <div className='space-y-4'>
-          <h2 className='text-md font-semibold text-gray-700 mb-4'>Quantité</h2>
+          <h2 className='text-md font-semibold text-gray-700 mb-2'>Quantité</h2>
           <Input
             placeholder='Quantité'
             id='quantity'
@@ -251,15 +296,7 @@ export default function InventoryMovement() {
           />
 
           <div className='mt-3'></div>
-          {(articleData && articleData?.condition) && (
-            <Radio.Group
-              block
-              options={options}
-              // defaultValue="Apple"
-              optionType='button'
-              buttonStyle='solid'
-            />
-          )}
+         
           <Button
             className='w-full mt-3'
             size='large'
@@ -384,7 +421,7 @@ export default function InventoryMovement() {
                             Quantité
                           </div>
                           <div className='text-2xl font-bold text-gray-900'>
-                            {quantity} {condition ? ' x ' + condition : null}
+                            {quantity} {type && type+"s"} {condition ? ' x ' + condition : null} {articleData.unit}
                           </div>
                         </div>
                       </div>
