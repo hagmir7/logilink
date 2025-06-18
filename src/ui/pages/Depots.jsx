@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api';
 import { Button, message, Tag } from 'antd';
-import { Edit, PlusCircle, Trash } from 'lucide-react';
+import { Edit, PlusCircle, Trash, View } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Spinner from '../components/ui/Spinner';
 
@@ -92,6 +92,13 @@ export default function Depots() {
                   <Button>
                     <Trash size={15} />
                   </Button>
+
+                  <Link to={`/depots/view/${data.id}`}>
+                    <Button>
+                      <View size={15} />
+                    </Button>
+                  </Link>
+
 
                   <Button>
                     <Edit size={15} />

@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select } from 'antd'
 import { Building2, Package, Hash, AlertCircle } from 'lucide-react'
+import { debounce } from 'lodash'
 
 export default function InventoryMovement() {
   const { id } = useParams()
@@ -44,38 +45,43 @@ export default function InventoryMovement() {
     }
   }, [quantity, condition])
 
-  const fetchEmplacementData = async (code) => {
-    if (!code.trim()) return
+  const fetchEmplacementData = useCallback(
+    debounce(async (code) => {
+      if (!code.trim()) return
 
-    setLoadingEmplacement(true)
-    setEmplacementData(null)
-    try {
-      const response = await api.get(`inventory/emplacement/${code}`)
-      setEmplacementData(response.data)
-      setEmplacementError('')
-    } catch (error) {
-      setEmplacementError(error.response?.data?.message || 'Emplacement introuvable')
-    } finally {
-      setLoadingEmplacement(false)
-    }
-  }
+      setLoadingEmplacement(true)
+      setEmplacementData(null)
+      try {
+        const response = await api.get(`inventory/emplacement/${code}`)
+        setEmplacementData(response.data)
+        setEmplacementError('')
+      } catch (error) {
+        setEmplacementError(error.response?.data?.message || 'Emplacement introuvable')
+      } finally {
+        setLoadingEmplacement(false)
+      }
+    }, 500),
+    [] // Only created once
+  )
 
-  const fetchArticleData = async (code) => {
-    if (!code.trim()) return
+  const fetchArticleData = useCallback(
+    debounce(async (code) => {
+      if (!code.trim()) return
 
-    setLoadingArticle(true)
-    setArticleData(null)
-    try {
-      const response = await api.get(`inventory/article/${code}`)
-      const data = response.data
-      setArticleData(data)
-      setArticleError('')
-    } catch (error) {
-      setArticleError(error.response?.data?.message || 'Article introuvable')
-    } finally {
-      setLoadingArticle(false)
-    }
-  }
+      setLoadingArticle(true)
+      setArticleData(null)
+      try {
+        const response = await api.get(`inventory/article/${code}`)
+        setArticleData(response.data)
+        setArticleError('')
+      } catch (error) {
+        setArticleError(error.response?.data?.message || 'Article introuvable')
+      } finally {
+        setLoadingArticle(false)
+      }
+    }, 500),
+    [] // Only created once
+  )
 
   const getConditionOptions = () => {
     if (!articleData) return []
@@ -118,7 +124,7 @@ export default function InventoryMovement() {
     }
     
     // Validate condition if needed
-    if (conditionList.length > 0 && !condition) {
+    if ((type === "Carton" || type === "Palette")  && !condition) {
       message.error('Veuillez sélectionner une condition')
       return
     }
@@ -204,6 +210,7 @@ export default function InventoryMovement() {
           size='large'
           value={emplacementCode}
           onChange={changeEmplacement}
+          allowClear={true}
           suffix={loadingEmplacement ? <span className='text-gray-400'>Chargement...</span> : null}
         />
         {emplacementError && (
@@ -229,6 +236,7 @@ export default function InventoryMovement() {
           size='large'
           value={articleCode}
           onChange={changeArticle}
+          allowClear={true}
           suffix={loadingArticle ? <span className='text-gray-400'>Chargement...</span> : null}
         />
         {articleError && (
@@ -277,7 +285,7 @@ export default function InventoryMovement() {
       )}
 
       {/* Condition Selection */}
-      {articleData && type && conditionList.length > 0 && (
+      {articleData && type && (type !== "Piece" ) && conditionList.length > 0 && (
         <div className='px-5'>
           <h2 className='text-md font-semibold text-gray-700 mb-2'>Condition</h2>
           <Select
@@ -287,6 +295,7 @@ export default function InventoryMovement() {
             value={condition}
             onChange={setCondition}
             options={conditionList}
+            allowClear={true}
           />
         </div>
       )}
@@ -299,6 +308,7 @@ export default function InventoryMovement() {
           size='large'
           type='number'
           min={0.1}
+          allowClear={true}
           value={quantity}
           onChange={(e) => {
             const value = e.target.value;

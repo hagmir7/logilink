@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { getExped } from '../utils/config';
 import { Button, Tag } from 'antd';
+import BackButton from '../components/ui/BackButton';
 
 function DocumentPalettes() {
   const { piece } = useParams();
@@ -73,11 +74,11 @@ function DocumentPalettes() {
       <div className='bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-2 md:py-4 border-b border-gray-200'>
         <div className='flex items-center justify-between flex-wrap gap-4'>
           <div className='flex items-center space-x-4'>
-            <div className='bg-blue-100 p-2 rounded-lg'>
-              <Package className='w-6 h-6 text-blue-600' />
+            <div className='rounded-full border border-gray-300'>
+              <BackButton />
             </div>
             <div>
-              <h2 className='text-xl font-semibold text-gray-900'>
+              <h2 className='text-lg font-semibold text-gray-900'>
                 {document.ref}
               </h2>
               <p className='text-sm text-gray-600'>
@@ -98,7 +99,7 @@ function DocumentPalettes() {
       <div className='py-2 md:py-4'>
         <div className='grid  grid-cols-2 md:grid-cols-3 gap-4 mb-6 px-6 '>
           <div className='space-y-1'>
-            <p className='text-sm font-medium text-gray-500'>Client ID</p>
+            <p className='text-sm font-medium text-gray-500'>Client</p>
             <p className='text-sm text-gray-900 flex gap-2 font-black'>
               <User className='w-5 h-5 text-gray-600' />
               {document.client_id}

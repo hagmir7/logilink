@@ -147,7 +147,7 @@ function Controller() {
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
-          <h1 className='text-xl font-bold text-gray-800'>
+          <h1 className='text-sm md:text-xl font-bold text-gray-800'>
             {data.docentete.DO_Piece
               ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
@@ -398,11 +398,7 @@ function Controller() {
                         <span className='font-medium'>P:</span>{' '}
                         <span className='font-bold'>
                           <span className='font-bold  text-gray-800'>
-                            {Math.floor(
-                              item.Profondeur
-                                ? item.Profondeur
-                                : item.article?.Profonduer
-                            ) || '__'}
+                            {Math.floor(item.Profondeur ? item.Profondeur : item.article?.Profonduer) || '__'}
                           </span>
                         </span>
                       </div>
@@ -414,26 +410,19 @@ function Controller() {
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Couleur:</span>{' '}
                         <span className='font-bold'>
-                          {(item.article
-                            ? item.article.Couleur
-                            : item.Couleur) || '__'}
+                          {(item.article ? item.article.Couleur : item.Couleur) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Chant:</span>{' '}
                         <span className='font-bold'>
-                          {(item.article ? item.article.Chant : item.Chant) ||
-                            '__'}
+                          {(item.article ? item.article.Chant : item.Chant) || '__'}
                         </span>
                       </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>Épaisseur:</span>{' '}
                         <span className='font-bold'>
-                          {Math.floor(
-                            item.Episseur
-                              ? item.Episseur
-                              : item.article.Episseur
-                          ) || '__'}
+                          {Math.floor(item.Episseur ? item.Episseur : item.article.Episseur) || '__'}
                         </span>
                       </div>
                     </div>
@@ -507,7 +496,15 @@ function Controller() {
             >
               <div className='flex justify-between items-center'>
                 <span className='font-medium text-gray-900'>
-                  {item.Nom || '__'}
+                 <div className='font-bold text-gray-900'>
+                      {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
+                      {item?.article?.Description || null}
+                    </div>
+                    {item?.article?.Description && (
+                      <div className='text-sm text-gray-500'>
+                        {item.article.Description}
+                      </div>
+                    )}
                 </span>
                 <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
                   {Math.floor(item.DL_Qte)}
@@ -518,13 +515,14 @@ function Controller() {
 
               <div className='grid grid-cols-2 gap-y-2 text-sm'>
                 <div className='text-gray-500'>
-                  Hauteur: {Math.floor(item.Hauteur) || '__'}
+                  Hauteur:{item.Hauteur > 0 ? (<strong>{Math.floor(item.Hauteur)}</strong>) :
+                    (<strong>{Math.floor(item.article?.Hauteur)}</strong>)}
                 </div>
                 <div className='text-gray-500'>
-                  Largeur: {Math.floor(item.Largeur) || '__'}
+                  Largeur:  {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
                 </div>
                 <div className='text-gray-500'>
-                  Profondeur: {Math.floor(item.Profondeur) || '__'}
+                  Profondeur: {Math.floor(item.Profondeur? item.Profondeur: item.article?.Profonduer) || '__'}
                 </div>
                 <div className='text-gray-500'>
                   Epaisseur: {Math.floor(item.Episseur) || '__'}
@@ -535,18 +533,12 @@ function Controller() {
 
               <div className='space-y-1 text-sm'>
                 <div className='text-gray-500'>
-                  Couleur: {item.Couleur || '__'}
+                  Couleur: <strong>{(item.article ? item.article.Couleur : item.Couleur) || '__'}</strong>
                 </div>
-                <div className='text-gray-500'>Chant: {item.Chant || '__'}</div>
+                <div className='text-gray-500'>Chant: {(item.article ? item.article.Chant : item.Chant) || '__'}</div>
                 <div className='text-gray-500'>
                   Référence: {item.AR_Ref || '__'}
                 </div>
-              </div>
-
-              <div className='mt-3 flex justify-end'>
-                <button className='p-2 text-gray-500 hover:text-gray-700'>
-                  <Clipboard className='h-4 w-4' />
-                </button>
               </div>
             </div>
           ))
