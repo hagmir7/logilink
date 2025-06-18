@@ -18,7 +18,6 @@ const DepotV = () => {
     const { id } = useParams()
 
 
-    // Fixed: Added 'id' dependency
     useEffect(() => {
         if (id) fetchEmplacements();
     }, [id]);
@@ -71,12 +70,12 @@ const DepotV = () => {
             grouped[parsed.floorLetter][parsed.rowNumber][parsed.columnNumber].push(parsed);
         });
         return grouped;
-    }, [emplacements]); // Fixed: Added dependency
+    }, [emplacements]); 
 
-    // Fixed: Correct data access and added 'emplacements' dependency
+ 
     const filteredEmplacements = useMemo(() => {
         return emplacements.filter(emp => {
-            const parsed = parseEmplacement(emp.code); // Fixed: Use emp.code
+            const parsed = parseEmplacement(emp.code);
             if (!parsed) return false;
 
             const matchesSearch = emp.code.toLowerCase().includes(searchTerm.toLowerCase());
@@ -85,14 +84,14 @@ const DepotV = () => {
             const matchesFloor = !selectedFloor || parsed.floorLetter === selectedFloor;
             return matchesSearch && matchesRow && matchesColumn && matchesFloor;
         });
-    }, [emplacements, searchTerm, selectedRow, selectedColumn, selectedFloor]); // Fixed: Added 'emplacements'
+    }, [emplacements, searchTerm, selectedRow, selectedColumn, selectedFloor]);
 
-    // Get unique rows, columns, and floors for filters
+
     const uniqueRows = [...new Set(emplacements.map(emp => parseEmplacement(emp.code)?.rowNumber).filter(Boolean))].sort((a, b) => a - b);
     const uniqueColumns = [...new Set(emplacements.map(emp => parseEmplacement(emp.code)?.columnNumber).filter(Boolean))].sort((a, b) => a - b);
     const uniqueFloors = [...new Set(emplacements.map(emp => parseEmplacement(emp.code)?.floorLetter).filter(Boolean))].sort();
 
-    // Fixed: Consistent status generation using memoization
+
     const statusCache = useMemo(() => {
         const cache = {};
         emplacements.forEach(emp => {
@@ -114,13 +113,13 @@ const DepotV = () => {
     };
 
     const EmplacementCard = ({ emplacement, onClick }) => {
-        const { status, color } = getEmplacementStatus(emplacement.code); // Fixed: Use emplacement.code
-        const parsed = parseEmplacement(emplacement.code); // Fixed: Use emplacement.code
+        const { status, color } = getEmplacementStatus(emplacement.code);
+        const parsed = parseEmplacement(emplacement.code);
 
         return (
             <div
                 className="relative bg-white rounded-lg border-2 border-gray-200 p-3 cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-blue-400 hover:scale-105"
-                onClick={() => onClick(emplacement.code)} // Fixed: Use emplacement.code
+                onClick={() => onClick(emplacement.code)}
             >
                 <div className={`absolute top-2 right-2 w-3 h-3 rounded-full ${color}`}></div>
                 <div className="flex items-center mb-2">
