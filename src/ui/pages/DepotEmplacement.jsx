@@ -1,12 +1,12 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { Package, Search, Filter, MapPin, Grid, List } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-import { message, Modal } from 'antd';
+import { message, Modal, Select } from 'antd';
 import { api } from '../utils/api';
 import Spinner from '../components/ui/Spinner';
 import EmplacementModal from '../components/ui/EmplacementModal';
 
-const DepotV = () => {
+const DepotEmplacement = () => {
     const [emplacements, setemplacements] = useState([])
     const [searchTerm, setSearchTerm] = useState('');
     const [selectedRow, setSelectedRow] = useState('');
@@ -15,6 +15,7 @@ const DepotV = () => {
     const [viewMode, setViewMode] = useState('grid');
     const [selectedEmplacement, setSelectedEmplacement] = useState(null);
     const [loading, setLoading] = useState(true)
+    const [depot, setDepot] = useState({});
     const { id } = useParams()
 
 
@@ -27,7 +28,7 @@ const DepotV = () => {
             const { data } = await api.get(`depots/${id}`)
             setLoading(false)
             setemplacements(data.emplacements)
-            console.log(data.emplacements);
+            setDepot(data.depot)
         } catch (error) {
             setLoading(false)
             message.error(error.response?.data?.message || 'An error occurred')
@@ -92,58 +93,34 @@ const DepotV = () => {
     const uniqueFloors = [...new Set(emplacements.map(emp => parseEmplacement(emp.code)?.floorLetter).filter(Boolean))].sort();
 
 
-    const statusCache = useMemo(() => {
-        const cache = {};
-        emplacements.forEach(emp => {
-            const statuses = ['occupied', 'Disponible', 'maintenance', 'Réservé'];
-            const status = statuses[Math.floor(Math.random() * statuses.length)];
-            const colors = {
-                occupied: 'bg-red-500',
-                available: 'bg-green-500',
-                maintenance: 'bg-yellow-500',
-                reserved: 'bg-blue-500'
-            };
-            cache[emp.code] = { status, color: colors[status] };
-        });
-        return cache;
-    }, [emplacements]);
 
-    const getEmplacementStatus = (code) => {
-        return statusCache[code] || { status: 'Disponible', color: 'bg-green-500' };
-    };
+
 
     const EmplacementCard = ({ emplacement, onClick }) => {
-        const { status, color } = getEmplacementStatus(emplacement.code);
         const parsed = parseEmplacement(emplacement.code);
-
         return (
             <div
                 className="relative bg-white rounded-lg border-2 border-gray-200 p-3 cursor-pointer transition-all duration-200 hover:shadow-lg hover:border-blue-400 hover:scale-105"
                 onClick={() => onClick(emplacement.code)}
             >
-                <div className={`absolute top-2 right-2 w-3 h-3 rounded-full ${color}`}></div>
+                <div className={`absolute top-2 right-2 w-3 h-3 rounded-full`}></div>
                 <div className="flex items-center mb-2">
                     <Package className="w-4 h-4 text-gray-600 mr-2" />
                     <span className="font-mono text-sm font-semibold text-gray-800">{emplacement.code}</span>
                 </div>
                 {parsed && (
                     <div className="text-xs text-gray-500 space-y-1">
-                        <div>Étage : {parsed.floorLetter}</div>
-                        <div>Rangée : {parsed.rowNumber}</div>
-                        <div>Colonne : {parsed.columnNumber}</div>
-                        <div>Position : {parsed.emplacementNumber}</div>
+                        <div>Étage : <strong>{parsed.floorLetter}</strong></div>
+                        <div>Rangée : <strong>{parsed.rowNumber}</strong></div>
+                        <div>Colonne : <strong>{parsed.columnNumber}</strong></div>
+                        <div>Emplacement : <strong>{parsed.emplacementNumber}</strong></div>
+                        <div>Paletts : <strong>{emplacement.palette_count}</strong></div>
+                        <div>Articles : <strong>{emplacement.distinct_article_count}</strong></div>
+                        <div>Articles Quantity : <strong>{Number(emplacement.total_articles_quantity.toFixed(4))}</strong></div>
                     </div>
                 )}
 
-                <div className="mt-2">
-                    <span className={`inline-block px-2 py-1 rounded-full text-xs font-medium ${status === 'occupied' ? 'bg-red-100 text-red-800' :
-                            status === 'available' ? 'bg-green-100 text-green-800' :
-                                status === 'maintenance' ? 'bg-yellow-100 text-yellow-800' :
-                                    'bg-blue-100 text-blue-800'
-                        }`}>
-                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                    </span>
-                </div>
+
             </div>
         );
     };
@@ -152,7 +129,7 @@ const DepotV = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6 gap-4">
             {filteredEmplacements.map(emp => (
                 <EmplacementCard
-                    key={emp.code} // Fixed: Use emp.code
+                    key={emp.code}
                     emplacement={emp}
                     onClick={setSelectedEmplacement}
                 />
@@ -161,16 +138,11 @@ const DepotV = () => {
     );
 
 
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const showModal = () => {
-        setIsModalOpen(true);
-    };
+
     const handleOk = () => {
         setIsModalOpen(false);
     };
-    const handleCancel = () => {
-        setIsModalOpen(false);
-    };
+
 
     const WarehouseView = () => (
         <div className="space-y-8">
@@ -223,7 +195,6 @@ const DepotV = () => {
                                                             >
                                                                 <div className="flex items-center justify-between">
                                                                     <span className="font-mono text-xs">{emp.emplacementNumber}</span>
-                                                                    <div className={`w-2 h-2 rounded-full ${getEmplacementStatus(emp.code).color}`}></div>
                                                                 </div>
                                                             </div>
                                                         );
@@ -241,7 +212,6 @@ const DepotV = () => {
         </div>
     );
 
-    // Fixed: Added loading state handling
     if (loading) {
         return (
             <Spinner />
@@ -252,7 +222,7 @@ const DepotV = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Header */}
             <div className="bg-white border-b border-gray-200">
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+                <div className="px-4 sm:px-6 lg:px-8 py-6">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                             <div className="bg-blue-600 p-2 rounded-lg">
@@ -293,15 +263,15 @@ const DepotV = () => {
             </div>
 
             {/* Controls */}
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <div className="px-4 sm:px-6 lg:px-8 py-6">
                 <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 2xl:grid-cols-5">
                         {/* Recherche */}
                         <div className="relative">
                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                             <input
                                 type="text"
-                                placeholder="Rechercher des emplacements..."
+                                placeholder="Code emplacement..."
                                 className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                                 value={searchTerm}
                                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -309,16 +279,21 @@ const DepotV = () => {
                         </div>
 
                         {/* Filtre Étage */}
-                        <select
-                            className="px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        <Select
+                            // style={{ width: 200 }}
+                            className='w-full'
                             value={selectedFloor}
-                            onChange={(e) => setSelectedFloor(e.target.value)}
-                        >
-                            <option value="">Tous les étages</option>
-                            {uniqueFloors.map(floor => (
-                                <option key={floor} value={floor}>Étage {floor}</option>
-                            ))}
-                        </select>
+                            onChange={(value) => setSelectedFloor(value)}
+                            size='large'
+                            options={[
+                                { value: '', label: 'Tous les étages' },
+                                ...uniqueFloors.map(floor => ({
+                                    value: floor,
+                                    label: `Étage ${floor}`
+                                }))
+                            ]}
+                        />
+
 
                         {/* Filtre Rangée */}
                         <select
@@ -345,8 +320,8 @@ const DepotV = () => {
                         </select>
 
                         {/* Statistiques */}
-                        <div className="flex items-center justify-center bg-gray-50 rounded-lg px-4 py-2">
-                            <span className="text-sm text-gray-600">
+                        <div className="flex items-center justify-center bg-gray-50 rounded-lg px-4 py-2 border border-gray-300">
+                            <span className="text-sm text-gray-600 whitespace-nowrap">
                                 {filteredEmplacements.length} / {emplacements.length} Emplacements
                             </span>
                         </div>
@@ -360,11 +335,10 @@ const DepotV = () => {
                 setSelectedEmplacement={setSelectedEmplacement}
                 handleOk={handleOk}
                 parseEmplacement={parseEmplacement}
-                getEmplacementStatus={getEmplacementStatus}
             />
 
         </div>
     );
 };
 
-export default DepotV;
+export default DepotEmplacement;

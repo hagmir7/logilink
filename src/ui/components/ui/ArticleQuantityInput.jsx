@@ -1,5 +1,7 @@
 import React, { useState } from 'react'
-import { Input, Tooltip } from 'antd'
+import { Button, Input, Tooltip, Space, message } from 'antd'
+import { CircleCheck } from 'lucide-react'
+import { api } from '../../utils/api'
 const formatNumber = (value) => new Intl.NumberFormat().format(value)
 
 const NumericInput = (props) => {
@@ -26,27 +28,54 @@ const NumericInput = (props) => {
   ) : (
     'Quantity'
   )
-  return (
+
+  const handleUpdate = async () => {
+    try {
+      await api.put(`palettes/${props.palette_code}/article/${props.article_id}/update`, {
+        'quantity': value
+      })
+      message.success("Quantité modifiée avec succès.")
+    } catch (error) {
+      console.error(error);
+      message.error(error?.response?.data?.message)
+    }
+
+  }
+
+ return (
     <Tooltip
-      trigger={['focus']}
       title={title}
-      placement='topLeft'
-      classNames={{ root: 'numeric-input' }}
+      placement="topLeft"
+      trigger={['focus']}
+
     >
-      <Input
-        {...props}
-        onChange={handleChange}
-        onBlur={handleBlur}
-        placeholder='Quantity'
-        maxLength={16}
-      />
-    </Tooltip>
-  )
+      <Space.Compact className="numeric-input w-full">
+        <Input
+          {...props}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          placeholder="Quantity"
+          maxLength={16}
+        />
+        <Button
+          onClick={handleUpdate}
+          color="cyan" variant="solid"
+          icon={<CircleCheck size={16} />}
+          className="flex items-center justify-center"
+        />
+      </Space.Compact>
+    </Tooltip>)
 }
-const ArticleQuantityInput = ({ defaultValue, code }) => {
+const ArticleQuantityInput = ({ defaultValue, article_id, palette_code  }) => {
   const [value, setValue] = useState(defaultValue)
   return (
-    <NumericInput style={{ width: 120, color: "black" }} value={value} onChange={setValue} />
+    <NumericInput 
+      style={{ width: 120, color: "black" }}
+      value={value}
+      onChange={setValue}
+      article_id={article_id}
+      palette_code={palette_code}
+    />
   )
 }
 export default ArticleQuantityInput

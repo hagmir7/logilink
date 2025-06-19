@@ -10,21 +10,12 @@ const EmplacementModal = ({
   setSelectedEmplacement,
   handleOk,
   parseEmplacement,
-  getEmplacementStatus
+
 }) => {
   const emplacementData = parseEmplacement(selectedEmplacement)
-  const status = getEmplacementStatus(selectedEmplacement)?.status || ''
   const [emplacement, setEmplacement] = useState(null)
   const [loading, setLoading] = useState(false);
 
-  const statusClass =
-    status === 'occupied'
-      ? 'bg-red-100 text-red-800'
-      : status === 'available'
-      ? 'bg-green-100 text-green-800'
-      : status === 'maintenance'
-      ? 'bg-yellow-100 text-yellow-800'
-      : 'bg-blue-100 text-blue-800'
 
 
 
@@ -148,7 +139,7 @@ const EmplacementModal = ({
 
             <div className='flex items-center justify-center'>
               <span
-                className={`inline-block px-4 py-2 rounded-full text-sm font-medium ${statusClass}`}
+                className={`inline-block px-4 py-2 rounded-full text-sm font-medium`}
               >
                 {status.charAt(0).toUpperCase() + status.slice(1)}
               </span>

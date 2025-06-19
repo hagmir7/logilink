@@ -1,6 +1,9 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom'
 import ArticleQuantityInput from './ArticleQuantityInput';
+import { Button, message, Popconfirm } from 'antd';
+import { CircleCheck, Delete, Edit, Trash } from 'lucide-react';
+import { api } from '../../utils/api';
 
 export default function PaletteArticleCard({palette}) {
     const navigate = useNavigate();
@@ -17,6 +20,16 @@ export default function PaletteArticleCard({palette}) {
         console.error('Error navigating to article:', error)
       }
     }
+
+  const handleDelete = async (article_code)=>{
+     try {
+        await api.delete(`palettes/${palette.code}/article/${article_code}/delete`)
+        message.success("Article supprimé avec succès")
+      } catch (error) {
+         console.error("Error supprimé de l'article:", error)
+         message.error(error?.response?.data?.message, 5)
+      }
+  }
   return (
     <div className='overflow-hidden rounded-lg border border-gray-200'>
       <div className='overflow-x-auto'>
@@ -35,33 +48,26 @@ export default function PaletteArticleCard({palette}) {
               <th className='px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'>
                 Couleur
               </th>
+               <th className='px-4 py-3 text-left text-xs font-semibold text-gray-700 uppercase tracking-wider'>
+                Actions
+              </th>
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-100'>
             {palette.articles.map((article, index) => (
               <tr
-                onClick={() => handleShow(article.code)}
                 key={article.code || `${palette.code}-${index}`}
                 className='hover:bg-blue-50 transition-all duration-200 hover:shadow-sm'
               >
-                <td className='px-4 py-4 whitespace-nowrap'>
-                  <span className='text-sm font-mono font-medium text-gray-900 bg-gray-100 px-2 py-1 rounded'>
+                <td className='px-4 py-4 whitespace-nowrap w-full' onClick={() => handleShow(article.code)}>
+                  <span className='text-sm font-mono font-medium text-gray-900 bg-gray-100 px-2 py-1 rounded border border-gray-300'>
                     {article.code || 'N/A'}
                   </span>
                 </td>
-                <td className='px-4 py-4 whitespace-nowrap'>
+                <td className='px-4 py-4 whitespace-nowrap w-full' onClick={() => handleShow(article.code)}>
                   <span className='text-sm text-gray-900 font-medium'>
                     {article.name || 'Sans nom'}
                   </span>
-                </td>
-                <td className='px-4 py-4 whitespace-nowrap'>
-                  {/* <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200'>
-                    {article.pivot?.quantity || 0}
-                  </span> */}
-                  <ArticleQuantityInput
-                    defaultValue={article.pivot?.quantity || 0}
-                    code={article?.code}
-                  />
                 </td>
                 <td className='px-4 py-4 whitespace-nowrap'>
                   <div className='flex items-center gap-3'>
@@ -70,6 +76,28 @@ export default function PaletteArticleCard({palette}) {
                     </span>
                   </div>
                 </td>
+                <td className='px-4 py-4 whitespace-nowrap'>
+                  {/* <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-100 text-blue-800 border border-blue-200'>
+                    {article.pivot?.quantity || 0}
+                  </span> */}
+                  <ArticleQuantityInput
+                    defaultValue={article.pivot?.quantity || 0}
+                    article_id={article?.id}
+                    palette_code={palette?.code}
+                  />
+                </td>
+
+                <td className='px-4 py-4 flex gap-2'>
+                  <Popconfirm
+                    title="Êtes-vous sûr de vouloir supprimer ?"
+                    okText="Oui"
+                    cancelText="Non"
+                    onConfirm={()=> handleDelete(article.id)} // Replace with your delete function
+                  >
+                    <Button danger icon={<Trash size={15} />} />
+                  </Popconfirm>
+                </td>
+                
               </tr>
             ))}
           </tbody>
