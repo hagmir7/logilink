@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Package, Search, Filter, MapPin, Grid, List } from 'lucide-react';
+import { Package, Search, MapPin, Grid } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-import { message, Modal, Select } from 'antd';
+import { message, Select } from 'antd';
 import { api } from '../utils/api';
 import Spinner from '../components/ui/Spinner';
 import EmplacementModal from '../components/ui/EmplacementModal';

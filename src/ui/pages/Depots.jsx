@@ -1,9 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api';
-import { Button, message, Tag } from 'antd';
+import { Button, message, Popconfirm, Tag } from 'antd';
 import { Edit, PlusCircle, Trash, View } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Spinner from '../components/ui/Spinner';
+import DepotForm from '../components/DepotForm';
 
 export default function Depots() {
 
@@ -28,16 +29,24 @@ export default function Depots() {
       }
     }
 
+
+  const deleteDepot = async (code) =>{
+    try {
+      await api.delete(`depots/delete/${code}`);
+      message.success('Dépôt supprimé avec succès');
+    } catch (error) {
+      message.error(error?.response?.data?.message);
+      console.error(error);
+    }
+  }
+
   return (
     <div className='w-full '>
       <div className='flex justify-between mb-1 p-2 md:p-4 md:pb-0'>
-        <h2 className='text-xl font-semibold text-gray-800'>
-          Module de gestion des dépôts
+        <h2 className='text-md md:text-xl font-semibold text-gray-800'>
+          Gestion des dépôts
         </h2>
-        <Button size='large' className='flex'>
-          <PlusCircle size={20} />
-          <span className='text-md'>Créer</span>
-        </Button>
+        <DepotForm />
       </div>
       {/* Desktop Table View */}
       <div className='overflow-x-auto'>
@@ -89,9 +98,15 @@ export default function Depots() {
                   </Link>
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap flex gap-3'>
-                  <Button>
-                    <Trash size={15} />
-                  </Button>
+                  <Popconfirm
+                    title={`Supprimer le dépôt ${data.code}`}
+                    description='Êtes-vous sûr de vouloir supprimer'
+                    onConfirm={() => deleteDepot(data.id)}
+                  >
+                    <Button>
+                      <Trash size={15} />
+                    </Button>
+                  </Popconfirm>
 
                   <Link to={`/depots/view/${data.id}`}>
                     <Button>
@@ -99,10 +114,9 @@ export default function Depots() {
                     </Button>
                   </Link>
 
-
-                  <Button>
+                  {/* <Button>
                     <Edit size={15} />
-                  </Button>
+                  </Button> */}
                 </td>
               </tr>
             ))}

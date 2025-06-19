@@ -2,7 +2,7 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom'
 import ArticleQuantityInput from './ArticleQuantityInput';
 import { Button, message, Popconfirm } from 'antd';
-import { CircleCheck, Delete, Edit, Trash } from 'lucide-react';
+import { Trash } from 'lucide-react';
 import { api } from '../../utils/api';
 
 export default function PaletteArticleCard({palette}) {

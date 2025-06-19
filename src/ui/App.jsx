@@ -35,6 +35,7 @@ function App() {
     <>
       <Routes>
         <Route path='/login' element={<Login />} />
+        <Route path='articles/:id' element={<ViewArticle />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='palette/controle/:code' element={<PaletteControle />} />
@@ -55,14 +56,13 @@ function App() {
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
-          
 
           <Route path='inventories' element={<InventroyList />} />
           <Route path='inventories/in/:id' element={<InventoryMovement />} />
           <Route path='inventories/:id' element={<ViewInventory />} />
           <Route path='depots' element={<Depots />} />
           <Route path='depots/view/:id' element={<DepotEmplacement />} />
-          <Route path="articles/:id" element={<ViewArticle />} />
+
           <Route path='depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
         </Route>
