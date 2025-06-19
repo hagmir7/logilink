@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType, locale } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, DatePicker } from 'antd'
+import { Button, Checkbox, DatePicker, message, Tag } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
@@ -21,7 +21,6 @@ function Montage() {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
-
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -55,9 +54,16 @@ function Montage() {
       lines: selected,
     }
     setSelected([]);
-    const response = await api.post('docentetes/start', data)
-    console.log(response)
-    fetchData()
+    try {
+      await api.post('docentetes/start', data)
+      fetchData()
+      message.success('Date modifiée avec succès')
+    } catch (error) {
+      console.error(error);
+      message.error(error?.response?.data?.message)
+    }
+    
+    
   }
 
   const complation = async () => {
@@ -66,11 +72,17 @@ function Montage() {
     const data = {
       lines: selected,
     }
+    try {
+      await api.post('docentetes/complation', data)
+      setComplationSpin(false)
+      fetchData()
+      message.success('Articles validés avec succès')
+    } catch (error) {
+      console.error(error);
+      message.error(error?.response?.data?.message)
+    }
 
-    const response = await api.post('docentetes/complation', data)
-    console.log(response)
-    setComplationSpin(false)
-    fetchData()
+   
   }
 
   const dateFormat = (date) => {
@@ -94,15 +106,17 @@ function Montage() {
               : 'Chargement...'}
           </h1>
         </div>
-        <Button onClick={fetchData}>
-          {loading ? (
-            <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
-          ) : (
-            <RefreshCcw className='h-4 w-4 mr-2' />
-          )}
-          Rafraîchir
-        </Button>
-         <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+        <div className='flex gap-2'>
+          <Button onClick={fetchData} size='large'>
+            {loading ? (
+              <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
+            ) : (
+              <RefreshCcw className='h-4 w-4 mr-2' />
+            )}
+            Rafraîchir
+          </Button>
+          <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+        </div>
       </div>
 
       {/* Document Info */}
@@ -142,20 +156,21 @@ function Montage() {
             locale={locale}
             translate='y'
             lang='fr'
+            size="large"
             className='border-2'
             placeholder='Date de livraison'
             // dateFormat='dd/MM/yyyy'
           />
         </div>
         <div className='flex gap-3'>
-          <Button onClick={complation} loading={complationSpin}>
+          <Button onClick={complation} size="large" color="green" variant="solid" loading={complationSpin}>
             Validation <ArrowRight size={18} />
           </Button>
         </div>
       </div>
 
       {/* Desktop Table */}
-      <div className='hidden md:block overflow-x-auto'>
+      <div className='overflow-x-auto'>
         <Table>
           <Thead>
             <Tr>
@@ -215,29 +230,37 @@ function Montage() {
                   <Td> {item.AR_Ref || '__'}</Td>
 
                   <Td>
-                    {item.line?.complation_date
+                    <Tag> {item.line?.complation_date
                       ? dateFormat(item.line.complation_date)
-                      : '__'}
+                      : '__'}</Tag>
                   </Td>
 
-                  <Td className='px-6 py-4 whitespace-nowrap'>
-                    <div className='text-sm text-gray-500'>
+                 <Td>
+                    <div className='space-y-1'>
+                     <div className='text-sm text-gray-800'>
                       H:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Hauteur : item.Hauteur
-                      ) || '__'}
+                      {item.Hauteur > 0 ? (
+                        <strong>{Math.floor(item.Hauteur)}</strong>
+                      ) : (
+                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                      )}
                     </div>
-                    <div className='text-sm text-gray-500'>
+                       <div className='text-sm text-gray-800'>
                       L:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Largeur : item.Largeur
-                      ) || '__'}
+                      <strong>
+                        {Math.floor(
+                          item.Largeur ? item.Largeur : item?.article?.Largeur
+                        ) || '__'}
+                      </strong>
                     </div>
-                    <div className='text-sm text-gray-500'>
-                      P:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Profondeur : item.Profondeur
-                      ) || '__'}
+                      <div className='text-sm text-gray-600'>
+                        <span className='font-medium'>P:</span>{' '}
+                        <span className='font-bold'>
+                          <span className='font-bold  text-gray-800'>
+                            {Math.floor(item.Profondeur ? item.Profondeur : item.article?.Profonduer) || '__'}
+                          </span>
+                        </span>
+                      </div>
                     </div>
                   </Td>
 
@@ -259,7 +282,7 @@ function Montage() {
                     </div>
                   </Td>
                   <Td className='px-6 py-4 whitespace-nowrap'>
-                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                    <span className='px-3 py-1 border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
                       {Math.floor(item.DL_Qte)}
                     </span>
                   </Td>

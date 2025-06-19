@@ -6,6 +6,7 @@ import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../contexts/AuthContext'
 import { categories, uppercaseFirst } from '../utils/config'
 import { useParams } from 'react-router-dom'
+import ContextMenu from '../components/ui/RightClick'
 
 // Utility to format date (if needed elsewhere)
 const formatDate = (date) => {
@@ -63,9 +64,6 @@ function InventoryArticles() {
             size='middle'
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-
-
-
           <Button onClick={fetchData} size='middle'>
             {loading ? (
               <Loader2 className='animate-spin text-blue-500' size={17} />
