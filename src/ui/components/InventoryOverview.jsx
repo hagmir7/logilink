@@ -42,37 +42,37 @@ const InventoryOverview = () => {
   const stats = [
     {
       title: 'Stock total',
-      value: data.quantity,
+      value: parseFloat(data.quantity.toFixed(3)),
       icon: Box,
       color: 'bg-green-300'
     },
     {
       title: 'Valeur du stock',
-      value: data.value,
+      value: parseFloat(data.value.toFixed(3)),
       icon: CircleDollarSign,
       color: 'bg-blue-300'
     },
     {
       title: 'Total des entrées',
-      value: data.quantity_in,
+      value: parseFloat(data.quantity_in.toFixed(3)),
       icon: ArrowDown,
       color: 'bg-purple-300'
     },
     {
       title: 'Valeur des entrées',
-      value: data.value_in,
+      value: parseFloat(data.value_in.toFixed(3)),
       icon: BanknoteArrowDown,
       color: 'bg-orange-300'
     },
     {
       title: 'Total des sorties',
-      value: data.quantity_out,
+      value: parseFloat(data.quantity_out.toFixed(3)),
       icon: ArrowUp,
       color: 'bg-red-300'
     },
     {
       title: 'Valeur des sorties',
-      value: data.value_out,
+      value: parseFloat(data.value_out.toFixed(3)),
       icon: BanknoteArrowUp,
       color: 'bg-emerald-300'
     }

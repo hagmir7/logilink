@@ -17,7 +17,7 @@ import PaletteControle from './pages/PaletteControle'
 import Progress from './pages/Progress'
 import Shipping from './pages/Shipping'
 import Chargement from './pages/Chargement'
-import InvetroryList from './pages/InvetroryList'
+import InventroyList from './pages/InventoryList'
 import InventoryMovement from './pages/InventoryMovement'
 import Depots from './pages/Depots'
 import Article from './pages/Article'
@@ -57,7 +57,7 @@ function App() {
           <Route path='chargement/:id' element={<Chargement />} />
           
 
-          <Route path='inventories' element={<InvetroryList />} />
+          <Route path='inventories' element={<InventroyList />} />
           <Route path='inventories/in/:id' element={<InventoryMovement />} />
           <Route path='inventories/:id' element={<ViewInventory />} />
           <Route path='depots' element={<Depots />} />
