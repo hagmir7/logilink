@@ -1,5 +1,5 @@
 // EmplacementModal.jsx
-import { Collapse, message, Modal, Space, Spin, Skeleton } from 'antd'
+import { Collapse, message, Modal, Space, Skeleton } from 'antd'
 import { api } from '../../utils/api'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import PaletteArticleCard from './PaletteArticleCard'
@@ -24,12 +24,10 @@ const EmplacementModal = ({
     setLoading(true)
     try {
       const response = await api.get(`emplacement/${selectedEmplacement}`)
-      console.log(response.data)
       setEmplacement(response.data)
     } catch (error) {
-      message.error(
-        error?.response?.data?.message || 'Erreur lors du chargement'
-      )
+      message.error(error?.response?.data?.message || 'Erreur lors du chargement')
+      console.error(error);
     } finally {
       setLoading(false)
     }

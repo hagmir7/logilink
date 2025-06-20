@@ -24,7 +24,6 @@ export function isDev() {
 
 
 export function validateEventFrame(frame) {
-    console.log(frame.url);
     if (isDev() && new URL(frame.url).host === 'localhost:5123') {
         return;
     }

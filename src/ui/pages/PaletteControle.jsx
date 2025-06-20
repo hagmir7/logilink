@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
-import { Badge, Spin } from 'antd'
+import { Badge, message, Spin } from 'antd'
 import { Circle, CircleCheckBig, Loader } from 'lucide-react'
 import { getExped, getStatus, uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
@@ -21,10 +21,9 @@ export default function PaletteControle() {
       const { data } = await api.get(`palettes/${code}`)
       setPalette(data)
       setDocument(data.document)
-      // console.log(data);
-      
     } catch (error) {
       console.error('Failed to fetch palette:', error)
+      message.error(error.response.data.message)
     }
   }
 

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { api } from '../utils/api';
+import { message } from 'antd';
 
 function RoleForm({ onClose }) {
 
@@ -12,11 +13,14 @@ function RoleForm({ onClose }) {
     const handleSubmit = async (e) => {
         setLoading(true)
         e.preventDefault();
-        const response = await api.post('roles', data);
-        console.log(response.data);
-
-        setLoading(false)
-        setData({ name: "" });
+        try {
+            await api.post('roles', data);
+            setLoading(false)
+            setData({ name: "" });
+        } catch (error) {
+            message.error(error?.response?.data?.message);
+            console.error(error);
+        }
 
     }
 

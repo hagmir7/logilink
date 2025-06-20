@@ -21,7 +21,6 @@ function DocumentPalettes() {
   const fetchData = async () => {
     try {
       const { data } = await api.get(`palettes/document/${piece}`);
-      console.log(data);
       setDocument(data);
     } catch (err) {
       console.error(err);

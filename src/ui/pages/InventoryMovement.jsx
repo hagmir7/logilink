@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useCallback } from 'react'
+import React, { useEffect, useState, useCallback, useRef } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select } from 'antd'
-import { Building2, Package, Hash, AlertCircle } from 'lucide-react'
+import { Building2, Package, Hash, AlertCircle, Menu } from 'lucide-react'
 import { debounce } from 'lodash'
 
 export default function InventoryMovement() {
@@ -24,7 +24,12 @@ export default function InventoryMovement() {
   const [conditionList, setConditionList] = useState([])
   const [totalQuantity, setTotalQuantity] = useState(0)
 
-  // Reset related states when article changes
+  const articleInput = useRef();
+  const quantityInput = useRef();
+  const conditionInput = useRef();
+  const emplacemenInput = useRef();
+
+
   useEffect(() => {
     if (!articleCode) {
       setArticleData(null)
@@ -34,7 +39,7 @@ export default function InventoryMovement() {
     }
   }, [articleCode])
 
-  // Calculate total quantity when inputs change
+
   useEffect(() => {
     if (quantity && condition) {
       setTotalQuantity(Number(quantity) * condition)
@@ -54,6 +59,7 @@ export default function InventoryMovement() {
       try {
         const response = await api.get(`inventory/emplacement/${code}`)
         setEmplacementData(response.data)
+        articleInput.current?.focus();
         setEmplacementError('')
       } catch (error) {
         setEmplacementError(error.response?.data?.message || 'Emplacement introuvable')
@@ -61,7 +67,7 @@ export default function InventoryMovement() {
         setLoadingEmplacement(false)
       }
     }, 500),
-    [] // Only created once
+    []
   )
 
   const fetchArticleData = useCallback(
@@ -72,6 +78,7 @@ export default function InventoryMovement() {
       setArticleData(null)
       try {
         const response = await api.get(`inventory/article/${code}`)
+        quantityInput.current?.focus();
         setArticleData(response.data)
         setArticleError('')
       } catch (error) {
@@ -80,22 +87,26 @@ export default function InventoryMovement() {
         setLoadingArticle(false)
       }
     }, 500),
-    [] // Only created once
+    [] 
   )
 
   const getConditionOptions = () => {
     if (!articleData) return []
     
     if (type === "Palette" && articleData.palette_condition) {
+      conditionInput?.current?.focus();
       return articleData.palette_condition.split('|').map(cond => ({
         label: cond,
         value: Number(cond)
       }))
+      
     } else if (articleData.condition) {
+      conditionInput?.current?.focus();
       return articleData.condition.split('|').map(cond => ({
         label: cond,
         value: Number(cond)
       }))
+      
     }
     return []
   }
@@ -107,7 +118,6 @@ export default function InventoryMovement() {
   }, [articleData, type])
 
   const handleSubmit = () => {
-    // Validate required fields
     if (!emplacementData) {
       setEmplacementError('Veuillez sélectionner un emplacement valide')
       return
@@ -123,7 +133,6 @@ export default function InventoryMovement() {
       return
     }
     
-    // Validate condition if needed
     if ((type === "Carton" || type === "Palette")  && !condition) {
       message.error('Veuillez sélectionner une condition')
       return
@@ -154,7 +163,7 @@ export default function InventoryMovement() {
       setType(null)
       setCondition(null)
       setTotalQuantity(0)
-
+      emplacemenInput.current.focus();
       message.success("Opération effectuée avec succès")
     } catch (error) {
       console.error(error);
@@ -182,6 +191,7 @@ export default function InventoryMovement() {
   }
 
   const handleTypeChange = (e) => {
+    quantityInput.current.focus();
     setType(e.target.value)
     setCondition(null) // Reset condition when type changes
   }
@@ -208,6 +218,7 @@ export default function InventoryMovement() {
           placeholder='Saisir le code emplacement'
           autoFocus
           size='large'
+          ref={emplacemenInput}
           value={emplacementCode}
           onChange={changeEmplacement}
           allowClear={true}
@@ -236,6 +247,7 @@ export default function InventoryMovement() {
           size='large'
           value={articleCode}
           onChange={changeArticle}
+          ref={articleInput}
           allowClear={true}
           suffix={loadingArticle ? <span className='text-gray-400'>Chargement...</span> : null}
         />
@@ -292,8 +304,12 @@ export default function InventoryMovement() {
             placeholder='Sélectionner une condition'
             size='large'
             className='w-full'
+            ref={conditionInput}
             value={condition}
-            onChange={setCondition}
+            onChange={(value) => {
+              setCondition(value);
+              quantityInput.current?.focus();
+            }}
             options={conditionList}
             allowClear={true}
           />
@@ -307,6 +323,7 @@ export default function InventoryMovement() {
           placeholder='Saisir la quantité'
           size='large'
           type='number'
+          ref={quantityInput}
           min={0.1}
           allowClear={true}
           value={quantity}
@@ -331,8 +348,16 @@ export default function InventoryMovement() {
         >
           Valider le mouvement
         </Button>
+        <div className='mt-28'>
+          <Button className='w-full' size='large'>
+            <Menu />
+            Liste des mouvements
+          </Button>
       </div>
 
+      </div>
+
+      
       {/* Confirmation Modal */}
       <Modal
         title={(

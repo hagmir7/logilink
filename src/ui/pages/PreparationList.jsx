@@ -1,4 +1,4 @@
-import { RefreshCcw, Clipboard, ArrowRight, Loader2 } from 'lucide-react';
+import { RefreshCcw, ArrowRight, Loader2 } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getExped, getDocumentType } from '../utils/config';
@@ -9,21 +9,16 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table';
 import SkeletonTable from '../components/ui/SkeletonTable';
 import EmptyTable from '../components/ui/EmptyTable';
 import { QRCode } from 'antd';
-import { useAuth } from '../contexts/AuthContext';
 
 function PreparationList() {
   const { id } = useParams();
   const [data, setData] = useState({ docentete: {}, doclignes: [] });
   const [loading, setLoading] = useState(false);
-  const {roles} = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
-      console.log(response.data);
-      
-
       setData(response.data)
       setLoading(false)
     } catch (err) {
@@ -105,7 +100,7 @@ function PreparationList() {
         </h2>
 
         <div className='flex gap-3'>
-          <Button size='large' href={`#/preparation/${id}`} className='btn'>
+          <Button size='large' color='green' variant='solid' href={`#/preparation/${id}`} className='btn'>
             Preparation <ArrowRight size={18} />{' '}
           </Button>
         </div>

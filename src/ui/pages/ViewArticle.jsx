@@ -185,22 +185,11 @@ const ViewArticle = () => {
 
       {/* Boutons d'action */}
       <div className='mt-8 flex justify-end space-x-3'>
-        <button
-          onClick={() => {
-            console.log('Réinitialisation cliquée')
-          }}
-          className='px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500'
+        <button className='px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500'
         >
           Réinitialiser
         </button>
-        <button
-          onClick={() => {
-            console.log('Données enregistrées :', productData)
-            alert(
-              'Données enregistrées ! (Consultez la console pour les détails)'
-            )
-          }}
-          className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
+        <button className='px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500'
         >
           Enregistrer
         </button>

@@ -14,6 +14,7 @@ import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
 import BCScanner from '../components/BCScanner'
+import { message } from 'antd'
 
 export default function Preparation() {
   const [article, setArticle] = useState({
@@ -50,9 +51,6 @@ export default function Preparation() {
     setLoadingStates((prev) => ({ ...prev, [key]: value }))
   }
 
-  const openNotificationWithIcon = (type) => {
-    console.log(`${type}: Notification`)
-  }
 
   const goNext = () => {
     const nextIndex =
@@ -80,12 +78,11 @@ export default function Preparation() {
       })
 
       setPalette(data.palette)
-      
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
     } catch (err) {
       console.error('Error creating palette:', err)
-      openNotificationWithIcon('error')
+      message.error(err?.response?.data?.message)
     } finally {
       setLoading('createPalette', false)
     }

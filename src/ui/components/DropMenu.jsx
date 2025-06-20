@@ -1,4 +1,3 @@
-import React from 'react';
 import { UserOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Avatar } from 'antd';
 import { ArrowRightCircle, Settings, User2 } from 'lucide-react';
@@ -31,18 +30,18 @@ const DropMenu = () => {
             label: user ? user.full_name : "INTERCOCINA",
             disabled: true,
         },
-        {
-            key: '2',
-            label: 'Profile',
-            icon: <User2 />,
-            extra: '⌘P',
-        },
-        {
-            key: '3',
-            label: 'Paramètres',
-            icon: <Settings />,
-            extra: '⌘B',
-        },
+        // {
+        //     key: '2',
+        //     label: 'Profile',
+        //     icon: <User2 />,
+        //     extra: '⌘P',
+        // },
+        // {
+        //     key: '3',
+        //     label: 'Paramètres',
+        //     icon: <Settings />,
+        //     extra: '⌘B',
+        // },
         {
             key: '4',
             label: 'Déconnexion',

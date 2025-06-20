@@ -58,8 +58,6 @@ function Commercial() {
       if (roles('commercial')) {
         setSelected(data.doclignes.map((item) => item.cbMarq))
       } else {
-        console.log(data.docentete);
-
         setSelected(
           data.doclignes.map((item) => item.line.id)
         )

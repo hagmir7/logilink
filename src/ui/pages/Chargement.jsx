@@ -47,7 +47,6 @@ export default function Chargement() {
   const loadPalettes = async () => {
     try {
       const response = await api.get(`documents/${id}/delivered-palettes`);
-      console.log(response);
       setDocument(response.data)
       setPalettes(response.data?.palettes || [])
     } catch (error) {
@@ -73,9 +72,8 @@ export default function Chargement() {
         articles: data.lines_count,
         quantity: data.quantity,
       })
-      console.log(data)
-
     } catch (err) {
+      message.error(err.response.data.message)
       console.error('Error scanning:', err)
     } finally {
       setLoading('scan', false)

@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType, locale } from '../utils/config'
 import { useParams } from 'react-router-dom'
 import { Button, Checkbox, DatePicker, message, Tag } from 'antd'
-import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { RefreshCcw, ArrowRight } from 'lucide-react'
@@ -17,19 +16,18 @@ function Fabrication() {
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState([])
   const [complationSpin, setComplationSpin] = useState(false)
-  const { roles } = useAuth()
   const currentItems = data?.doclignes || []
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const response = await api.get(`docentete/${id}`)
-
       setData(response.data)
       setLoading(false)
-      message.success("Fabrication terminée avec succès", 6);
+     
     } catch (err) {
       setLoading(false)
+      message.error(err?.response?.data?.message);
       console.error('Failed to fetch data:', err)
     }
   }
@@ -58,22 +56,31 @@ function Fabrication() {
       lines: selected,
     }
     setSelected([]);
-    const response = await api.post('docentetes/start', data);
-    console.log(response);
-    fetchData();
+    try {
+      await api.post('docentetes/start', data)
+      message.success("Date modifiée avec succès")
+      fetchData();
+    } catch (error) {
+      message.error(error?.response?.data?.message);
+      console.error(error)
+      setComplationSpin(false)
+    }
   }
 
   const complation = async () => {
     if (selected.length === 0) return
-    setComplationSpin(true)
-    const data = {
-      lines: selected,
-    }
 
-    const response = await api.post('docentetes/complation', data)
-    console.log(response)
-    setComplationSpin(false)
-    fetchData()
+    setComplationSpin(true)
+    try {
+      await api.post('docentetes/complation', {lines: selected})
+      message.success("Fabrication terminée avec succès", 6);
+      setComplationSpin(false)
+      fetchData()
+    } catch (error) {
+      console.error(error)
+      message.error(error?.response?.data?.message);
+      setComplationSpin(false)
+    }
   }
 
   const dateFormat = (date) => {
@@ -88,7 +95,7 @@ function Fabrication() {
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
-      <div className='flex justify-between items-center mb-6'>
+     <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-xl font-bold text-gray-800'>
             {data.docentete.DO_Piece
@@ -96,15 +103,17 @@ function Fabrication() {
               : 'Chargement...'}
           </h1>
         </div>
-        <Button onClick={fetchData}>
-          {loading ? (
-            <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
-          ) : (
-            <RefreshCcw className='h-4 w-4 mr-2' />
-          )}
-          Rafraîchir
-        </Button>
-        <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+        <div className='flex gap-2'>
+          <Button onClick={fetchData} size='large'>
+            {loading ? (
+              <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
+            ) : (
+              <RefreshCcw className='h-4 w-4 mr-2' />
+            )}
+            Rafraîchir
+          </Button>
+          <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+        </div>
       </div>
 
       {/* Document Info */}
@@ -146,11 +155,11 @@ function Fabrication() {
             lang='fr'
             className='border-2'
             placeholder='Date de livraison'
-            // dateFormat='dd/MM/yyyy'
+            size="large"
           />
         </div>
         <div className='flex gap-3'>
-          <Button onClick={complation} loading={complationSpin}>
+          <Button onClick={complation} size="large" color="green" variant="solid" loading={complationSpin}>
             Validation <ArrowRight size={18} />
           </Button>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button, Input, Tooltip, Space, message } from 'antd'
 import { CircleCheck } from 'lucide-react'
 import { api } from '../../utils/api'

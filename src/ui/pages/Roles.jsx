@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useEffect, useState } from 'react'
+import { Link } from 'react-router-dom'
 import CModal from '../components/ui/CModal'
 import { Loader2, PlusCircle, RefreshCcw } from 'lucide-react'
 import { api } from '../utils/api'
@@ -47,8 +47,6 @@ const Roles = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
 
-  const navigate = useNavigate()
-
   useEffect(() => {
     getData()
   }, [])
@@ -57,20 +55,11 @@ const Roles = () => {
     setLoading(true)
     const respones = await api.get('roles')
     if (respones.status !== 200) {
-      console.log(respones)
       setLoading(false)
     }
     setData(respones.data)
     setLoading(false)
   }
-
-  // if (loading) {
-  //   return (
-  //     <div className='flex justify-center items-center h-64'>
-  //       <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white'></div>
-  //     </div>
-  //   )
-  // }
 
   return (
     <div className='flex flex-col'>

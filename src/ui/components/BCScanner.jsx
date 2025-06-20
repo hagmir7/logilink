@@ -7,7 +7,6 @@ const BCScanner = ({ onScan }) => {
   const [isScanning, setIsScanning] = useState(true);
   const [error, setError] = useState(null);
 
-  // Reset scanner state when opening
   useEffect(() => {
     if (showScanner) {
       setIsScanning(true);
@@ -23,13 +22,12 @@ const BCScanner = ({ onScan }) => {
     }
 
     if (result && isScanning) {
-      setIsScanning(false); // Prevent multiple scans
+      setIsScanning(false); 
       
       let scanValue = '';
       try {
         const text = result.text;
-        
-        // Handle JSON-formatted QR codes
+      
         if (
           typeof text === 'string' &&
           (text.startsWith('[') || text.startsWith('{'))

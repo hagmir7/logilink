@@ -25,6 +25,7 @@ import ViewInventory from './pages/ViewInventory'
 import ViewDepot from './pages/ViewDepot'
 import ViewArticle from './pages/ViewArticle'
 import DepotEmplacement from './pages/DepotEmplacement'
+import ScrollToTop from './components/ScrollToTop'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -33,10 +34,13 @@ const NotFound = () => {
 function App() {
   return (
     <>
+    <ScrollToTop />
       <Routes>
+      
         <Route path='/login' element={<Login />} />
         <Route path='articles/:id' element={<ViewArticle />} />
         <Route element={<MainLayout />}>
+        
           <Route path='/' element={<Document />} />
           <Route path='palette/controle/:code' element={<PaletteControle />} />
           <Route path='/users' element={<Users />} />

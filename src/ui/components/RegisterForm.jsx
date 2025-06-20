@@ -35,7 +35,6 @@ const RegisterForm = () => {
                 setErrorsMessage(response.data.errors);
             } else {
                 setMessage('Utilisateur enregistré avec succès !');
-                // Reset form after successful registration
                 setFormData({
                     full_name: '',
                     name: '',
@@ -46,7 +45,7 @@ const RegisterForm = () => {
                 });
             }
         } catch (err) {
-            console.log(err);
+            console.error(err);
             setIsError(true);
             setMessage("Échec de l'enregistrement");
         } finally {

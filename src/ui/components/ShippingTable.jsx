@@ -38,8 +38,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
 
 
   const handleChange = async (value, document_id) => {
-    console.log(value);
-    const response = api.post(`/documents/chargement/${document_id}`, {'user_id' : value});
+    api.post(`/documents/chargement/${document_id}`, {'user_id' : value});
     message.success('Agent attribué avec succès');
   };
 
@@ -64,7 +63,6 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
     return colorMap[expedit] || 'bg-gray-100 text-gray-800'
   }
 
-  console.log(documents);
   
 
   return (

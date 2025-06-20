@@ -54,9 +54,6 @@ function Controller() {
       const company = companies.find(
         (item) => item.id === Number(user?.company_id)
       )
-
-      console.log(response.data)
-
       setDocumentCompany(company || {})
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -68,7 +65,6 @@ function Controller() {
   useEffect(() => {
     fetchData()
   }, [id])
-  console.log(documentCompany)
 
   const currentItems = data?.doclignes || []
 
@@ -95,8 +91,6 @@ function Controller() {
 
   const transfer = async () => {
     setTransferSpin(true)
-    console.log(selectedRoles)
-
     if (selectedRoles && selected.length > 0) {
       setSelectedRoles(selectedRoles)
       const data = {
@@ -104,8 +98,6 @@ function Controller() {
         lines: selected,
       }
       const response = await api.post('docentete/transfer', data)
-      console.log(response)
-
       setSelectedRoles(null)
       setSelected([])
       fetchData()

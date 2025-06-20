@@ -1,10 +1,8 @@
-import React from 'react'
 import { Settings } from 'lucide-react'
-import { Empty, Tag } from 'antd'
+import { Tag } from 'antd'
 import { getExped } from '../utils/config'
 import Spinner from './ui/Spinner'
 
-// Mock utility functions for demo
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
