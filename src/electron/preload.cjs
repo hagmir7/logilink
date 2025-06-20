@@ -1,12 +1,11 @@
-// preload.js
-
 const { contextBridge, ipcRenderer } = require("electron");
 
 contextBridge.exposeInMainWorld("electron", {
-  login: (payload) => ipcRenderer.invoke("login", payload),
+  login: (payload) => ipcRenderer.invoke('login', payload),
   logout: () => ipcRenderer.invoke("logout"),
-  user: (payload) => ipcRenderer.invoke("user", payload),
-  print: () => ipcRenderer.send("print"),
+  user: (payload) => ipcRenderer.invoke('user', payload),
+  print: () => ipcRenderer.send('print'),
+  notifyPrintReady: () => ipcRenderer.send('print-ready'),
   openShow: (payload) => ipcRenderer.send('openShow', payload),
 
   ipcRenderer: {

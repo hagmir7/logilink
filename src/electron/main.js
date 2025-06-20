@@ -10,6 +10,7 @@ let showWindow;
 let mainWindow;
 let loginWindow;
 
+
 const createMainWindow = () => {
     const mainWindow = new BrowserWindow({
         title: "Production - INTERCOCINA",
@@ -104,6 +105,27 @@ app.on('activate', () => {
 
 
 
+ipcMain.on('openShow', async (event, preload) => {
+    
+    try {
+        if (!showWindow || showWindow.isDestroyed()) {
+            showWindow = createShowWindow(preload);
+        } else {
+            showWindow.show();
+        }
+
+        return { success: true };
+    } catch (error) {
+        console.error('Logout error:', error);
+        return { success: false, error: error.message };
+    }
+});
+
+
+
+// Print Window
+
+
 let printWindow;
 
 ipcMain.on('print', () => {
@@ -138,18 +160,6 @@ ipcMain.on("print-content", (event, htmlContent) => {
 });
 
 
-ipcMain.on('openShow', async (event, preload) => {
-    
-    try {
-        if (!showWindow || showWindow.isDestroyed()) {
-            showWindow = createShowWindow(preload);
-        } else {
-            showWindow.show();
-        }
 
-        return { success: true };
-    } catch (error) {
-        console.error('Logout error:', error);
-        return { success: false, error: error.message };
-    }
-});
+
+

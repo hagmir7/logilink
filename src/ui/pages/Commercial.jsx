@@ -33,7 +33,6 @@ function Commercial() {
       const response = await api.get(`docentete/${id}`)
 
       setData(response.data)
-      // console.log(response);
       
       setLoading(false)
     } catch (err) {
@@ -90,16 +89,13 @@ function Commercial() {
 
   const transfer = async () => {
     setTransferSpin(true)
-
     if (selectedCompany && selected.length > 0) {
       setSelectedCompany(selectedCompany)
       const data = {
         company: selectedCompany,
         lines: selected,
       }
-      const response = await api.post('docentete/transfer', data)
-      console.log(response)
-
+      await api.post('docentete/transfer', data)
       setSelectedCompany(null)
       setSelected([])
       fetchData()
@@ -118,11 +114,16 @@ function Commercial() {
 
 
   const reset = async () => {
-    const response = await api.get(`docentetes/reset/${id}`)
-    console.log(response);
-    message.success('Réinitialiser avec succès')
+    try {
+      await api.get(`docentetes/reset/${id}`)
+      message.success('Réinitialiser avec succès')
+      fetchData()
+    } catch (error) {
+      message.error(error?.response?.data?.message)
+      console.error(error);
+    }
   }
-  
+
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-6'>

@@ -82,28 +82,19 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                     )}
                   </div>
                 </td>
+
                 <td className='px-6 py-4 whitespace-nowrap'>
-                  {/* <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border bg-[${data?.document?.status?.color}]`}
-                  >
-                    {data?.document?.status?.color}
-                  </span> */}
-                  <Tag
-                    color={data?.document?.status?.color}
-                    className='text-xl'
-                  >
+                  <Tag color={data?.document?.status?.color} className='text-xl'>
                     {data?.document?.status?.name || 'En attente'}
                   </Tag>
                 </td>
+
                 <td className='px-6 py-4 whitespace-nowrap'>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(
-                      data.DO_Expedit
-                    )}`}
-                  >
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(data.DO_Expedit)}`}>
                     {getExped(data.DO_Expedit)}
                   </span>
                 </td>
+
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <span className='text-sm text-gray-900 font-medium'>
                     {data.DO_Tiers}
@@ -113,7 +104,7 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                   {data.DO_Ref}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {data.DO_Date}
+                  {formatDate(new Date(data.DO_Date)) }
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                   {formatDate(new Date(data.DO_DateLivr))}
