@@ -101,7 +101,6 @@ export default function Preparation() {
 
     try {
       const { data } = await api.post('palettes/scan', payload)
-
       const height = Math.floor(data.docligne?.Hauteur) || Math.floor(data.article_stock?.height) || false;
       const width = Math.floor(data.docligne.Largeur) || Math.floor(data.article_stock?.width) || false
 
@@ -116,7 +115,7 @@ export default function Preparation() {
         profondeur: data.article_stock?.depth ?? '',
         episseur: data.article_stock?.thickness || '',
 
-        chant: data.docligne?.Chant || data.article_stock.chant,
+        chant: data.docligne?.Chant || data.article_stock?.chant,
         qte: data.quantity ? Math.floor(data.quantity) : 0,
         color: data.article_stock?.color || '',
         height: height,
@@ -124,7 +123,7 @@ export default function Preparation() {
       })
     } catch (err) {
       console.error('Error scanning:', err)
-      openNotificationWithIcon('error')
+      message.error(err.response.data.message)
     } finally {
       setLoading('scan', false)
     }
@@ -318,7 +317,7 @@ export default function Preparation() {
                 </label>
                 <input
                   type='text'
-                  value={article.chant}
+                  value={article?.chant}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
                   placeholder='-'
@@ -481,7 +480,7 @@ export default function Preparation() {
                       <div className='text-xs md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
                         <div>Prof: <strong>{item.article_stock?.depth || 'N/A'}</strong></div>
                         <div>Ép: <strong>{item.article_stock?.thickness || 'N/A'}</strong></div>
-                        <div>Chant: <strong>{item.article_stock?.chant || 'N/A'}</strong></div>
+                        <div>Chant: <strong>{item?.article_stock?.chant || 'N/A'}</strong></div>
                       </div>
 
                       <button

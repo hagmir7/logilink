@@ -301,7 +301,7 @@ function Commercial() {
                           {Math.floor(
                             item.Profondeur
                               ? item.Profondeur
-                              : item.article?.Profonduer
+                              : item?.article?.Profonduer
                           ) || '__'}
                         </span>
                       </span>

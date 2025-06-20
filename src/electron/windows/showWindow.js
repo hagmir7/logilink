@@ -3,9 +3,9 @@ import path from "path";
 import { getPreloadPath, isDev } from '../util.js';
 
 let mainWindow;
-let childWindow; // Use different name for child window reference
+let childWindow;
 
-export const createShowWindow = (routeUrl) => { // Renamed parameter
+export const createShowWindow = (routeUrl) => { 
     if (childWindow) return childWindow;
 
     childWindow = new BrowserWindow({
@@ -21,6 +21,8 @@ export const createShowWindow = (routeUrl) => { // Renamed parameter
         }
     });
 
+    //childWindow.webContents.openDevTools()
+    childWindow.setMenu(null);
     if (isDev()) {
         childWindow.loadURL(`http://localhost:5123${routeUrl}`);
     } else {
@@ -29,8 +31,6 @@ export const createShowWindow = (routeUrl) => { // Renamed parameter
             { hash: routeUrl }
         );
     }
-
-    childWindow.setMenu(null);
 
     childWindow.on('closed', () => {
         childWindow = null;
