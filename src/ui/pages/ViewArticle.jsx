@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import { ArrowDownUp, ChartBar, Diamond, Info, Package, Ruler } from 'lucide-react'
-import { Input, Select, Tabs } from 'antd'
+import { Input, message, Select, Tabs } from 'antd'
 
 const ViewArticle = () => {
   const [activeKey, setActiveKey] = useState('1')
@@ -45,7 +45,12 @@ const ViewArticle = () => {
 
   const handleSave = async () => {
     try {
-      await api.put(`articles/${id}`, product);
+      try {
+        await api.put(`articles/update/${id}`, product)
+        message.success('Produit modifié avec succès.')
+      } catch (error) {
+        message.error(error.response.data.message);
+      }
     } catch (error) {
       console.error('Error saving article:', error);
     }
@@ -64,102 +69,151 @@ const ViewArticle = () => {
         </span>
       ),
       key: '1',
-      children: (<div className='px-3 grid grid-cols-2 gap-4'>
-        <div className='space-y-2'>
-          <label htmlFor='code' className='text-sm font-medium text-gray-700'>
-            Référence
-          </label>
-          <Input
-            id='code'
-            value={product.code}
-            placeholder='Référence'
-            readOnly
-            disabled
+      children: (
+        <div className='px-3 grid grid-cols-2 gap-4'>
+          <div className='space-y-2 col-span-2'>
+            <label
+              htmlFor='designation'
+              className='text-sm font-medium text-gray-700'
+            >
+              Désignation
+            </label>
+            <Input
+              onChange={(e) =>
+                setProduct({ ...product, description: e.target.value })
+              }
+              value={product.description}
+              placeholder='Entrer la désignation'
+            />
+          </div>
+          <div className='space-y-2'>
+            <label htmlFor='code' className='text-sm font-medium text-gray-700'>
+              Référence
+            </label>
+            <Input
+              id='code'
+              value={product.code}
+              placeholder='Référence'
+              readOnly
+              disabled
+            />
+          </div>
 
-          />
+          <div className='space-y-2'>
+            <label htmlFor='name' className='text-sm font-medium text-gray-700'>
+              Nom
+            </label>
+            <Input
+              onChange={(e) => setProduct({ ...product, name: e.target.value })}
+              value={product.name}
+              placeholder='Entrer le nom'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='color'
+              className='text-sm font-medium text-gray-700'
+            >
+              Couleur
+            </label>
+            <Input
+              onChange={(e) =>
+                setProduct({ ...product, color: e.target.value })
+              }
+              value={product.color}
+              placeholder='Sélectionner la couleur'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='chant'
+              className='text-sm font-medium text-gray-700'
+            >
+              Chant
+            </label>
+            <Input
+              value={product.chant}
+              max={10}
+              onChange={(e) =>
+                setProduct({ ...product, chant: e.target.value })
+              }
+              placeholder='Type de chant'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='gamme'
+              className='text-sm font-medium text-gray-700'
+            >
+              Gamme
+            </label>
+            <Input
+              value={product.gamme}
+              onChange={(e) =>
+                setProduct({ ...product, gamme: e.target.value })
+              }
+              placeholder='Sélectionner la gamme'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='price'
+              className='text-sm font-medium text-gray-700'
+            >
+              Prix de vente <span className='text-gray-500'>(MAD)</span>
+            </label>
+            <Input
+              value={product.price}
+              type='number'
+              onChange={(e) =>
+                setProduct({ ...product, price: e.target.value })
+              }
+              step='0.01'
+              placeholder='Ex: 125.50'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='famille'
+              className='text-sm font-medium text-gray-700'
+            >
+              Famille
+            </label>
+
+            <Select
+              className='w-full'
+              defaultValue={product.family_id}
+              onChange={(value) => setProduct({ ...product, family_id: value })}
+              placeholder='Catégorie du produit'
+              options={[
+                { value: 'jack', label: 'Jack' },
+                { value: 'lucy', label: 'Lucy' },
+                { value: 'Yiminghe', label: 'yiminghe' },
+                { value: 'disabled', label: 'Disabled', disabled: true },
+              ]}
+            />
+          </div>
+          <div className='space-y-2'>
+            <label
+              htmlFor='prix-vente'
+              className='text-sm font-medium text-gray-700'
+            >
+              Unité
+            </label>
+            <Input
+              max={20}
+              value={product.unit}
+              onChange={(e) => setProduct({ ...product, unit: e.target.value })}
+              placeholder='m, m², g, kg'
+            />
+          </div>
         </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='designation' className='text-sm font-medium text-gray-700'>
-            Désignation
-          </label>
-          <Input
-            onChange={(e) => setProduct({ ...product, description: e.target.value })}
-            value={product.description}
-            placeholder='Entrer la désignation'
-          />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='name' className='text-sm font-medium text-gray-700'>
-            Nom
-          </label>
-          <Input
-            onChange={(e) => setProduct({ ...product, name: e.target.value })}
-            value={product.name}
-            placeholder='Entrer le nom'
-          />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='color' className='text-sm font-medium text-gray-700'>
-            Couleur
-          </label>
-          <Input onChange={(e) => setProduct({ ...product, color: e.target.value })} value={product.color} placeholder='Sélectionner la couleur' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='chant' className='text-sm font-medium text-gray-700'>
-            Chant
-          </label>
-          <Input value={product.chant} onChange={(e) => setProduct({ ...product, chant: e.target.value })} placeholder='Type de chant' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='gamme' className='text-sm font-medium text-gray-700'>
-            Gamme
-          </label>
-          <Input value={product.gamme} onChange={(e) => setProduct({ ...product, gamme: e.target.value })} placeholder='Sélectionner la gamme' />
-        </div>
-
-
-
-        <div className='space-y-2'>
-          <label htmlFor='price' className='text-sm font-medium text-gray-700'>
-            Prix de vente <span className='text-gray-500'>(MAD)</span>
-          </label>
-          <Input value={product.price} type='number' onChange={(e) => setProduct({ ...product, price: e.target.value })} step='0.01' placeholder='Ex: 125.50' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='famille' className='text-sm font-medium text-gray-700'>
-            Famille
-          </label>
-
-          <Select
-            className='w-full'
-            defaultValue={product.family_id}
-            onChange={(value) => setProduct({ ...product, family_id: value })}
-            placeholder="Catégorie du produit"
-
-            options={[
-              { value: 'jack', label: 'Jack' },
-              { value: 'lucy', label: 'Lucy' },
-              { value: 'Yiminghe', label: 'yiminghe' },
-              { value: 'disabled', label: 'Disabled', disabled: true },
-            ]}
-          />
-        </div>
-        <div className='space-y-2'>
-          <label htmlFor='prix-vente' className='text-sm font-medium text-gray-700'>
-            Unité
-          </label>
-          <Input
-            value={product.unit}
-            onChange={(e) => setProduct({ ...product, unit: e.target.value })}
-            placeholder='m, m², g, kg' />
-        </div>
-      </div>),
+      ),
     },
     {
       label: (
@@ -169,33 +223,75 @@ const ViewArticle = () => {
         </span>
       ),
       key: '2',
-      children: (<div className='px-3 grid grid-cols-2 gap-4'>
-        <div className='space-y-2'>
-          <label htmlFor='hauteur' className='text-sm font-medium text-gray-700'>
-            Hauteur <span className='text-gray-500'>(mm)</span>
-          </label>
-          <Input value={product.height} onChange={(e) => setProduct({ ...product, height: e.target.value })} type='number' placeholder='Ex: 2800' />
-        </div>
+      children: (
+        <div className='px-3 grid grid-cols-2 gap-4'>
+          <div className='space-y-2'>
+            <label
+              htmlFor='hauteur'
+              className='text-sm font-medium text-gray-700'
+            >
+              Hauteur <span className='text-gray-500'>(mm)</span>
+            </label>
+            <Input
+              value={product.height}
+              onChange={(e) =>
+                setProduct({ ...product, height: e.target.value })
+              }
+              type='number'
+              placeholder='Ex: 2800'
+            />
+          </div>
 
-        <div className='space-y-2'>
-          <label htmlFor='largeur' className='text-sm font-medium text-gray-700'>
-            Largeur <span className='text-gray-500'>(mm)</span>
-          </label>
-          <Input value={product.width} onChange={(e) => setProduct({ ...product, width: e.target.value })} type='number' placeholder='Ex: 2070' />
+          <div className='space-y-2'>
+            <label
+              htmlFor='largeur'
+              className='text-sm font-medium text-gray-700'
+            >
+              Largeur <span className='text-gray-500'>(mm)</span>
+            </label>
+            <Input
+              value={product.width}
+              onChange={(e) =>
+                setProduct({ ...product, width: e.target.value })
+              }
+              type='number'
+              placeholder='Ex: 2070'
+            />
+          </div>
+          <div className='space-y-2'>
+            <label
+              htmlFor='profondeur'
+              className='text-sm font-medium text-gray-700'
+            >
+              Profondeur <span className='text-gray-500'>(mm)</span>
+            </label>
+            <Input
+              value={product.depth}
+              onChange={(e) =>
+                setProduct({ ...product, depth: e.target.value })
+              }
+              type='number'
+              placeholder='Ex: 600'
+            />
+          </div>
+          <div className='space-y-2'>
+            <label
+              htmlFor='epaisseur'
+              className='text-sm font-medium text-gray-700'
+            >
+              Épaisseur <span className='text-gray-500'>(mm)</span>
+            </label>
+            <Input
+              value={product.thickness}
+              onChange={(e) =>
+                setProduct({ ...product, thickness: e.target.value })
+              }
+              type='number'
+              placeholder='Ex: 18'
+            />
+          </div>
         </div>
-        <div className='space-y-2'>
-          <label htmlFor='profondeur' className='text-sm font-medium text-gray-700'>
-            Profondeur <span className='text-gray-500'>(mm)</span>
-          </label>
-          <Input value={product.depth} onChange={(e) => setProduct({ ...product, depth: e.target.value })} type='number' placeholder='Ex: 600' />
-        </div>
-        <div className='space-y-2'>
-          <label htmlFor='epaisseur' className='text-sm font-medium text-gray-700'>
-            Épaisseur <span className='text-gray-500'>(mm)</span>
-          </label>
-          <Input value={product.thickness} onChange={(e) => setProduct({ ...product, thickness: e.target.value })} type='number' placeholder='Ex: 18' />
-        </div>
-      </div>),
+      ),
     },
     {
       label: (
@@ -205,84 +301,142 @@ const ViewArticle = () => {
         </span>
       ),
       key: '3',
-      children: (<div className='px-3 grid grid-cols-2 gap-4'>
-        <div className='space-y-2'>
-          <label htmlFor='epaisseur' className='text-sm font-medium text-gray-700'>
-            Quantité
-          </label>
-          <Input
-            value={product.quantity}
-            onChange={(e) => setProduct({ ...product, quantity: e.target.value })}
-            type='number' placeholder='Quantité en stock' />
+      children: (
+        <div className='px-3 grid grid-cols-2 gap-4'>
+          <div className='space-y-2'>
+            <label
+              htmlFor='epaisseur'
+              className='text-sm font-medium text-gray-700'
+            >
+              Quantité
+            </label>
+            <Input
+              value={product.quantity}
+              onChange={(e) =>
+                setProduct({ ...product, quantity: e.target.value })
+              }
+              type='number'
+              placeholder='Quantité en stock'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='stock_min'
+              className='text-sm font-medium text-gray-700'
+            >
+              Stock minimum <span className='text-gray-500'></span>
+            </label>
+            <Input
+              value={product.stock_min}
+              onChange={(e) =>
+                setProduct({ ...product, stock_min: e.target.value })
+              }
+              type='number'
+              placeholder='Ex: 600'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='condition'
+              className='text-sm font-medium text-gray-700'
+            >
+              Condition (<small>Carton, Sac..</small>)
+            </label>
+            <Input
+              value={product.condition}
+              onChange={(e) =>
+                setProduct({ ...product, condition: e.target.value })
+              }
+              placeholder='État du produit'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='palette-condition'
+              className='text-sm font-medium text-gray-700'
+            >
+              Condition palette
+            </label>
+            <Input
+              value={product.palette_condition}
+          
+              onChange={(e) =>
+                setProduct({ ...product, palette_condition: e.target.value })
+              }
+              placeholder='État de la palette'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='code_supplier'
+              className='text-sm font-medium text-gray-700'
+            >
+              Référence du fournisseur
+            </label>
+            <Input
+              value={product.code_supplier}
+              onChange={(e) =>
+                setProduct({ ...product, code_supplier: e.target.value })
+              }
+              placeholder='Code du fournisseur'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='qr_code'
+              className='text-sm font-medium text-gray-700'
+            >
+              QR / BAR Code
+            </label>
+            <Input
+              value={product.qr_code}
+              onChange={(e) =>
+                setProduct({ ...product, qr_code: e.target.value })
+              }
+              placeholder='QR ou BAR Code'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='qte_inter'
+              className='text-sm font-medium text-gray-700'
+            >
+              Quantité INTERCOCINA
+            </label>
+            <Input
+              value={product.qte_inter}
+              onChange={(e) =>
+                setProduct({ ...product, qte_inter: e.target.value })
+              }
+              placeholder='Quantité'
+            />
+          </div>
+
+          <div className='space-y-2'>
+            <label
+              htmlFor='qte_serie'
+              className='text-sm font-medium text-gray-700'
+            >
+              Quantité SERIEMOBLE
+            </label>
+            <Input
+              value={product.qte_serie}
+              onChange={(e) =>
+                setProduct({ ...product, qte_serie: e.target.value })
+              }
+              placeholder='Quantité'
+            />
+          </div>
         </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='stock_min' className='text-sm font-medium text-gray-700'>
-            Stock minimum <span className='text-gray-500'></span>
-          </label>
-          <Input value={product.stock_min} onChange={(e) => setProduct({ ...product, stock_min: e.target.value })} type='number' placeholder='Ex: 600' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='condition' className='text-sm font-medium text-gray-700'>
-            Condition (<small>Carton, Sac..</small>)
-          </label>
-          <Input value={product.gamme} onChange={(e) => setProduct({ ...product, condition: e.target.value })} placeholder='État du produit' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='palette-condition' className='text-sm font-medium text-gray-700'>
-            Condition palette
-          </label>
-          <Input
-            value={product.palette_condition}
-            onChange={(e) => setProduct({ ...product, palette_condition: e.target.value })}
-            placeholder='État de la palette' />
-        </div>
-
-
-        <div className='space-y-2'>
-          <label htmlFor='code_supplier' className='text-sm font-medium text-gray-700'>
-            Référence du fournisseur
-          </label>
-          <Input
-            value={product.code_supplier}
-            onChange={(e) => setProduct({ ...product, code_supplier: e.target.value })}
-            placeholder='Code du fournisseur' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='qr_code' className='text-sm font-medium text-gray-700'>
-            QR / BAR Code
-          </label>
-          <Input
-            value={product.qr_code}
-            onChange={(e) => setProduct({ ...product, qr_code: e.target.value })}
-            placeholder='QR ou BAR Code' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='qte_inter' className='text-sm font-medium text-gray-700'>
-            Quantité INTERCOCINA
-          </label>
-          <Input value={product.qte_inter}
-            onChange={(e) => setProduct({ ...product, qte_inter: e.target.value })}
-            placeholder='Quantité' />
-        </div>
-
-        <div className='space-y-2'>
-          <label htmlFor='qte_serie' className='text-sm font-medium text-gray-700'>
-            Quantité SERIEMOBLE
-          </label>
-          <Input
-            value={product.qte_serie}
-            onChange={(e) => setProduct({ ...product, qte_serie: e.target.value })}
-            placeholder='Quantité' />
-        </div>
-      </div>),
-    }
-
-  ];
+      ),
+    },
+  ]
 
 
 

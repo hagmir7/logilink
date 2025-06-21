@@ -13,7 +13,6 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
-import BCScanner from '../components/BCScanner'
 import { message } from 'antd'
 
 export default function Preparation() {
@@ -36,7 +35,7 @@ export default function Preparation() {
   const [palettes, setPalettes] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
 
-  // Loading states for each API operation
+  
   const [loadingStates, setLoadingStates] = useState({
     createPalette: false,
     scan: false,

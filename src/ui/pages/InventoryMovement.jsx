@@ -18,6 +18,7 @@ export default function InventoryMovement() {
   const [loadingEmplacement, setLoadingEmplacement] = useState(false)
   const [loadingArticle, setLoadingArticle] = useState(false)
   const [condition, setCondition] = useState(null)
+  const [conditionPalette, setConditionPalette] = useState(null)
   const [emplacementError, setEmplacementError] = useState('')
   const [articleError, setArticleError] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
@@ -193,7 +194,7 @@ export default function InventoryMovement() {
   const handleTypeChange = (e) => {
     quantityInput.current.focus();
     setType(e.target.value)
-    setCondition(null) // Reset condition when type changes
+    setCondition(null);
   }
 
   return (
@@ -266,7 +267,7 @@ export default function InventoryMovement() {
               <div className='font-bold'>{articleData.color}</div>
               <div className='font-medium'>Dimensions:</div>
               <div className='font-bold'>
-                {articleData.height} × {articleData.width} × {articleData.depth}
+                {articleData.height || 0} × {articleData.width} × {articleData.depth}
               </div>
               {articleData.thickness && (
                 <>
@@ -280,7 +281,7 @@ export default function InventoryMovement() {
       </div>
 
       {/* Condition Type Selection */}
-      {articleData && conditionList.length > 0 && (
+      {articleData && conditionList.length > 0  && (
         <div className='px-5'>
           <Radio.Group
             value={type}
