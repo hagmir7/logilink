@@ -21,7 +21,7 @@ export const createShowWindow = (routeUrl) => {
         }
     });
 
-    //childWindow.webContents.openDevTools()
+    
     childWindow.setMenu(null);
     if (isDev()) {
         childWindow.loadURL(`http://localhost:5123${routeUrl}`);

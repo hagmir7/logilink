@@ -29,19 +29,18 @@ const NumericInput = (props) => {
     'Quantity'
   )
 
-  const handleUpdate = async ({inventory_id}) => {
+  const handleUpdate = async () => {
     try {
       let url;
-      if(inventory_id){
-        url = `palettes/${props.palette_code}/article/${props.article.code}/update`
-      }else{
-        url = `inventory/palette/${props.palette_code}/article/${props.article.id}`
-      }
 
+      if (props.inventory_id) {
+        url = `inventory/palette/${props.palette_code}/article/${props.article.id}/update`
+      } else {
+        url = `palettes/${props.palette_code}/article/${props.article.id}/update`
+      }
       
-     
       const response = await api.put(url, { 'quantity': value })
-      
+     
       message.success("Quantité modifiée avec succès.")
     } catch (error) {
       console.error(error);
@@ -50,7 +49,7 @@ const NumericInput = (props) => {
 
   }
 
- return (
+  return (
     <Tooltip
       title={title}
       placement="topLeft"
@@ -74,15 +73,16 @@ const NumericInput = (props) => {
       </Space.Compact>
     </Tooltip>)
 }
-const ArticleQuantityInput = ({ defaultValue, article_id, palette_code  }) => {
+const ArticleQuantityInput = ({ defaultValue, article, palette_code, inventory_id }) => {
   const [value, setValue] = useState(defaultValue)
   return (
-    <NumericInput 
+    <NumericInput
       style={{ width: 120, color: "black" }}
       value={value}
       onChange={setValue}
-      article_id={article_id}
+      article={article}
       palette_code={palette_code}
+      inventory_id={inventory_id}
     />
   )
 }

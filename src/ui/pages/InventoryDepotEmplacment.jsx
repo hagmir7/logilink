@@ -187,7 +187,6 @@ const InventoryDepotEmplacment = () => {
                                                 </div>
                                                 <div className="space-y-2">
                                                     {columnEmplacements.map(emp => {
-                                                        // Fixed: Check if the emplacement code is in filtered results
                                                         const isFiltered = filteredEmplacements.some(fe => fe.code === emp.code);
                                                         if (!isFiltered) return null;
 

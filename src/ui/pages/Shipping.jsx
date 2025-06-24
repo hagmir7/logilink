@@ -29,7 +29,7 @@ function Shipping() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(`document/livraison?status=${documenStatus}&search=${searchQuery}`);
+      const response = await api.get(`documents/livraison?status=${documenStatus}&search=${searchQuery}`);
       setDocuments(prev => ({
         ...prev,
         data: response.data.data,

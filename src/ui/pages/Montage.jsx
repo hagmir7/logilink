@@ -19,7 +19,7 @@ function Montage() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(`docentete/${id}`)
+      const response = await api.get(`docentetes/${id}`)
       setData(response.data)
       setLoading(false)
     } catch (err) {

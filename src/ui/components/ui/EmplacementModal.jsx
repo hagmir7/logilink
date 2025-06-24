@@ -1,8 +1,9 @@
 // EmplacementModal.jsx
-import { Collapse, message, Modal, Space, Skeleton } from 'antd'
+import { Collapse, message, Modal, Space, Skeleton, Popconfirm, Button } from 'antd'
 import { api } from '../../utils/api'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import PaletteArticleCard from './PaletteArticleCard'
+import { Trash } from 'lucide-react'
 
 const EmplacementModal = ({
   selectedEmplacement,
@@ -12,6 +13,9 @@ const EmplacementModal = ({
   inventory_id
 }) => {
   const [emplacement, setEmplacement] = useState(null)
+  const [palettes, setPalettes] = useState([]);
+
+  
   const [loading, setLoading] = useState(false)
 
   const emplacementData = useMemo(
@@ -34,6 +38,8 @@ const EmplacementModal = ({
       console.log(response.data);
       
       setEmplacement(response.data)
+      setPalettes(response?.data?.palettes)
+
     } catch (error) {
       message.error(error?.response?.data?.message || 'Erreur lors du chargement')
       console.error(error);
@@ -56,6 +62,18 @@ const EmplacementModal = ({
   const handleCancel = useCallback(() => {
     setSelectedEmplacement(null)
   }, [setSelectedEmplacement])
+
+
+  const handleDelete = async (palette_code)=>{
+    try {
+      await api.delete(`palettes/${palette_code}`)
+       setPalettes(palettes.filter(palette => palette.code !== palette_code));
+      message.success("Palette supprimée avec succès.")
+    } catch (error) {
+      message.error(error.response.data.message)
+    }
+
+  }
 
   const LoadingSkeleton = () => (
     <div className='space-y-4'>
@@ -133,8 +151,8 @@ const EmplacementModal = ({
 
                 {/* Palettes Section */}
                 <Space direction='vertical' className='w-full p-0'>
-                  {emplacement?.palettes?.length > 0 ? (
-                    emplacement.palettes.map((palette, paletteIndex) => (
+                  {palettes?.length > 0 ? (
+                    palettes.map((palette, paletteIndex) => (
                       <Collapse
                         key={palette.code || paletteIndex}
                         defaultActiveKey={
@@ -146,12 +164,28 @@ const EmplacementModal = ({
                             key: palette.code,
                             label: (
                               <div className='flex justify-between'>
-                                <span className='font-semibold text-gray-900'>
+                                <div>
+                                  <span className='font-semibold text-gray-900'>
                                   {palette.code}
                                 </span>
-                                <span className='text-sm text-gray-500 bg-gray-100 px-2 border border-gray-300 py-1 rounded-full'>
+                                </div>
+                                
+                                <div className='flex gap-3'>
+                                  <span className='text-sm text-gray-500 bg-gray-100 px-2 border border-gray-300 py-1 rounded-full'>
                                   {inventory_id ? palette.inventory_articles?.length :  palette.articles?.length || 0} articles
                                 </span>
+                                 <Popconfirm
+                                    title="Êtes-vous sûr de vouloir supprimer ?"
+                                    okText="Oui"
+                                    cancelText="Non"
+                                    onConfirm={()=> handleDelete(palette.code)}
+                                  >
+                                    <button className='text-sm text-red-500 bg-red-100 px-2 border border-red-300 py-1 rounded-full cursor-pointer'  >
+                                      <Trash size={15} />
+                                    </button>
+                                  </Popconfirm>
+
+                                </div>
                               </div>
                             ),
                             children:

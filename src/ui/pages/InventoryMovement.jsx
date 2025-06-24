@@ -73,7 +73,6 @@ export default function InventoryMovement() {
 
   const fetchArticleData = useCallback(
     debounce(async (code) => {
-      
       if (!code.trim()) return
 
       setLoadingArticle(true)
@@ -154,6 +153,7 @@ export default function InventoryMovement() {
         palettes: Number(quantity)
       }
 
+
       await api.post(`inventory/insert/${id}`, payload)
       
       // Reset form
@@ -215,9 +215,7 @@ export default function InventoryMovement() {
 
       {/* Emplacement Section */}
       <div className='px-5'>
-        <h2 className='text-md font-semibold text-gray-700 mb-2'>
-          Emplacement
-        </h2>
+        <h2 className='text-md font-semibold text-gray-700 mb-2'>Emplacement</h2>
         <Input
           placeholder='Saisir le code emplacement'
           autoFocus
@@ -226,11 +224,7 @@ export default function InventoryMovement() {
           value={emplacementCode}
           onChange={changeEmplacement}
           allowClear={true}
-          suffix={
-            loadingEmplacement ? (
-              <span className='text-gray-400'>Chargement...</span>
-            ) : null
-          }
+          suffix={loadingEmplacement ? <span className='text-gray-400'>Chargement...</span> : null}
         />
         {emplacementError && (
           <div className='text-red-600 text-sm mb-3'>{emplacementError}</div>
@@ -257,11 +251,7 @@ export default function InventoryMovement() {
           onChange={changeArticle}
           ref={articleInput}
           allowClear={true}
-          suffix={
-            loadingArticle ? (
-              <span className='text-gray-400'>Chargement...</span>
-            ) : null
-          }
+          suffix={loadingArticle ? <span className='text-gray-400'>Chargement...</span> : null}
         />
         {articleError && (
           <div className='text-red-600 text-sm mb-3'>{articleError}</div>
@@ -278,8 +268,7 @@ export default function InventoryMovement() {
               <div className='font-bold'>{articleData.color}</div>
               <div className='font-medium'>Dimensions:</div>
               <div className='font-bold'>
-                {articleData.height || 0} × {articleData.width} ×{' '}
-                {articleData.depth}
+                {articleData.height || 0} × {articleData.width} × {articleData.depth}
               </div>
               {articleData.thickness && (
                 <>
@@ -294,43 +283,41 @@ export default function InventoryMovement() {
 
       {/* Condition Type Selection */}
       {articleData &&
-        (conditionList.length > 0 || articleData.palette_condition) && (
-          <div className='px-5'>
-            <Radio.Group
-              value={type}
-              onChange={handleTypeChange}
-              optionType='button'
-              buttonStyle='solid'
-              className='w-full'
-            >
-              <Radio.Button value='Piece' className='w-1/3 text-center'>
-                Pièce
-              </Radio.Button>
-
-              <Radio.Button
-                disabled={!articleData?.condition}
-                value='Carton'
-                className='w-1/3 text-center'
-              >
-                Carton
-              </Radio.Button>
-              <Radio.Button
-                disabled={!articleData?.palette_condition}
-                value='Palette'
-                className='w-1/3 text-center'
-              >
-                Palette
-              </Radio.Button>
-            </Radio.Group>
-          </div>
-        )}
+         (conditionList.length > 0 || articleData.palette_condition) && (
+           <div className='px-5'>
+             <Radio.Group
+               value={type}
+               onChange={handleTypeChange}
+               optionType='button'
+               buttonStyle='solid'
+               className='w-full'
+             >
+               <Radio.Button value='Piece' className='w-1/3 text-center'>
+                 Pièce
+               </Radio.Button>
+ 
+               <Radio.Button
+                 disabled={!articleData?.condition}
+                 value='Carton'
+                 className='w-1/3 text-center'
+               >
+                 Carton
+               </Radio.Button>
+               <Radio.Button
+                 disabled={!articleData?.palette_condition}
+                 value='Palette'
+                 className='w-1/3 text-center'
+               >
+                 Palette
+               </Radio.Button>
+             </Radio.Group>
+           </div>
+         )}
 
       {/* Condition Selection */}
-      {articleData && type && type !== 'Piece' && conditionList.length > 0 && (
+      {articleData && type && (type !== "Piece" ) && conditionList.length > 0 && (
         <div className='px-5'>
-          <h2 className='text-md font-semibold text-gray-700 mb-2'>
-            Condition
-          </h2>
+          <h2 className='text-md font-semibold text-gray-700 mb-2'>Condition</h2>
           <Select
             placeholder='Sélectionner une condition'
             size='large'
@@ -338,8 +325,8 @@ export default function InventoryMovement() {
             ref={conditionInput}
             value={condition}
             onChange={(value) => {
-              setCondition(value)
-              quantityInput.current?.focus()
+              setCondition(value);
+              quantityInput.current?.focus();
             }}
             options={conditionList}
             allowClear={true}
@@ -359,11 +346,12 @@ export default function InventoryMovement() {
           allowClear={true}
           value={quantity}
           onChange={(e) => {
-            const value = e.target.value
+            const value = e.target.value;
             if (/^\d*\.?\d*$/.test(value)) {
-              setQuantity(value)
+              setQuantity(value);
             }
           }}
+
         />
       </div>
 
@@ -383,24 +371,24 @@ export default function InventoryMovement() {
             <Menu />
             Liste des mouvements
           </Button>
-        </div>
       </div>
 
+      </div>
+
+      
       {/* Confirmation Modal */}
       <Modal
-        title={
+        title={(
           <div className='flex items-center gap-2'>
             <AlertCircle className='w-6 h-6 text-amber-600' />
-            <span className='text-lg font-semibold'>
-              Confirmer le transfert
-            </span>
+            <span className='text-lg font-semibold'>Confirmer le transfert</span>
           </div>
-        }
+        )}
         open={isModalOpen}
         onOk={handleOk}
         onCancel={() => setIsModalOpen(false)}
-        okText='Confirmer'
-        cancelText='Annuler'
+        okText="Confirmer"
+        cancelText="Annuler"
         okButtonProps={{ className: 'bg-blue-600 hover:bg-blue-700' }}
       >
         <div className='py-4 space-y-4'>
@@ -409,13 +397,9 @@ export default function InventoryMovement() {
             <div className='flex items-start gap-3 mb-3'>
               <Building2 className='w-5 h-5 text-blue-600 mt-1 flex-shrink-0' />
               <div>
-                <div className='text-sm font-medium text-gray-700'>
-                  Emplacement
-                </div>
+                <div className='text-sm font-medium text-gray-700'>Emplacement</div>
                 <div className='font-bold'>{emplacementData?.code}</div>
-                <div className='text-sm'>
-                  Dépôt: {emplacementData?.depot?.code}
-                </div>
+                <div className='text-sm'>Dépôt: {emplacementData?.depot?.code}</div>
               </div>
             </div>
 
@@ -426,10 +410,7 @@ export default function InventoryMovement() {
                 <div className='text-sm font-medium text-gray-700'>Article</div>
                 <div className='font-bold'>{articleData?.name}</div>
                 <div className='text-sm'>Réf: {articleData?.code}</div>
-                <div className='text-sm'>
-                  Dimensions: {articleData?.height} × {articleData?.width} ×{' '}
-                  {articleData?.depth}
-                </div>
+                <div className='text-sm'>Dimensions: {articleData?.height} × {articleData?.width} × {articleData?.depth}</div>
               </div>
             </div>
 
@@ -437,22 +418,16 @@ export default function InventoryMovement() {
             <div className='flex items-start gap-3'>
               <Hash className='w-5 h-5 text-purple-600 mt-1 flex-shrink-0' />
               <div>
-                <div className='text-sm font-medium text-gray-700'>
-                  Quantité
-                </div>
+                <div className='text-sm font-medium text-gray-700'>Quantité</div>
                 <div>
                   {quantity} {type && `(${type})`}
                   {condition && ` × ${condition} = `}
-                  {condition && (
-                    <span className='font-bold text-green-600'>
-                      {totalQuantity} {articleData?.unit}
-                    </span>
-                  )}
+                  {condition && <span className='font-bold text-green-600'>{totalQuantity} {articleData?.unit}</span>}
                 </div>
               </div>
             </div>
           </div>
-
+          
           <p className='text-gray-600 text-sm'>
             Veuillez vérifier les informations avant de confirmer le transfert.
           </p>

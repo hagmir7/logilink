@@ -37,7 +37,7 @@ function Controller() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(`docentete/${id}`)
+      const response = await api.get(`docentetes/${id}`)
 
       setData(response.data)
       setStatus(
@@ -97,7 +97,7 @@ function Controller() {
         roles: selectedRoles,
         lines: selected,
       }
-      const response = await api.post('docentete/transfer', data)
+      const response = await api.post('docentetes/transfer', data)
       setSelectedRoles(null)
       setSelected([])
       fetchData()
@@ -123,7 +123,7 @@ function Controller() {
 
   const handleOk = async () => {
     setConfirmLoading(true)
-    const response = await api.post(`palettes/validate/${id}`, {
+    const response = await api.post(`docentetes/palettes/validate/${id}`, {
       lines: selected,
     })
     setOpen(false)

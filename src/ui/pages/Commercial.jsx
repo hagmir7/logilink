@@ -30,7 +30,7 @@ function Commercial() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(`docentete/${id}`)
+      const response = await api.get(`docentetes/${id}`)
 
       setData(response.data)
       
@@ -93,7 +93,7 @@ function Commercial() {
         company: selectedCompany,
         lines: selected,
       }
-      await api.post('docentete/transfer', data)
+      await api.post('docentetes/transfer', data)
       setSelectedCompany(null)
       setSelected([])
       fetchData()

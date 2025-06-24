@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react'
 import { Loader2, RefreshCcw, Settings } from 'lucide-react'
-import { Button, Empty, Input } from 'antd'
+import { Button, Empty, Input, Select } from 'antd'
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../contexts/AuthContext'
-import { uppercaseFirst } from '../utils/config';
+import { categories, uppercaseFirst } from '../utils/config';
 import { useNavigate } from 'react-router-dom'
 
 // Utility to format date (if needed elsewhere)
@@ -77,11 +77,10 @@ function Article() {
           <Search
             placeholder='Recherch'
             loading={searchSpinner}
-            size='large'
             onChange={(e) => setSearchQuery(e.target.value)}
           />
 
-          <Button onClick={fetchData} size='large'>
+          <Button onClick={fetchData}>
             {loading ? (
               <Loader2 className='animate-spin text-blue-500' size={17} />
             ) : (
@@ -89,6 +88,14 @@ function Article() {
             )}
             <span className='hidden sm:inline'>Rafraîchir</span>
           </Button>
+
+           <Select
+              defaultValue="panneaux"
+              placeholder="Filter"
+              size='middle'
+              style={{ width: 300 }}
+              options={categories}
+          />
         </div>
       </div>
       {/* Desktop Table View */}
@@ -111,6 +118,12 @@ function Article() {
               </th>
               <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
                 H / L / P
+              </th>
+               <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                Condition
+              </th>
+              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                Palette Condition
               </th>
             </tr>
           </thead>
@@ -147,15 +160,22 @@ function Article() {
                 )}
 
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                  {article.price}
+                  {article.quantity}
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                  {article.color}
+                  {article.color || "__"}
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   {`${article.height || '_'} / ${article.width || '_'} / ${
                     article.depth || '_'
                   }`}
+                </td>
+                
+                <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
+                  {article.condition || "__"}
+                </td>
+                <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
+                  {article.palette_condition || "__"}
                 </td>
               </tr>
             ))}
