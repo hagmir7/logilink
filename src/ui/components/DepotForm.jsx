@@ -26,7 +26,6 @@ const DepotForm = () => {
   return (
     <div>
       <Button
-        size='large'
         color='cyan'
         variant='solid'
         onClick={() => setOpenModal(true)}

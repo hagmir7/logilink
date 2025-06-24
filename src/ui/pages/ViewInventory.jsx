@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { Tabs } from 'antd';
 import { ArrowDownUp, ChartBar, Package, Warehouse } from 'lucide-react';
 import InventoryArticles from './InventoryArticles';
-import MovementsList from './MovementsList';
 import { useParams } from 'react-router-dom';
 import InventoryOverview from '../components/InventoryOverview';
 import Depot from '../pages/Depots';
 import InventoryDepots from './InventoryDepots';
+import InventoryMovements from './InventoryMovements';
 
 const ViewInventory = () => {
     const [activeKey, setActiveKey] = useState('1');
@@ -41,7 +41,7 @@ const ViewInventory = () => {
                 </span>
             ),
             key: '3',
-            children: <MovementsList id={id} />,
+            children: <InventoryMovements id={id} />,
         },
         {
             label: (

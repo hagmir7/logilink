@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api';
-import { Button, message, Popconfirm, Tag } from 'antd';
+import { Button, message, Popconfirm, Tag, Input } from 'antd';
 import { Edit, PlusCircle, Trash, View } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Spinner from '../components/ui/Spinner';
 import DepotForm from '../components/DepotForm';
+const { Search } = Input
 
 export default function Depots() {
 
@@ -42,10 +43,11 @@ export default function Depots() {
 
   return (
     <div className='w-full '>
-      <div className='flex justify-between mb-1 p-2 md:p-4 md:pb-0'>
-        <h2 className='text-md md:text-xl font-semibold text-gray-800'>
-          Gestion des dépôts
-        </h2>
+      <div className='flex items-center px-3 justify-between'>
+        <Search
+          placeholder='Recherch'
+          style={{ width: "300px" }}
+        />
         <DepotForm />
       </div>
       {/* Desktop Table View */}

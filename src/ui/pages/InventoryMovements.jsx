@@ -11,7 +11,6 @@ import {
 import { Badge, Button, Empty, Input, Popconfirm, Select, Space, DatePicker } from 'antd'
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
-import { useAuth } from '../contexts/AuthContext'
 import { locale, uppercaseFirst } from '../utils/config'
 import { useParams } from 'react-router-dom'
 const { RangePicker } = DatePicker;
@@ -53,7 +52,7 @@ const formatDate = (date) => {
 
 const { Search } = Input
 
-function MovementsList() {
+function InventoryMovements() {
   const [loading, setLoading] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
@@ -259,4 +258,4 @@ function MovementsList() {
   )
 }
 
-export default MovementsList
+export default InventoryMovements

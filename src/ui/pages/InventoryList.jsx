@@ -19,6 +19,7 @@ import { locale } from '../utils/config'
 import dayjs from 'dayjs'
 import { CalendarArrowDown, CirclePlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
+import Spinner from '../components/ui/Spinner'
 
 const { TextArea } = Input
 
@@ -138,8 +139,8 @@ export default function InventoryList() {
       {/* Content */}
       <div className='px-4'>
         {loading ? (
-          <div className='flex justify-center items-center py-20'>
-            <Spin size='large' />
+          <div className='flex justify-center items-center'>
+            <Spinner />
           </div>
         ) : inventories.length === 0 ? (
           <div className='flex justify-center items-center py-20'>

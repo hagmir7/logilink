@@ -86,7 +86,11 @@ const sideMenu = () => {
         {
           key: 'submenu-13',
           icon: <ArrowDownUp size={19} />,
-          label: <span className='text-base'>Transfert</span>,
+          label: (
+            <Link to='/transfert' className='text-base'>
+              Transfert
+            </Link>
+          ),
         },
       ],
     },

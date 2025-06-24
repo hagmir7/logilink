@@ -27,6 +27,7 @@ import ViewArticle from './pages/ViewArticle'
 import DepotEmplacement from './pages/DepotEmplacement'
 import ScrollToTop from './components/ScrollToTop'
 import InventoryDepotEmplacment from './pages/InventoryDepotEmplacment'
+import Transfert from './pages/Transfert'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -35,13 +36,11 @@ const NotFound = () => {
 function App() {
   return (
     <>
-    <ScrollToTop />
+      <ScrollToTop />
       <Routes>
-      
         <Route path='/login' element={<Login />} />
         <Route path='articles/:id' element={<ViewArticle />} />
         <Route element={<MainLayout />}>
-        
           <Route path='/' element={<Document />} />
           <Route path='palette/controle/:code' element={<PaletteControle />} />
           <Route path='/users' element={<Users />} />
@@ -62,12 +61,16 @@ function App() {
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
 
-          <Route path='inventory/:inventory_id/depot/:id' element={<InventoryDepotEmplacment />} />
+          <Route
+            path='inventory/:inventory_id/depot/:id'
+            element={<InventoryDepotEmplacment />}
+          />
           <Route path='inventories' element={<InventroyList />} />
           <Route path='inventories/in/:id' element={<InventoryMovement />} />
           <Route path='inventories/:id' element={<ViewInventory />} />
           <Route path='depots' element={<Depots />} />
           <Route path='depots/view/:id' element={<DepotEmplacement />} />
+          <Route path='transfert' element={<Transfert />} />
 
           <Route path='depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />

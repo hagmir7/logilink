@@ -66,11 +66,6 @@ function Article() {
 
   return (
     <div className='w-full'>
-      {/* Title */}
-      <h2 className='text-xl font-semibold text-gray-800 mb-1 p-2 md:p-4'>
-        Articles
-      </h2>
-
       {/* Header */}
       <div className='flex flex-wrap justify-between items-center gap-4 mb-4 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
