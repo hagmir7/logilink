@@ -26,6 +26,7 @@ import ViewDepot from './pages/ViewDepot'
 import ViewArticle from './pages/ViewArticle'
 import DepotEmplacement from './pages/DepotEmplacement'
 import ScrollToTop from './components/ScrollToTop'
+import InventoryDepotEmplacment from './pages/InventoryDepotEmplacment'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -61,6 +62,7 @@ function App() {
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
 
+          <Route path='inventory/:inventory_id/depot/:id' element={<InventoryDepotEmplacment />} />
           <Route path='inventories' element={<InventroyList />} />
           <Route path='inventories/in/:id' element={<InventoryMovement />} />
           <Route path='inventories/:id' element={<ViewInventory />} />

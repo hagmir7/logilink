@@ -9,6 +9,7 @@ const EmplacementModal = ({
   setSelectedEmplacement,
   handleOk,
   parseEmplacement,
+  inventory_id
 }) => {
   const [emplacement, setEmplacement] = useState(null)
   const [loading, setLoading] = useState(false)
@@ -23,7 +24,15 @@ const EmplacementModal = ({
 
     setLoading(true)
     try {
-      const response = await api.get(`emplacement/${selectedEmplacement}`)
+      let url;
+      if(inventory_id){
+        url = `emplacement/inventory/${selectedEmplacement}`;
+      }else{
+        url = `emplacement/${selectedEmplacement}`
+      }
+      const response = await api.get(url)
+      console.log(response.data);
+      
       setEmplacement(response.data)
     } catch (error) {
       message.error(error?.response?.data?.message || 'Erreur lors du chargement')
@@ -141,13 +150,13 @@ const EmplacementModal = ({
                                   {palette.code}
                                 </span>
                                 <span className='text-sm text-gray-500 bg-gray-100 px-2 border border-gray-300 py-1 rounded-full'>
-                                  {palette.articles?.length || 0} articles
+                                  {inventory_id ? palette.inventory_articles?.length :  palette.articles?.length || 0} articles
                                 </span>
                               </div>
                             ),
                             children:
-                              palette.articles?.length > 0 ? (
-                                <PaletteArticleCard palette={palette} />
+                              (inventory_id ? palette.inventory_articles?.length :  palette.articles?.length) > 0 ? (
+                                <PaletteArticleCard palette={palette} inventory_id={inventory_id} />
                               ) : (
                                 <div className='text-center py-8 text-gray-500'>
                                   <div className='text-4xl mb-2'>📦</div>

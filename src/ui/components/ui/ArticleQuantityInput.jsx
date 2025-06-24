@@ -29,11 +29,19 @@ const NumericInput = (props) => {
     'Quantity'
   )
 
-  const handleUpdate = async () => {
+  const handleUpdate = async ({inventory_id}) => {
     try {
-      await api.put(`palettes/${props.palette_code}/article/${props.article_id}/update`, {
-        'quantity': value
-      })
+      let url;
+      if(inventory_id){
+        url = `palettes/${props.palette_code}/article/${props.article.code}/update`
+      }else{
+        url = `inventory/palette/${props.palette_code}/article/${props.article.id}`
+      }
+
+      
+     
+      const response = await api.put(url, { 'quantity': value })
+      
       message.success("Quantité modifiée avec succès.")
     } catch (error) {
       console.error(error);
