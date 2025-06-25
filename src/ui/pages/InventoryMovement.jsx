@@ -157,7 +157,7 @@ export default function InventoryMovement() {
       
       // Reset form
       setQuantity("")
-      setEmplacementCode("")
+      // setEmplacementCode("")
       setArticleCode("")
       setEmplacementData(null)
       setArticleData(null)
@@ -280,6 +280,8 @@ export default function InventoryMovement() {
         )}
       </div>
 
+     
+
       {/* Condition Type Selection */}
       {articleData &&
          (conditionList.length > 0 || articleData.palette_condition) && (
@@ -353,6 +355,8 @@ export default function InventoryMovement() {
 
         />
       </div>
+
+       { articleData?.companies.length || 0}
 
       {/* Submit Button */}
       <div className='px-5 mb-3'>
