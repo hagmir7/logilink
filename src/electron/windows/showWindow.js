@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow } from 'electron';
 import path from "path";
 import { getPreloadPath, isDev } from '../util.js';
 
@@ -11,18 +11,18 @@ export const createShowWindow = (routeUrl) => {
     childWindow = new BrowserWindow({
         width: 700,
         height: 600,
-        resizable: false,
-        parent: mainWindow,
-        modal: true,
-        minimizable: false,
-        alwaysOnTop: true,
+        // resizable: false,
+        // parent: mainWindow,
+        // modal: true,
+        // minimizable: false,
+        // alwaysOnTop: true,
         webPreferences: {
             preload: getPreloadPath()
         }
     });
 
     
-    childWindow.setMenu(null);
+    // childWindow.setMenu(null);
     if (isDev()) {
         childWindow.loadURL(`http://localhost:5123${routeUrl}`);
     } else {

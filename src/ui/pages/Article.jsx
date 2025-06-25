@@ -6,6 +6,7 @@ import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../contexts/AuthContext'
 import { categories, uppercaseFirst } from '../utils/config';
 import { useNavigate } from 'react-router-dom'
+import ImportArticle from '../components/ImportArticle'
 
 // Utility to format date (if needed elsewhere)
 const formatDate = (date) => {
@@ -84,13 +85,15 @@ function Article() {
             <span className='hidden sm:inline'>Rafraîchir</span>
           </Button>
 
-           <Select
-              defaultValue="panneaux"
-              placeholder="Filter"
-              size='middle'
-              style={{ width: 300 }}
-              options={categories}
+          <Select
+            defaultValue='panneaux'
+            placeholder='Filter'
+            size='middle'
+            style={{ width: 300 }}
+            options={categories}
           />
+
+          <ImportArticle />
         </div>
       </div>
       {/* Desktop Table View */}
@@ -114,7 +117,7 @@ function Article() {
               <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
                 H / L / P
               </th>
-               <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
                 Condition
               </th>
               <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
@@ -158,19 +161,19 @@ function Article() {
                   {article.quantity}
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                  {article.color || "__"}
+                  {article.color || '__'}
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   {`${article.height || '_'} / ${article.width || '_'} / ${
                     article.depth || '_'
                   }`}
                 </td>
-                
+
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                  {article.condition || "__"}
+                  {article.condition || '__'}
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                  {article.palette_condition || "__"}
+                  {article.palette_condition || '__'}
                 </td>
               </tr>
             ))}
