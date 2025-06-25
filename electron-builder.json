@@ -1,15 +1,22 @@
 {
-    "appId" : "com.intercocina.production",
-    "files" : ["react-dist", "src/electron"],
+    "appId": "com.intercocina.logilink",
+    "productName": "LOGILINK PRO",
+    "files": [
+        "react-dist",
+        "src/electron"
+    ],
     "icon": "./intercocina-logo.png",
-    "win":{
-        "target": ["portable", "msi"]
+    "win": {
+        "target": [
+            "portable",
+            "msi"
+        ]
     },
-    "mac":{
+    "mac": {
         "target": "dmg"
     },
     "linux": {
         "target": "AppImage",
-        "category": "Uitilty"
+        "category": "Utility"
     }
 }

@@ -9,6 +9,7 @@ lerna-debug.log*
 
 node_modules
 dist
+out
 react-dist
 *.local
 
@@ -22,3 +23,5 @@ react-dist
 *.njsproj
 *.sln
 *.sw?
+
+out/

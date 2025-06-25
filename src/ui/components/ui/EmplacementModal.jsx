@@ -30,7 +30,7 @@ const EmplacementModal = ({
     try {
       let url;
       if(inventory_id){
-        url = `emplacement/inventory/${selectedEmplacement}`;
+        url = `emplacement/${selectedEmplacement}/inventory/${inventory_id}`;
       }else{
         url = `emplacement/${selectedEmplacement}`
       }

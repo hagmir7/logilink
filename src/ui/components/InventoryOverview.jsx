@@ -7,10 +7,12 @@ import {
   ArrowDown,
   CircleDollarSign
 } from 'lucide-react';
-import { DatePicker, Select } from 'antd';
+import { Button, DatePicker, Select } from 'antd';
 import { categories, locale } from '../utils/config';
 import { api } from '../utils/api';
 import { useParams } from 'react-router-dom';
+import InvenotryExport from './InvenotryExport';
+
 
 const { RangePicker } = DatePicker;
 
@@ -88,6 +90,10 @@ const InventoryOverview = () => {
             <p className="text-gray-600 mt-1">Bon retour ! Voici ce qui se passe.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
+            <Button className="w-full sm:w-auto" size="large" >
+              Réinitialisation le Stock 
+            </Button>
+            <InvenotryExport inventory_id={id} />
             <Select
               defaultValue="panneaux"
               placeholder="Filtrer par catégorie"
@@ -101,6 +107,7 @@ const InventoryOverview = () => {
               size="large"
               placeholder={['Date début', 'Date fin']}
             />
+
           </div>
         </div>
       </div>
