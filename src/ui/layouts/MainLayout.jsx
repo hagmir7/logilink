@@ -69,6 +69,12 @@ const sideMenu = () => {
 
       children: [
         {
+          key: 'submenu-13',
+          icon: <ArrowDownUp size={19} />,
+          label: <Link to='/transfert'> Suivi </Link>,
+        },
+        {
+          
           key: 'submenu-2',
           icon: <ClipboardCheck size={19} />,
           label: <Link to='/inventories'>Inventaire</Link>,
@@ -82,15 +88,6 @@ const sideMenu = () => {
           key: 'submenu-3',
           icon: <Warehouse size={19} />,
           label: <Link to='/depots'>Depots</Link>,
-        },
-        {
-          key: 'submenu-13',
-          icon: <ArrowDownUp size={19} />,
-          label: (
-            <Link to='/transfert' className='text-base'>
-              Transfert
-            </Link>
-          ),
         },
       ],
     },

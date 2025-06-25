@@ -1,4 +1,4 @@
-import { Button, Flex, Input, message, Modal, Radio, Select } from 'antd';
+import { message, Modal, Radio, Select } from 'antd';
 import { Minus, Plus } from 'lucide-react';
 import React, { useEffect, useState } from 'react';
 import { api } from '../utils/api';
@@ -61,7 +61,7 @@ const InStock = () => {
       <div className='px-3 space-y-4'>
         <input
           type='text'
-          className='w-full font-black px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all sm:text-base'
+          className='w-full font-black px-4 py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base'
           placeholder='Rèf. Article'
           value={article.code}
           onChange={(e) => setArticle({ ...article, code: e.target.value })}
@@ -71,14 +71,14 @@ const InStock = () => {
           disabled={true}
           readOnly={true}
           value={upperFirst(article.description)}
-          className='w-full font-black px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all sm:text-base'
+          className='w-full font-black px-4 py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base'
           placeholder='Dèsignation'
         />
 
         <div className='flex gap-3'>
           <input
             type='text'
-            className='w-full font-black px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all sm:text-base'
+            className='w-full font-black px-4 py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base'
             placeholder='Couleur'
             value={upperFirst(article.color)}
             disabled={true}
@@ -87,7 +87,7 @@ const InStock = () => {
 
           <input
             type='text'
-            className='w-full font-black px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all sm:text-base'
+            className='w-full font-black px-4 py-3 border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base'
             placeholder='Profondeur'
             value={article.depth || ''}
             disabled={true}
@@ -111,10 +111,9 @@ const InStock = () => {
                 style={{
                   height: 50,
                   display: 'flex',
-                  alignItems: 'center',
                   fontSize: '17px',
                 }}
-                className='w-1/3 text-center font-black'
+                className='w-1/3 justify-center font-black items-center'
               >
                 Pièce
               </Radio.Button>
@@ -122,11 +121,10 @@ const InStock = () => {
               <Radio.Button
                 value='Carton'
                 disabled={!article.condition}
-                className='w-1/3 text-center font-black'
+                className='w-1/3 justify-center font-black items-center'
                 style={{
                   height: 50,
                   display: 'flex',
-                  alignItems: 'center',
                   fontSize: '17px',
                 }}
               >
@@ -135,11 +133,10 @@ const InStock = () => {
               <Radio.Button
                 value='Palette'
                 disabled={!article.palette_condition}
-                className='w-1/3 font-black'
+                className='w-1/3 justify-center font-black items-center'
                 style={{
                   height: 50,
                   display: 'flex',
-                  alignItems: 'center',
                   fontSize: '17px',
                 }}
               >
@@ -149,7 +146,7 @@ const InStock = () => {
             <div className='mb-4'></div>
             {(colisType === 'Palette' || colisType === 'Carton') && (
               <Select
-                placeholder='Quantité Cdolisée'
+                placeholder='Quantité Colisée'
                 className='font-black w-full border rounded-lg border-gray-300'
                 size='large'
                 style={{ height: 50 }}
@@ -171,7 +168,7 @@ const InStock = () => {
             <button
               onClick={() => setQuantity(quantity - 1)}
               disabled={quantity <= 0}
-              className='p-2 sm:p-3 border-2 border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1'
+              className='p-3 border-2 border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1'
             >
               <Minus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
             </button>
@@ -182,12 +179,12 @@ const InStock = () => {
               content={false}
               min={0}
               onChange={(e) => setQuantity(e.target.value)}
-              className='w-full font-black h-[49px] max-w-[200px] px-3 py-2 text-center border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent sm:text-base'
+              className='w-full font-black h-[49px] max-w-[200px] px-3 py-2 text-center border-2 border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-base'
             />
 
             <button
               onClick={() => setQuantity(quantity + 1)}
-              className='p-2 sm:p-3 border-2 border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1'
+              className='p-3 border-2 border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1'
             >
               <Plus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
             </button>
@@ -195,7 +192,7 @@ const InStock = () => {
 
           <button
             onClick={() => setOpenResponsive(true)}
-            className='px-4 py-3 mt-6 w-full sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 sm:text-base'
+            className='px-4 py-3 mt-6 w-full sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-base'
           >
             Valider l'article
           </button>
@@ -230,7 +227,7 @@ const InStock = () => {
             <div className='mb-4'></div>
             <input
               type='text'
-              className='w-full font-black px-4 py-2 sm:py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all sm:text-base'
+              className='w-full font-black px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-base'
               placeholder='Emplacement'
             />
           </Modal>
