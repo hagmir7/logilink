@@ -93,31 +93,33 @@ export default function InventoryMovement() {
 
   const getConditionOptions = () => {
     if (!articleData) return []
-    
-    if (type === "Palette" && articleData.palette_condition) {
-      conditionInput?.current?.focus();
-      return articleData.palette_condition.split('|').map(cond => ({
+    if (type === 'Palette' && articleData.palette_condition) {
+      conditionInput?.current?.focus()
+      return articleData.palette_condition.split('|').map((cond) => ({
         label: cond,
-        value: cond
+        value: cond,
       }))
-      
-    } else if (articleData.condition) {
-      conditionInput?.current?.focus();
-      return articleData.condition.split('|').map(cond => ({
+    } else if (type === 'Carton' && articleData.condition) {
+      conditionInput?.current?.focus()
+      return articleData.condition.split('|').map((cond) => ({
         label: cond,
-        value: cond
+        value: cond,
       }))
-      
     }
     return []
   }
 
   useEffect(() => {
     if (articleData) {
-      setConditionList(getConditionOptions())
-      
+      const options = getConditionOptions() // ← immediate value
+      setConditionList(options) // ← async update
+
+      if (options.length === 1) {
+        setCondition(options[0].value) // ← works as expected
+      }
     }
   }, [articleData, type])
+  
 
   const handleSubmit = () => {
     if (!emplacementData) {
@@ -148,18 +150,16 @@ export default function InventoryMovement() {
       const payload = {
         emplacement_code: emplacementData.code,
         article_code: articleData.code,
-        quantity: parseFloat(condition.replace(',', '.')) ? totalQuantity : quantity,
+        quantity: condition ? totalQuantity : quantity,
         type_colis: type,
-        condition: parseFloat(condition.replace(',', '.')),
+        condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
       }
 
 
       await api.post(`inventory/insert/${id}`, payload)
       
-      // Reset form
       setQuantity("")
-      // setEmplacementCode("")
       setArticleCode("")
       setArticleData(null)
       setType(null)
@@ -194,16 +194,27 @@ export default function InventoryMovement() {
   }
 
   const handleTypeChange = (e) => {
-    quantityInput.current.focus();
+    if (quantityInput.current) {
+      quantityInput.current.focus()
+    }
+
     setType(e.target.value)
+
+    if (articleData) {
+      console.log("function" + getConditionOptions().length)
+      
+      setConditionList(getConditionOptions())
+    }
+
+    console.log('plain' + conditionList.length)
     
     if (conditionList.length === 1) {
-      setCondition(conditionList[0].value)
+      setCondition(conditionList[0]?.value)
     } else {
       setCondition(null)
     }
   }
-
+  
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* Header Section */}
