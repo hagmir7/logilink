@@ -1,11 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select } from 'antd'
 import { Building2, Package, Hash, AlertCircle, Menu } from 'lucide-react'
 import { debounce } from 'lodash'
+import InputField from '../components/ui/InputField'
 
 export default function InventoryMovement() {
   const { id } = useParams()
@@ -22,7 +23,9 @@ export default function InventoryMovement() {
   const [articleError, setArticleError] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [conditionList, setConditionList] = useState([])
-  const [totalQuantity, setTotalQuantity] = useState(0)
+  const [totalQuantity, setTotalQuantity] = useState(0);
+  const [companies, setCompanies] = useState([]);
+  const [company, setCompany] = useState(null);
 
   const articleInput = useRef();
   const quantityInput = useRef();
@@ -36,6 +39,7 @@ export default function InventoryMovement() {
       setType(null)
       setCondition(null)
       setConditionList([])
+      getCompanies()
     }
   }, [articleCode])
 
@@ -49,6 +53,12 @@ export default function InventoryMovement() {
       setTotalQuantity(0)
     }
   }, [quantity, condition])
+
+
+  const getCompanies = async ()=>{
+    const {data}  = await api.get('companies');
+    setCompanies(data);
+  }
 
   const fetchEmplacementData = useCallback(
     debounce(async (code) => {
@@ -87,26 +97,26 @@ export default function InventoryMovement() {
         setLoadingArticle(false)
       }
     }, 500),
-    [] 
+    []
   )
 
   const getConditionOptions = () => {
     if (!articleData) return []
-    
+
     if (type === "Palette" && articleData.palette_condition) {
       conditionInput?.current?.focus();
       return articleData.palette_condition.split('|').map(cond => ({
         label: cond,
         value: Number(cond)
       }))
-      
+
     } else if (articleData.condition) {
       conditionInput?.current?.focus();
       return articleData.condition.split('|').map(cond => ({
         label: cond,
         value: Number(cond)
       }))
-      
+
     }
     return []
   }
@@ -122,22 +132,22 @@ export default function InventoryMovement() {
       setEmplacementError('Veuillez sélectionner un emplacement valide')
       return
     }
-    
+
     if (!articleData) {
       setArticleError('Veuillez sélectionner un article valide')
       return
     }
-    
+
     if (!quantity || isNaN(quantity) || Number(quantity) <= 0) {
       message.error('Veuillez saisir une quantité valide')
       return
     }
-    
-    if ((type === "Carton" || type === "Palette")  && !condition) {
+
+    if ((type === "Carton" || type === "Palette") && !condition) {
       message.error('Veuillez sélectionner une condition')
       return
     }
-    
+
     setIsModalOpen(true)
   }
 
@@ -149,47 +159,62 @@ export default function InventoryMovement() {
         quantity: condition ? totalQuantity : Number(quantity),
         type_colis: type,
         condition,
-        palettes: Number(quantity)
+        palettes: Number(quantity),
+        company
       }
 
 
       await api.post(`inventory/insert/${id}`, payload)
-      
-      // Reset form
+
       setQuantity("")
-      // setEmplacementCode("")
       setArticleCode("")
       setEmplacementData(null)
       setArticleData(null)
       setType(null)
       setCondition(null)
+      setCompany(null)
       setTotalQuantity(0)
       emplacemenInput.current.focus();
       message.success("Opération effectuée avec succès")
     } catch (error) {
       console.error(error);
-      
+
       message.error(error.response?.data?.message || 'Erreur lors de l\'opération')
     } finally {
       setIsModalOpen(false)
     }
   }
 
-  const changeEmplacement = (e) => {
-    const value = e.target.value
-    setEmplacementCode(value)
-    setEmplacementData(null)
-    setEmplacementError('')
-    if (value.length >= 3) fetchEmplacementData(value)
-  }
+  const changeEmplacement = (valueOrEvent) => {
+    const value = valueOrEvent?.target ? valueOrEvent.target.value : valueOrEvent;
 
-  const changeArticle = (e) => {
-    const value = e.target.value
-    setArticleCode(value)
-    setArticleData(null)
-    setArticleError('')
-    if (value.length >= 3) fetchArticleData(value)
-  }
+    setEmplacementCode(value);
+    setEmplacementData(null);
+    setEmplacementError('');
+
+    if (value.length >= 3) {
+      fetchEmplacementData(value);
+    }
+  };
+
+  const companyOptions = companies.map((company) => ({
+    value: company.id, // assuming the id field is called 'id'
+    label: company.name, // assuming the name field is called 'name'
+  }));
+
+
+  const changeArticle = (valueOrEvent) => {
+    const value = valueOrEvent?.target ? valueOrEvent.target.value : valueOrEvent;
+
+    setArticleCode(value);
+    setArticleData(null);
+    setArticleError('');
+
+    if (value.length >= 3) {
+      fetchArticleData(value);
+    }
+  };
+
 
   const handleTypeChange = (e) => {
     quantityInput.current.focus();
@@ -215,16 +240,25 @@ export default function InventoryMovement() {
       {/* Emplacement Section */}
       <div className='px-5'>
         <h2 className='text-md font-semibold text-gray-700 mb-2'>Emplacement</h2>
-        <Input
-          placeholder='Saisir le code emplacement'
-          autoFocus
-          size='large'
-          ref={emplacemenInput}
-          value={emplacementCode}
-          onChange={changeEmplacement}
-          allowClear={true}
-          suffix={loadingEmplacement ? <span className='text-gray-400'>Chargement...</span> : null}
-        />
+
+        
+        <div className='flex gap-2'>
+            <Input
+            placeholder='Saisir le code emplacement'
+            autoFocus
+            size='large'
+            ref={emplacemenInput}
+            value={emplacementCode}
+            onChange={changeEmplacement}
+            allowClear={true}
+            suffix={loadingEmplacement ? <span className='text-gray-400'>Chargement...</span> : null}
+          />
+          <InputField
+            value={emplacementCode}
+            onChange={(e) => changeEmplacement(e.target.value)}
+            onScan={(value) => changeEmplacement(value)}
+          />
+        </div>
         {emplacementError && (
           <div className='text-red-600 text-sm mb-3'>{emplacementError}</div>
         )}
@@ -243,6 +277,7 @@ export default function InventoryMovement() {
       {/* Article Section */}
       <div className='px-5'>
         <h2 className='text-md font-semibold text-gray-700 mb-2'>Article</h2>
+        <div className='flex gap-2'>
         <Input
           placeholder='Saisir le code article'
           size='large'
@@ -252,6 +287,14 @@ export default function InventoryMovement() {
           allowClear={true}
           suffix={loadingArticle ? <span className='text-gray-400'>Chargement...</span> : null}
         />
+        <InputField
+          value={articleCode}
+          onChange={(e) => changeArticle(e.target.value)}
+          onScan={(value) => changeArticle(value)}
+        />
+      </div>
+
+       
         {articleError && (
           <div className='text-red-600 text-sm mb-3'>{articleError}</div>
         )}
@@ -280,43 +323,41 @@ export default function InventoryMovement() {
         )}
       </div>
 
-     
-
       {/* Condition Type Selection */}
       {articleData &&
-         (conditionList.length > 0 || articleData.palette_condition) && (
-           <div className='px-5'>
-             <Radio.Group
-               value={type}
-               onChange={handleTypeChange}
-               optionType='button'
-               buttonStyle='solid'
-               className='w-full'
-             >
-               <Radio.Button value='Piece' className='w-1/3 text-center'>
-                 Pièce
-               </Radio.Button>
- 
-               <Radio.Button
-                 disabled={!articleData?.condition}
-                 value='Carton'
-                 className='w-1/3 text-center'
-               >
-                 Carton
-               </Radio.Button>
-               <Radio.Button
-                 disabled={!articleData?.palette_condition}
-                 value='Palette'
-                 className='w-1/3 text-center'
-               >
-                 Palette
-               </Radio.Button>
-             </Radio.Group>
-           </div>
-         )}
+        (conditionList.length > 0 || articleData.palette_condition) && (
+          <div className='px-5'>
+            <Radio.Group
+              value={type}
+              onChange={handleTypeChange}
+              optionType='button'
+              buttonStyle='solid'
+              className='w-full'
+            >
+              <Radio.Button value='Piece' className='w-1/3 text-center'>
+                Pièce
+              </Radio.Button>
+
+              <Radio.Button
+                disabled={!articleData?.condition}
+                value='Carton'
+                className='w-1/3 text-center'
+              >
+                Carton
+              </Radio.Button>
+              <Radio.Button
+                disabled={!articleData?.palette_condition}
+                value='Palette'
+                className='w-1/3 text-center'
+              >
+                Palette
+              </Radio.Button>
+            </Radio.Group>
+          </div>
+        )}
 
       {/* Condition Selection */}
-      {articleData && type && (type !== "Piece" ) && conditionList.length > 0 && (
+      {articleData && type && (type !== "Piece") && conditionList.length > 0 && (
         <div className='px-5'>
           <h2 className='text-md font-semibold text-gray-700 mb-2'>Condition</h2>
           <Select
@@ -356,7 +397,21 @@ export default function InventoryMovement() {
         />
       </div>
 
-       { articleData?.companies.length || 0}
+      {/* Company */}
+      {articleData && articleData?.companies?.length == 0 && (
+        <div className='px-5'>
+          <h2 className='text-md font-semibold text-gray-700 mb-2'>Société</h2>
+          <Select
+            placeholder='Sélectionner une Société'
+            size='large'
+            className='w-full'
+            value={company}
+            onChange={(value) => setCompany(value)}
+            options={companyOptions}
+            allowClear={true}
+          />
+        </div>
+      )}
 
       {/* Submit Button */}
       <div className='px-5 mb-3'>
@@ -370,15 +425,17 @@ export default function InventoryMovement() {
           Valider le mouvement
         </Button>
         <div className='mt-28'>
-          <Button className='w-full' size='large'>
-            <Menu />
-            Liste des mouvements
-          </Button>
-      </div>
+          <Link to={`/inventories/${id}`}>
+            <Button className='w-full' size='large'>
+              <Menu />
+              Liste des mouvements
+            </Button>
+          </Link>
+        </div>
 
       </div>
 
-      
+
       {/* Confirmation Modal */}
       <Modal
         title={(
@@ -401,6 +458,8 @@ export default function InventoryMovement() {
               <Building2 className='w-5 h-5 text-blue-600 mt-1 flex-shrink-0' />
               <div>
                 <div className='text-sm font-medium text-gray-700'>Emplacement</div>
+                {/* {JSON.stringify(company)} */}
+                <div className='font-bold'>{companies.find((item) => item?.id == company)?.name}</div>
                 <div className='font-bold'>{emplacementData?.code}</div>
                 <div className='text-sm'>Dépôt: {emplacementData?.depot?.code}</div>
               </div>
@@ -430,7 +489,7 @@ export default function InventoryMovement() {
               </div>
             </div>
           </div>
-          
+
           <p className='text-gray-600 text-sm'>
             Veuillez vérifier les informations avant de confirmer le transfert.
           </p>

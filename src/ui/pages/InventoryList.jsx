@@ -20,6 +20,7 @@ import dayjs from 'dayjs'
 import { CalendarArrowDown, CirclePlus } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import Spinner from '../components/ui/Spinner'
+import { useAuth } from '../contexts/AuthContext'
 
 const { TextArea } = Input
 
@@ -28,6 +29,7 @@ export default function InventoryList() {
   const [open, setOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [loading, setLoading] = useState(true)
+  const { roles } = useAuth();
   const [inventory, setInventory] = useState({
     name: '',
     date: null,
@@ -124,15 +126,19 @@ export default function InventoryList() {
               Gérez vos inventaires et suivez leur statut
             </p>
           </div>
-          <Button
-            size='large'
-            color="cyan" variant="solid"
-            icon={<CirclePlus size={18} />}
-            onClick={showModal}
-            className='flex items-center'
-          >
-            Créer
-          </Button>
+          {roles('admin') &&
+            <Button
+              size='large'
+              color="cyan" variant="solid"
+              icon={<CirclePlus size={18} />}
+              onClick={showModal}
+              className='flex items-center'
+            >
+              Créer
+            </Button>
+
+          }
+          
         </div>
       </div>
 

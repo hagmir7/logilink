@@ -5,33 +5,36 @@ import { Edit, PlusCircle, Trash, View } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Spinner from '../components/ui/Spinner';
 import DepotForm from '../components/DepotForm';
+import ImportEmplacement from '../components/ImportEmplacement';
+import { useAuth } from '../contexts/AuthContext';
 const { Search } = Input
 
 export default function Depots() {
 
-    const [depots, setDepots] = useState([]);
-    const [loading, setLoading] = useState(true);
+  const [depots, setDepots] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const { roles } = useAuth();
 
-    useEffect(()=>{
-        fetchDepots()
-    }, []);
+  useEffect(() => {
+    fetchDepots()
+  }, []);
 
 
-    const fetchDepots = async () => {
-      try {
-        const response = await api('depots')
-        setDepots(response.data.data)
-        setLoading(false)
-      } catch (error) {
-        setLoading(false);
-        message.error(error.response.data.message)
-        console.error(error.response);
+  const fetchDepots = async () => {
+    try {
+      const response = await api('depots')
+      setDepots(response.data.data)
+      setLoading(false)
+    } catch (error) {
+      setLoading(false);
+      message.error(error.response.data.message)
+      console.error(error.response);
 
-      }
     }
+  }
 
 
-  const deleteDepot = async (code) =>{
+  const deleteDepot = async (code) => {
     try {
       await api.delete(`depots/delete/${code}`);
       message.success('Dépôt supprimé avec succès');
@@ -48,7 +51,10 @@ export default function Depots() {
           placeholder='Recherch'
           style={{ width: "300px" }}
         />
-        <DepotForm />
+        {
+           roles('admin') && <DepotForm />
+        }
+        
       </div>
       {/* Desktop Table View */}
       <div className='overflow-x-auto'>
@@ -99,22 +105,29 @@ export default function Depots() {
                     </span>
                   </Link>
                 </td>
-                <td className='px-6 py-2 whitespace-nowrap flex gap-3'>
-                  <Popconfirm
-                    title={`Supprimer le dépôt ${data.code}`}
-                    description='Êtes-vous sûr de vouloir supprimer'
-                    onConfirm={() => deleteDepot(data.id)}
-                  >
-                    <Button>
-                      <Trash size={15} />
-                    </Button>
-                  </Popconfirm>
+                <td className=''>
+                  {
+                    roles('admin') && (<div className='px-6 py-2 whitespace-nowrap flex gap-3'>
+                      <Popconfirm
+                        title={`Supprimer le dépôt ${data.code}`}
+                        description='Êtes-vous sûr de vouloir supprimer'
+                        onConfirm={() => deleteDepot(data.id)}
+                      >
+                        <Button>
+                          <Trash size={15} />
+                        </Button>
+                      </Popconfirm>
 
-                  <Link to={`/depots/view/${data.id}`}>
-                    <Button>
-                      <View size={15} />
-                    </Button>
-                  </Link>
+                      <Link to={`/depots/view/${data.id}`}>
+                        <Button>
+                          <View size={15} />
+                        </Button>
+                      </Link>
+
+                      <ImportEmplacement depot_id={data.id} />
+                    </div>)
+                  }
+
 
                   {/* <Button>
                     <Edit size={15} />

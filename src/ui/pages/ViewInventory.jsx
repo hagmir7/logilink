@@ -4,13 +4,14 @@ import { ArrowDownUp, ChartBar, Package, Warehouse } from 'lucide-react';
 import InventoryArticles from './InventoryArticles';
 import { useParams } from 'react-router-dom';
 import InventoryOverview from '../components/InventoryOverview';
-import Depot from '../pages/Depots';
 import InventoryDepots from './InventoryDepots';
 import InventoryMovements from './InventoryMovements';
+import { useAuth } from '../contexts/AuthContext';
 
 const ViewInventory = () => {
     const [activeKey, setActiveKey] = useState('1');
     const { id } = useParams();
+    const { roles } = useAuth();
 
     const items = [
         {
@@ -22,16 +23,7 @@ const ViewInventory = () => {
             ),
             key: '1',
             children: <InventoryOverview />,
-        },
-        {
-            label: (
-                <span className='flex items-center gap-2'>
-                    <Package size={16} />
-                    Articles
-                </span>
-            ),
-            key: '2',
-            children: <InventoryArticles />,
+            hidden: !roles('admin')
         },
         {
             label: (
@@ -46,6 +38,17 @@ const ViewInventory = () => {
         {
             label: (
                 <span className='flex items-center gap-2'>
+                    <Package size={16} />
+                    Articles
+                </span>
+            ),
+            key: '2',
+            children: <InventoryArticles />,
+        },
+
+        {
+            label: (
+                <span className='flex items-center gap-2'>
                     <Warehouse size={16} />
                     Depots
                 </span>
@@ -55,18 +58,26 @@ const ViewInventory = () => {
         },
     ];
 
+    // Filter out hidden tabs
+    const visibleItems = items.filter(item => !item.hidden);
+
+    // Ensure activeKey is valid for visible tabs
+    const validActiveKey = visibleItems.find(item => item.key === activeKey)
+        ? activeKey
+        : visibleItems[0]?.key || '1';
+
     const handleTabChange = (key) => {
         setActiveKey(key);
     };
 
     return (
-        <div className=''>
+        <div>
             <Tabs
-                activeKey={activeKey}
+                activeKey={validActiveKey}
                 onChange={handleTabChange}
                 size='middle'
                 type="line"
-                items={items}
+                items={visibleItems}
                 style={{ marginBottom: 32 }}
             />
         </div>

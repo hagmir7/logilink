@@ -114,18 +114,24 @@ function Document() {
       {/* Header */}
       <div className='flex flex-wrap justify-between items-center gap-4 mb-4 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
-          <Search
-            placeholder='Recherch'
-            loading={searchSpinner}
-            size='large'
-            onChange={handleSearch}
-          />
+          <div className='hidden md:block'>
+            <Search
+              placeholder='Recherch'
+              loading={searchSpinner}
+              size='large'
 
+              onChange={handleSearch}
+            />
+          </div>
+
+        <div className='hidden md:block'>
           <RangePicker
             size='large'
             onChange={handleChangeDate}
-            className='min-w-[220px] block md:hidden'
+            className='min-w-[220px] '
           />
+        </div>
+        
 
           {roles('commercial') && (
             <Select

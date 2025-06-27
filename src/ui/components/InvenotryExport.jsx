@@ -38,7 +38,7 @@ export default function InventoryExport({inventory_id}) {
                     <Button loading={loading} onClick={() => handleExport(null)}>TOUTES LES SOCIÉTÉS</Button>
                     <Button loading={loading} onClick={() => handleExport(1)}>INTERCOCINA</Button>
                     <Button loading={loading} onClick={() => handleExport(2)}>SERIEMOBLE</Button>
-                    <Button loading={loading} onClick={() => handleExport(3)}>ASTIDCORA</Button>
+                    <Button loading={loading} onClick={() => handleExport(3)}>ASTIDKORA</Button>
                 </div>
             </Modal>
         </div>
