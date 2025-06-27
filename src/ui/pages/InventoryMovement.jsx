@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
@@ -23,12 +23,13 @@ export default function InventoryMovement() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [conditionList, setConditionList] = useState([])
   const [totalQuantity, setTotalQuantity] = useState(0)
+  const [companies, setCompanies] = useState([])
+  const [company, setCompany] = useState(null)
 
-  const articleInput = useRef();
-  const quantityInput = useRef();
-  const conditionInput = useRef();
-  const emplacemenInput = useRef();
-
+  const articleInput = useRef()
+  const quantityInput = useRef()
+  const conditionInput = useRef()
+  const emplacemenInput = useRef()
 
   useEffect(() => {
     if (!articleCode) {
@@ -39,9 +40,7 @@ export default function InventoryMovement() {
     }
   }, [articleCode])
 
-
   useEffect(() => {
-    
     if (quantity && condition) {
       setTotalQuantity(quantity * parseFloat(condition.replace(',', '.')))
     } else if (quantity) {
@@ -60,10 +59,12 @@ export default function InventoryMovement() {
       try {
         const response = await api.get(`inventory/emplacement/${code}`)
         setEmplacementData(response.data)
-        articleInput.current?.focus();
+        articleInput.current?.focus()
         setEmplacementError('')
       } catch (error) {
-        setEmplacementError(error.response?.data?.message || 'Emplacement introuvable')
+        setEmplacementError(
+          error.response?.data?.message || 'Emplacement introuvable'
+        )
       } finally {
         setLoadingEmplacement(false)
       }
@@ -79,7 +80,7 @@ export default function InventoryMovement() {
       setArticleData(null)
       try {
         const response = await api.get(`inventory/article/${code}`)
-        quantityInput.current?.focus();
+        quantityInput.current?.focus()
         setArticleData(response.data)
         setArticleError('')
       } catch (error) {
@@ -88,7 +89,7 @@ export default function InventoryMovement() {
         setLoadingArticle(false)
       }
     }, 500),
-    [] 
+    []
   )
 
   const getConditionOptions = () => {
@@ -109,39 +110,81 @@ export default function InventoryMovement() {
     return []
   }
 
-  useEffect(() => {
-    if (articleData) {
-      const options = getConditionOptions() // ← immediate value
-      setConditionList(options) // ← async update
-
-      if (options.length === 1) {
-        setCondition(options[0].value) // ← works as expected
-      }
+  const getCompanies = async () => {
+    try {
+      const { data } = await api.get('companies')
+      const options = data.map((company) => ({
+        label: company.name,
+        value: company.id, // Typically use id instead of value
+      }))
+      setCompanies(options)
+    } catch (error) {
+      console.error(error)
+      message.error('Erreur lors du chargement des sociétés')
     }
-  }, [articleData, type])
-  
+  }
+
+  // Generate options from articleData
+  const getCompanyOptions = () => {
+    if (!articleData?.companies?.length) return []
+
+    return articleData.companies.map((company) => ({
+      label: company.name,
+      value: company.id, // Ensure consistent value property
+    }))
+  }
+
+  useEffect(() => {
+    if (!articleData) return
+
+    // Handle condition options (unchanged)
+    const options = getConditionOptions()
+    setConditionList(options)
+    if (options.length === 1) {
+      setCondition(options[0].value)
+    }
+
+    // Handle companies
+    const companyOptions = getCompanyOptions()
+
+    if (articleData.companies.length === 1) {
+      setCompany(articleData.companies[0].id) // Set ID, not whole object
+    }
+
+    if (articleData.companies.length === 0) {
+      setCompany(null)
+      getCompanies()
+    } else {
+      setCompanies(companyOptions) // Use local options
+    }
+  }, [articleData, type]) // Fixed depe
 
   const handleSubmit = () => {
     if (!emplacementData) {
       setEmplacementError('Veuillez sélectionner un emplacement valide')
       return
     }
-    
+
     if (!articleData) {
       setArticleError('Veuillez sélectionner un article valide')
       return
     }
-    
+
     if (!quantity || isNaN(quantity) || Number(quantity) <= 0) {
       message.error('Veuillez saisir une quantité valide')
       return
     }
-    
-    if ((type === "Carton" || type === "Palette")  && !condition) {
+
+    if ((type === 'Carton' || type === 'Palette') && !condition) {
       message.error('Veuillez sélectionner une condition')
       return
     }
-    
+
+    if (!company) {
+      message.error('Veuillez sélectionner la Société')
+      return
+    }
+
     setIsModalOpen(true)
   }
 
@@ -154,23 +197,25 @@ export default function InventoryMovement() {
         type_colis: type,
         condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
+        company: company.id,
       }
 
-
       await api.post(`inventory/insert/${id}`, payload)
-      
-      setQuantity("")
-      setArticleCode("")
+
+      setQuantity('')
+      setArticleCode('')
       setArticleData(null)
       setType(null)
       setCondition(null)
       setTotalQuantity(0)
-      articleInput?.current?.focus();
-      message.success("Opération effectuée avec succès")
+      articleInput?.current?.focus()
+      message.success('Opération effectuée avec succès')
     } catch (error) {
-      console.error(error);
-      
-      message.error(error.response?.data?.message || 'Erreur lors de l\'opération')
+      console.error(error)
+
+      message.error(
+        error.response?.data?.message || "Erreur lors de l'opération"
+      )
     } finally {
       setIsModalOpen(false)
     }
@@ -201,20 +246,10 @@ export default function InventoryMovement() {
     setType(e.target.value)
 
     if (articleData) {
-      console.log("function" + getConditionOptions().length)
-      
       setConditionList(getConditionOptions())
     }
-
-    console.log('plain' + conditionList.length)
-    
-    if (conditionList.length === 1) {
-      setCondition(conditionList[0]?.value)
-    } else {
-      setCondition(null)
-    }
   }
-  
+
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* Header Section */}
@@ -382,7 +417,6 @@ export default function InventoryMovement() {
             if (isPaletteOrCarton) {
               if (/^\d*$/.test(value)) {
                 setQuantity(parseFloat(value.replace(',', '.')))
-                
               }
             } else {
               if (/^\d*\.?\d*$/.test(value)) {
@@ -391,6 +425,21 @@ export default function InventoryMovement() {
             }
           }}
         />
+      </div>
+
+      <div className='px-5'>
+        <h2 className='text-md font-semibold text-gray-700 mb-2'>Société</h2>
+        {(companies.length > 0 || company) && (
+          <Select
+            placeholder='Sélectionner une société'
+            size='large'
+            className='w-full text-2xl'
+            value={company}
+            onChange={setCompany}
+            options={companies}
+            allowClear={true}
+          />
+        )}
       </div>
 
       {/* Submit Button */}
@@ -405,10 +454,12 @@ export default function InventoryMovement() {
           Valider le mouvement
         </Button>
         <div className='mt-28'>
-          <Button className='w-full' size='large'>
-            <Menu />
-            Liste des mouvements
-          </Button>
+          <Link to={`/inventories/${id}`}>
+            <Button className='w-full' size='large'>
+              <Menu />
+              Liste des mouvements
+            </Button>
+          </Link>
         </div>
       </div>
 
@@ -467,7 +518,12 @@ export default function InventoryMovement() {
                 </div>
 
                 <div className='text-md'>
-                  Fournisseur Ref: <strong>{articleData?.code_supplier || articleData?.code_supplier_2 || '__'}</strong>
+                  Fournisseur Ref:{' '}
+                  <strong>
+                    {articleData?.code_supplier ||
+                      articleData?.code_supplier_2 ||
+                      '__'}
+                  </strong>
                 </div>
               </div>
             </div>

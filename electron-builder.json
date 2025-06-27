@@ -2,8 +2,10 @@
     "appId": "com.intercocina.logilink",
     "productName": "LOGILINK PRO",
     "files": [
-        "react-dist",
-        "src/electron"
+      "react-dist",
+      "src/electron",
+      "!**/node_modules/@tailwindcss/oxide-wasm32-wasi/**",
+      "!**/node_modules/@emnapi/core/**"
     ],
     "icon": "./intercocina-logo.png",
     "win": {
