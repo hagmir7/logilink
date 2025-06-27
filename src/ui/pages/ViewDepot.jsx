@@ -4,6 +4,8 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
+import CreateEmplacement from '../components/CreateEmplacement'
+
 
 export default function ViewDepot() {
   const { id } = useParams()
@@ -34,10 +36,11 @@ export default function ViewDepot() {
         <h2 className='text-xl font-semibold text-gray-800'>
           {depot.code} ({depot.emplacements.length})
         </h2>
-        <Button size='large' className='flex'>
+        {/* <Button size='large' className='flex'>
           <PlusCircle size={20} />
           <span className='text-md'>Créer</span>
-        </Button>
+        </Button> */}
+        <CreateEmplacement />
       </div>
       {/* Desktop Table View */}
       <div className='overflow-x-auto'>
