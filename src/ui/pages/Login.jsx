@@ -16,7 +16,7 @@ const Login = () => {
   useEffect(() => {
     form.setFieldsValue({
       login: 'admin',
-      password: 'password'
+      password: ''
     });
     checkAuth();
   }, [form]);

@@ -54,7 +54,6 @@ function InventoryArticles() {
 
   return (
     <div className='w-full'>
-
       {/* Header */}
       <div className='flex flex-wrap justify-between items-center gap-4 mb-4 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
@@ -74,11 +73,11 @@ function InventoryArticles() {
           </Button>
 
           <Select
-              defaultValue="panneaux"
-              placeholder="Filter"
-              size='middle'
-              style={{ width: 300 }}
-              options={categories}
+            defaultValue='panneaux'
+            placeholder='Filter'
+            size='middle'
+            style={{ width: 300 }}
+            options={categories}
           />
         </div>
       </div>
@@ -138,7 +137,7 @@ function InventoryArticles() {
                 )}
 
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                  {article.inventory_quantity || 0}
+                  {(Number(article.inventory_quantity) || 0).toFixed(3)}
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   {article.color || '_'}

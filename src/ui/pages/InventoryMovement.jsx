@@ -23,15 +23,14 @@ export default function InventoryMovement() {
   const [articleError, setArticleError] = useState('')
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [conditionList, setConditionList] = useState([])
-  const [totalQuantity, setTotalQuantity] = useState(0);
-  const [companies, setCompanies] = useState([]);
-  const [company, setCompany] = useState(null);
+  const [totalQuantity, setTotalQuantity] = useState(0)
+  const [companies, setCompanies] = useState([])
+  const [company, setCompany] = useState(null)
 
-  const articleInput = useRef();
-  const quantityInput = useRef();
-  const conditionInput = useRef();
-  const emplacemenInput = useRef();
-
+  const articleInput = useRef()
+  const quantityInput = useRef()
+  const conditionInput = useRef()
+  const emplacemenInput = useRef()
 
   useEffect(() => {
     if (!articleCode) {
@@ -43,22 +42,16 @@ export default function InventoryMovement() {
     }
   }, [articleCode])
 
-
   useEffect(() => {
     if (quantity && condition) {
-      setTotalQuantity(Number(quantity) * condition)
+      setTotalQuantity(quantity * parseFloat(condition.replace(',', '.')))
     } else if (quantity) {
-      setTotalQuantity(Number(quantity))
+      setTotalQuantity(quantity)
     } else {
       setTotalQuantity(0)
     }
   }, [quantity, condition])
 
-
-  const getCompanies = async ()=>{
-    const {data}  = await api.get('companies');
-    setCompanies(data);
-  }
 
   const fetchEmplacementData = useCallback(
     debounce(async (code) => {
@@ -69,10 +62,12 @@ export default function InventoryMovement() {
       try {
         const response = await api.get(`inventory/emplacement/${code}`)
         setEmplacementData(response.data)
-        articleInput.current?.focus();
+        articleInput.current?.focus()
         setEmplacementError('')
       } catch (error) {
-        setEmplacementError(error.response?.data?.message || 'Emplacement introuvable')
+        setEmplacementError(
+          error.response?.data?.message || 'Emplacement introuvable'
+        )
       } finally {
         setLoadingEmplacement(false)
       }
@@ -88,7 +83,7 @@ export default function InventoryMovement() {
       setArticleData(null)
       try {
         const response = await api.get(`inventory/article/${code}`)
-        quantityInput.current?.focus();
+        quantityInput.current?.focus()
         setArticleData(response.data)
         setArticleError('')
       } catch (error) {
@@ -102,30 +97,70 @@ export default function InventoryMovement() {
 
   const getConditionOptions = () => {
     if (!articleData) return []
-
-    if (type === "Palette" && articleData.palette_condition) {
-      conditionInput?.current?.focus();
-      return articleData.palette_condition.split('|').map(cond => ({
+    if (type === 'Palette' && articleData.palette_condition) {
+      conditionInput?.current?.focus()
+      return articleData.palette_condition.split('|').map((cond) => ({
         label: cond,
-        value: Number(cond)
+        value: cond,
       }))
-
-    } else if (articleData.condition) {
-      conditionInput?.current?.focus();
-      return articleData.condition.split('|').map(cond => ({
+    } else if (type === 'Carton' && articleData.condition) {
+      conditionInput?.current?.focus()
+      return articleData.condition.split('|').map((cond) => ({
         label: cond,
-        value: Number(cond)
+        value: cond,
       }))
-
     }
     return []
   }
 
-  useEffect(() => {
-    if (articleData) {
-      setConditionList(getConditionOptions())
+  const getCompanies = async () => {
+    try {
+      const { data } = await api.get('companies')
+      const options = data.map((company) => ({
+        label: company.name,
+        value: company.id, 
+      }))
+      setCompanies(options)
+    } catch (error) {
+      console.error(error)
+      message.error('Erreur lors du chargement des sociétés')
     }
-  }, [articleData, type])
+  }
+
+  // Generate options from articleData
+  const getCompanyOptions = () => {
+    if (!articleData?.companies?.length) return []
+
+    return articleData.companies.map((company) => ({
+      label: company.name,
+      value: company.id, // Ensure consistent value property
+    }))
+  }
+
+  useEffect(() => {
+    if (!articleData) return
+
+    // Handle condition options (unchanged)
+    const options = getConditionOptions()
+    setConditionList(options)
+    if (options.length === 1) {
+      setCondition(options[0].value)
+    }
+
+    // Handle companies
+    const companyOptions = getCompanyOptions()
+
+    if (articleData.companies.length === 1) {
+      setCompany(articleData.companies[0].id) // Set ID, not whole object
+    }
+
+    if (articleData.companies.length === 0) {
+      setCompany(null)
+      getCompanies()
+    } else {
+      setCompanies(companyOptions) // Use local options
+    }
+  }, [articleData, type]) // Fixed depe
 
   const handleSubmit = () => {
     if (!emplacementData) {
@@ -143,8 +178,13 @@ export default function InventoryMovement() {
       return
     }
 
-    if ((type === "Carton" || type === "Palette") && !condition) {
+    if ((type === 'Carton' || type === 'Palette') && !condition) {
       message.error('Veuillez sélectionner une condition')
+      return
+    }
+
+    if (!company) {
+      message.error('Veuillez sélectionner la Société')
       return
     }
 
@@ -156,70 +196,62 @@ export default function InventoryMovement() {
       const payload = {
         emplacement_code: emplacementData.code,
         article_code: articleData.code,
-        quantity: condition ? totalQuantity : Number(quantity),
+        quantity: condition ? totalQuantity : quantity,
         type_colis: type,
-        condition,
+        condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
-        company
+        company: company.id,
       }
-
 
       await api.post(`inventory/insert/${id}`, payload)
 
-      setQuantity("")
-      setArticleCode("")
-      setEmplacementData(null)
+      setQuantity('')
+      setArticleCode('')
       setArticleData(null)
       setType(null)
       setCondition(null)
       setCompany(null)
       setTotalQuantity(0)
-      emplacemenInput.current.focus();
-      message.success("Opération effectuée avec succès")
+      articleInput?.current?.focus()
+      message.success('Opération effectuée avec succès')
     } catch (error) {
-      console.error(error);
+      console.error(error)
 
-      message.error(error.response?.data?.message || 'Erreur lors de l\'opération')
+      message.error(
+        error.response?.data?.message || "Erreur lors de l'opération"
+      )
     } finally {
       setIsModalOpen(false)
     }
   }
 
-  const changeEmplacement = (valueOrEvent) => {
-    const value = valueOrEvent?.target ? valueOrEvent.target.value : valueOrEvent;
+  const changeEmplacement = (e) => {
+    const value = e.target.value.replace(/[\[\]]/g, '')
+    setEmplacementCode(value)
+    setEmplacementData(null)
+    setEmplacementError('')
+    if (value.length >= 3) fetchEmplacementData(value)
+  }
 
-    setEmplacementCode(value);
-    setEmplacementData(null);
-    setEmplacementError('');
-
-    if (value.length >= 3) {
-      fetchEmplacementData(value);
-    }
-  };
-
-  const companyOptions = companies.map((company) => ({
-    value: company.id, // assuming the id field is called 'id'
-    label: company.name, // assuming the name field is called 'name'
-  }));
-
-
-  const changeArticle = (valueOrEvent) => {
-    const value = valueOrEvent?.target ? valueOrEvent.target.value : valueOrEvent;
-
-    setArticleCode(value);
-    setArticleData(null);
-    setArticleError('');
-
-    if (value.length >= 3) {
-      fetchArticleData(value);
-    }
-  };
-
+  const changeArticle = (e) => {
+    const value = e.target.value.replace(/[\[\]]/g, '')
+    setArticleCode(value)
+    setArticleData(null)
+    setArticleError('')
+    setType(null)
+    if (value.length >= 3) fetchArticleData(value)
+  }
 
   const handleTypeChange = (e) => {
-    quantityInput.current.focus();
+    if (quantityInput.current) {
+      quantityInput.current.focus()
+    }
+
     setType(e.target.value)
-    setCondition(null);
+
+    if (articleData) {
+      setConditionList(getConditionOptions())
+    }
   }
 
   return (
@@ -239,11 +271,12 @@ export default function InventoryMovement() {
 
       {/* Emplacement Section */}
       <div className='px-5'>
-        <h2 className='text-md font-semibold text-gray-700 mb-2'>Emplacement</h2>
+        <h2 className='text-md font-semibold text-gray-700 mb-2'>
+          Emplacement
+        </h2>
 
-        
         <div className='flex gap-2'>
-            <Input
+          <Input
             placeholder='Saisir le code emplacement'
             autoFocus
             size='large'
@@ -251,7 +284,11 @@ export default function InventoryMovement() {
             value={emplacementCode}
             onChange={changeEmplacement}
             allowClear={true}
-            suffix={loadingEmplacement ? <span className='text-gray-400'>Chargement...</span> : null}
+            suffix={
+              loadingEmplacement ? (
+                <span className='text-gray-400'>Chargement...</span>
+              ) : null
+            }
           />
           <InputField
             value={emplacementCode}
@@ -285,7 +322,11 @@ export default function InventoryMovement() {
           onChange={changeArticle}
           ref={articleInput}
           allowClear={true}
-          suffix={loadingArticle ? <span className='text-gray-400'>Chargement...</span> : null}
+          suffix={
+            loadingArticle ? (
+              <span className='text-gray-400'>Chargement...</span>
+            ) : null
+          }
         />
         <InputField
           value={articleCode}
@@ -310,7 +351,8 @@ export default function InventoryMovement() {
               <div className='font-bold'>{articleData.color}</div>
               <div className='font-medium'>Dimensions:</div>
               <div className='font-bold'>
-                {articleData.height || 0} × {articleData.width} × {articleData.depth}
+                {articleData.height || 0} × {articleData.width} ×{' '}
+                {articleData.depth}
               </div>
               {articleData.thickness && (
                 <>
@@ -357,9 +399,11 @@ export default function InventoryMovement() {
         )}
 
       {/* Condition Selection */}
-      {articleData && type && (type !== "Piece") && conditionList.length > 0 && (
+      {articleData && type && type !== 'Piece' && conditionList.length > 0 && (
         <div className='px-5'>
-          <h2 className='text-md font-semibold text-gray-700 mb-2'>Condition</h2>
+          <h2 className='text-md font-semibold text-gray-700 mb-2'>
+            Condition
+          </h2>
           <Select
             placeholder='Sélectionner une condition'
             size='large'
@@ -367,8 +411,8 @@ export default function InventoryMovement() {
             ref={conditionInput}
             value={condition}
             onChange={(value) => {
-              setCondition(value);
-              quantityInput.current?.focus();
+              setCondition(value)
+              quantityInput.current?.focus()
             }}
             options={conditionList}
             allowClear={true}
@@ -388,30 +432,37 @@ export default function InventoryMovement() {
           allowClear={true}
           value={quantity}
           onChange={(e) => {
-            const value = e.target.value;
-            if (/^\d*\.?\d*$/.test(value)) {
-              setQuantity(value);
+            const value = e.target.value
+            const isPaletteOrCarton = type === 'Palette' || type === 'Carton'
+
+            if (isPaletteOrCarton) {
+              if (/^\d*$/.test(value)) {
+                setQuantity(parseFloat(value.replace(',', '.')))
+              }
+            } else {
+              if (/^\d*\.?\d*$/.test(value)) {
+                setQuantity(parseFloat(value.replace(',', '.')))
+              }
             }
           }}
-
         />
       </div>
-
-      {/* Company */}
-      {articleData && articleData?.companies?.length == 0 && (
+  {(companies.length > 0 || company) && (
         <div className='px-5'>
           <h2 className='text-md font-semibold text-gray-700 mb-2'>Société</h2>
-          <Select
-            placeholder='Sélectionner une Société'
-            size='large'
-            className='w-full'
-            value={company}
-            onChange={(value) => setCompany(value)}
-            options={companyOptions}
-            allowClear={true}
-          />
+          
+            <Select
+              placeholder='Sélectionner une société'
+              size='large'
+              className='w-full text-2xl'
+              value={company}
+              onChange={setCompany}
+              options={companies}
+              allowClear={true}
+            />
+        
         </div>
-      )}
+        )}
 
       {/* Submit Button */}
       <div className='px-5 mb-3'>
@@ -432,23 +483,23 @@ export default function InventoryMovement() {
             </Button>
           </Link>
         </div>
-
       </div>
-
 
       {/* Confirmation Modal */}
       <Modal
-        title={(
+        title={
           <div className='flex items-center gap-2'>
             <AlertCircle className='w-6 h-6 text-amber-600' />
-            <span className='text-lg font-semibold'>Confirmer le transfert</span>
+            <span className='text-lg font-semibold'>
+              Confirmer le transfert
+            </span>
           </div>
-        )}
+        }
         open={isModalOpen}
         onOk={handleOk}
         onCancel={() => setIsModalOpen(false)}
-        okText="Confirmer"
-        cancelText="Annuler"
+        okText='Confirmer'
+        cancelText='Annuler'
         okButtonProps={{ className: 'bg-blue-600 hover:bg-blue-700' }}
       >
         <div className='py-4 space-y-4'>
@@ -457,22 +508,45 @@ export default function InventoryMovement() {
             <div className='flex items-start gap-3 mb-3'>
               <Building2 className='w-5 h-5 text-blue-600 mt-1 flex-shrink-0' />
               <div>
-                <div className='text-sm font-medium text-gray-700'>Emplacement</div>
-                {/* {JSON.stringify(company)} */}
-                <div className='font-bold'>{companies.find((item) => item?.id == company)?.name}</div>
+                <div className='text-sm font-medium text-gray-700'>
+                  Emplacement
+                </div>
                 <div className='font-bold'>{emplacementData?.code}</div>
-                <div className='text-sm'>Dépôt: {emplacementData?.depot?.code}</div>
+                <div className='text-sm'>
+                  Dépôt: {emplacementData?.depot?.code}
+                </div>
               </div>
             </div>
 
             {/* Article Summary */}
             <div className='flex items-start gap-3 mb-3'>
               <Package className='w-5 h-5 text-green-600 mt-1 flex-shrink-0' />
-              <div>
-                <div className='text-sm font-medium text-gray-700'>Article</div>
-                <div className='font-bold'>{articleData?.name}</div>
-                <div className='text-sm'>Réf: {articleData?.code}</div>
-                <div className='text-sm'>Dimensions: {articleData?.height} × {articleData?.width} × {articleData?.depth}</div>
+              <div className='space-y-1'>
+                <div className='text-lg font-medium text-gray-700'>Article</div>
+                <div className='font-bold text-md'>{articleData?.name}</div>
+                <div className='font-bold text-md'>
+                  {uppercaseFirst(articleData?.description)}
+                </div>
+                <div className='text-md'>
+                  Réf: <strong>{articleData?.code}</strong>
+                </div>
+                <div className='text-sm'>
+                  Dimensions: {articleData?.height} × {articleData?.width} ×{' '}
+                  {articleData?.depth}
+                </div>
+
+                <div className='text-md'>
+                  Couleur: <strong>{articleData?.color || '__'}</strong>
+                </div>
+
+                <div className='text-md'>
+                  Fournisseur Ref:{' '}
+                  <strong>
+                    {articleData?.code_supplier ||
+                      articleData?.code_supplier_2 ||
+                      '__'}
+                  </strong>
+                </div>
               </div>
             </div>
 
@@ -480,11 +554,17 @@ export default function InventoryMovement() {
             <div className='flex items-start gap-3'>
               <Hash className='w-5 h-5 text-purple-600 mt-1 flex-shrink-0' />
               <div>
-                <div className='text-sm font-medium text-gray-700'>Quantité</div>
+                <div className='text-sm font-medium text-gray-700'>
+                  Quantité
+                </div>
                 <div>
                   {quantity} {type && `(${type})`}
                   {condition && ` × ${condition} = `}
-                  {condition && <span className='font-bold text-green-600'>{totalQuantity} {articleData?.unit}</span>}
+                  {condition && (
+                    <span className='font-bold text-green-600'>
+                      {totalQuantity} {articleData?.unit}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>

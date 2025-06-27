@@ -135,13 +135,14 @@ function InventoryMovements() {
             )}
           />
 
-            <RangePicker
-                locale={locale}
-                className='w-full'
-                placeholder={['Date début', 'Date fin']}
-                onChange={(dates, dateStrings) => {
-                    setDateFilter(dateStrings)
-                }} />
+          <RangePicker
+            locale={locale}
+            className='w-full'
+            placeholder={['Date début', 'Date fin']}
+            onChange={(dates, dateStrings) => {
+              setDateFilter(dateStrings)
+            }}
+          />
 
           <Button onClick={fetchData} size='middle'>
             {loading ? (
@@ -208,8 +209,9 @@ function InventoryMovements() {
                   {movement.emplacement_code}
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                  {movement.quantity}
+                  {(Number(movement.quantity) || 0).toFixed(3)}
                 </td>
+
                 <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   {movement?.user?.full_name}
                 </td>
@@ -226,11 +228,12 @@ function InventoryMovements() {
                     onCancel={handleCancel}
                     cancelText='Annuler'
                     okText='Supprimer'
-                    color="danger"
+                    color='danger'
                     okType='danger'
                   >
                     <Button
-                      color="danger" variant="solid"
+                      color='danger'
+                      variant='solid'
                       className='bg-red-500 hover:bg-red-600 text-white'
                       onClick={() => setOpenConfirmId(movement.id)}
                     >
