@@ -43,7 +43,8 @@ const BCScanner = ({ onScan, onError }) => {
         throw new Error('Aucune caméra trouvée');
       }
 
-      const cameraId = cameras[1].id;
+
+      const cameraId = cameras.length === 1 ? cameras[0].id : cameras[0].id;
       setIsScanning(true);
       
       // Initialize scanner if not already exists

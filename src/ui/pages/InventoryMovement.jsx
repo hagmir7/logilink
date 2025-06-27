@@ -133,7 +133,7 @@ export default function InventoryMovement() {
 
     return articleData.companies.map((company) => ({
       label: company.name,
-      value: company.id, // Ensure consistent value property
+      value: company.id,
     }))
   }
 
@@ -225,22 +225,26 @@ export default function InventoryMovement() {
     }
   }
 
-  const changeEmplacement = (e) => {
-    const value = e.target.value.replace(/[\[\]]/g, '')
-    setEmplacementCode(value)
+  const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
+
+  const changeEmplacement = (value) => {
+    const result = sanitizeInput(value)
+    setEmplacementCode(result)
     setEmplacementData(null)
     setEmplacementError('')
-    if (value.length >= 3) fetchEmplacementData(value)
+    if (result.length >= 3) fetchEmplacementData(result)
   }
+  
 
-  const changeArticle = (e) => {
-    const value = e.target.value.replace(/[\[\]]/g, '')
-    setArticleCode(value)
+  const changeArticle = (value) => {
+    const result = sanitizeInput(value)
+    setArticleCode(result)
     setArticleData(null)
     setArticleError('')
     setType(null)
     if (value.length >= 3) fetchArticleData(value)
   }
+  
 
   const handleTypeChange = (e) => {
     if (quantityInput.current) {
@@ -278,11 +282,10 @@ export default function InventoryMovement() {
         <div className='flex gap-2'>
           <Input
             placeholder='Saisir le code emplacement'
-            autoFocus
             size='large'
             ref={emplacemenInput}
             value={emplacementCode}
-            onChange={changeEmplacement}
+            onChange={(e) => changeEmplacement(e.target.value)}
             allowClear={true}
             suffix={
               loadingEmplacement ? (
@@ -315,27 +318,27 @@ export default function InventoryMovement() {
       <div className='px-5'>
         <h2 className='text-md font-semibold text-gray-700 mb-2'>Article</h2>
         <div className='flex gap-2'>
-        <Input
-          placeholder='Saisir le code article'
-          size='large'
-          value={articleCode}
-          onChange={changeArticle}
-          ref={articleInput}
-          allowClear={true}
-          suffix={
-            loadingArticle ? (
-              <span className='text-gray-400'>Chargement...</span>
-            ) : null
-          }
-        />
-        <InputField
-          value={articleCode}
-          onChange={(e) => changeArticle(e.target.value)}
-          onScan={(value) => changeArticle(value)}
-        />
-      </div>
+          <Input
+            placeholder='Saisir le code article'
+            size='large'
+            ref={articleInput}
+            value={articleCode}
+            onChange={(e) => changeArticle(e.target.value)}
+            allowClear={true}
+            suffix={
+              loadingArticle ? (
+                <span className='text-gray-400'>Chargement...</span>
+              ) : null
+            }
+          />
 
-       
+          <InputField
+            value={articleCode}
+            onChange={(e) => changeArticle(e.target.value)}
+            onScan={(value) => changeArticle(value)}
+          />
+        </div>
+
         {articleError && (
           <div className='text-red-600 text-sm mb-3'>{articleError}</div>
         )}
@@ -447,22 +450,21 @@ export default function InventoryMovement() {
           }}
         />
       </div>
-  {(companies.length > 0 || company) && (
+      {(companies.length > 0 || company) && (
         <div className='px-5'>
           <h2 className='text-md font-semibold text-gray-700 mb-2'>Société</h2>
-          
-            <Select
-              placeholder='Sélectionner une société'
-              size='large'
-              className='w-full text-2xl'
-              value={company}
-              onChange={setCompany}
-              options={companies}
-              allowClear={true}
-            />
-        
+
+          <Select
+            placeholder='Sélectionner une société'
+            size='large'
+            className='w-full text-2xl'
+            value={company}
+            onChange={setCompany}
+            options={companies}
+            allowClear={true}
+          />
         </div>
-        )}
+      )}
 
       {/* Submit Button */}
       <div className='px-5 mb-3'>
