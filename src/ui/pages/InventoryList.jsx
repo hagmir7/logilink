@@ -126,19 +126,18 @@ export default function InventoryList() {
               Gérez vos inventaires et suivez leur statut
             </p>
           </div>
-          {roles('admin') &&
+          {roles('admin') && (
             <Button
               size='large'
-              color="cyan" variant="solid"
+              color='cyan'
+              variant='solid'
               icon={<CirclePlus size={18} />}
               onClick={showModal}
               className='flex items-center'
             >
               Créer
             </Button>
-
-          }
-          
+          )}
         </div>
       </div>
 
@@ -162,7 +161,6 @@ export default function InventoryList() {
                 key={item.id}
                 className='bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow'
                 bodyStyle={{ padding: '24px' }}
-
               >
                 <div className='flex justify-between items-start mb-4'>
                   <h3 className='text-lg font-semibold text-gray-900 truncate flex-1 mr-2'>
@@ -193,14 +191,23 @@ export default function InventoryList() {
                   )}
 
                   <div className='text-xs text-gray-400 mt-3 pt-3 border-t border-gray-100 flex gap-3'>
-                   <Link to={`/inventories/in/${item.id}`} className='w-full'>
-                      <Button className='w-full' color='green' variant='solid'>
+                    <Link to={`/inventories/in/${item.id}`} className='w-full'>
+                      <Button
+                        className='w-full'
+                        style={{ height: '50px', fontSize: '24px' }}
+                        color='green'
+                        variant='solid'
+                      >
                         Traitement
                       </Button>
                     </Link>
 
                     <Link to={`/inventories/${item.id}`} className='w-full'>
-                      <Button className='w-full' color='green'>
+                      <Button
+                        className='w-full'
+                        style={{ height: '50px', fontSize: '24px' }}
+                        color='green'
+                      >
                         Voir
                       </Button>
                     </Link>

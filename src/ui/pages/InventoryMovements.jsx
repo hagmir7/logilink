@@ -65,9 +65,6 @@ const formatDate = (date) => {
 const { Search } = Input
 
 
-
-
-
 function InventoryMovements() {
   const [loading, setLoading] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
@@ -82,6 +79,7 @@ function InventoryMovements() {
   const [selectedDepots, setSelectedDepots] = useState([])
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const [emplacementSearch, setEmplacementSearch] = useState([])
 
   const [movments, setMovments] = useState({
     data: [],
@@ -96,6 +94,7 @@ function InventoryMovements() {
     category: categoryFilter,
     depots: selectedDepots,
     users: selectedUsers,
+    emplacement: emplacementSearch,
   })
 
   const fetchData = async () => {
@@ -127,6 +126,7 @@ function InventoryMovements() {
     categoryFilter,
     selectedDepots,
     selectedUsers,
+    emplacementSearch,
   ])
 
   const handleOk = async (movementId) => {
@@ -238,6 +238,8 @@ function InventoryMovements() {
     }
   }
 
+  const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
+
   return (
     <div className='w-full'>
       {/* Header */}
@@ -333,6 +335,22 @@ function InventoryMovements() {
               <span className='hidden sm:inline'>Rafraîchir</span>
             </Button>
           </div>
+        </div>
+        <div className='block lg:hidden w-full'>
+          <Input
+            placeholder='Emplacement'
+            size='large'
+            styles={{
+              input: {
+                fontSize: '25px',
+                height: '60px',
+              },
+            }}
+            autoFocus={true}
+            onChange={(e) =>
+              setEmplacementSearch(sanitizeInput(e.target.value))
+            }
+          />
         </div>
       </div>
 
@@ -582,7 +600,6 @@ function InventoryMovements() {
                   autoFocus
                 />
               </div>
-
               <div className='bg-gray-50 p-3 rounded'>
                 <p className='text-sm text-gray-600'>
                   <strong>Type:</strong>{' '}

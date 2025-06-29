@@ -12,5 +12,10 @@ export default defineConfig({
   server: {
     port: 5123,
     strictPort: true
-  }
+  },
+  safelist: [
+    {
+      pattern: /ant-select-dropdown.*/,
+    },
+  ],
 })

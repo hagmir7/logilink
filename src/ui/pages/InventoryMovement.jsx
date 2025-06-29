@@ -201,7 +201,7 @@ export default function InventoryMovement() {
         type_colis: type,
         condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
-        company: company,
+        company: null,
       }
 
 
@@ -292,6 +292,8 @@ export default function InventoryMovement() {
           <Input
             placeholder='Saisir le code emplacement'
             size='large'
+            className='h-[60px] text-2xl'
+            style={{ fontSize: '30px' }}
             autoFocus={true}
             ref={emplacemenInput}
             value={emplacementCode}
@@ -310,11 +312,11 @@ export default function InventoryMovement() {
           />
         </div>
         {emplacementError && (
-          <div className='text-red-600 text-sm mb-3'>{emplacementError}</div>
+          <div className='text-red-600 text-lg mb-3'>{emplacementError}</div>
         )}
         {emplacementData && (
           <div className='bg-gray-100 p-3 rounded-md mt-2'>
-            <div className='grid grid-cols-2 gap-2 text-sm'>
+            <div className='grid grid-cols-2 gap-2 text-lg'>
               <div className='font-medium'>Dépôt:</div>
               <div className='font-bold'>
                 {emplacementData?.depot?.code || emplacementData.depot_id}
@@ -326,11 +328,15 @@ export default function InventoryMovement() {
 
       {/* Article Section */}
       <div className='px-5'>
-        <h2 className='text-md font-semibold text-gray-700 mb-2'>Article</h2>
+        <h2 className='text-md font-semibold text-gray-700 mb-2'>
+          Réf Article{' '}
+        </h2>
         <div className='flex gap-2'>
           <Input
-            placeholder='Saisir le code article'
+            placeholder='Saisir Réf Article'
             size='large'
+            className='h-[60px] text-2xl'
+            style={{ fontSize: '30px' }}
             ref={articleInput}
             value={articleCode}
             onChange={(e) => changeArticle(e.target.value)}
@@ -355,22 +361,24 @@ export default function InventoryMovement() {
 
         {articleData && (
           <div className='bg-gray-100 p-3 rounded-md mt-2'>
-            <div className='mb-2 font-bold'>
+            <div className='mb-2 font-bold text-lg'>
               {uppercaseFirst(articleData.description)}
               {articleData.name && ` (${articleData.name})`}
             </div>
             <div className='grid grid-cols-2 gap-2 text-sm'>
               <div className='font-medium'>Couleur:</div>
-              <div className='font-bold'>{articleData.color}</div>
+              <div className='font-bold text-lg'>{articleData.color}</div>
               <div className='font-medium'>Dimensions:</div>
-              <div className='font-bold'>
+              <div className='font-bold text-lg'>
                 {articleData.height || 0} × {articleData.width} ×{' '}
                 {articleData.depth}
               </div>
               {articleData.thickness && (
                 <>
                   <div className='font-medium'>Épaisseur:</div>
-                  <div className='font-bold'>{articleData.thickness}</div>
+                  <div className='font-bold text-lg'>
+                    {articleData.thickness}
+                  </div>
                 </>
               )}
             </div>
@@ -388,22 +396,29 @@ export default function InventoryMovement() {
               optionType='button'
               buttonStyle='solid'
               className='w-full'
+              style={{ display: 'flex' }}
             >
-              <Radio.Button value='Piece' className='w-1/3 text-center'>
+              <Radio.Button
+                value='Piece'
+                style={{ fontSize: '25px', height: '50px', display: 'flex' }}
+                className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
+              >
                 Pièce
               </Radio.Button>
 
               <Radio.Button
                 disabled={!articleData?.condition}
                 value='Carton'
-                className='w-1/3 text-center'
+                style={{ fontSize: '25px', height: '50px', display: 'flex' }}
+                className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Carton
               </Radio.Button>
               <Radio.Button
                 disabled={!articleData?.palette_condition}
                 value='Palette'
-                className='w-1/3 text-center'
+                style={{ fontSize: '25px', height: '50px', display: 'flex' }}
+                className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Palette
               </Radio.Button>
@@ -420,8 +435,10 @@ export default function InventoryMovement() {
           <Select
             placeholder='Sélectionner une condition'
             size='large'
-            className='w-full'
+            className='custom-select w-full'
+            dropdownClassName='custom-select-dropdown'
             ref={conditionInput}
+            style={{ height: '60px' }}
             value={condition}
             onChange={(value) => {
               setCondition(value)
@@ -444,6 +461,8 @@ export default function InventoryMovement() {
           min={0.1}
           allowClear={true}
           value={quantity}
+          className='h-[60px] text-2xl'
+          style={{ fontSize: '30px' }}
           onChange={(e) => {
             const value = e.target.value
             const isPaletteOrCarton = type === 'Palette' || type === 'Carton'
@@ -463,11 +482,11 @@ export default function InventoryMovement() {
       {(companies.length > 0 || company) && (
         <div className='px-5'>
           <h2 className='text-md font-semibold text-gray-700 mb-2'>Société</h2>
-
           <Select
             placeholder='Sélectionner une société'
             size='large'
-            className='w-full text-2xl'
+            className='custom-select w-full'
+            dropdownClassName='custom-select-dropdown'
             value={company}
             onChange={setCompany}
             options={companies}
@@ -477,9 +496,10 @@ export default function InventoryMovement() {
       )}
 
       {/* Submit Button */}
-      <div className='px-5 mb-3'>
+      <div className='px-5 my-3 mt-10'>
         <Button
-          className='w-full mt-4'
+          className='h-[60px] w-full'
+          style={{ fontSize: '30px', padding: '30px' }}
           size='large'
           type='primary'
           onClick={handleSubmit}
@@ -489,8 +509,12 @@ export default function InventoryMovement() {
         </Button>
         <div className='mt-28'>
           <Link to={`/inventories/${id}`}>
-            <Button className='w-full' size='large'>
-              <Menu />
+            <Button
+              style={{ fontSize: '30px', padding: '30px' }}
+              className='w-full'
+              size='large'
+            >
+              <Menu size={35} />
               Liste des mouvements
             </Button>
           </Link>
@@ -501,8 +525,8 @@ export default function InventoryMovement() {
       <Modal
         title={
           <div className='flex items-center gap-2'>
-            <AlertCircle className='w-6 h-6 text-amber-600' />
-            <span className='text-lg font-semibold'>
+            <AlertCircle className='w-8 h-8 text-amber-600' />
+            <span className='text-2xl font-semibold'>
               Confirmer le transfert
             </span>
           </div>
@@ -512,46 +536,55 @@ export default function InventoryMovement() {
         onCancel={() => setIsModalOpen(false)}
         okText='Confirmer'
         cancelText='Annuler'
-        okButtonProps={{ className: 'bg-blue-600 hover:bg-blue-700' }}
+        okButtonProps={{
+          className:
+            'bg-blue-600 hover:bg-blue-700 px-8 py-4 h-auto min-h-[60px]',
+          style: { fontSize: '30px' },
+        }}
+        cancelButtonProps={{
+          className: 'px-8 py-4 h-auto min-h-[60px]',
+          style: { fontSize: '30px' },
+        }}
+        className='[&_.ant-modal-content]:text-lg'
       >
         <div className='py-4 space-y-4'>
-          <div className='bg-blue-50 border border-blue-200 rounded-xl p-4'>
+          <div className='bg-blue-50 border border-blue-200 rounded-xl p-6'>
             {/* Emplacement Summary */}
-            <div className='flex items-start gap-3 mb-3'>
-              <Building2 className='w-5 h-5 text-blue-600 mt-1 flex-shrink-0' />
+            <div className='flex items-start gap-4 mb-4'>
+              <Building2 className='w-7 h-7 text-blue-600 mt-1 flex-shrink-0' />
               <div>
-                <div className='text-sm font-medium text-gray-700'>
+                <div className='text-lg font-medium text-gray-700'>
                   Emplacement
                 </div>
-                <div className='font-bold'>{emplacementData?.code}</div>
-                <div className='text-sm'>
+                <div className='font-bold text-xl'>{emplacementData?.code}</div>
+                <div className='text-lg'>
                   Dépôt: {emplacementData?.depot?.code}
                 </div>
               </div>
             </div>
 
             {/* Article Summary */}
-            <div className='flex items-start gap-3 mb-3'>
-              <Package className='w-5 h-5 text-green-600 mt-1 flex-shrink-0' />
-              <div className='space-y-1'>
-                <div className='text-lg font-medium text-gray-700'>Article</div>
-                <div className='font-bold text-md'>{articleData?.name}</div>
-                <div className='font-bold text-md'>
+            <div className='flex items-start gap-4 mb-4'>
+              <Package className='w-7 h-7 text-green-600 mt-1 flex-shrink-0' />
+              <div className='space-y-2'>
+                <div className='text-xl font-medium text-gray-700'>Article</div>
+                <div className='font-bold text-lg'>{articleData?.name}</div>
+                <div className='font-bold text-lg'>
                   {uppercaseFirst(articleData?.description)}
                 </div>
-                <div className='text-md'>
+                <div className='text-lg'>
                   Réf: <strong>{articleData?.code}</strong>
                 </div>
-                <div className='text-sm'>
+                <div className='text-lg'>
                   Dimensions: {articleData?.height} × {articleData?.width} ×{' '}
                   {articleData?.depth}
                 </div>
 
-                <div className='text-md'>
+                <div className='text-lg'>
                   Couleur: <strong>{articleData?.color || '__'}</strong>
                 </div>
 
-                <div className='text-md'>
+                <div className='text-lg'>
                   Fournisseur Ref:{' '}
                   <strong>
                     {articleData?.code_supplier ||
@@ -563,17 +596,17 @@ export default function InventoryMovement() {
             </div>
 
             {/* Quantity Summary */}
-            <div className='flex items-start gap-3'>
-              <Hash className='w-5 h-5 text-purple-600 mt-1 flex-shrink-0' />
+            <div className='flex items-start gap-4'>
+              <Hash className='w-7 h-7 text-purple-600 mt-1 flex-shrink-0' />
               <div>
-                <div className='text-sm font-medium text-gray-700'>
+                <div className='text-lg font-medium text-gray-700'>
                   Quantité
                 </div>
-                <div>
+                <div className='text-lg'>
                   {quantity} {type && `(${type})`}
                   {condition && ` × ${condition} = `}
                   {condition && (
-                    <span className='font-bold text-green-600'>
+                    <span className='font-bold text-green-600 text-xl'>
                       {totalQuantity} {articleData?.unit}
                     </span>
                   )}
@@ -582,7 +615,7 @@ export default function InventoryMovement() {
             </div>
           </div>
 
-          <p className='text-gray-600 text-sm'>
+          <p className='text-gray-600 text-lg'>
             Veuillez vérifier les informations avant de confirmer le transfert.
           </p>
         </div>
