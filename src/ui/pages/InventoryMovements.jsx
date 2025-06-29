@@ -166,12 +166,17 @@ function InventoryMovements() {
   const handleUpdateQuantity = async () => {
     if (!selectedMovement || !newQuantity) return
 
+
     setUpdateLoading(true)
     try {
+      await api.put(`inventory-movement/update/${selectedMovement.id}`, {
+        quantity: newQuantity,
+      })
       message.success('Quantité mise à jour avec succès')
       handleCancelEdit()
+      fetchData()
     } catch (error) {
-      message.error('Erreur lors de la mise à jour de la quantité')
+      message.error(error.response.data.message)
       console.error('Update error:', error)
     } finally {
       setUpdateLoading(false)
@@ -411,6 +416,7 @@ function InventoryMovements() {
                       <Button
                         color='danger'
                         variant='solid'
+                        size='large'
                         className='bg-red-500 hover:bg-red-600 text-white'
                         onClick={() => setOpenConfirmId(movement.id)}
                       >
@@ -444,10 +450,10 @@ function InventoryMovements() {
                 <div className='flex space-x-2'>
                   <Button
                     type='primary'
-                    size='small'
+                    size='large'
                     onClick={() => handleEditQuantity(movement)}
                   >
-                    <Edit size={12} />
+                    <Edit size={20} />
                   </Button>
                   <Popconfirm
                     title='Supprimer'
@@ -464,11 +470,11 @@ function InventoryMovements() {
                     <Button
                       color='danger'
                       variant='solid'
-                      size='small'
+                      size='large'
                       className='bg-red-500 hover:bg-red-600 text-white'
                       onClick={() => setOpenConfirmId(movement.id)}
                     >
-                      <Trash size={12} />
+                      <Trash size={20} />
                     </Button>
                   </Popconfirm>
                 </div>

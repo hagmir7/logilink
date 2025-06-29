@@ -140,14 +140,15 @@ export default function InventoryMovement() {
   useEffect(() => {
     if (!articleData) return
 
-    // Handle condition options (unchanged)
     const options = getConditionOptions()
     setConditionList(options)
-    if (options.length === 1) {
+
+    if (options.length === 1 && (type === 'Carton' || type === 'Palette')) {
       setCondition(options[0].value)
+    }else{
+      setCondition(null)
     }
 
-    // Handle companies
     const companyOptions = getCompanyOptions()
 
     if (articleData.companies.length === 1) {
