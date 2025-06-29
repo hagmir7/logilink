@@ -204,10 +204,6 @@ export default function InventoryMovement() {
       }
 
 
-      // console.log(payload);
-      
-      // return;
-
       await api.post(`inventory/insert/${id}`, payload)
 
       setQuantity('')
@@ -230,7 +226,7 @@ export default function InventoryMovement() {
     }
   }
 
-  const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
+  
 
   const changeEmplacement = (value) => {
     const result = sanitizeInput(value)
@@ -241,15 +237,22 @@ export default function InventoryMovement() {
   }
   
 
+
+  const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
+
+
   const changeArticle = (value) => {
-    const result = sanitizeInput(value)
-    setArticleCode(result)
-    setArticleData(null)
+    const cleaned = sanitizeInput(value)
+    setArticleCode(cleaned)
     setArticleError('')
-    setType(null)
-    if (value.length >= 3) fetchArticleData(value)
+    setArticleData(null)
+
+    if (cleaned.length >= 3) {
+      fetchArticleData(cleaned)
+    }
   }
   
+
 
   const handleTypeChange = (e) => {
     if (quantityInput.current) {
@@ -288,6 +291,7 @@ export default function InventoryMovement() {
           <Input
             placeholder='Saisir le code emplacement'
             size='large'
+            autoFocus={true}
             ref={emplacemenInput}
             value={emplacementCode}
             onChange={(e) => changeEmplacement(e.target.value)}

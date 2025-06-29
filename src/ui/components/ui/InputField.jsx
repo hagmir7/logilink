@@ -4,8 +4,11 @@ import BCScanner from '../BCScanner'
 
 
 const InputField = ({ value, onChange, onScan, label, placeholder }) => {
+  const electron = window.electron;
+  console.log(electron);
+  
   return (
-    <div className=''>
+    <div className={electron ? 'hidden' : ''}>
       <BCScanner onScan={onScan} />
     </div>
   )

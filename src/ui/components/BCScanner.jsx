@@ -9,9 +9,9 @@ const BCScanner = ({ onScan, onError }) => {
   const [error, setError] = useState('');
   const scannerRef = useRef(null);
   const html5QrCodeRef = useRef(null);
-  const [cams, setCams] = useState([]);
 
   const stopScanner = useCallback(async () => {
+    setIsScanning(false);
     if (html5QrCodeRef.current && isScanning) {
       try {
         await html5QrCodeRef.current.stop();
@@ -37,7 +37,6 @@ const BCScanner = ({ onScan, onError }) => {
     try {
       setError('');
       const cameras = await Html5Qrcode.getCameras();
-      setCams(cameras);
       
       if (!cameras || cameras.length === 0) {
         throw new Error('Aucune caméra trouvée');

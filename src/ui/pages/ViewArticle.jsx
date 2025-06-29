@@ -3,6 +3,8 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import { ArrowDownUp, ChartBar, Diamond, Info, Package, Ruler } from 'lucide-react'
 import { Input, message, Select, Tabs } from 'antd'
+import { categories } from '../utils/config'
+import { upperFirst } from 'lodash'
 
 const ViewArticle = () => {
   const [activeKey, setActiveKey] = useState('1')
@@ -23,14 +25,13 @@ const ViewArticle = () => {
     width: "",
     depth: "",
     chant: "",
-    family_id: "",
-    article_id: "",
     condition: '',
     code_supplier: '',
     qr_code: '',
     palette_condition: '',
     unit: '',
-    gamme: ''
+    gamme: '',
+    category: ''
   });
 
   const getArticle = async () => {
@@ -179,25 +180,21 @@ const ViewArticle = () => {
 
           <div className='space-y-2'>
             <label
-              htmlFor='famille'
+              htmlFor='category'
               className='text-sm font-medium text-gray-700'
             >
-              Famille
+              Category
             </label>
 
             <Select
               className='w-full'
-              defaultValue={product.family_id}
-              onChange={(value) => setProduct({ ...product, family_id: value })}
+              value={product.category || undefined} // fallback to undefined if null
+              onChange={(value) => setProduct({ ...product, category: value })}
               placeholder='Catégorie du produit'
-              options={[
-                { value: 'jack', label: 'Jack' },
-                { value: 'lucy', label: 'Lucy' },
-                { value: 'Yiminghe', label: 'yiminghe' },
-                { value: 'disabled', label: 'Disabled', disabled: true },
-              ]}
+              options={categories}
             />
           </div>
+
           <div className='space-y-2'>
             <label
               htmlFor='prix-vente'
@@ -362,7 +359,6 @@ const ViewArticle = () => {
             </label>
             <Input
               value={product.palette_condition}
-          
               onChange={(e) =>
                 setProduct({ ...product, palette_condition: e.target.value })
               }

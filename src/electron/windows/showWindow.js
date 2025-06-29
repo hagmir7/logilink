@@ -26,10 +26,9 @@ export const createShowWindow = (routeUrl) => {
     if (isDev()) {
         childWindow.loadURL(`http://localhost:5123${routeUrl}`);
     } else {
-        childWindow.loadFile(
-            path.join(app.getAppPath(), 'react-dist', "index.html"),
-            { hash: `/${routeUrl}` }
-        );
+        // Use file:// protocol instead of loadFile
+        const filePath = path.join(app.getAppPath(), 'react-dist', 'index.html');
+        childWindow.loadURL(`file://${filePath}#${routeUrl}`);
     }
 
     childWindow.on('closed', () => {
