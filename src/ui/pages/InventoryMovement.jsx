@@ -103,7 +103,7 @@ export default function InventoryMovement() {
         label: cond,
         value: cond,
       }))
-    } else if ( articleData.condition) {
+    } else if (articleData.condition) {
       conditionInput?.current?.focus()
       return articleData.condition.split('|').map((cond) => ({
         label: cond,

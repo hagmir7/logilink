@@ -25,6 +25,7 @@ import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
 import { categories, locale, uppercaseFirst } from '../utils/config'
 import { useParams } from 'react-router-dom'
+import InputField from '../components/ui/InputField'
 const { RangePicker } = DatePicker
 
 const options = [
@@ -336,7 +337,7 @@ function InventoryMovements() {
             </Button>
           </div>
         </div>
-        <div className='block lg:hidden w-full'>
+        <div className='flex lg:hidden w-full'>
           <Input
             placeholder='Emplacement'
             size='large'
@@ -350,6 +351,12 @@ function InventoryMovements() {
             onChange={(e) =>
               setEmplacementSearch(sanitizeInput(e.target.value))
             }
+          />
+           <InputField
+            btnClass='h-[60px]'
+            value={emplacementSearch}
+            onChange={(e) => setEmplacementSearch(e.target.value)}
+            onScan={(value) => setEmplacementSearch(value)}
           />
         </div>
       </div>
