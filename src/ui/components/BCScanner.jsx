@@ -3,7 +3,7 @@ import { Scan, X, AlertCircle } from 'lucide-react';
 
 import { Html5Qrcode } from 'html5-qrcode';
 
-const BCScanner = ({ onScan, onError }) => {
+const BCScanner = ({ onScan, onError, btnClass }) => {
   const [showScanner, setShowScanner] = useState(false);
   const [isScanning, setIsScanning] = useState(false);
   const [error, setError] = useState('');
@@ -105,7 +105,7 @@ const BCScanner = ({ onScan, onError }) => {
       {/* Trigger Button */}
       <button
         onClick={handleStartScan}
-        className="flex items-center justify-center gap-2 w-full max-w-md mx-auto px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium"
+        className={`flex items-center justify-center gap-2 w-full max-w-md mx-auto px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium ` + btnClass}
         type="button"
       >
         <Scan className="w-5 h-5" />
