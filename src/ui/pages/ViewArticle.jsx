@@ -4,7 +4,7 @@ import { useParams } from 'react-router-dom'
 import { ArrowDownUp, ChartBar, Diamond, Info, Package, Ruler } from 'lucide-react'
 import { Input, message, Select, Tabs } from 'antd'
 import { categories } from '../utils/config'
-import { upperFirst } from 'lodash'
+import BackButton from '../components/ui/BackButton'
 
 const ViewArticle = () => {
   const [activeKey, setActiveKey] = useState('1')
@@ -95,8 +95,8 @@ const ViewArticle = () => {
               id='code'
               value={product.code}
               placeholder='Référence'
-              readOnly
-              disabled
+              // readOnly
+              // disabled
             />
           </div>
 
@@ -438,6 +438,8 @@ const ViewArticle = () => {
 
   return (
     <div className="min-h-screen flex flex-col max-w-4xl mx-auto bg-white">
+      { !window.electron && <BackButton />}
+      
       <Tabs
         activeKey={activeKey}
         onChange={handleTabChange}

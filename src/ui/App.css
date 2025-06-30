@@ -63,3 +63,7 @@
   padding: 12px 11px !important;
   min-height: 50px !important;
 }
+
+.anticon-close-circle svg {
+  font-size: 25px!important;
+}

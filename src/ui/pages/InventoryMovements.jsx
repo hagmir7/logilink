@@ -3,6 +3,7 @@ import {
   ArrowDownIcon,
   ArrowUp,
   ArrowUpDown,
+  CheckCircle,
   Download,
   Edit,
   Loader2,
@@ -24,7 +25,7 @@ import {
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
 import { categories, locale, uppercaseFirst } from '../utils/config'
-import { useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom'
 import InputField from '../components/ui/InputField'
 const { RangePicker } = DatePicker
 
@@ -81,6 +82,8 @@ function InventoryMovements() {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [emplacementSearch, setEmplacementSearch] = useState([])
+  const [controlleBtnLoading, setControlleBtnLoading] = useState(false)
+ 
 
   const [movments, setMovments] = useState({
     data: [],
@@ -150,11 +153,13 @@ function InventoryMovements() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false)
   const [selectedMovement, setSelectedMovement] = useState(null)
   const [newQuantity, setNewQuantity] = useState('')
+  const [newEmplacement, setNewEmplacement] = useState('')
   const [updateLoading, setUpdateLoading] = useState(false)
 
   const handleEditQuantity = (movement) => {
     setSelectedMovement(movement)
     setNewQuantity((Number(movement.quantity) || 0).toFixed(3))
+    setNewEmplacement(movement.emplacement_code)
     setIsEditModalOpen(true)
   }
 
@@ -162,6 +167,7 @@ function InventoryMovements() {
     setIsEditModalOpen(false)
     setSelectedMovement(null)
     setNewQuantity('')
+     setNewEmplacement('')
   }
 
   const handleUpdateQuantity = async () => {
@@ -172,6 +178,7 @@ function InventoryMovements() {
     try {
       await api.put(`inventory-movement/update/${selectedMovement.id}`, {
         quantity: newQuantity,
+        emplacement: newEmplacement
       })
       message.success('Quantité mise à jour avec succès')
       handleCancelEdit()
@@ -240,6 +247,22 @@ function InventoryMovements() {
   }
 
   const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
+
+
+  const controllMovement = async (movement_id)=>{
+    setControlleBtnLoading(true)
+     try {
+     await api.get(`inventory/movements/controlle/${movement_id}`)
+      message.success("Mouvement contrôlé avec succès")
+      setControlleBtnLoading(false)
+      fetchData()
+    } catch (error) {
+      console.error(error)
+      message.error(error.response?.data?.message || 'Failed to load depots')
+      setControlleBtnLoading(false)
+    
+    }
+  }
 
   return (
     <div className='w-full'>
@@ -342,10 +365,11 @@ function InventoryMovements() {
             placeholder='Emplacement'
             value={emplacementSearch}
             size='large'
+            allowClear={true}
             styles={{
               input: {
                 fontSize: '25px',
-                height: '60px',
+                height: '50px',
               },
             }}
             autoFocus={true}
@@ -354,7 +378,7 @@ function InventoryMovements() {
             }
           />
           <InputField
-            btnClass='h-[60px]'
+            btnClass='h-[70px]'
             value={emplacementSearch}
             onChange={(e) => setEmplacementSearch(e.target.value)}
             onScan={(value) => setEmplacementSearch(value)}
@@ -427,6 +451,15 @@ function InventoryMovements() {
                     {formatDate(movement.created_at)}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 space-x-2'>
+
+                    <Button
+                      type='primary'
+                      size='large'
+                      onClick={() => handleEditQuantity(movement)}
+                    >
+                      <Edit size={20} />
+                    </Button>
+                    
                     <Popconfirm
                       title='Supprimer'
                       description='Etes-vous sûr de vouloir Supprimer'
@@ -470,7 +503,9 @@ function InventoryMovements() {
                     Référence
                   </span>
                   <p className='text-sm font-bold text-gray-900'>
-                    {movement.code_article}
+                     <Link to={`/articles/${movement.code_article}`}>
+                        {movement.code_article}
+                     </Link>
                   </p>
                 </div>
                 <div className='flex space-x-2'>
@@ -512,7 +547,9 @@ function InventoryMovements() {
                   Désignation
                 </span>
                 <p className='text-sm text-gray-900 font-medium'>
+                 <Link to={`/articles/${movement.code_article}`}>
                   {uppercaseFirst(movement.designation)}
+                  </Link>
                 </p>
               </div>
 
@@ -553,13 +590,20 @@ function InventoryMovements() {
               </div>
 
               {/* Date at bottom */}
-              <div className='mt-3 pt-3 border-t border-gray-100'>
-                <span className='text-xs font-semibold text-gray-500 uppercase'>
+              <div className='mt-3 pt-3 border-t border-gray-100 flex justify-between'>
+                <div>
+                  <span className='text-xs font-semibold text-gray-500 uppercase'>
                   Date
                 </span>
                 <p className='text-sm text-gray-700'>
                   {formatDate(movement.created_at)}
                 </p>
+                </div>
+                <div>
+                  {
+                    movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> :  <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
+                  }
+                </div>
               </div>
             </div>
           ))}
@@ -604,6 +648,18 @@ function InventoryMovements() {
                   step='0.001'
                   value={newQuantity}
                   onChange={(e) => setNewQuantity(e.target.value)}
+                  placeholder='Entrer la nouvelle quantité'
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className='block text-sm font-medium text-gray-700 mb-1'>
+                  Emplacement actuelle
+                </label>
+                <Input
+                  value={newEmplacement}
+                  onChange={(e) => setNewEmplacement(e.target.value)}
                   placeholder='Entrer la nouvelle quantité'
                   autoFocus
                 />
