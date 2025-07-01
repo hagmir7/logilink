@@ -87,7 +87,7 @@ const sideMenu = () => {
         {
           key: 'submenu-3',
           icon: <Warehouse size={19} />,
-          label: <Link to='/depots'>Depots</Link>,
+          label: <Link to='/depots'>Depotss</Link>,
         },
       ],
     },

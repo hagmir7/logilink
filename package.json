@@ -1,11 +1,13 @@
 {
-  "name": "LOGILINK_PRO",
+  "name": "LOGILINK",
   "private": true,
-  "version": "0.0.0",
-  "description": "logilink App",
-  "title": "LOGILINK",
+  "version": "0.1.0",
+  "description": "Logilink App",
+  "title": "LOGILINK PRO",
   "author": "Intercocina",
   "type": "module",
+  "repository": "https://github.com/hagmir7/logilink",
+  "homepage": "https://intercocina.com",
   "main": "src/electron/main.js",
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron",

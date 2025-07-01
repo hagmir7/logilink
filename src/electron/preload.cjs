@@ -22,3 +22,17 @@ contextBridge.exposeInMainWorld("electron", {
     invoke: (channel, data) => ipcRenderer.invoke(channel, data),
   },
 });
+
+
+
+ipcRenderer.on('update_available', () => {
+  alert('Mise à jour disponible. Téléchargement en cours...');
+});
+
+ipcRenderer.on('update_downloaded', () => {
+  const restart = confirm('Mise à jour téléchargée. Redémarrer maintenant ?');
+  if (restart) {
+    const { ipcRenderer } = require('electron');
+    ipcRenderer.send('restart_app');
+  }
+})

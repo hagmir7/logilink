@@ -1,6 +1,11 @@
 {
     "appId": "com.intercocina.logilink",
     "productName": "LOGILINK PRO",
+    "publish": {
+      "provider": "github",
+      "repo": "logilink",
+      "owner": "hagmir7"
+    },
     "files": [
         "main.js",
         "react-dist/**",

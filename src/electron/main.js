@@ -1,8 +1,11 @@
-import { app, BrowserWindow, ipcMain } from "electron";
+import { app, BrowserWindow, ipcMain, dialog } from "electron";
 import path from "path";
 import { getPreloadPath, isDev } from "./util.js";
 import createLoginWindow from "./windows/loginWindow.js";
 import { createShowWindow } from "./windows/showWindow.js";
+import pkg from 'electron-updater';
+const { autoUpdater } = pkg;
+
 
 let showWindow;
 
@@ -89,6 +92,11 @@ ipcMain.handle('user', async (event, data) => {
 
 app.on('ready', () => {
     loginWindow = createLoginWindow();
+
+    if (!isDev()) {
+        autoUpdater.checkForUpdatesAndNotify();
+    }
+
 });
 
 app.on('window-all-closed', () => {
@@ -101,6 +109,18 @@ app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) {
         loginWindow = createLoginWindow();
     }
+});
+
+autoUpdater.on('update-available', () => {
+    mainWindow.webContents.send('update_available');
+});
+
+autoUpdater.on('update-downloaded', () => {
+    mainWindow.webContents.send('update_downloaded');
+});
+
+ipcMain.on('restart_app', () => {
+    autoUpdater.quitAndInstall();
 });
 
 
@@ -158,6 +178,8 @@ ipcMain.on("print-content", (event, htmlContent) => {
     });
   });
 });
+
+
 
 
 
