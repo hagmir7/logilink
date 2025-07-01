@@ -267,6 +267,9 @@ export default function InventoryMovement() {
     }
   }
 
+
+  const is_electron = window.electron;
+
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* Header Section */}
@@ -292,8 +295,8 @@ export default function InventoryMovement() {
           <Input
             placeholder='Saisir le code emplacement'
             size='large'
-            className='h-[60px] text-2xl'
-            style={{ fontSize: '30px' }}
+            className={is_electron && 'h-[60px]'}
+            style={is_electron ? { fontSize: '30px' } : {}}
             autoFocus={true}
             ref={emplacemenInput}
             value={emplacementCode}
@@ -335,8 +338,8 @@ export default function InventoryMovement() {
           <Input
             placeholder='Saisir Réf Article'
             size='large'
-            className='h-[60px] text-2xl'
-            style={{ fontSize: '30px' }}
+            className={is_electron && 'h-[60px]'}
+            style={is_electron ? { fontSize: '30px' } : {}}
             ref={articleInput}
             value={articleCode}
             onChange={(e) => changeArticle(e.target.value)}
@@ -435,10 +438,10 @@ export default function InventoryMovement() {
           <Select
             placeholder='Sélectionner une condition'
             size='large'
-            className='custom-select w-full'
-            dropdownClassName='custom-select-dropdown'
+            className={`w-full ${is_electron ? 'custom-select h-[60px]' : ''}`}
+            style={is_electron ? { height: '60px' } : {}}
+            dropdownClassName={is_electron ? 'custom-select-dropdown' : ''}
             ref={conditionInput}
-            style={{ height: '60px' }}
             value={condition}
             onChange={(value) => {
               setCondition(value)
@@ -461,8 +464,8 @@ export default function InventoryMovement() {
           min={0.1}
           allowClear={true}
           value={quantity}
-          className='h-[60px] text-2xl'
-          style={{ fontSize: '30px' }}
+          className={is_electron && 'h-[60px]'}
+          style={is_electron ? { fontSize: '30px' } : {}}
           onChange={(e) => {
             const value = e.target.value
             const isPaletteOrCarton = type === 'Palette' || type === 'Carton'
@@ -485,8 +488,9 @@ export default function InventoryMovement() {
           <Select
             placeholder='Sélectionner une société'
             size='large'
-            className='custom-select w-full'
-            dropdownClassName='custom-select-dropdown'
+            className={`w-full ${is_electron ? 'custom-select h-[60px]' : ''}`}
+            style={is_electron ? { fontSize: '30px' } : {}}
+            dropdownClassName={is_electron ? 'custom-select-dropdown' : ''}
             value={company}
             onChange={setCompany}
             options={companies}
