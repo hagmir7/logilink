@@ -95,8 +95,8 @@ const ViewArticle = () => {
               id='code'
               value={product.code}
               placeholder='Référence'
-              // readOnly
-              // disabled
+              readOnly
+              disabled
             />
           </div>
 

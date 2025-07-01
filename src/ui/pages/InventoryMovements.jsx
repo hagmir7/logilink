@@ -82,7 +82,8 @@ function InventoryMovements() {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [emplacementSearch, setEmplacementSearch] = useState([])
-  const [controlleBtnLoading, setControlleBtnLoading] = useState(false)
+  const [controlleBtnLoading, setControlleBtnLoading] = useState(false);
+    const [page, setPage] = useState(30)
  
 
   const [movments, setMovments] = useState({
@@ -99,6 +100,7 @@ function InventoryMovements() {
     depots: selectedDepots,
     users: selectedUsers,
     emplacement: emplacementSearch,
+    per_page: page
   })
 
   const fetchData = async () => {
@@ -131,6 +133,7 @@ function InventoryMovements() {
     selectedDepots,
     selectedUsers,
     emplacementSearch,
+   page
   ])
 
   const handleOk = async (movementId) => {
@@ -156,6 +159,7 @@ function InventoryMovements() {
   const [newEmplacement, setNewEmplacement] = useState('')
   const [updateLoading, setUpdateLoading] = useState(false)
 
+
   const handleEditQuantity = (movement) => {
     setSelectedMovement(movement)
     setNewQuantity((Number(movement.quantity) || 0).toFixed(3))
@@ -178,7 +182,8 @@ function InventoryMovements() {
     try {
       await api.put(`inventory-movement/update/${selectedMovement.id}`, {
         quantity: newQuantity,
-        emplacement: newEmplacement
+        emplacement: newEmplacement,
+        code_article : selectedMovement.code_article
       })
       message.success('Quantité mise à jour avec succès')
       handleCancelEdit()
@@ -362,7 +367,7 @@ function InventoryMovements() {
         </div>
         <div className='flex lg:hidden w-full'>
           <Input
-            placeholder='Emplacement'
+            placeholder='Emplacement, Article ref'
             value={emplacementSearch}
             size='large'
             allowClear={true}
@@ -400,9 +405,6 @@ function InventoryMovements() {
                   Désignation
                 </th>
                 <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
-                  Type
-                </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Emplacement
                 </th>
                 <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
@@ -436,9 +438,6 @@ function InventoryMovements() {
                     </span>
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                    {getLabelWithIcon(movement.type)}
-                  </td>
-                  <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                     {movement.emplacement_code}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
@@ -450,7 +449,10 @@ function InventoryMovements() {
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                     {formatDate(movement.created_at)}
                   </td>
-                  <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 space-x-2'>
+                  <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 space-x-2 flex'>
+                     {
+                    movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> :  <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
+                  }
 
                     <Button
                       type='primary'
@@ -609,6 +611,46 @@ function InventoryMovements() {
           ))}
         </div>
 
+        <div className='m-5'>
+          <Select
+            onChange={(value)=> setPage(value)}
+            className='min-w-3/8'
+            defaultValue={page}
+            style={window.electron && { height: '35px', fontSize: '24px' }}
+            options={[
+              {
+                value: 30,
+                label: 30
+              },
+              {
+                value: 100,
+                label: 100
+              },
+              {
+                value: 200,
+                label: 200
+              },
+              {
+                value: 300,
+                label: 300
+              },
+              {
+                value: 500,
+                label: 500
+              }
+              , {
+                value: 700,
+                label: 700
+              },
+              {
+                value: 800,
+                label: 800
+              }
+            ]}
+
+          />
+        </div>
+
         {/* Update Quantity Modal */}
         <Modal
           title='Modifier la quantité'
@@ -626,7 +668,7 @@ function InventoryMovements() {
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
                   Référence
                 </label>
-                <Input value={selectedMovement.code_article} disabled />
+                <Input value={selectedMovement.code_article} onChange={(e) => setSelectedMovement({...selectedMovement, code_article: e.target.value})} />
               </div>
 
               <div>

@@ -28,7 +28,6 @@ const InventoryDepotEmplacment = () => {
         
         try {
             const { data } = await api.get(`inventory/${inventory_id}/depot/${id}`)
-            console.log(data);
             setLoading(false)
             setemplacements(data.emplacements)
             setDepot(data.depot)

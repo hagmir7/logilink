@@ -35,8 +35,6 @@ const EmplacementModal = ({
         url = `emplacement/${selectedEmplacement}`
       }
       const response = await api.get(url)
-      console.log(response.data);
-      
       setEmplacement(response.data)
       setPalettes(response?.data?.palettes)
 

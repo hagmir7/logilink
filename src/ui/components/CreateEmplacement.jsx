@@ -14,7 +14,6 @@ import { PlusOutlined, EnvironmentOutlined } from '@ant-design/icons'
 import { api } from '../utils/api'
 import { data } from 'react-router-dom'
 
-const { Title } = Typography
 const { Option } = Select
 
 const CreateEmplacement = () => {
@@ -23,13 +22,10 @@ const CreateEmplacement = () => {
   const [loading, setLoading] = useState(false)
   const [depots, setDepots] = useState([])
   const [loadingDepots, setLoadingDepots] = useState(false)
-
-  // Fetch depots when component mounts or modal opens
   const getDepots = async () => {
     setLoadingDepots(true)
     try {
       const response = await api.get('depots')
-      console.log(response.data)
       
       setDepots(response?.data?.data || [])
     } catch (error) {

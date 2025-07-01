@@ -194,7 +194,7 @@ export default function InventoryList() {
                     <Link to={`/inventories/in/${item.id}`} className='w-full'>
                       <Button
                         className='w-full'
-                        style={{ height: '50px', fontSize: '24px' }}
+                       style={window.electron && { height: '50px', fontSize: '24px' }}
                         color='green'
                         variant='solid'
                       >
@@ -205,7 +205,7 @@ export default function InventoryList() {
                     <Link to={`/inventories/${item.id}`} className='w-full'>
                       <Button
                         className='w-full'
-                        style={{ height: '50px', fontSize: '24px' }}
+                        style={window.electron && { height: '50px', fontSize: '24px' }}
                         color='green'
                       >
                         Voir

@@ -152,16 +152,16 @@ export default function InventoryMovement() {
     const companyOptions = getCompanyOptions()
 
     if (articleData.companies.length === 1) {
-      setCompany(articleData.companies[0].id) // Set ID, not whole object
+      setCompany(articleData.companies[0].id)
     }
 
     if (articleData.companies.length === 0) {
       setCompany(null)
       getCompanies()
     } else {
-      setCompanies(companyOptions) // Use local options
+      setCompanies(companyOptions)
     }
-  }, [articleData, type]) // Fixed depe
+  }, [articleData, type])
 
   const handleSubmit = () => {
     if (!emplacementData) {
@@ -403,7 +403,7 @@ export default function InventoryMovement() {
             >
               <Radio.Button
                 value='Piece'
-                style={{ fontSize: '25px', height: '50px', display: 'flex' }}
+                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Pièce
@@ -412,7 +412,8 @@ export default function InventoryMovement() {
               <Radio.Button
                 disabled={!articleData?.condition}
                 value='Carton'
-                style={{ fontSize: '25px', height: '50px', display: 'flex' }}
+                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
+  
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Carton
@@ -420,7 +421,7 @@ export default function InventoryMovement() {
               <Radio.Button
                 disabled={!articleData?.palette_condition}
                 value='Palette'
-                style={{ fontSize: '25px', height: '50px', display: 'flex' }}
+                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Palette
@@ -502,8 +503,8 @@ export default function InventoryMovement() {
       {/* Submit Button */}
       <div className='px-5 my-3 mt-10'>
         <Button
-          className='h-[60px] w-full'
-          style={{ fontSize: '30px', padding: '30px' }}
+          className='w-full'
+          style={is_electron && { fontSize: '30px', padding: '30px', height: '60px' }}
           size='large'
           type='primary'
           onClick={handleSubmit}
@@ -514,11 +515,11 @@ export default function InventoryMovement() {
         <div className='mt-28'>
           <Link to={`/inventories/${id}`}>
             <Button
-              style={{ fontSize: '30px', padding: '30px' }}
+              style={is_electron && { fontSize: '30px', padding: '30px' }}
               className='w-full'
               size='large'
             >
-              <Menu size={35} />
+              <Menu size={is_electron ? 35 : 20} />
               Liste des mouvements
             </Button>
           </Link>
