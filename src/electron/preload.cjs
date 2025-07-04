@@ -7,6 +7,8 @@ contextBridge.exposeInMainWorld("electron", {
   print: () => ipcRenderer.send('print'),
   notifyPrintReady: () => ipcRenderer.send('print-ready'),
   openShow: (payload) => ipcRenderer.send('openShow', payload),
+  getPrinters: () => ipcRenderer.invoke('get-printers'),
+  printTickets: (printerName, tickets) => ipcRenderer.invoke('print-tickets', { printerName, tickets }),
 
   ipcRenderer: {
     send: (channel, data) => {

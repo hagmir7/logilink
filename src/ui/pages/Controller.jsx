@@ -20,6 +20,8 @@ import SkeletonTable from '../components/ui/SkeletonTable'
 import EmptyTable from '../components/ui/EmptyTable'
 import { useAuth } from '../contexts/AuthContext'
 import PrintDocument from '../components/PrintDocument'
+import TicketPrint from '../components/TicketPrinter'
+import TicketPrinter from '../components/TicketPrinter'
 
 function Controller() {
   const { id } = useParams()
@@ -150,14 +152,14 @@ function Controller() {
           {(Number(documentCompany?.pivot?.status_id) === 8 ||
             (Number(documentCompany?.pivot?.status_id) === 9 &&
               roles('controleur'))) && (
-            <Button
-              href={`#/document/palettes/${id}`}
-              size='large'
-              className='btn'
-            >
-              <ListTodo /> Contrôler
-            </Button>
-          )}
+              <Button
+                href={`#/document/palettes/${id}`}
+                size='large'
+                className='btn'
+              >
+                <ListTodo /> Contrôler
+              </Button>
+            )}
 
           {/* <Button
             href={`#/document/palettes/${id}`}
@@ -176,6 +178,11 @@ function Controller() {
           </Button>
 
           <PrintDocument
+            doclignes={data.doclignes}
+            docentete={data.docentete}
+          />
+
+          <TicketPrinter
             doclignes={data.doclignes}
             docentete={data.docentete}
           />
@@ -233,8 +240,8 @@ function Controller() {
           <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
             {(data.docentete.DO_Piece &&
               getDocumentType(data.docentete.DO_Piece)) || (
-              <Skeleton className='h-5 w-32' />
-            )}
+                <Skeleton className='h-5 w-32' />
+              )}
           </span>
         </div>
       </div>
@@ -296,9 +303,9 @@ function Controller() {
                   onChange={handleSelectAll}
                   checked={
                     selected.length ===
-                      data.doclignes.filter(
-                        (item) => item.line?.validated !== '1'
-                      ).length &&
+                    data.doclignes.filter(
+                      (item) => item.line?.validated !== '1'
+                    ).length &&
                     data.doclignes.filter(
                       (item) => item.line?.validated !== '1'
                     ).length > 0
@@ -323,128 +330,130 @@ function Controller() {
                 </Td>
               </Tr>
             ) : data.doclignes?.length > 0 ? (
-              data.doclignes.map((item, index) => (
-                <Tr key={index}>
-                  <Td>
-                    {item.line?.validated === '1' ? (
-                      <div className='flex items-center justify-center'>
-                        <svg
-                          className='w-5 h-5 text-green-500'
-                          fill='currentColor'
-                          viewBox='0 0 20 20'
-                        >
-                          <path
-                            fillRule='evenodd'
-                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                            clipRule='evenodd'
-                          />
-                        </svg>
-                      </div>
-                    ) : (
-                      <Checkbox
-                        checked={selected.includes(item.line?.id || item.id)}
-                        onChange={() => handleSelect(item.line?.id || item.id)}
-                      />
-                    )}
-                  </Td>
-
-                  <Td>
-                    <Tag color={item.line?.status?.color}>
-                      {item.line?.status?.name}
-                    </Tag>
-                  </Td>
-
-                  <Td>
-                    <div className='font-bold text-gray-900'>
-                      {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                      {item?.article?.Description || null}
-                    </div>
-                    {item?.article?.Description && (
-                      <div className='text-sm text-gray-500'>
-                        {item.article.Description}
-                      </div>
-                    )}
-                  </Td>
-
-                  <Td className='font-mono text-sm'>{item.AR_Ref || '__'}</Td>
-                  
-                  <Td>
-                    <div className='space-y-1'>
-                     <div className='text-sm text-gray-800'>
-                      H:{' '}
-                      {item.Hauteur > 0 ? (
-                        <strong>{Math.floor(item.Hauteur)}</strong>
+              data.doclignes.map((item, index) => {
+                return (
+                  item.AR_Ref == "SP000001" ? "" : <Tr key={index}>
+                    <Td>
+                      {item.line?.validated === '1' ? (
+                        <div className='flex items-center justify-center'>
+                          <svg
+                            className='w-5 h-5 text-green-500'
+                            fill='currentColor'
+                            viewBox='0 0 20 20'
+                          >
+                            <path
+                              fillRule='evenodd'
+                              d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                              clipRule='evenodd'
+                            />
+                          </svg>
+                        </div>
                       ) : (
-                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                        <Checkbox
+                          checked={selected.includes(item.line?.id || item.id)}
+                          onChange={() => handleSelect(item.line?.id || item.id)}
+                        />
                       )}
-                    </div>
-                       <div className='text-sm text-gray-800'>
-                      L:{' '}
-                      <strong>
-                        {Math.floor(
-                          item.Largeur ? item.Largeur : item?.article?.Largeur
-                        ) || '__'}
-                      </strong>
-                    </div>
-                      <div className='text-sm text-gray-600'>
-                        <span className='font-medium'>P:</span>{' '}
-                        <span className='font-bold'>
-                          <span className='font-bold  text-gray-800'>
-                            {Math.floor(item.Profondeur ? item.Profondeur : item.article?.Profonduer) || '__'}
+                    </Td>
+
+                    <Td>
+                      <Tag color={item.line?.status?.color}>
+                        {item.line?.status?.name}
+                      </Tag>
+                    </Td>
+
+                    <Td>
+                      <div className='font-bold text-gray-900'>
+                        {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
+                        {item?.article?.Description || null}
+                      </div>
+                      {item?.article?.Description && (
+                        <div className='text-sm text-gray-500'>
+                          {item.article.Description}
+                        </div>
+                      )}
+                    </Td>
+
+                    <Td className='font-mono text-sm'>{item.AR_Ref || '__'}</Td>
+
+                    <Td>
+                      <div className='space-y-1'>
+                        <div className='text-sm text-gray-800'>
+                          H:{' '}
+                          {item.Hauteur > 0 ? (
+                            <strong>{Math.floor(item.Hauteur)}</strong>
+                          ) : (
+                            <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                          )}
+                        </div>
+                        <div className='text-sm text-gray-800'>
+                          L:{' '}
+                          <strong>
+                            {Math.floor(
+                              item.Largeur ? item.Largeur : item?.article?.Largeur
+                            ) || '__'}
+                          </strong>
+                        </div>
+                        <div className='text-sm text-gray-600'>
+                          <span className='font-medium'>P:</span>{' '}
+                          <span className='font-bold'>
+                            <span className='font-bold  text-gray-800'>
+                              {Math.floor(item.Profondeur ? item.Profondeur : item.article?.Profonduer) || '__'}
+                            </span>
                           </span>
-                        </span>
+                        </div>
                       </div>
-                    </div>
-                  </Td>
+                    </Td>
 
-                  <Td>
-                    <div className='space-y-1'>
-                      <div className='text-sm text-gray-600'>
-                        <span className='font-medium'>Couleur:</span>{' '}
-                        <span className='font-bold'>
-                          {(item.article ? item.article.Couleur : item.Couleur) || '__'}
-                        </span>
+                    <Td>
+                      <div className='space-y-1'>
+                        <div className='text-sm text-gray-600'>
+                          <span className='font-medium'>Couleur:</span>{' '}
+                          <span className='font-bold'>
+                            {(item.article ? item.article.Couleur : item.Couleur) || '__'}
+                          </span>
+                        </div>
+                        <div className='text-sm text-gray-600'>
+                          <span className='font-medium'>Chant:</span>{' '}
+                          <span className='font-bold'>
+                            {(item.article ? item.article.Chant : item.Chant) || '__'}
+                          </span>
+                        </div>
+                        <div className='text-sm text-gray-600'>
+                          <span className='font-medium'>Épaisseur:</span>{' '}
+                          <span className='font-bold'>
+                            {Math.floor(item.Episseur ? item.Episseur : item.article.Episseur) || '__'}
+                          </span>
+                        </div>
                       </div>
-                      <div className='text-sm text-gray-600'>
-                        <span className='font-medium'>Chant:</span>{' '}
-                        <span className='font-bold'>
-                          {(item.article ? item.article.Chant : item.Chant) || '__'}
-                        </span>
-                      </div>
-                      <div className='text-sm text-gray-600'>
-                        <span className='font-medium'>Épaisseur:</span>{' '}
-                        <span className='font-bold'>
-                          {Math.floor(item.Episseur ? item.Episseur : item.article.Episseur) || '__'}
-                        </span>
-                      </div>
-                    </div>
-                  </Td>
+                    </Td>
 
-                  <Td>
-                    <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
-                  </Td>
+                    <Td>
+                      <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
+                    </Td>
 
-                  <Td>
-                    <Tag
-                      color={
-                        item?.stock?.qte_inter > 0 ? 'green-inverse' : '#f50'
-                      }
-                    >
-                      {item?.stock?.qte_inter}
-                    </Tag>
-                  </Td>
+                    <Td>
+                      <Tag
+                        color={
+                          item?.stock?.qte_inter > 0 ? 'green-inverse' : '#f50'
+                        }
+                      >
+                        {item?.stock?.qte_inter}
+                      </Tag>
+                    </Td>
 
-                  <Td>
-                    <Tag
-                      color={
-                        item?.stock?.qte_serie > 0 ? 'green-inverse' : '#f50'
-                      }
-                    >
-                      {item?.stock?.qte_serie}
-                    </Tag>
-                  </Td>
-                </Tr>
-              ))
+                    <Td>
+                      <Tag
+                        color={
+                          item?.stock?.qte_serie > 0 ? 'green-inverse' : '#f50'
+                        }
+                      >
+                        {item?.stock?.qte_serie}
+                      </Tag>
+                    </Td>
+                  </Tr>
+                )
+              })
             ) : (
               <Tr>
                 <Td colSpan={9} className='text-center py-8 text-gray-500'>
@@ -488,15 +497,15 @@ function Controller() {
             >
               <div className='flex justify-between items-center'>
                 <span className='font-medium text-gray-900'>
-                 <div className='font-bold text-gray-900'>
-                      {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                      {item?.article?.Description || null}
+                  <div className='font-bold text-gray-900'>
+                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
+                    {item?.article?.Description || null}
+                  </div>
+                  {item?.article?.Description && (
+                    <div className='text-sm text-gray-500'>
+                      {item.article.Description}
                     </div>
-                    {item?.article?.Description && (
-                      <div className='text-sm text-gray-500'>
-                        {item.article.Description}
-                      </div>
-                    )}
+                  )}
                 </span>
                 <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
                   {Math.floor(item.DL_Qte)}
@@ -514,7 +523,7 @@ function Controller() {
                   Largeur:  {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
                 </div>
                 <div className='text-gray-500'>
-                  Profondeur: {Math.floor(item.Profondeur? item.Profondeur: item.article?.Profonduer) || '__'}
+                  Profondeur: {Math.floor(item.Profondeur ? item.Profondeur : item.article?.Profonduer) || '__'}
                 </div>
                 <div className='text-gray-500'>
                   Epaisseur: {Math.floor(item.Episseur) || '__'}
