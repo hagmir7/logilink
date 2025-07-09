@@ -52,6 +52,21 @@ function InventoryArticles() {
     fetchData()
   }, [searchQuery])
 
+
+
+  const handleShow = async (id) => {
+    try {
+      const url = `/articles/${id}`
+      if (window.electron && typeof window.electron.openShow === 'function') {
+        await window.electron.openShow(url)
+      } else {
+        navigate(`/articles/${id}`)
+      }
+    } catch (error) {
+      console.error('Error navigating to article:', error)
+    }
+  }
+
   return (
     <div className='w-full'>
       {/* Header */}
@@ -107,6 +122,7 @@ function InventoryArticles() {
           <tbody className='bg-white divide-y divide-gray-200'>
             {articles?.data?.map((article, index) => (
               <tr
+                onClick={()=> handleShow(article.code)}
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
               >

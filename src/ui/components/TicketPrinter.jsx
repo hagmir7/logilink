@@ -4,12 +4,10 @@ import { ReceiptText } from 'lucide-react';
 
 const { Option } = Select;
 
-const TicketPrinter = ({doclignes, docentete}) => {
+const TicketPrinter = ({ doclignes, docentete }) => {
     const [visible, setVisible] = useState(false);
     const [printers, setPrinters] = useState([]);
     const [selectedPrinter, setSelectedPrinter] = useState(null);
-
-    
 
     useEffect(() => {
         const fetchPrinters = async () => {
@@ -30,7 +28,7 @@ const TicketPrinter = ({doclignes, docentete}) => {
         }
 
         try {
-            await window.electron.printTickets(selectedPrinter, {doclignes, docentete});
+            await window.electron.printTickets(selectedPrinter, { doclignes, docentete });
             message.success('Printing started!');
             setVisible(false);
         } catch (error) {

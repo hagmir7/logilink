@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { ArrowLeftCircle,
   ArrowRightCircle,
   X,
@@ -34,6 +34,8 @@ export default function Preparation() {
   const [lines, setLines] = useState([])
   const [palettes, setPalettes] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
+  const quantityInput = useRef();
+  const lineInput = useRef();
 
   
   const [loadingStates, setLoadingStates] = useState({
@@ -120,6 +122,9 @@ export default function Preparation() {
         height: height,
         width: width,
       })
+
+      quantityInput.current.focus();
+
     } catch (err) {
       console.error('Error scanning:', err)
       message.error(err.response.data.message)
@@ -152,10 +157,12 @@ export default function Preparation() {
         width: '',
       })
 
-      setLine(null)
+      setLine('')
+      message.success('Article ajouté avec succès')
+      lineInput.current.focus()
     } catch (err) {
       console.error('Error confirming:', err)
-      openNotificationWithIcon('error')
+      message.error(err.response.data.message)
     } finally {
       setLoading('submit', false)
     }
@@ -217,6 +224,8 @@ export default function Preparation() {
               type='text'
               value={line}
               onChange={(e) => setLine(e.target.value)}
+              autoFocus={true}
+              ref={lineInput}
               className='w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base'
               placeholder='Code-barres...'
               disabled={loadingStates.scan}
@@ -359,6 +368,7 @@ export default function Preparation() {
                   type='number'
                   value={article.qte}
                   min={0}
+                  ref={quantityInput}
                   onChange={(e) =>
                     setArticle((prev) => ({
                       ...prev,

@@ -16,7 +16,7 @@ export const createShowWindow = (routeUrl) => {
         width: 700,
         height: 600,
         resizable: false,
-        parent: mainWindowReference, // Here we use the shared reference
+        parent: mainWindowReference, 
         modal: true,
         minimizable: false,
         alwaysOnTop: true,
@@ -28,10 +28,12 @@ export const createShowWindow = (routeUrl) => {
     childWindow.setMenu(null);
 
     if (isDev()) {
-        childWindow.loadURL(`http://localhost:5123${routeUrl}`);
+        childWindow.loadURL(`http://localhost:5123/#${routeUrl}`);
+        
     } else {
-        const filePath = path.join(app.getAppPath(), 'react-dist', 'index.html');
-        childWindow.loadURL(`file://${filePath}#${routeUrl}`);
+         childWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'), {
+            hash: routeUrl
+        });
     }
 
     childWindow.on('closed', () => {

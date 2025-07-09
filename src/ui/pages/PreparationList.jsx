@@ -118,7 +118,6 @@ function PreparationList() {
               <Th>Matériaux</Th>
               <Th>Qte</Th>
               <Th>Qte Préparé</Th>
-              <Th>QR Code</Th>
             </Tr>
           </Thead>
           <Tbody>
@@ -215,13 +214,7 @@ function PreparationList() {
                       )}
                     </Tag>
                   </Td>
-                  <Td>
-                    <QRCode
-                      size={100}
-                      errorLevel='H'
-                      value={`${item.line.id}`}
-                    />
-                  </Td>
+                  
 
                   {/* <Td>{item?.line?.palettes.length === Math.floor(item.DL_Qte) ? 'Yes' : 'No'}</Td> */}
                 </Tr>

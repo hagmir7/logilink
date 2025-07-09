@@ -7,11 +7,13 @@ export default function createLoginWindow() {
         width: 600,
         height: 600,
         // frame: false,
-        // resizable: false,
+        resizable: false,
         webPreferences: {
             preload: getPreloadPath(),
         }
     });
+
+     loginWindow.setMenu(null);
 
     if (isDev()) {
         loginWindow.loadURL('http://localhost:5123/#login');
@@ -21,9 +23,9 @@ export default function createLoginWindow() {
         });
     }
 
-    // loginWindow.on('maximize', () => {
-    //     loginWindow.unmaximize();
-    // });
+    loginWindow.on('maximize', () => {
+        loginWindow.unmaximize();
+    });
 
 
 

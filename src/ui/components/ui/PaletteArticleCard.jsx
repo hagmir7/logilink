@@ -12,7 +12,7 @@ export default function PaletteArticleCard({ palette, inventory_id }) {
 
   const handleShow = async (id) => {
     try {
-      const url = `/#/articles/${id}`
+      const url = `/articles/${id}`
       if (window.electron && typeof window.electron.openShow === 'function') {
         await window.electron.openShow(url)
       } else {

@@ -80,7 +80,7 @@ export function Td({ children, className = '', align = 'left' }) {
 
   return (
     <td
-      className={`px-6 py-4 whitespace-nowrap text-sm text-gray-900 ${alignmentClass} ${className}`}
+      className={`px-4 py-2 whitespace-nowrap text-sm text-gray-900 ${alignmentClass} ${className}`}
     >
       {children}
     </td>
