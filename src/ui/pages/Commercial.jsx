@@ -99,7 +99,7 @@ function Commercial() {
       fetchData()
       message.success('Articles transférés avec succès')
     } else {
-      message.error('No selected data')
+      message.error('Aucun article sélectionné')
     }
     setTransferSpin(false)
   }
