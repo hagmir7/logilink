@@ -332,7 +332,7 @@ function Controller() {
             ) : data.doclignes?.length > 0 ? (
               data.doclignes.map((item, index) => {
                 return (
-                  item.AR_Ref == "SP000001" ? "" : <Tr key={index}>
+                  <Tr key={index}>
                     <Td>
                       {item.line?.validated === '1' ? (
                         <div className='flex items-center justify-center'>
