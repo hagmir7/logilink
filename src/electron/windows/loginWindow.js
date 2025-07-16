@@ -6,7 +6,7 @@ export default function createLoginWindow() {
     let loginWindow = new BrowserWindow({
         width: 600,
         height: 600,
-        // frame: false,
+        frame: false,
         resizable: false,
         webPreferences: {
             preload: getPreloadPath(),
