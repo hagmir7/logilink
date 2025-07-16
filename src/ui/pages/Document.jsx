@@ -1,12 +1,12 @@
-import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
+import { Loader2, RefreshCcw } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
 import DocumentCard from '../components/ui/DocumentCard'
 import { Button, Select, DatePicker, Input, Empty } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
-import DocumentCardCommercial from '../components/ui/DocumentCartCommercial'
 import DocumentTable from '../components/DocumentTable'
+import dayjs from 'dayjs';
 
 const { Search } = Input
 const { RangePicker } = DatePicker;
@@ -65,9 +65,11 @@ function Document() {
 
   const loadMore = async () => {
     setMoreSpinner(true)
-    setPage(page + 1)
+    const nextPage = page + 1  // Calculate next page value
+    setPage(nextPage)
+    
     try {
-      const response = await api.get(`${url}&page=${page}`)
+      const response = await api.get(`${url}&page=${nextPage}`)  // Use the calculated next page
       setData({
         data: [...data.data, ...response.data.data],
         next_page_url: response.data.next_page_url,
@@ -99,9 +101,14 @@ function Document() {
     }
   }
 
-  const handleChangeDate = (dates, dateStrings) => {
-    setDateFilter(dates)
-  };
+const handleChangeDate = (dates, dateStrings) => {
+  if (dates && dates.length === 2) {
+    const formattedDates = dates.map(date => dayjs(date).format('YYYY-MM-DD'));
+    setDateFilter(formattedDates);
+  } else {
+    setDateFilter([]);
+  }
+};
 
 
   return (
