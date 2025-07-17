@@ -6,14 +6,14 @@ export default function createLoginWindow() {
     let loginWindow = new BrowserWindow({
         width: 600,
         height: 600,
-        frame: false,
-        resizable: false,
+        frame: true,
+        // resizable: false,
         webPreferences: {
             preload: getPreloadPath(),
         }
     });
 
-     loginWindow.setMenu(null);
+    //  loginWindow.setMenu(null);
 
     if (isDev()) {
         loginWindow.loadURL('http://localhost:5123/#login');

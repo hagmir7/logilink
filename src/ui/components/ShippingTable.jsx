@@ -43,6 +43,21 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
   };
 
 
+  const handleShow = async (id) => {
+    try {
+      const url = `/document/${id}`
+      if (window.electron && typeof window.electron.openShow === 'function') {
+        await window.electron.openShow(url)
+      } else {
+        navigate(`/document/${id}`)
+      }
+    } catch (error) {
+      console.error('Error navigating to article:', error)
+    }
+  }
+
+
+
   const getStatusBadgeColor = (color) => {
     const colorMap = {
       green: 'bg-green-100 text-green-800 border-green-200',
@@ -106,7 +121,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
                 onDoubleClick={() =>
-                  onSelectOrder && onSelectOrder(item.piece_bl || item.docentete.DO_Piece)
+                  onSelectOrder && handleShow(item.piece_bl || item.docentete.DO_Piece)
                 }
               >
                 {roles('commercial') && (

@@ -38,7 +38,7 @@ const TicketPrinter = ({ doclignes, docentete }) => {
 
     return (
         <div>
-            <Button type="primary" size='large' onClick={() => setVisible(true)}>
+            <Button type="primary" onClick={() => setVisible(true)}>
                 <ReceiptText />
                 Billets
             </Button>

@@ -98,7 +98,7 @@ export default function PrintDocument({ docentete, doclignes }) {
 
   return (
     <div>
-      <Button onClick={handlePrint} size="large" color="cyan" variant="solid" icon={<Printer />}>
+      <Button onClick={handlePrint} color="cyan" variant="solid" icon={<Printer className='h-4 w-4' />}>
         Imprimer
       </Button>
 

@@ -40,20 +40,22 @@ function App() {
       <Routes>
         <Route path='/login' element={<Login />} />
         <Route path='articles/:id' element={<ViewArticle />} />
+        <Route path='/document/:id' element={<ViewDocument />} />
+
+
+        <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
+        <Route path='palette/controle/:code' element={<PaletteControle />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
-          <Route path='palette/controle/:code' element={<PaletteControle />} />
+          
           <Route path='/users' element={<Users />} />
-          <Route path='/document/:id' element={<ViewDocument />} />
+          <Route path='/layout/document/:id' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />
           <Route path='/roles/:id' element={<ViewRole />} />
           <Route path='*' element={<NotFound />} />
           <Route path='/profile/:id' element={<Profile />} />
           <Route path='documents' element={<Document />} />
-          <Route
-            path='document/palettes/:piece'
-            element={<DocumentPalettes />}
-          />
+          
           <Route path='preparation/:id' element={<Preparation />} />
           <Route path='fabrication/:id' element={<Fabrication />} />
           <Route path='validation' element={<Validation />} />

@@ -36,37 +36,47 @@ function Controller() {
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [status, setStatus] = useState({})
 
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const response = await api.get(`docentetes/${id}`)
+const fetchData = async () => {
+  setLoading(true)
 
-      setData(response.data)
-      setStatus(
-        getStatus(
-          Number(
-            response.data?.docentete?.document?.companies?.find(
-              (item) => item.id === Number(user.company_id)
-            ).pivot.status_id
-          )
-        )
-      )
+  try {
+    const response = await api.get(`docentetes/${id}`)
+    console.log('Fetched response:', response.data)
 
-      const companies = response.data.docentete?.document?.companies || []
-      const company = companies.find(
-        (item) => item.id === Number(user?.company_id)
-      )
-      setDocumentCompany(company || {})
-    } catch (err) {
-      console.error('Failed to fetch data:', err)
-    } finally {
-      setLoading(false)
+    setData(response.data)
+
+    const companies = response.data?.docentete?.document?.companies || []
+    const company = companies.find(
+      (item) => item.id === Number(user?.company_id)
+    )
+
+    console.log('Selected company:', company)
+
+    if (company) {
+      setDocumentCompany(company)
+      if (company.pivot?.status_id) {
+        setStatus(getStatus(Number(company.pivot.status_id)))
+      }
+    } else {
+      console.warn('Company not found for user')
+      setDocumentCompany({})
+      setStatus({})
     }
+  } catch (err) {
+    console.error('Failed to fetch data:', err)
+    message.error('Erreur lors du chargement des données')
+  } finally {
+    setLoading(false)
   }
+}
 
-  useEffect(() => {
+
+
+useEffect(() => {
+  if (user?.company_id) {
     fetchData()
-  }, [id])
+  }
+}, [id, user])
 
   const currentItems = data?.doclignes || []
 
@@ -110,6 +120,15 @@ function Controller() {
     setTransferSpin(false)
   }
 
+   const getCompany = ($id) => {
+    const companies = [
+      { value: 1, label: 'Inter' },
+      { value: 2, label: 'Serie' },
+    ]
+    const company = companies.find((c) => c.value === Number($id))
+    return company ? company.label : null
+  }
+
   let listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },
     { value: 5, label: 'Preparation Trailer' },
@@ -141,7 +160,7 @@ function Controller() {
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
-          <h1 className='text-sm md:text-xl font-bold text-gray-800'>
+          <h1 className='text-sm md:text-md font-bold text-gray-800'>
             {data.docentete.DO_Piece
               ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
@@ -154,21 +173,14 @@ function Controller() {
               roles('controleur'))) && (
               <Button
                 href={`#/document/palettes/${id}`}
-                size='large'
                 className='btn'
               >
                 <ListTodo /> Contrôler
               </Button>
             )}
 
-          {/* <Button
-            href={`#/document/palettes/${id}`}
-            size='large'
-            className='btn'
-          >
-            <ListTodo /> Contrôler
-          </Button> */}
-          <Button onClick={fetchData} size='large'>
+    
+          <Button onClick={fetchData}>
             {loading ? (
               <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
             ) : (
@@ -190,60 +202,36 @@ function Controller() {
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-3 gap-4 md:gap-6 bg-white/80 backdrop-blur-sm border border-gray-300/80 rounded-xl transition-all duration-300 p-5 md:p-6 mb-6 group'>
-        <div className='flex flex-col space-y-1.5'>
-          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
-            Client
-          </span>
-          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {data.docentete.DO_Tiers || <Skeleton className='h-5 w-24' />}
-          </span>
-        </div>
-
-        <div className='flex flex-col space-y-1.5'>
-          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
-            Référence
-          </span>
-          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {data.docentete.DO_Ref || <Skeleton className='h-5 w-20' />}
-          </span>
-        </div>
-
-        <div className='flex flex-col space-y-1.5'>
-          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
-            Etat
-          </span>
-          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {status ? (
-              <Tag color={status.color}>{status.name}</Tag> || 'En attend'
-            ) : (
-              <Skeleton className='h-5 w-20' />
-            )}
-          </span>
-        </div>
-
-        <div className='flex flex-col space-y-1.5 delay-150'>
-          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
-            Expédition
-          </span>
-          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {getExped(data.docentete.DO_Expedit) || (
-              <Skeleton className='h-5 w-28' />
-            )}
-          </span>
-        </div>
-
-        <div className='flex flex-col space-y-1.5 delay-225'>
-          <span className='text-xs font-medium text-gray-400 uppercase tracking-wide'>
-            Type de document
-          </span>
-          <span className='font-semibold text-gray-800 text-sm md:text-base leading-tight'>
-            {(data.docentete.DO_Piece &&
-              getDocumentType(data.docentete.DO_Piece)) || (
-                <Skeleton className='h-5 w-32' />
-              )}
-          </span>
-        </div>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {[
+          {
+            label: 'Client',
+            value: data.docentete.DO_Tiers,
+          },
+          {
+            label: 'Référence',
+            value: data.docentete.DO_Ref,
+          },
+          {
+            label: 'Expédition',
+            value: getExped(data.docentete.DO_Expedit),
+          },
+          {
+            label: 'Type de document',
+            value: data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece),
+          },
+        ].map(({ label, value }, idx) => (
+          <div key={idx} className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
+            <div className="flex flex-col gap-2">
+              <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                {label}
+              </span>
+              <span className="text-sm font-semibold text-gray-900">
+                {value || <Skeleton />}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
 
       {/* Table Header */}
@@ -251,45 +239,47 @@ function Controller() {
         <h2 className='text-lg font-semibold text-gray-800'>Articles</h2>
 
         <div className='flex gap-3 items-center'>
-          {/* Validation Button */}
-          {Number(documentCompany?.pivot?.status_id) === 10 && (
-            <Popconfirm
-              title='Validation'
-              description='Etes-vous sûr de vouloir valider'
-              open={open}
-              onConfirm={handleOk}
-              okButtonProps={{ loading: confirmLoading }}
-              onCancel={handleCancel}
-              cancelText='Annuler'
-              okText='Valider'
-              color='success'
-            >
-              <Button
+         {documentCompany?.pivot && (
+          <>
+            {Number(documentCompany.pivot.status_id) === 10 && (
+              <Popconfirm
+                title='Validation'
+                description='Etes-vous sûr de vouloir valider'
+                open={open}
+                onConfirm={handleOk}
+                okButtonProps={{ loading: confirmLoading }}
+                onCancel={handleCancel}
+                cancelText='Annuler'
+                okText='Valider'
                 color='success'
-                variant='solid'
-                size='large'
-                onClick={showPopconfirm}
               >
-                Valider <CircleCheckBig size={18} />
-              </Button>
-            </Popconfirm>
-          )}
+                <Button
+                  color='success'
+                  variant='solid'
+                  onClick={showPopconfirm}
+                >
+                  Valider <CircleCheckBig size={18} />
+                </Button>
+              </Popconfirm>
+            )}
 
-          {/* Transfer Section */}
-          {Number(documentCompany?.pivot?.status_id) < 8 && (
-            <>
-              <Select
-                size='large'
-                defaultValue='Transférer vers'
-                style={{ width: 200 }}
-                onChange={handleChangeTransfer}
-                options={listTransfer}
-              />
-              <Button onClick={transfer} size='large' loading={transferSpin}>
-                Transfer <ArrowRight size={18} />
-              </Button>
-            </>
-          )}
+            {Number(documentCompany.pivot.status_id) < 8 && (
+              <>
+                <Select
+                  size='large'
+                  defaultValue='Transférer vers'
+                  style={{ width: 200 }}
+                  onChange={handleChangeTransfer}
+                  options={listTransfer}
+                />
+                <Button onClick={transfer} size='large' loading={transferSpin}>
+                  Transfer <ArrowRight size={18} />
+                </Button>
+              </>
+            )}
+          </>
+        )}
+
         </div>
       </div>
 
@@ -298,7 +288,7 @@ function Controller() {
         <Table className='min-w-full'>
           <Thead>
             <Tr hoverable={false}>
-              <Th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
                 <Checkbox
                   onChange={handleSelectAll}
                   checked={
@@ -311,29 +301,66 @@ function Controller() {
                     ).length > 0
                   }
                 />
-              </Th>
-              <Th>État</Th>
-              <Th>Pièce</Th>
-              <Th>Ref Article</Th>
-              <Th>Dimensions</Th>
-              <Th>Matériaux</Th>
-              <Th>Qté</Th>
-              <Th>Qté Inter</Th>
-              <Th>Qté Série</Th>
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                État
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Ref Article
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Piece
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Hauteur
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Largeur
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Profondeur
+              </th>
+
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Couleur
+              </th>
+
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Chant
+              </th>
+
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'> 
+                Epaisseur
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
+                Quantité
+              </th>
             </Tr>
           </Thead>
-          <Tbody>
+          <tbody className='bg-white'>
             {loading ? (
-              <Tr>
-                <Td colSpan={9} className='text-center py-8'>
-                  <div className='animate-pulse'>Chargement...</div>
-                </Td>
-              </Tr>
+              [...Array(4)].map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  {[...Array(10)].map((_, colIndex) => (
+                    <td className="px-6 py-4" key={colIndex}>
+                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))
             ) : data.doclignes?.length > 0 ? (
-              data.doclignes.map((item, index) => {
-                return (
-                  <Tr key={index}>
-                    <Td>
+              currentItems.map((item, index) => (
+                <tr
+                  key={index}
+                  className={`
+                    border-b border-gray-200 
+                    hover:bg-blue-50 
+                    transition-colors 
+                    duration-150 
+                    ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                  `}
+                >
+                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                       {item.line?.validated === '1' ? (
                         <div className='flex items-center justify-center'>
                           <svg
@@ -354,114 +381,89 @@ function Controller() {
                           onChange={() => handleSelect(item.line?.id || item.id)}
                         />
                       )}
-                    </Td>
-
-                    <Td>
-                      <Tag color={item.line?.status?.color}>
+                  </td>
+                   <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                   <Tag color={item.line?.status?.color}>
                         {item.line?.status?.name}
                       </Tag>
-                    </Td>
+                  </td>
 
-                    <Td>
-                      <div className='font-bold text-gray-900'>
-                        {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                        {item?.article?.Description || null}
+                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                    <span className='text-sm font-semibold text-gray-900'>
+                      {item.AR_Ref || '__'}
+                    </span>
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    <div className='text-sm font-medium text-gray-900'>
+                      {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
+                      {item?.article?.Description || null}
+                    </div>
+                    {item?.article?.Description && (
+                      <div className='text-xs text-gray-500 mt-1'>
+                        {item.article.Description}
                       </div>
-                      {item?.article?.Description && (
-                        <div className='text-sm text-gray-500'>
-                          {item.article.Description}
-                        </div>
-                      )}
-                    </Td>
+                    )}
+                  </td>
 
-                    <Td className='font-mono text-sm'>{item.AR_Ref || '__'}</Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {item.Hauteur > 0 ?
+                      Math.floor(item.Hauteur) :
+                      Math.floor(item.article?.Hauteur) || '__'
+                    }
+                  </td>
 
-                    <Td>
-                      <div className='space-y-1'>
-                        <div className='text-sm text-gray-800'>
-                          H:{' '}
-                          {item.Hauteur > 0 ? (
-                            <strong>{Math.floor(item.Hauteur)}</strong>
-                          ) : (
-                            <strong>{Math.floor(item.article?.Hauteur)}</strong>
-                          )}
-                        </div>
-                        <div className='text-sm text-gray-800'>
-                          L:{' '}
-                          <strong>
-                            {Math.floor(
-                              item.Largeur ? item.Largeur : item?.article?.Largeur
-                            ) || '__'}
-                          </strong>
-                        </div>
-                        <div className='text-sm text-gray-600'>
-                          <span className='font-medium'>P:</span>{' '}
-                          <span className='font-bold'>
-                            <span className='font-bold  text-gray-800'>
-                              {Math.floor(item.Profondeur ? item.Profondeur : item.article?.Profonduer) || '__'}
-                            </span>
-                          </span>
-                        </div>
-                      </div>
-                    </Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
+                  </td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
+                  </td>
 
-                    <Td>
-                      <div className='space-y-1'>
-                        <div className='text-sm text-gray-600'>
-                          <span className='font-medium'>Couleur:</span>{' '}
-                          <span className='font-bold'>
-                            {(item.article ? item.article.Couleur : item.Couleur) || '__'}
-                          </span>
-                        </div>
-                        <div className='text-sm text-gray-600'>
-                          <span className='font-medium'>Chant:</span>{' '}
-                          <span className='font-bold'>
-                            {(item.article ? item.article.Chant : item.Chant) || '__'}
-                          </span>
-                        </div>
-                        <div className='text-sm text-gray-600'>
-                          <span className='font-medium'>Épaisseur:</span>{' '}
-                          <span className='font-bold'>
-                            {Math.floor(item.Episseur ? item.Episseur : item.article.Episseur) || '__'}
-                          </span>
-                        </div>
-                      </div>
-                    </Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
+                  </td>
 
-                    <Td>
-                      <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
-                    </Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
+                  </td>
 
-                    <Td>
-                      <Tag
-                        color={
-                          item?.stock?.qte_inter > 0 ? 'green-inverse' : '#f50'
-                        }
-                      >
-                        {item?.stock?.qte_inter}
-                      </Tag>
-                    </Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
+                  </td>
 
-                    <Td>
-                      <Tag
-                        color={
-                          item?.stock?.qte_serie > 0 ? 'green-inverse' : '#f50'
-                        }
-                      >
-                        {item?.stock?.qte_serie}
-                      </Tag>
-                    </Td>
-                  </Tr>
-                )
-              })
+                  <td className='px-4 py-2'>
+                    <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
+                      {Math.floor(item.DL_Qte)}
+                    </span>
+                  </td>
+                </tr>
+              ))
             ) : (
-              <Tr>
-                <Td colSpan={9} className='text-center py-8 text-gray-500'>
-                  Aucune donnée disponible
-                </Td>
-              </Tr>
+              <tr>
+                <td colSpan="6" className='p-8'>
+                  <div className='text-center'>
+                    <svg
+                      className='mx-auto h-12 w-12 text-gray-400'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke='currentColor'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={1}
+                        d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
+                      />
+                    </svg>
+                    <h3 className='mt-2 text-sm font-medium text-gray-900'>
+                      Aucun article trouvé
+                    </h3>
+                  </div>
+                </td>
+              </tr>
             )}
-          </Tbody>
+          </tbody>
         </Table>
       </div>
 

@@ -7,6 +7,7 @@ import { Button, Select, DatePicker, Input, Empty } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import DocumentTable from '../components/DocumentTable'
 import dayjs from 'dayjs';
+import PreparationDocumentTable from '../components/PreparationDocumentTable'
 
 const { Search } = Input
 const { RangePicker } = DatePicker;
@@ -48,7 +49,7 @@ function Document() {
   }
 
   const handleSelectOrder = (orderId) => {
-    navigate(`/document/${orderId}`)
+    navigate(`/layout/document/${orderId}`)
   }
 
 
@@ -114,7 +115,7 @@ const handleChangeDate = (dates, dateStrings) => {
   return (
     <div className='min-h-screen'>
       {/* Title */}
-      <h2 className='text-xl font-semibold text-gray-800 mb-1 p-2 md:p-4'>
+      <h2 className='text-lg font-semibold text-gray-800 mb-1 p-2 md:p-4'>
         Gestion de la préparation
       </h2>
 
@@ -135,7 +136,7 @@ const handleChangeDate = (dates, dateStrings) => {
           <RangePicker
             size='large'
             onChange={handleChangeDate}
-            className='min-w-[220px] '
+            className='min-w-[220px]'
           />
         </div>
         
@@ -166,6 +167,8 @@ const handleChangeDate = (dates, dateStrings) => {
         </div>
       </div>
 
+      {/* End Header */}
+
       {/* Commercail Table */}
       {roles('commercial') && (
         <DocumentTable
@@ -175,8 +178,26 @@ const handleChangeDate = (dates, dateStrings) => {
         />
       )}
 
+       {roles('preparation') && (
+        <PreparationDocumentTable
+          loading={loading}
+          documents={data.data}
+          onSelectOrder={handleSelectOrder}
+        />
+      )}
+
+
+      {(roles('montage') || roles('fabrication')) && (
+        <PreparationDocumentTable
+          loading={loading}
+          documents={data.data}
+          onSelectOrder={handleSelectOrder}
+        />
+      )}
+
+  
       {/* Cards Container */}
-      {!roles('commercial') && (
+      {(roles('preparation_cuisine') || roles('preparation_trailer')) && (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
           {data?.data?.length > 0
             ? data.data.map((item, index) => (

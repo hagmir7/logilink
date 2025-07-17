@@ -70,14 +70,14 @@ function DocumentPalettes() {
   return (
     <div className=''>
       {/* Document Header */}
-      <div className='bg-gradient-to-r from-blue-50 to-indigo-50 px-6 py-2 md:py-4 border-b border-gray-200'>
+      <div className='bg-gradient-to-r bg-[#e5e7eb] px-3 py-1 md:py-2 border-b border-gray-200'>
         <div className='flex items-center justify-between flex-wrap gap-4'>
           <div className='flex items-center space-x-4'>
             <div className='rounded-full border border-gray-300'>
               <BackButton />
             </div>
             <div>
-              <h2 className='text-lg font-semibold text-gray-900'>
+              <h2 className='text-md font-semibold text-gray-900'>
                 {document.ref}
               </h2>
               <p className='text-sm text-gray-600'>
@@ -95,8 +95,8 @@ function DocumentPalettes() {
       </div>
 
       {/* Document Details */}
-      <div className='py-2 md:py-4'>
-        <div className='grid  grid-cols-2 md:grid-cols-3 gap-4 mb-6 px-6 '>
+      <div className='py-1 md:py-2'>
+        <div className='grid  grid-cols-2 md:grid-cols-3 gap-3 mb-3 px-3 '>
           <div className='space-y-1'>
             <p className='text-sm font-medium text-gray-500'>Client</p>
             <p className='text-sm text-gray-900 flex gap-2 font-black'>

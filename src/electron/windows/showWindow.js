@@ -13,13 +13,13 @@ export const createShowWindow = (routeUrl) => {
     if (childWindow) return childWindow;
 
     childWindow = new BrowserWindow({
-        width: 700,
-        height: 600,
-        resizable: false,
-        parent: mainWindowReference, 
-        modal: true,
-        minimizable: false,
-        alwaysOnTop: true,
+        width: 1200,
+        height: 700,
+        // resizable: false,
+        // parent: mainWindowReference, 
+        // modal: true,
+        // minimizable: false,
+        // alwaysOnTop: true,
         webPreferences: {
             preload: getPreloadPath()
         }

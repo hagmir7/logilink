@@ -1,14 +1,27 @@
 import { Settings } from 'lucide-react'
 import { Tag } from 'antd'
-import { getExped } from '../utils/config'
 import Spinner from './ui/Spinner'
+
+import {getExped, getStatus } from '../utils/config';
+import { useAuth } from '../contexts/AuthContext'
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function DocumentTable({ documents = [], onSelectOrder, loading }) {
+function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
+
+    console.log(documents);
+
+    const { user } = useAuth();
+    
+    const company = (data) =>{
+        return data?.companies?.find(item => item.id === Number(user.company_id))
+    }
+
+    
+    
   const getStatusBadgeColor = (color) => {
     const colorMap = {
       green: 'bg-green-50 text-green-700 border border-green-200 shadow-sm',
@@ -86,12 +99,12 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                     duration-150 
                     ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   `}
-                  onClick={() => handleShow(data.DO_Piece)}
+                  onClick={() => handleShow(data.piece)}
                 >
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <div className='flex items-center'>
                       <span className='text-sm font-semibold text-gray-900'>
-                        {data.DO_Piece || '__'}
+                        {data.piece || '__'}
                       </span>
                       {data.DO_Reliquat === 1 && (
                         <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
@@ -103,35 +116,39 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag 
-                      color={data?.document?.status?.color} 
+                      color={company(data)?.pivot?.status_id
+                                  ? getStatus(Number(company(data).pivot.status_id)).color
+                                  : 'gray'} 
                       className='text-xs font-medium shadow-sm border'
                     >
-                      {data?.document?.status?.name || 'En attente'}
+                      {company(data)?.pivot?.status_id
+                                  ? getStatus(Number(company(data).pivot.status_id)).name
+                                  : 'En attente'}
                     </Tag>
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(data.DO_Expedit)}`}>
-                      {getExped(data.DO_Expedit)}
+                    <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(data.expedition)}`}>
+                      {getExped(data.expedition)}
                     </span>
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <span className='text-sm text-gray-900 font-medium'>
-                      {data.DO_Tiers}
+                      {data.client_id}
                     </span>
                   </td>
                   
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {data.DO_Ref}
+                    {data.ref}
                   </td>
                   
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data.DO_Date))}
+                    {formatDate(new Date(data.created_at))}
                   </td>
                   
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data.DO_DateLivr))}
+                    {formatDate(new Date(data.docentete.DO_DateLivr))}
                   </td>
                 </tr>
               ))}
@@ -146,13 +163,13 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
           <div
             key={index}
             className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-150 bg-white shadow-sm mb-2 rounded-lg border'
-            onClick={() => handleShow(data.DO_Piece)}
+            onClick={() => handleShow(data.piece)}
           >
             {/* Header with document number and status */}
             <div className='flex justify-between items-start mb-3'>
               <div className='flex items-center'>
                 <span className='text-lg font-bold text-gray-900'>
-                  {data.DO_Piece || '__'}
+                  {data.piece || '__'}
                 </span>
                 {data.DO_Reliquat === 1 && (
                   <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300'>
@@ -215,4 +232,4 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
   )
 }
 
-export default DocumentTable
+export default PreparationDocumentTable

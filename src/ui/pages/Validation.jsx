@@ -6,6 +6,7 @@ import DocumentCard from '../components/ui/DocumentCard'
 import { Button, Select, Space, Input, Empty } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from '../components/ui/Spinner'
+import PreparationDocumentTable from '../components/PreparationDocumentTable'
 
 const { Search } = Input
 
@@ -89,12 +90,14 @@ function Validation() {
   }
 
   return (
-    <div className='min-h-screen p-2 md:p-5'>
+    <div className='min-h-screen  '>
       {/* Header */}
-      <h2 className='text-xl font-semibold text-gray-800 mb-2'>
+      
+      <div className='px-2 md:px-3 my-2'>
+        <h2 className='text-lg font-semibold text-gray-800 mb-2'>
         Controle et Validation des commandes
       </h2>
-      <div className='flex justify-between items-center mb-6'>
+      <div className='flex justify-between items-center'>
         <div className='flex gap-4'>
           <Search
             placeholder='Recherch'
@@ -117,41 +120,15 @@ function Validation() {
           </Button>
         </div>
       </div>
-
-      {/* Cards Container */}
-      <div className='space-y-4'>
-        {loading ? (
-          <div className='flex flex-col items-center justify-center h-64'>
-            <Loader2 className='animate-spin text-blue-500 mb-2' size={32} />
-            <span className='text-gray-600'>Chargement...</span>
-          </div>
-        ) : (
-          <>
-            <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4'>
-              {data?.data?.length > 0
-                ? data.data.map((item, index) => (
-                    <DocumentCard
-                      key={index}
-                      data={item}
-                      onSelectOrder={handleSelectOrder}
-                    />
-                  ))
-                : null}
-            </div>
-
-            {loading ? (
-              <Spinner />
-            ) : (
-              data?.data?.length === 0 && (
-                <Empty
-                  className='mt-10'
-                  description='Aucun document à afficher'
-                />
-              )
-            )}
-          </>
-        )}
       </div>
+
+     {roles('preparation') && (
+          <PreparationDocumentTable
+            loading={loading}
+            documents={data.data}
+            onSelectOrder={handleSelectOrder}
+          />
+        )}
       {data.next_page_url && (
         <div className='flex justify-center'>
           <Button

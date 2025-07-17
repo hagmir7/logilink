@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { Badge, message, Spin } from 'antd'
-import { Circle, CircleCheckBig, Loader } from 'lucide-react'
+import { Circle, CircleCheckBig, Loader, Truck, User } from 'lucide-react'
 import { getExped, getStatus, uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 
@@ -40,46 +40,46 @@ export default function PaletteControle() {
   }
 
   return (
-    <div className='p-4 md:p-6'>
-      <div className='bg-white rounded-2xl shadow-sm p-4 mb-8 border border-gray-100'>
-        <div className='mx-auto py-3 sm:py-4'>
-          <div className='flex items-center gap-3'>
-            <BackButton className='w-8 h-8' />
-            <div className='w-px h-6 bg-gray-300' />
-            <h1 className='text-sm md:text-xl font-bold text-gray-900 truncate'>
-              Document <span className='text-blue-600'>{document.piece}</span>
-            </h1>
+    <div className=''>
+       <div className='bg-gradient-to-r bg-[#eff5fe] px-3 py-1 md:py-2 border-b border-gray-200'>
+        <div className='flex items-center justify-between flex-wrap gap-4'>
+          <div className='flex items-center space-x-4'>
+            <div className='rounded-full border border-gray-300'>
+              <BackButton />
+            </div>
+            <div>
+              <h2 className='text-md font-semibold text-gray-900'>
+                {document.ref}
+              </h2>
+              <p className='text-sm text-gray-600'>
+                <strong>{document.piece}</strong>
+              </p>
+            </div>
           </div>
-        </div>
-
-        <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 text-[15px] text-gray-700'>
-          <div>
-            <p className='font-medium text-gray-500'>Référence</p>
-            <p className='font-bold'>{document.ref}</p>
-          </div>
-          <div>
-            <p className='font-medium text-gray-500'>Client</p>
-            <p className='font-bold'>{document.client_id}</p>
-          </div>
-          <div>
-            <p className='font-medium text-gray-500'>Expédition</p>
-            <p className='font-bold'>{getExped(document.expedition)}</p>
-          </div>
-          <div>
-            <p className='font-medium text-gray-500'>Type</p>
-            <p className='font-bold'>{document.type}</p>
-          </div>
-
-          <div>
-            <p className='font-medium text-gray-500'>Date de transfert</p>
-            <p className='font-bold'>
-              {new Date(document.created_at).toLocaleString('fr-FR')}
-            </p>
+          <div >
+          
           </div>
         </div>
       </div>
 
-      <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5'>
+      <div className='grid  grid-cols-2 md:grid-cols-3 gap-3 mb-3 px-3  border-b border-gray-200 py-2.5'>
+        <div className='space-y-1'>
+          <p className='text-sm font-medium text-gray-500'>Client</p>
+          <p className='text-sm text-gray-900 flex gap-2 font-black'>
+            <User className='w-5 h-5 text-gray-600' />
+            {document.client_id}
+          </p>
+        </div>
+        <div className='space-y-1'>
+          <p className='text-sm font-medium text-gray-500'>Expedition</p>
+          <p className='text-sm text-gray-900 flex gap-2 font-black'>
+            <Truck className='w-5 h-5 text-gray-600' />{' '}
+            {getExped(document.expedition)}
+          </p>
+        </div>
+      </div>
+
+      <div className='grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 p-4 md:p-6'>
         {palette?.lines?.map((item, index) => {
           const isConfirmed = !!item?.pivot?.controlled_at
           const loading = loadingLines[item.id] || false

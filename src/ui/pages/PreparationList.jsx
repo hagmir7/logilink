@@ -54,6 +54,8 @@ function PreparationList() {
       </div>
 
       {/* Document Info */}
+
+      
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl p-6 mb-8'>
         <div className='flex flex-col space-y-1'>
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
@@ -95,12 +97,12 @@ function PreparationList() {
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-lg font-semibold text-gray-800'>
+        <h2 className='text-md font-semibold text-gray-800'>
           Articles ({data.doclignes.length})
         </h2>
 
         <div className='flex gap-3'>
-          <Button size='large' color='green' variant='solid' href={`#/preparation/${id}`} className='btn'>
+          <Button color='green' variant='solid' href={`#/preparation/${id}`} className='btn'>
             Preparation <ArrowRight size={18} />{' '}
           </Button>
         </div>

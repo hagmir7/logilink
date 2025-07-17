@@ -94,17 +94,17 @@ function Fabrication() {
   }
 
   return (
-    <div className='max-w-7xl mx-auto p-2 md:p-5'>
-     <div className='flex justify-between items-center mb-6'>
+  <div className='max-w-7xl mx-auto p-2 md:p-5'>
+      <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
-          <h1 className='text-xl font-bold text-gray-800'>
+          <h1 className='text-lg font-bold text-gray-800'>
             {data.docentete.DO_Piece
               ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
         </div>
         <div className='flex gap-2'>
-          <Button onClick={fetchData} size='large'>
+          <Button onClick={fetchData}>
             {loading ? (
               <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
             ) : (
@@ -117,34 +117,38 @@ function Fabrication() {
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-4 bg-white border-2 border-gray-200 p-4 mb-6'>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Client</span>
-          <span className='font-medium'>
-            {data.docentete.DO_Tiers || <Skeleton />}
-          </span>
-        </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Référence</span>
-          <span className='font-medium'>
-            {data.docentete.DO_Ref || <Skeleton />}
-          </span>
-        </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Expédition</span>
-          <span className='font-medium'>
-            {getExped(data.docentete.DO_Expedit) || <Skeleton />}
-          </span>
-        </div>
-        <div className='flex flex-col'>
-          <span className='text-sm text-gray-500'>Type de document</span>
-          <span className='font-medium'>
-            {(data.docentete.DO_Piece &&
-              getDocumentType(data.docentete.DO_Piece)) || <Skeleton />}
-          </span>
-        </div>
+     {/* Document Info */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {[
+          {
+            label: 'Client',
+            value: data.docentete.DO_Tiers,
+          },
+          {
+            label: 'Référence',
+            value: data.docentete.DO_Ref,
+          },
+          {
+            label: 'Expédition',
+            value: getExped(data.docentete.DO_Expedit),
+          },
+          {
+            label: 'Type de document',
+            value: data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece),
+          },
+        ].map(({ label, value }, idx) => (
+          <div key={idx} className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
+            <div className="flex flex-col gap-2">
+              <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+                {label}
+              </span>
+              <span className="text-sm font-semibold text-gray-900">
+                {value || <Skeleton />}
+              </span>
+            </div>
+          </div>
+        ))}
       </div>
-
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
         <div>
@@ -155,22 +159,22 @@ function Fabrication() {
             lang='fr'
             className='border-2'
             placeholder='Date de livraison'
-            size="large"
+            // dateFormat='dd/MM/yyyy'
           />
         </div>
         <div className='flex gap-3'>
-          <Button onClick={complation} size="large" color="green" variant="solid" loading={complationSpin}>
+          <Button onClick={complation} color="green" variant="solid" loading={complationSpin}>
             Validation <ArrowRight size={18} />
           </Button>
         </div>
       </div>
 
       {/* Desktop Table */}
-      <div className='hidden md:block overflow-x-auto'>
+      <div className='overflow-x-auto'>
         <Table>
           <Thead>
             <Tr>
-              <Th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 <Checkbox
                   onChange={handleSelectAll}
                   checked={
@@ -178,106 +182,127 @@ function Fabrication() {
                     data.doclignes.length > 0
                   }
                 ></Checkbox>
-              </Th>
+              </th>
 
-              <Th>Piece </Th>
-              <Th>Ref Article </Th>
-              <Th>Date Livraison</Th>
-              <Th>Dimensions</Th>
-              <Th>Matériaux</Th>
-              <Th>Quantité</Th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Piece </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Ref Article </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Date Livraison</th>
+                <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                Hauteur
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                Largeur
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                Profondeur
+              </th>
+                <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                Couleur
+              </th>
+
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                Chant
+              </th>
+
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                Epaisseur
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Quantité</th>
             </Tr>
           </Thead>
 
           <Tbody>
             {loading ? (
-              <SkeletonTable />
+               [...Array(4)].map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  {[...Array(11)].map((_, colIndex) => (
+                    <td className="px-6 py-4" key={colIndex}>
+                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
                 <Tr key={index} className='whitespace-nowrap'>
-                  <Td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
+                  <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
                     <Checkbox
                       checked={selected.includes(item.line?.id)}
                       onChange={() => handleSelect(item.line?.id)}
                     />
-                  </Td>
+                  </td>
 
-                  <Td className='font-black'>
-                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}
-                    {item?.article?.Description || null}
-                  </Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
+                      {item?.article?.Description || null}
+                  </td>
 
-                  <Td> {item.AR_Ref || '__'}</Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>{item.AR_Ref || '__'}</td>
 
-                  <Td>
-                    {item.line?.complation_date ? (
-                      <Tag className='font-bold text-lg'>
-                        {dateFormat(item.line.complation_date)}
-                      </Tag>
-                    ) : (
-                      '__'
-                    )}
-                  </Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    <Tag> {item.line?.complation_date
+                      ? dateFormat(item.line.complation_date)
+                      : '__'}</Tag>
+                  </td>
 
-                  <Td>
-                    <div className='space-y-1'>
-                     <div className='text-sm text-gray-800'>
-                      H:{' '}
-                      {item.Hauteur > 0 ? (
-                        <strong>{Math.floor(item.Hauteur)}</strong>
-                      ) : (
-                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
-                      )}
-                    </div>
-                       <div className='text-sm text-gray-800'>
-                      L:{' '}
-                      <strong>
-                        {Math.floor(
-                          item.Largeur ? item.Largeur : item?.article?.Largeur
-                        ) || '__'}
-                      </strong>
-                    </div>
-                      <div className='text-sm text-gray-600'>
-                        <span className='font-medium'>P:</span>{' '}
-                        <span className='font-bold'>
-                          <span className='font-bold  text-gray-800'>
-                            {Math.floor(
-                              item.Profondeur
-                                ? item.Profondeur
-                                : item.article?.Profonduer
-                            ) || '__'}
-                          </span>
-                        </span>
-                      </div>
-                    </div>
-                  </Td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {item.Hauteur > 0 ?
+                      Math.floor(item.Hauteur) :
+                      Math.floor(item.article?.Hauteur) || '__'
+                    }
+                  </td>
 
-                  <Td className='hidden lg:table-cell px-6 py-4 whitespace-nowrap'>
-                    <div className='text-sm text-gray-500'>
-                      Couleur:{' '}
-                      {(item.article ? item.article.Couleur : item.Couleur) ||
-                        '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      Chant:{' '}
-                      {(item.article ? item.article.Chant : item.Chant) || '__'}
-                    </div>
-                    <div className='text-sm text-gray-500'>
-                      Epaisseur:{' '}
-                      {Math.floor(
-                        item.article ? item.article.Episseur : item.Episseur
-                      ) || '__'}
-                    </div>
-                  </Td>
-                  <Td className='px-6 py-4 whitespace-nowrap'>
-                    <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
+                  </td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
+                  </td>
+                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                    <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
                       {Math.floor(item.DL_Qte)}
                     </span>
-                  </Td>
+                  </td>
                 </Tr>
               ))
             ) : (
-              <EmptyTable />
+              <tr>
+                <td
+                  colSpan='6'
+                  className='px-6 py-4 text-center text-sm text-gray-500'
+                >
+                  <div className='flex flex-col items-center justify-center py-6'>
+                    <svg
+                      className='h-12 w-12 text-gray-400'
+                      fill='none'
+                      viewBox='0 0 24 24'
+                      stroke='currentColor'
+                    >
+                      <path
+                        strokeLinecap='round'
+                        strokeLinejoin='round'
+                        strokeWidth={1}
+                        d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
+                      />
+                    </svg>
+                    <h3 className='mt-2 text-sm font-medium text-gray-900'>
+                      Aucun article trouvé
+                    </h3>
+                  </div>
+                </td>
+              </tr>
             )}
           </Tbody>
         </Table>
