@@ -54,13 +54,21 @@ function Document() {
 
 
 
-  useEffect(() => {
-    const fetchAndNotify = async () => {
-      await fetchData()
-      window.electron?.notifyPrintReady?.()
-    }
-    fetchAndNotify()
-  }, [documenType, documenStatus, dateFilter])
+    useEffect(() => {
+      const fetchAndNotify = async () => {
+        await fetchData()
+        window.electron?.notifyPrintReady?.()
+      }
+
+      fetchAndNotify()
+
+
+      const intervalId = setInterval(() => {
+        fetchAndNotify()
+      }, 40000)
+
+      return () => clearInterval(intervalId)
+    }, [documenType, documenStatus, dateFilter])
 
 
 
@@ -172,7 +180,7 @@ const handleChangeDate = (dates, dateStrings) => {
       {/* Commercail Table */}
       {roles('commercial') && (
         <DocumentTable
-          loading={loading}
+          // loading={loading}
           documents={data.data}
           onSelectOrder={handleSelectOrder}
         />
@@ -180,7 +188,7 @@ const handleChangeDate = (dates, dateStrings) => {
 
        {roles('preparation') && (
         <PreparationDocumentTable
-          loading={loading}
+          // loading={loading}
           documents={data.data}
           onSelectOrder={handleSelectOrder}
         />

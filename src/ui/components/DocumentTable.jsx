@@ -205,12 +205,6 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
           </div>
         ))}
       </div>
-
-      {loading && (
-        <div className='absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center'>
-          <Spinner />
-        </div>
-      )}
     </div>
   )
 }
