@@ -191,15 +191,47 @@ ipcMain.on('print', () => {
 
 
 ipcMain.on("print-content", (event, htmlContent) => {
-    const printWindow = new BrowserWindow({ show: false });
-    printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+  const printWindow = new BrowserWindow({
+    show: false,
+    webPreferences: {
+      sandbox: false,
+    },
+  });
 
-    printWindow.webContents.on("did-finish-load", () => {
-        printWindow.webContents.print({}, (success) => {
-            if (!success) console.log("Print failed");
-            printWindow.close();
-        });
+  printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+
+  printWindow.webContents.on("did-finish-load", () => {
+    const printOptions = {
+      silent: false,                  // Set to true to skip print dialog
+      printBackground: true,          // Print CSS backgrounds
+      deviceName: '',                 // Specify printer by name (e.g., 'Brother HL-2270DW series')
+      color: true,                    // Print in color
+      margins: {
+        marginType: 'none',        // 'default', 'none', 'printableArea', 'custom'
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0
+      },
+      landscape: false,               // false = portrait, true = landscape
+      pagesPerSheet: 1,
+      collate: true,
+      copies: 1,
+      dpi: {
+        horizontal: 600,
+        vertical: 600,
+      },
+      scaleFactor: 100,               // 100% scaling
+      pageSize: 'A4',                 // Could also be 'Letter', { height: 100000, width: 100000 }, etc.
+    };
+
+    printWindow.webContents.print(printOptions, (success, errorType) => {
+      if (!success) {
+        console.error("Print failed:", errorType);
+      }
+      printWindow.close();
     });
+  });
 });
 
 

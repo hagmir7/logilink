@@ -11,76 +11,186 @@ export default function PrintDocument({ docentete, doclignes }) {
         <head>
           <style>
             body {
-              font-family: Arial, sans-serif;
-              padding: 20px;
+              font-family: 'Arial', sans-serif;
+              margin: 0;
+              padding: 15px;
               color: #000;
+              background: #fff;
+              font-size: 12px;
+              line-height: 1.4;
             }
-            h2 {
-              margin-bottom: 10px;
-              color: #000;
+
+            @media print {
+              body {
+                margin: 0;
+                padding: 0;
+                font-size: 11px;
+              }
+
+              .page-break {
+                page-break-after: always;
+              }
+
+              .page-break:last-child {
+                page-break-after: auto;
+              }
+
+              .signature-footer {
+                position: fixed;
+                bottom: 0mm;
+                left: 0mm;
+                right: 0mm;
+                height: 32mm;
+                page-break-inside: avoid;
+              }
+
+              .document-content {
+                margin-bottom: 160px;
+                padding-bottom: 20px;
+              }
+
+              table {
+                margin-bottom: 20px;
+              }
+
+              .footer {
+                display: none;
+              }
             }
-            .header {
+
+            .document-header {
               display: flex;
               justify-content: space-between;
-              align-items: flex-start;
-              gap: 20px;
-              margin-bottom: 20px;
+              padding-bottom: 10px;
             }
-            .logo img {
-              height: 80px;
+            
+            th {
+              background-color: gray;
             }
-            .logo {
-              flex-shrink: 0;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-            }
-            .header-section {
+
+            .company-section {
               flex: 1;
-              font-size: 12px;
             }
-            .header-section strong {
-              font-size: 14px;
+
+            .company-name {
+              font-size: 16px;
+              font-weight: bold;
+              margin-bottom: 2px;
             }
+
+            .company-tagline {
+              font-size: 11px;
+              margin-bottom: 2px;
+            }
+
+            .logo-section {
+              flex: 0 0 auto;
+              margin: 0 15px;
+            }
+
+            .logo-section img {
+              height: 90px;
+            }
+
+            .client-section {
+              flex: 1;
+              text-align: right;
+            }
+
+            .info-row {
+              font-size: 11px;
+              margin-bottom: 2px;
+            }
+
+            .info-label {
+              font-weight: bold;
+            }
+
+            .system-info {
+              border: 1px solid #000;
+              padding: 5px 8px;
+              margin-bottom: 15px;
+              font-size: 10px;
+              display: flex;
+              justify-content: space-between;
+            }
+
             table {
               width: 100%;
               border-collapse: collapse;
-              margin-top: 20px;
-              font-size: 12px;
+              margin-top: 15px;
+              font-size: 11px;
               color: #000;
             }
+
             th, td {
-              border: 1px solid #000;
-              padding: 8px;
+              border: 1px solid #333;
+              padding: 6px 8px;
               text-align: left;
+              vertical-align: top;
             }
+
             th {
-              background-color: #e0e0e0;
-            }
-            .info-label {
-              font-size: 11px;
-              margin-bottom: 5px;
-              text-transform: uppercase;
-            }
-            .info-value {
+              background-color: #ccc; /* or use gray, #bbb, etc. */
               font-weight: bold;
-              font-size: 13px;
-              color: #000;
-            }
-            .footer {
-              margin-top: 40px;
-              text-align: center;
               font-size: 11px;
-              color: #333;
-              border-top: 1px solid #000;
-              padding-top: 10px;
+            }
+
+            tbody tr:nth-child(even) {
+              background-color: gray;
+            }
+
+            .footer {
+              margin-top: 30px;
+              text-align: center;
+              font-size: 9px;
+              color: #777;
+              border-top: 1px solid #ccc;
+              padding-top: 8px;
+            }
+
+            .signature-footer {
+              margin-top: 40px;
+              display: flex;
+              justify-content: space-between;
+              border: 2px solid #000;
+              height: 120px;
+              background: white;
+            }
+
+            .signature-section {
+              flex: 1;
+              padding: 10px;
+              display: flex;
+              flex-direction: column;
+            }
+
+            .signature-section:first-child {
+              border-right: 2px solid #000;
+            }
+
+            .signature-header {
+              font-weight: bold;
+              font-size: 14px;
+              text-align: center;
+              padding: 8px;
+              background: #f0f0f0;
+              border-bottom: 1px solid #000;
+              margin: -10px -10px 10px -10px;
+            }
+
+            .signature-content {
+              flex: 1;
+              display: flex;
+              align-items: flex-end;
+              justify-content: center;
             }
           </style>
         </head>
         <body>
           ${content}
           <div class="footer">
-            STILE MOBILI - Document imprimé le ${new Date().toLocaleDateString()} - Page 1
+            STILE MOBILI - Document imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')} - Page 1
           </div>
         </body>
       </html>
@@ -94,6 +204,14 @@ export default function PrintDocument({ docentete, doclignes }) {
     return `${inputDate.getFullYear()}/${String(inputDate.getMonth() + 1).padStart(2, '0')}/${String(inputDate.getDate()).padStart(2, '0')}`;
   };
 
+  const chunkLines = (lines, size = 30) => {
+    const chunks = [];
+    for (let i = 0; i < lines.length; i += size) {
+      chunks.push(lines.slice(i, i + size));
+    }
+    return chunks;
+  };
+
   const { roles } = useAuth();
 
   return (
@@ -103,81 +221,104 @@ export default function PrintDocument({ docentete, doclignes }) {
       </Button>
 
       <div id="print-section" style={{ display: 'none' }}>
-        {/* Header */}
-      <div className="header">
-        <div className="header-section" style={{ textAlign: 'left' }}>
-          <div className="info-label"><strong>STILEMOBILI</strong></div>
-          <div className="info-label">FAB. MEUBLES DE CUISINE</div>
-          <div className="info-label">4ᵉ TRANCHE ZONE INDUSTRIELLE</div>
-          <div className="info-label"><strong>PL {docentete?.DO_Piece || '__'}</strong></div>
-          <div className="info-value">{docentete?.DO_Ref || '__'}</div>
+        <div className="document-content">
+          <div className="document-header">
+            <div className="company-section">
+              <div className="company-name">STILE MOBILI</div>
+              <div className="company-tagline">Fabricant de meubles de cuisine</div>
+              <div>4ᵉ Tranche Zone Industrielle</div>
+              <div style={{ marginTop: '2px' }}>
+                <strong>Pièce: {docentete?.DO_Piece || '__'}</strong><br />
+                <span>{docentete?.DO_Ref || '__'}</span>
+              </div>
+            </div>
+
+            <div className="logo-section">
+              <img src="https://intercocina.com/assets/imgs/intercocina-logo.png" alt="Logo" />
+            </div>
+
+            <div className="client-section">
+              <div className="info-row">
+                <span className="info-label">Client:</span> {docentete?.DO_Tiers || '__'}
+              </div>
+              <div className="info-row">
+                <span className="info-label">Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}
+              </div>
+              <div className="info-row">
+                <span className="info-label">Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete.DO_DateLivr) : '__'}
+              </div>
+              <div className="info-row">
+                <span className="info-label">Expédition:</span> {getExped(docentete?.DO_Expedit)}
+              </div>
+              <div className="info-row">
+                <span className="info-label">Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}
+              </div>
+            </div>
+          </div>
+
+          <div className="system-info">
+            <div>STILE MOBILI - LOGILINK PRO version 2.00</div>
+            <div>Date de tirage {new Date().toISOString().split('T')[0]} à {new Date().toLocaleTimeString('fr-FR')}</div>
+          </div>
+
+          {chunkLines(doclignes, 30).map((pageLines, pageIndex) => (
+            <div key={pageIndex} className="page-break">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Pièce</th>
+                    <th>H x L x P</th>
+                    <th>Qté</th>
+                    <th>Couleur</th>
+                    <th>Chant</th>
+                    <th>ÉP</th>
+                    <th>Réf</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pageLines.map((item, index) => {
+                    const art = item.article || {};
+                    return (
+                      <tr key={index}>
+                        <td>
+                          {roles("commercial") || roles("admin") ? (
+                            <strong>{item?.DL_Design || "__"} </strong>
+                          ) : (
+                            <strong>{art?.Nom || "__"} </strong>
+                          )}
+                          <span style={{ fontSize: "10px", color: "#666" }}>
+                            {art.Description ? `(${art.Description})` : ""}
+                          </span>
+                        </td>
+                        <td>
+                          {`${Math.floor(item.Hauteur || art.Hauteur || 0)} x ${Math.floor(item.Largeur || art.Largeur || 0)} x ${Math.floor(item.Profondeur || art.Profondeur || 0)}`}
+                        </td>
+                        <td>{Math.floor(item.DL_Qte || 0)}</td>
+                        <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
+                        <td>{item.Chant || art.Chant || "__"}</td>
+                        <td>{Math.floor(item.Epaisseur || art.Epaisseur || 0)}</td>
+                        <td>{item.AR_Ref || "__"}</td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+
+              {pageIndex === chunkLines(doclignes, 30).length - 1 && (
+                <div className="signature-footer">
+                  <div className="signature-section">
+                    <div className="signature-header">Date & Heure</div>
+                    <div className="signature-content"></div>
+                  </div>
+                  <div className="signature-section">
+                    <div className="signature-header">Ramasseur</div>
+                    <div className="signature-content"></div>
+                  </div>
+                </div>
+              )}
+            </div>
+          ))}
         </div>
-
-        <div className="logo">
-          <img src="https://intercocina.com/assets/imgs/intercocina-logo.png" alt="Logo" />
-        </div>
-
-        <div className="header-section" style={{ textAlign: 'left', alignItems: 'flex-start' }}>
-          <div className="info-label"><strong>Client</strong>: {docentete?.DO_Tiers || '__'}</div>
-          <div className="info-label">Date: <strong>{docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</strong></div>
-          <div className="info-label">Livraison: <strong>{docentete?.DO_DateLivr ? dateFormat(docentete.DO_DateLivr) : '__'}</strong></div>
-          <div className="info-label">Expédition: {getExped(docentete?.DO_Expedit)}</div>
-          <div className="info-label">Type: {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}</div>
-        </div>
-      </div>
-
-
-        {/* Document Info */}
-        <table>
-          <tbody>
-            <tr>
-              <td>STILE MOBILI - LOGILINK PRO version 2.00</td>
-              <td>Date de tirage {new Date().toISOString().split('T')[0]} {"    "} à {new Date().toLocaleTimeString()}</td>
-            </tr>
-          </tbody>
-        </table>
-
-        {/* Lines Table */}
-        <table>
-          <thead>
-            <tr>
-              <th>Pièce</th>
-              <th>H x L x P</th>
-              <th>Qté</th>
-              <th>Couleur</th>
-              <th>Chant</th>
-              <th>Épaisseur</th>
-              <th>Réf Article</th>
-            </tr>
-          </thead>
-          <tbody>
-            {doclignes.map((item, index) => {
-              const art = item.article || {};
-              
-              return (
-                <tr key={index}>
-                  <td>
-                    {
-                      roles("commercial") || roles("admin") ? <strong>{item?.DL_Design || '__'} </strong>
-                        : <strong>{art?.Nom || '__'} </strong>
-                    }
-                    <span style={{ fontSize: '11px', color: '#000' }}>
-                      { art.Description ? `(${art.Description})` : '' }
-                    </span>
-                  </td>
-                  <td>
-                    {`${Math.floor(item.Hauteur || art.Hauteur || 0)} x ${Math.floor(item.Largeur || art.Largeur || 0)} x ${Math.floor( item.Profondeur || art.Profondeur || 0)}`}
-                  </td>
-                  <td>{Math.floor(item.DL_Qte || 0)}</td>
-                  <td>{item.Couleur ? item.Couleur : art.Couleur }</td>
-                  <td>{item.Chant || art.Chant || '__'}</td>
-                  <td>{Math.floor( item.Epaisseur || art.Epaisseur || 0)}</td>
-                  <td>{item.AR_Ref || '__'}</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
       </div>
     </div>
   );
