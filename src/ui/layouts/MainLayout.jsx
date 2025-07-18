@@ -61,7 +61,7 @@ const sideMenu = () => {
          {
           key: 'submenu-16',
           icon: <ArrowRightLeft size={19} />,
-          label: <Link to='/transfer-order'>Transfert</Link>,
+          label: <Link to='/transfer-orders/list'>Transfert</Link>,
         },
         // {
         //   key: 'submenu-13',

@@ -48,12 +48,15 @@ export default function TransferOrder() {
     const handleSubmit = async () => {
         setSubmitLoading(true)
         try {
-            const response = await api.post('transfer-order', {
-                'palette_code': paletteCode,
-                'to_company': company,
-                'transfer_by': user
+            await api.post('transfer/store', {
+              palette_code: paletteCode,
+              to_company: company,
+              transfer_by: user,
             })
             message.success("Mouvement transféré avec succès !");
+            setPaletteCode(null);
+            setCompany(null);
+            setUser(null);
         } catch (error) {
             console.error(error);
             message.error(error.response.data.message);

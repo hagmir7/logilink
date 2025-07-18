@@ -30,108 +30,108 @@ export const DocumentPalettesModal = ({ countPalettes, documentPiece }) => {
     };
 
     return (
-        <Flex vertical gap="middle" align="flex-start">
-            <Button type="primary" onClick={handleOpenModal}>
-                Palettes {countPalettes}
-            </Button>
-            
-            <Modal
-                title={`Détails du Document - ${document.piece || 'N/A'}`}
-                centered
-                open={open}
-                onOk={() => setOpen(false)}
-                onCancel={() => setOpen(false)}
-                loading={loading}
-                width={{
-                    xs: '90%',
-                    sm: '80%',
-                    md: '70%',
-                    lg: '60%',
-                    xl: '50%',
-                    xxl: '40%',
-                }}
-                footer={[
-                    <Button key="close" onClick={() => setOpen(false)} loading={loading}>
-                        Fermer
-                    </Button>
-                ]}
-            >
-                <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
-                    {loading ? (
-                        <div style={{ textAlign: 'center', padding: '40px' }}>
-                            <span>Chargement des données...</span>
-                        </div>
-                    ) : (
-                        <>
-                            {/* Document Information */}
-                            <Card title="Informations du Document" size="small" style={{ marginBottom: 16 }}>
-                                <Descriptions column={2} size="small">
-                                    <Descriptions.Item label="ID">{document.id}</Descriptions.Item>
-                                    <Descriptions.Item label="Pièce">{document.piece}</Descriptions.Item>
-                                    <Descriptions.Item label="Type">{document.type}</Descriptions.Item>
-                                    <Descriptions.Item label="Référence">{document.ref}</Descriptions.Item>
-                                    <Descriptions.Item label="ID Client">{document.client_id}</Descriptions.Item>
-                                    <Descriptions.Item label="Expédition">{document.expedition}</Descriptions.Item>
-                                    <Descriptions.Item label="Statut">
-                                        <Tag color={getStatusColor(document.status)}>
-                                            {document.status?.name || 'N/A'}
-                                        </Tag>
-                                    </Descriptions.Item>
-                                </Descriptions>
-                            </Card>
+      <Flex vertical gap='middle' align='flex-start'>
+        <Button type='primary' onClick={handleOpenModal}>
+          Palettes ({document.palettes?.length})
+        </Button>
 
-                            {/* Palettes Information */}
-                            <Card title={`Palettes (${document.palettes?.length || 0})`} size="small">
-                                {document.palettes && document.palettes.length > 0 ? (
-                                    <List
-                                        dataSource={document.palettes}
-                                        renderItem={(palette) => (
-                                            <List.Item>
-                                                <Card 
-                                                    size="small" 
-                                                    style={{ width: '100%' }}
-                                                    title={`Palette ${palette.code}`}
-                                                >
-                                                    <Descriptions column={2} size="small">
-                                                        <Descriptions.Item label="ID">{palette.id}</Descriptions.Item>
-                                                        <Descriptions.Item label="Type">{palette.type}</Descriptions.Item>
-                                                        <Descriptions.Item label="Nb Lignes">{palette.lines_count}</Descriptions.Item>
-                                                        <Descriptions.Item label="Contrôlé">
-                                                            <Tag color={palette.controlled === "1" ? "green" : "orange"}>
-                                                                {palette.controlled === "1" ? "Oui" : "Non"}
-                                                            </Tag>
-                                                        </Descriptions.Item>
-                                                        <Descriptions.Item label="Poids">
-                                                            {palette.weight || 'N/A'}
-                                                        </Descriptions.Item>
-                                                        <Descriptions.Item label="Utilisateur">
-                                                            {palette.user?.full_name || 'N/A'}
-                                                        </Descriptions.Item>
-                                                    </Descriptions>
-                                                    
-                                                    {palette.user && (
-                                                        <div style={{ marginTop: 8 }}>
-                                                            <strong>Détails Utilisateur:</strong>
-                                                            <div style={{ fontSize: '12px', color: '#666' }}>
-                                                                Email: {palette.user.email}<br/>
-                                                                Téléphone: {palette.user.phone}
-                                                            </div>
-                                                        </div>
-                                                    )}
-                                                </Card>
-                                            </List.Item>
-                                        )}
-                                    />
-                                ) : (
-                                    <div style={{ textAlign: 'center', color: '#999', padding: '20px' }}>
-                                        Aucune palette trouvée
-                                    </div>
-                                )}
-                            </Card>
-                        </>
+        <Modal
+          title={
+            <div className='flex items-center gap-3'>
+              <span>
+                Palettes ({document.palettes?.length || 0}) -{' '}
+                {document.piece || 'N/A'}{' '}
+              </span>
+              <Tag color={getStatusColor(document.status)}>
+                {document.status?.name || 'N/A'}
+              </Tag>
+            </div>
+          }
+          centered
+          open={open}
+          onOk={() => setOpen(false)}
+          onCancel={() => setOpen(false)}
+          loading={loading}
+          width={{
+            xs: '90%',
+            sm: '80%',
+            md: '70%',
+            lg: '60%',
+            xl: '50%',
+            xxl: '40%',
+          }}
+          footer={[
+            <Button
+              key='close'
+              onClick={() => setOpen(false)}
+              loading={loading}
+            >
+              Fermer
+            </Button>,
+          ]}
+        >
+          <div style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+            {loading ? (
+              <div style={{ textAlign: 'center', padding: '40px' }}>
+                <span>Chargement des données...</span>
+              </div>
+            ) : (
+              <>
+                {document.palettes && document.palettes.length > 0 ? (
+                  <List
+                    dataSource={document.palettes}
+                    renderItem={(palette) => (
+                      <List.Item>
+                        <Card
+                          size='small'
+                          style={{ width: '100%' }}
+                          title={`Palette ${palette.code}`}
+                        >
+                          <Descriptions column={2} size='small'>
+                            <Descriptions.Item label='Type'>
+                              {palette.type}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='Nb Articles'>
+                              <Tag>{palette.lines_count}</Tag>
+                            </Descriptions.Item>
+                            <Descriptions.Item label='Contrôlé'>
+                              <Tag
+                                color={
+                                  palette.controlled === '1'
+                                    ? 'green'
+                                    : 'orange'
+                                }
+                              >
+                                {palette.controlled === '1' ? 'Oui' : 'Non'}
+                              </Tag>
+                            </Descriptions.Item>
+                            <Descriptions.Item label='Poids'>
+                              {palette.weight || 'N/A'}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='Utilisateur'>
+                              {palette.user?.full_name || 'N/A'}
+                            </Descriptions.Item>
+                          </Descriptions>
+                        </Card>
+                      </List.Item>
                     )}
-                </div>
-            </Modal>
-        </Flex>
-    );
+                  />
+                ) : (
+                  <div
+                    style={{
+                      textAlign: 'center',
+                      color: '#999',
+                      padding: '20px',
+                    }}
+                  >
+                    <div className='text-6xl mb-4'>🎨</div>
+                    Aucune palette trouvée
+                  </div>
+                )}
+              </>
+            )}
+          </div>
+        </Modal>
+      </Flex>
+    )
 };

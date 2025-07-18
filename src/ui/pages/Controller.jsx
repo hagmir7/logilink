@@ -120,16 +120,7 @@ useEffect(() => {
     setTransferSpin(false)
   }
 
-   const getCompany = ($id) => {
-    const companies = [
-    { value: 1, label: 'Inter' },
-      { value: 2, label: 'Serie' },
-      { value: 3, label: 'Asti' },
-      { value: 4, label: 'Stile' },
-    ]
-    const company = companies.find((c) => c.value === Number($id))
-    return company ? company.label : null
-  }
+ 
 
   let listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },

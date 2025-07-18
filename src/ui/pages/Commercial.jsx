@@ -129,7 +129,7 @@ function Commercial() {
               </h1>
             </div>
             <div className='flex gap-3'>
-              <Button 
+              <Button
                 onClick={fetchData}
                 className='flex items-center gap-2 hover:shadow-md transition-shadow'
               >
@@ -145,12 +145,15 @@ function Commercial() {
                 docentete={data.docentete}
               />
 
-              <DocumentPalettesModal countPalettes={10} documentPiece={data.DO_Piece} />
+              <DocumentPalettesModal
+                countPalettes={10}
+                documentPiece={data.docentete.DO_Piece}
+              />
             </div>
           </div>
 
           {/* Document Info Cards */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
             {[
               {
                 label: 'Client',
@@ -166,15 +169,20 @@ function Commercial() {
               },
               {
                 label: 'Type de document',
-                value: data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece),
+                value:
+                  data.docentete.DO_Piece &&
+                  getDocumentType(data.docentete.DO_Piece),
               },
             ].map(({ label, value }, idx) => (
-              <div key={idx} className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
-                <div className="flex flex-col gap-2">
-                  <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
+              <div
+                key={idx}
+                className='bg-white border border-gray-200 rounded-lg p-2 shadow-sm'
+              >
+                <div className='flex flex-col gap-2'>
+                  <span className='text-xs text-gray-500 uppercase tracking-wider font-medium'>
                     {label}
                   </span>
-                  <span className="text-sm font-semibold text-gray-900">
+                  <span className='text-sm font-semibold text-gray-900'>
                     {value || <Skeleton />}
                   </span>
                 </div>
@@ -186,22 +194,23 @@ function Commercial() {
           <div className='flex justify-between items-center'>
             <h2 className='text-md font-semibold text-gray-800'>Articles</h2>
             <div className='flex gap-3'>
-              {(data.docentete.document && Number(data.docentete.document.status_id) < 8) && (
-                <Popconfirm
-                  title='Réinitialiser la commande'
-                  description='Êtes-vous sûr de vouloir réinitialiser cette tâche ?'
-                  onConfirm={reset}
-                  okText='Réinitialiser'
-                  cancelText='Annuler'
-                >
-                  <Button 
-                    danger 
-                    className='flex items-center gap-2 hover:shadow-md transition-shadow'
+              {data.docentete.document &&
+                Number(data.docentete.document.status_id) < 8 && (
+                  <Popconfirm
+                    title='Réinitialiser la commande'
+                    description='Êtes-vous sûr de vouloir réinitialiser cette tâche ?'
+                    onConfirm={reset}
+                    okText='Réinitialiser'
+                    cancelText='Annuler'
                   >
-                    Réinitialiser <Undo2 size={18} />
-                  </Button>
-                </Popconfirm>
-              )}
+                    <Button
+                      danger
+                      className='flex items-center gap-2 hover:shadow-md transition-shadow'
+                    >
+                      Réinitialiser <Undo2 size={18} />
+                    </Button>
+                  </Popconfirm>
+                )}
 
               <Select
                 placeholder='Transférer vers'
@@ -210,9 +219,9 @@ function Commercial() {
                 options={listTransfer}
               />
 
-              <Button 
+              <Button
                 type='primary'
-                onClick={transfer} 
+                onClick={transfer}
                 loading={transferSpin}
                 className='flex items-center gap-2 hover:shadow-md transition-shadow'
               >
@@ -252,22 +261,22 @@ function Commercial() {
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Hauteur
                         </th>
-                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Largeur
                         </th>
-                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Profondeur
                         </th>
-                     
+
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Couleur
                         </th>
 
-                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Chant
                         </th>
 
-                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Epaisseur
                         </th>
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
@@ -276,17 +285,17 @@ function Commercial() {
                       </tr>
                     </thead>
                     <tbody className='bg-white'>
-                        {loading ? (
-                      [...Array(4)].map((_, rowIndex) => (
-                        <tr key={rowIndex}>
-                          {[...Array(10)].map((_, colIndex) => (
-                            <td className="px-6 py-4" key={colIndex}>
-                              <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                            </td>
-                          ))}
-                        </tr>
-                      ))
-                    ) : data.doclignes?.length > 0 ? (
+                      {loading ? (
+                        [...Array(4)].map((_, rowIndex) => (
+                          <tr key={rowIndex}>
+                            {[...Array(10)].map((_, colIndex) => (
+                              <td className='px-6 py-4' key={colIndex}>
+                                <div className='h-4 bg-gray-200 rounded w-3/4 animate-pulse'></div>
+                              </td>
+                            ))}
+                          </tr>
+                        ))
+                      ) : data.doclignes?.length > 0 ? (
                         currentItems.map((item, index) => (
                           <tr
                             key={index}
@@ -301,15 +310,23 @@ function Commercial() {
                             <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                               {item?.line ? (
                                 <Tag
-                                  color={item.line.company_id == 1 ? 'success' : 'processing'}
+                                  color={
+                                    item.line.company_id == 1
+                                      ? 'success'
+                                      : 'processing'
+                                  }
                                   className='shadow-sm'
                                 >
                                   {getCompany(item.line.company_id)}
                                 </Tag>
                               ) : (
                                 <Checkbox
-                                  checked={selected.includes(item.line?.id || item.cbMarq)}
-                                  onChange={() => handleSelect(item.line?.id || item.cbMarq)}
+                                  checked={selected.includes(
+                                    item.line?.id || item.cbMarq
+                                  )}
+                                  onChange={() =>
+                                    handleSelect(item.line?.id || item.cbMarq)
+                                  }
                                 />
                               )}
                             </td>
@@ -322,7 +339,10 @@ function Commercial() {
 
                             <td className='px-2 text-sm border-r border-gray-100'>
                               <div className='text-sm font-medium text-gray-900'>
-                                {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
+                                {item?.Nom ||
+                                  item.article.Nom ||
+                                  item?.DL_Design ||
+                                  '__'}{' '}
                                 {item?.article?.Description || null}
                               </div>
                               {item?.article?.Description && (
@@ -333,29 +353,44 @@ function Commercial() {
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {item.Hauteur > 0 ? 
-                                      Math.floor(item.Hauteur) : 
-                                      Math.floor(item.article?.Hauteur) || '__'
-                                    }
+                              {item.Hauteur > 0
+                                ? Math.floor(item.Hauteur)
+                                : Math.floor(item.article?.Hauteur) || '__'}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                               {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
+                              {Math.floor(
+                                item.Largeur
+                                  ? item.Largeur
+                                  : item?.article?.Largeur
+                              ) || '__'}
                             </td>
                             <td className='px-2 text-sm border-r border-gray-100'>
-                               {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
+                              {Math.floor(
+                                item.Profondeur
+                                  ? item.Profondeur
+                                  : item?.article?.Profonduer
+                              ) || '__'}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
+                              {(item.Couleur
+                                ? item.Couleur
+                                : item?.article?.Couleur) || '__'}
                             </td>
 
-                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
+                            <td className='px-2 text-sm border-r border-gray-100'>
+                              {(item.Chant
+                                ? item.Chant
+                                : item?.article?.Chant) || '__'}
                             </td>
 
-                               <td className='px-2 text-sm border-r border-gray-100'>
-                              {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
+                            <td className='px-2 text-sm border-r border-gray-100'>
+                              {Math.floor(
+                                item.article
+                                  ? item?.article?.Episseur
+                                  : item?.Episseur
+                              ) || '__'}
                             </td>
 
                             <td className='px-4 py-2'>
@@ -367,7 +402,7 @@ function Commercial() {
                         ))
                       ) : (
                         <tr>
-                          <td colSpan="6" className='p-8'>
+                          <td colSpan='6' className='p-8'>
                             <div className='text-center'>
                               <svg
                                 className='mx-auto h-12 w-12 text-gray-400'
@@ -438,10 +473,7 @@ function Commercial() {
                           </p>
                         )}
                       </div>
-                      <Tag 
-                        color='success' 
-                        className='ml-2 font-semibold'
-                      >
+                      <Tag color='success' className='ml-2 font-semibold'>
                         {Math.floor(item.DL_Qte || 0)}
                       </Tag>
                     </div>
@@ -460,25 +492,39 @@ function Commercial() {
                         <div className='text-sm'>
                           <span className='text-gray-500 font-medium'>H:</span>{' '}
                           <span className='font-semibold text-gray-900'>
-                            {Math.floor(item.article ? item.article.Hauteur : item.Hauteur) || '__'}
+                            {Math.floor(
+                              item.article ? item.article.Hauteur : item.Hauteur
+                            ) || '__'}
                           </span>
                         </div>
                         <div className='text-sm'>
                           <span className='text-gray-500 font-medium'>L:</span>{' '}
                           <span className='font-semibold text-gray-900'>
-                            {Math.floor(item.article ? item.article.Largeur : item.Largeur) || '__'}
+                            {Math.floor(
+                              item.article ? item.article.Largeur : item.Largeur
+                            ) || '__'}
                           </span>
                         </div>
                         <div className='text-sm'>
                           <span className='text-gray-500 font-medium'>P:</span>{' '}
                           <span className='font-semibold text-gray-900'>
-                            {Math.floor(item.Profondeur ? item.Profondeur : item.article?.Profonduer) || '__'}
+                            {Math.floor(
+                              item.Profondeur
+                                ? item.Profondeur
+                                : item.article?.Profonduer
+                            ) || '__'}
                           </span>
                         </div>
                         <div className='text-sm'>
-                          <span className='text-gray-500 font-medium'>Epaisseur:</span>{' '}
+                          <span className='text-gray-500 font-medium'>
+                            Epaisseur:
+                          </span>{' '}
                           <span className='font-semibold text-gray-900'>
-                            {Math.floor(item.article ? item.article.Episseur : item.Episseur) || '__'}
+                            {Math.floor(
+                              item.article
+                                ? item.article.Episseur
+                                : item.Episseur
+                            ) || '__'}
                           </span>
                         </div>
                       </div>
@@ -486,15 +532,23 @@ function Commercial() {
                       <div className='border-t border-gray-200 pt-3'>
                         <div className='grid grid-cols-2 gap-3'>
                           <div className='text-sm'>
-                            <span className='text-gray-500 font-medium'>Couleur:</span>{' '}
+                            <span className='text-gray-500 font-medium'>
+                              Couleur:
+                            </span>{' '}
                             <span className='font-semibold text-gray-900'>
-                              {(item.article ? item.article.Couleur : item.Couleur) || '__'}
+                              {(item.article
+                                ? item.article.Couleur
+                                : item.Couleur) || '__'}
                             </span>
                           </div>
                           <div className='text-sm'>
-                            <span className='text-gray-500 font-medium'>Chant:</span>{' '}
+                            <span className='text-gray-500 font-medium'>
+                              Chant:
+                            </span>{' '}
                             <span className='font-semibold text-gray-900'>
-                              {(item.article ? item.article.Chant : item.Chant) || '__'}
+                              {(item.article
+                                ? item.article.Chant
+                                : item.Chant) || '__'}
                             </span>
                           </div>
                         </div>

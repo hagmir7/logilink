@@ -135,6 +135,17 @@ export function uppercaseFirst(str) {
 }
 
 
+export const getCompany = ($id) => {
+    const companies = [
+      { value: 1, label: 'Intercocina' },
+      { value: 2, label: 'Serie Mobel' },
+      { value: 3, label: 'AstiDkor' },
+      { value: 4, label: 'Stile Mobili' },
+    ]
+    const company = companies.find((c) => c.value === Number($id))
+    return company ? company.label : null
+  }
+
 
 export const categories = [
   { value: 'panneaux', label: 'Panneaux' },

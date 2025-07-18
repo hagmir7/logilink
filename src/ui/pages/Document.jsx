@@ -135,19 +135,17 @@ const handleChangeDate = (dates, dateStrings) => {
               placeholder='Recherch'
               loading={searchSpinner}
               size='large'
-
               onChange={handleSearch}
             />
           </div>
 
-        <div className='hidden md:block'>
-          <RangePicker
-            size='large'
-            onChange={handleChangeDate}
-            className='min-w-[220px]'
-          />
-        </div>
-        
+          <div className='hidden md:block'>
+            <RangePicker
+              size='large'
+              onChange={handleChangeDate}
+              className='min-w-[220px]'
+            />
+          </div>
 
           {roles('commercial') && (
             <Select
@@ -186,14 +184,13 @@ const handleChangeDate = (dates, dateStrings) => {
         />
       )}
 
-       {roles('preparation') && (
+      {roles('preparation') && (
         <PreparationDocumentTable
           // loading={loading}
           documents={data.data}
           onSelectOrder={handleSelectOrder}
         />
       )}
-
 
       {(roles('montage') || roles('fabrication')) && (
         <PreparationDocumentTable
@@ -203,9 +200,10 @@ const handleChangeDate = (dates, dateStrings) => {
         />
       )}
 
-  
       {/* Cards Container */}
-      {(roles('preparation_cuisine') || roles('preparation_trailer')) && (
+      {(roles('preparation_cuisine') ||
+        roles('preparation_trailer') ||
+        roles('magasinier')) && (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
           {data?.data?.length > 0
             ? data.data.map((item, index) => (
@@ -233,7 +231,7 @@ const handleChangeDate = (dates, dateStrings) => {
         </div>
       )}
 
-      {(data.data.length === 0 && !loading) && (
+      {data.data.length === 0 && !loading && (
         <Empty className='mt-10' description='Aucun document à afficher' />
       )}
     </div>

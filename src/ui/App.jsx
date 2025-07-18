@@ -29,6 +29,7 @@ import ScrollToTop from './components/ScrollToTop'
 import InventoryDepotEmplacment from './pages/InventoryDepotEmplacment'
 import Transfert from './pages/Transfert'
 import TransferOrder from './pages/TransferOrder'
+import TransferOrdersList from './pages/TransferOrdersList'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -43,13 +44,11 @@ function App() {
         <Route path='articles/:id' element={<ViewArticle />} />
         <Route path='/document/:id' element={<ViewDocument />} />
 
-
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />
-          
           <Route path='/users' element={<Users />} />
           <Route path='/layout/document/:id' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />
@@ -57,13 +56,13 @@ function App() {
           <Route path='*' element={<NotFound />} />
           <Route path='/profile/:id' element={<Profile />} />
           <Route path='documents' element={<Document />} />
-          
           <Route path='preparation/:id' element={<Preparation />} />
           <Route path='fabrication/:id' element={<Fabrication />} />
           <Route path='validation' element={<Validation />} />
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
+          <Route path='transfer-orders/list' element={<TransferOrdersList />} />
 
           <Route
             path='inventory/:inventory_id/depot/:id'
@@ -75,7 +74,6 @@ function App() {
           <Route path='depots' element={<Depots />} />
           <Route path='depots/view/:id' element={<DepotEmplacement />} />
           <Route path='transfert' element={<Transfert />} />
-
           <Route path='depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
         </Route>

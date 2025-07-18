@@ -15,11 +15,11 @@ export const createShowWindow = (routeUrl) => {
     childWindow = new BrowserWindow({
         width: 1200,
         height: 700,
-        // resizable: false,
-        // parent: mainWindowReference, 
-        // modal: true,
-        // minimizable: false,
-        // alwaysOnTop: true,
+        resizable: false,
+        parent: mainWindowReference, 
+        modal: true,
+        minimizable: false,
+        alwaysOnTop: true,
         webPreferences: {
             preload: getPreloadPath()
         }

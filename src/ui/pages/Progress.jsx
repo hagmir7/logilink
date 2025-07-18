@@ -3,6 +3,7 @@ import {User, Calendar, RefreshCcw, Loader2 } from 'lucide-react';
 import { getExped, locale } from '../utils/config';
 import { Select, DatePicker, Input } from 'antd';
 import { api } from '../utils/api';
+import { useNavigate } from 'react-router-dom';
 
 const { Search } = Input
 const { RangePicker } = DatePicker;
@@ -12,6 +13,8 @@ const Progress = () => {
     const [loading, setLoading] = useState(false)
     const [search, setSearch] = useState('');
     const [dateFilter, setDateFilter] = useState('')
+
+    const navigate = useNavigate()
 
     useEffect(() => {
       getDocuments()
@@ -46,6 +49,19 @@ const Progress = () => {
       ></div>
     </div>
   )
+
+    const handleShow = async (id) => {
+      try {
+        const url = `/document/${id}`
+        if (window.electron && typeof window.electron.openShow === 'function') {
+          await window.electron.openShow(url)
+        } else {
+          navigate(`/document/${id}`)
+        }
+      } catch (error) {
+        console.error('Error navigating to article:', error)
+      }
+    }
 
   return (
     <div className='min-h-screen bg-white'>
@@ -145,6 +161,7 @@ const Progress = () => {
                 {documents.map((order) => (
                   <tr
                     key={order.id}
+                    onClick={()=> handleShow(order.piece)}
                     className='hover:bg-gray-50 transition-colors duration-200'
                   >
                     <td className='px-6 py-4 whitespace-nowrap'>
