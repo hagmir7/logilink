@@ -19,10 +19,12 @@ import {
   RefreshCcw,
   CircleCheck,
   AudioWaveform,
+  ArrowRightLeft,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
 import { useAuth } from '../contexts/AuthContext'
+import MobileBottomNav from './MobileButtomNav'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
@@ -55,6 +57,11 @@ const sideMenu = () => {
           key: 'submenu-15',
           icon: <Truck size={19} />,
           label: <Link to='/shipping'>Expédition</Link>,
+        },
+         {
+          key: 'submenu-16',
+          icon: <ArrowRightLeft size={19} />,
+          label: <Link to='/transfer-order'>Transfert</Link>,
         },
         // {
         //   key: 'submenu-13',
@@ -181,7 +188,7 @@ const MainLayout = () => {
   }
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout style={{ minHeight: '100vh' }} className='pb-14 md:mb-4'>
       <Header
         className='flex items-center justify-between shadow-sm top-0 left-0'
         style={{
@@ -304,6 +311,7 @@ const MainLayout = () => {
           </Content>
         </Layout>
       </Layout>
+      <MobileBottomNav />
     </Layout>
   )
 }

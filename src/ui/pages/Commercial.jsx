@@ -15,6 +15,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import SkeletonTable from '../components/ui/SkeletonTable'
 import EmptyTable from '../components/ui/EmptyTable';
 import PrintDocument from '../components/PrintDocument';
+import { DocumentPalettesModal } from '../components/DocumentPalettesModal';
 
 function Commercial() {
   const { id } = useParams()
@@ -72,6 +73,8 @@ function Commercial() {
     const companies = [
       { value: 1, label: 'Inter' },
       { value: 2, label: 'Serie' },
+      { value: 3, label: 'Asti' },
+      { value: 4, label: 'Stile' },
     ]
     const company = companies.find((c) => c.value === Number($id))
     return company ? company.label : null
@@ -141,6 +144,8 @@ function Commercial() {
                 doclignes={data.doclignes}
                 docentete={data.docentete}
               />
+
+              <DocumentPalettesModal countPalettes={10} documentPiece={data.DO_Piece} />
             </div>
           </div>
 

@@ -28,6 +28,7 @@ import DepotEmplacement from './pages/DepotEmplacement'
 import ScrollToTop from './components/ScrollToTop'
 import InventoryDepotEmplacment from './pages/InventoryDepotEmplacment'
 import Transfert from './pages/Transfert'
+import TransferOrder from './pages/TransferOrder'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -47,6 +48,7 @@ function App() {
         <Route path='palette/controle/:code' element={<PaletteControle />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
+          <Route path='/transfer-order' element={<TransferOrder />} />
           
           <Route path='/users' element={<Users />} />
           <Route path='/layout/document/:id' element={<ViewDocument />} />

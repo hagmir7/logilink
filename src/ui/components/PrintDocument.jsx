@@ -281,11 +281,7 @@ export default function PrintDocument({ docentete, doclignes }) {
                     return (
                       <tr key={index}>
                         <td>
-                          {roles("commercial") || roles("admin") ? (
-                            <strong>{item?.DL_Design || "__"} </strong>
-                          ) : (
-                            <strong>{art?.Nom || "__"} </strong>
-                          )}
+                          <strong>{art?.Nom || "__"} </strong>
                           <span style={{ fontSize: "10px", color: "#666" }}>
                             {art.Description ? `(${art.Description})` : ""}
                           </span>
