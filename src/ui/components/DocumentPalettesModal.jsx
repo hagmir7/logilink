@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button, Flex, message, Modal, Card, Tag, Descriptions, List } from 'antd';
 import { api } from '../utils/api';
+import { getCompany } from '../utils/config';
 
 export const DocumentPalettesModal = ({ countPalettes, documentPiece }) => {
     const [open, setOpen] = useState(false);
@@ -32,7 +33,7 @@ export const DocumentPalettesModal = ({ countPalettes, documentPiece }) => {
     return (
       <Flex vertical gap='middle' align='flex-start'>
         <Button type='primary' onClick={handleOpenModal}>
-          Palettes ({document.palettes?.length})
+          Palettes ({countPalettes})
         </Button>
 
         <Modal
@@ -108,8 +109,14 @@ export const DocumentPalettesModal = ({ countPalettes, documentPiece }) => {
                             <Descriptions.Item label='Poids'>
                               {palette.weight || 'N/A'}
                             </Descriptions.Item>
-                            <Descriptions.Item label='Utilisateur'>
+                            <Descriptions.Item label='Preparateur'>
                               {palette.user?.full_name || 'N/A'}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='Entreprise actuelle'>
+                              {getCompany(palette.company_id) || 'N/A'}
+                            </Descriptions.Item>
+                            <Descriptions.Item label='Préparé à'>
+                              {getCompany(palette.first_company_id) || 'N/A'}
                             </Descriptions.Item>
                           </Descriptions>
                         </Card>

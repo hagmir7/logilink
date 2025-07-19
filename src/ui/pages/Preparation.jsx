@@ -13,7 +13,7 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
-import { message } from 'antd'
+import { Alert, Input, message } from 'antd'
 
 export default function Preparation() {
   const [article, setArticle] = useState({
@@ -34,6 +34,7 @@ export default function Preparation() {
   const [lines, setLines] = useState([])
   const [palettes, setPalettes] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [lineError, setLineError] = useState('');
   const quantityInput = useRef();
   const lineInput = useRef();
 
@@ -94,40 +95,74 @@ export default function Preparation() {
   }, [id])
 
   const handleScan = async (value) => {
-    if (!palette) return
+    setLine(value)
+    if (!palette || value === '') return
 
     const payload = { line: value, document: id, palette: palette.code }
-    setLine(value)
+
     setLoading('scan', true)
+
+    setLineError('')
 
     try {
       const { data } = await api.post('palettes/scan', payload)
-      const height = Math.floor(data.docligne?.Hauteur) || Math.floor(data.article_stock?.height) || false;
-      const width = Math.floor(data.docligne.Largeur) || Math.floor(data.article_stock?.width) || false
+      const height =
+        Math.floor(data.docligne?.Hauteur) ||
+        Math.floor(data.article_stock?.height) ||
+        false
+      const width =
+        Math.floor(data.docligne.Largeur) ||
+        Math.floor(data.article_stock?.width) ||
+        false
 
-      const dimensions = height && width ? height + " * " + width : (width || height);
+      const dimensions =
+        height && width ? height + ' * ' + width : width || height
 
-      const color = data?.article_stock?.color || '';
+      const color = data?.article_stock?.color || ''
 
-      setArticle({
-        id: data.id,
-        ref: data.ref ?? '',
-        design: data.article_stock?.name + " " + dimensions + " " + color,
-        profondeur: data.article_stock?.depth ?? '',
-        episseur: data.article_stock?.thickness || '',
+      const designParts = []
 
-        chant: data.docligne?.Chant || data.article_stock?.chant,
-        qte: data.quantity ? Math.floor(data.quantity) : 0,
-        color: data.article_stock?.color || '',
-        height: height,
-        width: width,
-      })
+      if (data.article_stock?.name) {
+        designParts.push(data.article_stock.name)
+      } else {
+        if (data.article_stock?.description)
+          designParts.push(data.article_stock.description)
+        if (dimensions) designParts.push(dimensions)
+        if (color) designParts.push(color)
+      }
 
-      quantityInput.current.focus();
+      const design = designParts.join(' ')
 
+     setArticle({
+       id: data.id,
+       ref: data.ref ?? '',
+       design,
+       profondeur: data.article_stock?.depth ?? '',
+       episseur: data.article_stock?.thickness || '',
+       chant: data.docligne?.Chant || data.article_stock?.chant,
+       qte: data.quantity ? Math.floor(data.quantity) : 0,
+       color: data.article_stock?.color || '',
+       height: height,
+       width: width,
+     })
+
+
+      quantityInput.current.focus()
     } catch (err) {
       console.error('Error scanning:', err)
-      message.error(err.response.data.message)
+      setArticle({
+        ref: '',
+        design: '',
+        profondeur: '',
+        episseur: '',
+        chant: '',
+        qte: 0,
+        color: '',
+        height: '',
+        width: '',
+      })
+      // message.error(err.response.data.message)
+      setLineError(err.response.data.message)
     } finally {
       setLoading('scan', false)
     }
@@ -219,17 +254,38 @@ export default function Preparation() {
             </div>
           </div>
 
-          <div className='flex flex-col sm:flex-row gap-3'>
-            <input
+          <div className='flex-row gap-3'>
+            <Input
               type='text'
               value={line}
-              onChange={(e) => setLine(e.target.value)}
+              onChange={(e) => {
+                const newValue = e.target.value
+                setLine(newValue) // Update state immediately
+                handleScan(newValue) // Then trigger scan
+              }}
               autoFocus={true}
               ref={lineInput}
-              className='w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base'
+              className={window.electron && 'h-[60px]'}
+              style={window.electron ? { fontSize: '30px' } : {}}
               placeholder='Code-barres...'
-              disabled={loadingStates.scan}
+              allowClear
+              suffix={
+                loadingStates.scan ? (
+                  <Loader2 className='w-8 h-8 animate-spin' />
+                ) : null
+              }
             />
+            {lineError && lineError !== '' && line !== '' ? (
+              <Alert
+                message={lineError}
+                type='error'
+                className='mt-2 p-2'
+                style={{ fontSize: '18px', color: 'red' }}
+              />
+            ) : (
+              ''
+            )}
+            {/* 
             <button
               onClick={() => handleScan(line)}
               disabled={!palette || !line || loadingStates.scan}
@@ -247,7 +303,7 @@ export default function Preparation() {
                   <span className='sm:hidden'>OK</span>
                 </>
               )}
-            </button>
+            </button> */}
           </div>
         </div>
 
@@ -301,7 +357,7 @@ export default function Preparation() {
                 type='text'
                 value={article.design}
                 readOnly
-                className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base text-gray-900'
+                className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14 text-gray-900'
                 placeholder='Aucun article scanné'
               />
             </div>
@@ -315,7 +371,7 @@ export default function Preparation() {
                   type='text'
                   value={article.profondeur}
                   readOnly
-                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
+                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
                   placeholder='-'
                 />
               </div>
@@ -327,7 +383,7 @@ export default function Preparation() {
                   type='text'
                   value={article?.chant}
                   readOnly
-                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
+                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
                   placeholder='-'
                 />
               </div>
@@ -339,7 +395,7 @@ export default function Preparation() {
                   type='text'
                   value={article.episseur}
                   readOnly
-                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-sm sm:text-base'
+                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
                   placeholder='-'
                 />
               </div>
@@ -359,7 +415,7 @@ export default function Preparation() {
                     }))
                   }
                   disabled={article.qte <= 0}
-                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1'
+                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1 text-2xl h-14'
                 >
                   <Minus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
                 </button>
@@ -375,7 +431,7 @@ export default function Preparation() {
                       qte: Math.max(0, Number(e.target.value)),
                     }))
                   }
-                  className='w-full max-w-[100px] px-3 py-2 text-center border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-sm sm:text-base'
+                  className='w-full max-w-[100px] px-3 py-2 text-center border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-2xl h-14'
                 />
 
                 <button
@@ -385,7 +441,7 @@ export default function Preparation() {
                       qte: prev.qte + 1,
                     }))
                   }
-                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1'
+                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1 text-2xl h-14'
                 >
                   <Plus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
                 </button>
@@ -403,7 +459,8 @@ export default function Preparation() {
           >
             {loadingStates.submit ? (
               <>
-                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' /> Validation...
+                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />{' '}
+                Validation...
               </>
             ) : (
               "Valider l'article"
@@ -462,7 +519,12 @@ export default function Preparation() {
                     <div className='flex justify-between items-start mb-3'>
                       <div className='flex-1 pr-2'>
                         <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate whitespace-normal'>
-                          {uppercaseFirst(item.name || item.article_stock?.name || item.design ||  'N/A')}
+                          {uppercaseFirst(
+                            item.name ||
+                              item.article_stock?.name ||
+                              item.design ||
+                              'N/A'
+                          )}
                         </h3>
                         {item.article_stock?.width &&
                           item.article_stock?.height && (
@@ -487,9 +549,20 @@ export default function Preparation() {
 
                     <div className='flex justify-between items-center pt-4 border-t border-gray-200'>
                       <div className='text-xs md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
-                        <div>Prof: <strong>{item.article_stock?.depth || 'N/A'}</strong></div>
-                        <div>Ép: <strong>{item.article_stock?.thickness || 'N/A'}</strong></div>
-                        <div>Chant: <strong>{item?.article_stock?.chant || 'N/A'}</strong></div>
+                        <div>
+                          Prof:{' '}
+                          <strong>{item.article_stock?.depth || 'N/A'}</strong>
+                        </div>
+                        <div>
+                          Ép:{' '}
+                          <strong>
+                            {item.article_stock?.thickness || 'N/A'}
+                          </strong>
+                        </div>
+                        <div>
+                          Chant:{' '}
+                          <strong>{item?.article_stock?.chant || 'N/A'}</strong>
+                        </div>
                       </div>
 
                       <button

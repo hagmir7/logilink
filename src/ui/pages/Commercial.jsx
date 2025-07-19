@@ -115,6 +115,10 @@ function Commercial() {
     }
   }
 
+   const getStatusColor = (status) => {
+     return status?.color || 'gray'
+   }
+
   return (
     <div className='h-full flex flex-col bg-gray-50'>
       <div className='flex-shrink-0 bg-white border-b border-gray-200 shadow-sm'>
@@ -122,10 +126,20 @@ function Commercial() {
           {/* Header */}
           <div className='flex justify-between items-center mb-4'>
             <div className='flex items-center space-x-3'>
-              <h1 className='text-md font-bold text-gray-900'>
-                {data.docentete.DO_Piece
-                  ? `Commande ${data.docentete.DO_Piece}`
-                  : 'Chargement...'}
+              <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
+                <span>
+                  {data.docentete.DO_Piece
+                    ? data.docentete.DO_Piece
+                    : 'Chargement...'}
+                </span>
+
+                {data?.docentete?.document && (
+                  <Tag
+                    color={getStatusColor(data?.docentete?.document?.status)}
+                  >
+                    {data?.docentete?.document?.status.name}
+                  </Tag>
+                )}
               </h1>
             </div>
             <div className='flex gap-3'>
@@ -144,11 +158,12 @@ function Commercial() {
                 doclignes={data.doclignes}
                 docentete={data.docentete}
               />
-
-              <DocumentPalettesModal
-                countPalettes={10}
-                documentPiece={data.docentete.DO_Piece}
-              />
+              {data.docentete.document && (
+                <DocumentPalettesModal
+                  countPalettes={data.docentete.document.palettes.length}
+                  documentPiece={data.docentete.DO_Piece}
+                />
+              )}
             </div>
           </div>
 
