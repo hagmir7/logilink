@@ -14,6 +14,8 @@ import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
 import { Alert, Input, message } from 'antd'
+import { PalettesModal } from '../components/PalettesModal'
+
 
 export default function Preparation() {
   const [article, setArticle] = useState({
@@ -37,6 +39,8 @@ export default function Preparation() {
   const [lineError, setLineError] = useState('');
   const quantityInput = useRef();
   const lineInput = useRef();
+  const [loadingCreate, setLoadingCreate] = useState(false)
+  const [checkedPalette, setCheckedPalette] = useState(null)
 
   
   const [loadingStates, setLoadingStates] = useState({
@@ -55,13 +59,25 @@ export default function Preparation() {
 
 
   const goNext = () => {
-    const nextIndex =
-      currentIndex === palettes.length - 1 ? 0 : currentIndex + 1
+    const nextIndex = currentIndex === palettes.length - 1 ? 0 : currentIndex + 1
     const nextPalette = palettes[nextIndex]
     setCurrentIndex(nextIndex)
     setPalette(nextPalette)
     createPalette(nextPalette?.code)
   }
+
+  const selectPalette = (selectedPalette) => {
+    const index = palettes.findIndex((p) => p.code === selectedPalette.code)
+    if (index !== -1) {
+      setCurrentIndex(index)
+      setPalette(palettes[index])
+      setCheckedPalette(palettes[index])
+    } else {
+      setPalette(selectedPalette);
+      setCheckedPalette(selectedPalette)
+    }
+  }
+
 
   const goPrevious = () => {
     const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
@@ -92,7 +108,7 @@ export default function Preparation() {
 
   useEffect(() => {
     if (id) createPalette()
-  }, [id])
+  }, [id, checkedPalette])
 
   const handleScan = async (value) => {
     setLine(value)
@@ -220,27 +236,58 @@ export default function Preparation() {
   }
 
   const create = async () => {
-    setLoading('create', true)
+    setLoadingCreate(true)
+
     try {
-      const { data } = await api.post('palettes/create', { document_id: id })
-    } catch (err) {
-      console.error('Error creating new palette:', err)
+      const {data} = await api.post('palettes/create', { document_id: id })
+    
+
+      if (!data || !Array.isArray(data.palettes) || data.palettes.length === 0) {
+        message.warning("La nouvelle palette n'a pas été récupérée.")
+        return
+      }
+      setPalettes(data.palettes)
+
+  
+      const lastPalette = data.palettes[data.palettes.length - 1]
+
+
+      setPalette(lastPalette)
+      setCheckedPalette(lastPalette)
+      setCurrentIndex(data.palettes.length - 1)
+      setLines(lastPalette.lines || [])
+
+      message.success(`Palette ${lastPalette.code} créée avec succès.`)
+    } catch (error) {
+      console.error('Erreur lors de la création de la palette:', error)
+      message.error(
+        error?.response?.data?.message || 'Erreur lors de la création.'
+      )
     } finally {
-      setLoading('create', false)
+      setLoadingCreate(false)
     }
   }
+
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
       {/* Header */}
       <div className='bg-white border-b border-gray-200'>
         <div className='mx-auto px-4 py-3 sm:py-4'>
-          <div className='flex items-center gap-3'>
-            <BackButton className='w-8 h-8' />
-            <div className='w-px h-6 bg-gray-300' />
-            <h1 className='text-sm md:text-xl font-bold text-gray-900 truncate'>
-              Préparation des Palettes
-            </h1>
+          <div className='flex justify-between'>
+            <div className='flex items-center gap-3'>
+              <BackButton className='w-8 h-8' />
+              <div className='w-px h-6 bg-gray-300' />
+              <h1 className='text-xl font-bold text-gray-900 truncate'>
+                Préparation des Palettes
+              </h1>
+            </div>
+            <PalettesModal
+              countPalettes={palettes.length}
+              documentPiece={id}
+              selectPalette={selectPalette}
+              checkedPalette={palette}
+            />
           </div>
         </div>
       </div>
@@ -331,8 +378,8 @@ export default function Preparation() {
                   <h3 className='text-xl sm:text-2xl font-bold text-gray-900 truncate'>
                     {palette ? currentPalette?.code : 'Aucune palette'}
                   </h3>
-                  <p className='text-xs sm:text-sm text-gray-500'>
-                    #{currentIndex + 1} sur {palettes.length}
+                  <p className='text-lg text-gray-500'>
+                    {currentIndex + 1} sur {palettes.length}
                   </p>
                 </>
               )}
@@ -350,7 +397,7 @@ export default function Preparation() {
           {/* Article Details */}
           <div className='space-y-3 sm:space-y-4'>
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
+              <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
                 Désignation
               </label>
               <input
@@ -364,7 +411,7 @@ export default function Preparation() {
 
             <div className='grid grid-cols-3 gap-2 sm:gap-4'>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
+                <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
                   Profondeur
                 </label>
                 <input
@@ -376,7 +423,7 @@ export default function Preparation() {
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
+                <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
                   Chant
                 </label>
                 <input
@@ -388,7 +435,7 @@ export default function Preparation() {
                 />
               </div>
               <div>
-                <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
+                <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
                   Épaisseur
                 </label>
                 <input
@@ -403,7 +450,7 @@ export default function Preparation() {
 
             {/* Quantity Controls */}
             <div>
-              <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
+              <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
                 Quantité
               </label>
               <div className='flex items-center gap-2 sm:gap-3 w-full'>
@@ -455,7 +502,7 @@ export default function Preparation() {
           <button
             onClick={handleSubmit}
             disabled={!palette || !article.id || loadingStates.submit}
-            className='px-4 py-3 sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base'
+            className='px-4 py-3 sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl'
           >
             {loadingStates.submit ? (
               <>
@@ -469,9 +516,10 @@ export default function Preparation() {
           <button
             onClick={create}
             disabled={loadingStates.create}
-            className='px-4 py-3 sm:px-6 sm:py-4 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-sm sm:text-base'
+            // loading={loadingCreate}
+            className='px-4 py-3 sm:px-6 sm:py-4 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl'
           >
-            {loadingStates.create ? (
+            {loadingStates.create || loadingCreate ? (
               <>
                 <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />
                 Création...
