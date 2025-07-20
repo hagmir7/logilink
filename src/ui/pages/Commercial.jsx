@@ -355,7 +355,7 @@ function Commercial() {
                             <td className='px-2 text-sm border-r border-gray-100'>
                               <div className='text-sm font-medium text-gray-900'>
                                 {item?.Nom ||
-                                  item.article.Nom ||
+                                  item.article?.Nom ||
                                   item?.DL_Design ||
                                   '__'}{' '}
                                 {item?.article?.Description || null}

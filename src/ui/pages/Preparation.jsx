@@ -24,7 +24,7 @@ export default function Preparation() {
     profondeur: '',
     episseur: '',
     chant: '',
-    qte: 0,
+    qte: '',
     color: '',
     height: '',
     width: '',
@@ -42,7 +42,13 @@ export default function Preparation() {
   const [loadingCreate, setLoadingCreate] = useState(false)
   const [checkedPalette, setCheckedPalette] = useState(null)
 
-  
+
+  const [empalcementCode, setEmpalcementCode] = useState("");
+  const [empalcementCodeLoading, setEmpalcementCodeLoading] = useState(false);
+  const [empalcementCodeError, setEmpalcementCodeError] = useState('');
+  const [scannedEmplacement, setScannedEmplacement] = useState(null);
+  const paletteCodeInput = useRef()
+
   const [loadingStates, setLoadingStates] = useState({
     createPalette: false,
     scan: false,
@@ -56,6 +62,32 @@ export default function Preparation() {
   const setLoading = (key, value) => {
     setLoadingStates((prev) => ({ ...prev, [key]: value }))
   }
+
+
+const handleScanEmplacement = async (value) => {
+  setEmpalcementCodeLoading(true)
+
+  if (value === '') {
+    setScannedEmplacement(null)
+    setEmpalcementCodeLoading(false)
+    return
+  }
+
+  try {
+    const { data } = await api.get(`emplacement/${value}`)
+    setScannedEmplacement(data)
+    quantityInput.current.focus();
+  } catch (error) {
+    console.error(error)
+    setEmpalcementCodeError(
+      error.response?.data?.message || 'An error occurred'
+    )
+  }
+
+  setEmpalcementCodeLoading(false)
+}
+
+
 
 
   const goNext = () => {
@@ -87,12 +119,12 @@ export default function Preparation() {
     createPalette(prevPalette?.code)
   }
 
-  const createPalette = async (paletteCode = null) => {
+  const createPalette = async (EmpalcementCode = null) => {
     setLoading('createPalette', true)
     try {
       const { data } = await api.post('palettes/generate', {
         document_id: id,
-        palette: paletteCode ?? currentPalette?.code,
+        palette: EmpalcementCode ?? currentPalette?.code,
       })
 
       setPalette(data.palette)
@@ -156,14 +188,14 @@ export default function Preparation() {
        profondeur: data.article_stock?.depth ?? '',
        episseur: data.article_stock?.thickness || '',
        chant: data.docligne?.Chant || data.article_stock?.chant,
-       qte: data.quantity ? Math.floor(data.quantity) : 0,
+      //  qte: data.quantity ? Math.floor(data.quantity) : 0,
        color: data.article_stock?.color || '',
        height: height,
        width: width,
      })
 
 
-      quantityInput.current.focus()
+      paletteCodeInput.current.focus()
     } catch (err) {
       console.error('Error scanning:', err)
       setArticle({
@@ -314,7 +346,7 @@ export default function Preparation() {
               ref={lineInput}
               className={window.electron && 'h-[60px]'}
               style={window.electron ? { fontSize: '30px' } : {}}
-              placeholder='Code-barres...'
+              placeholder='Article Code...'
               allowClear
               suffix={
                 loadingStates.scan ? (
@@ -332,26 +364,53 @@ export default function Preparation() {
             ) : (
               ''
             )}
-            {/* 
-            <button
-              onClick={() => handleScan(line)}
-              disabled={!palette || !line || loadingStates.scan}
-              className='px-4 py-2 sm:px-6 sm:py-3 bg-blue-600 text-white rounded-lg sm:rounded-xl hover:bg-blue-700 disabled:bg-gray-300 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 font-medium text-sm sm:text-base'
-            >
-              {loadingStates.scan ? (
-                <>
-                  <Loader2 className='w-4 h-4 animate-spin' />
-                  <span className='hidden sm:inline'>Scan...</span>
-                </>
-              ) : (
-                <>
-                  <Search className='w-4 h-4' />
-                  <span className='hidden sm:inline'>Scanner</span>
-                  <span className='sm:hidden'>OK</span>
-                </>
-              )}
-            </button> */}
           </div>
+
+          <div className='flex-row gap-3 mt-4'>
+            <Input
+              type='text'
+              value={empalcementCode}
+              onChange={(e) => {
+                const newValue = e.target.value
+                setEmpalcementCode(newValue)
+                handleScanEmplacement(e.target.value)
+              }}
+              ref={paletteCodeInput}
+              className={window.electron && 'h-[60px]'}
+              style={window.electron ? { fontSize: '30px' } : {}}
+              placeholder='Emplacement code...'
+              allowClear
+              suffix={
+                empalcementCodeLoading ? (
+                  <Loader2 className='w-8 h-8 animate-spin' />
+                ) : null
+              }
+            />
+            {empalcementCodeError &&
+            empalcementCodeError !== '' &&
+            line !== '' ? (
+              <Alert
+                message={empalcementCodeError}
+                type='error'
+                className='mt-2 p-2'
+                style={{ fontSize: '18px', color: 'red' }}
+              />
+            ) : (
+              ''
+            )}
+          </div>
+
+          {scannedEmplacement && (
+            <div className='bg-gray-100 p-3 rounded-md mt-2'>
+              <div className='grid grid-cols-2 gap-2 text-lg'>
+                <div className='font-medium'>Dépôt:</div>
+                <div className='font-bold'>
+                  {scannedEmplacement?.depot?.code ||
+                    scannedEmplacement.depot_id}
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Palette Navigation */}
@@ -568,7 +627,7 @@ export default function Preparation() {
                       <div className='flex-1 pr-2'>
                         <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate whitespace-normal'>
                           {uppercaseFirst(
-                            item.name ||
+                            item?.name ||
                               item.article_stock?.name ||
                               item.design ||
                               'N/A'
