@@ -30,6 +30,7 @@ import InventoryDepotEmplacment from './pages/InventoryDepotEmplacment'
 import Transfert from './pages/Transfert'
 import TransferOrder from './pages/TransferOrder'
 import TransferOrdersList from './pages/TransferOrdersList'
+import { DocumentProgress } from './pages/DocumentProgress'
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -43,6 +44,7 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path='articles/:id' element={<ViewArticle />} />
         <Route path='/document/:id' element={<ViewDocument />} />
+        <Route path='document/:piece/progress' element={<DocumentProgress />} />
 
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
@@ -62,6 +64,7 @@ function App() {
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
+
           <Route path='transfer-orders/list' element={<TransferOrdersList />} />
 
           <Route

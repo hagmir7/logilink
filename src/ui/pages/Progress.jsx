@@ -52,11 +52,11 @@ const Progress = () => {
 
     const handleShow = async (id) => {
       try {
-        const url = `/document/${id}`
+        const url = `document/${id}/progress`
         if (window.electron && typeof window.electron.openShow === 'function') {
           await window.electron.openShow(url)
         } else {
-          navigate(`/document/${id}`)
+          navigate(`document/${id}/progress`)
         }
       } catch (error) {
         console.error('Error navigating to article:', error)
