@@ -5,7 +5,7 @@ import { getExped } from '../utils/config'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'
 import { api } from '../utils/api'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 
 // Mock utility functions for demo
 const formatDate = (date) => {
@@ -17,6 +17,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
 
   const { roles, user } = useAuth();
   const [users, setUsers] = useState([]);
+  const navigate = useNavigate()
   // const [companies, setCompanies] = useState([]);
 
 
@@ -47,7 +48,11 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
     try {
       const url = `/document/${id}`
       if (window.electron && typeof window.electron.openShow === 'function') {
-        await window.electron.openShow(url)
+        await window.electron.openShow({
+          width: 1200,
+          height: 700,
+          url,
+        })
       } else {
         navigate(`/document/${id}`)
       }
@@ -120,7 +125,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
               <tr
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
-                onDoubleClick={() =>
+                onClick={() =>
                   onSelectOrder && handleShow(item.piece_bl || item.docentete.DO_Piece)
                 }
               >

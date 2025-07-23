@@ -33,7 +33,12 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
     try {
       const url = `/document/${id}`
       if (window.electron && typeof window.electron.openShow === 'function') {
-        await window.electron.openShow(url)
+        await window.electron.openShow({
+          width: 1200,
+          height: 700,
+          url,
+          resizable: true,
+        })
       } else {
         navigate(`/document/${id}`)
       }

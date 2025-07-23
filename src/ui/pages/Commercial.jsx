@@ -1,6 +1,5 @@
 import {
   RefreshCcw,
-  Clipboard,
   ArrowRight,
   Undo2,
 } from 'lucide-react'
@@ -11,9 +10,6 @@ import { useParams } from 'react-router-dom';
 import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
-import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable';
 import PrintDocument from '../components/PrintDocument';
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal';
 

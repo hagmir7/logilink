@@ -15,7 +15,7 @@ export const createShowWindow = (data) => {
     childWindow = new BrowserWindow({
         width: data.width ?? 1200,
         height: data.height ?? 700,
-        // resizable: false,
+        resizable: data.resizable ?? false,
         // parent: mainWindowReference, 
         // modal: true,
         // minimizable: false,

@@ -58,7 +58,11 @@ function InventoryArticles() {
     try {
       const url = `/articles/${id}`
       if (window.electron && typeof window.electron.openShow === 'function') {
-        await window.electron.openShow(url)
+        await window.electron.openShow({
+          width: 1200,
+          height: 700,
+          url,
+        })
       } else {
         navigate(`/articles/${id}`)
       }

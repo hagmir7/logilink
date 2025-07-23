@@ -97,19 +97,17 @@ function Shipping() {
 
   return (
     <div className='min-h-screen'>
-      {/* Title */}
-      <h2 className='text-xl font-semibold text-gray-800 mb-1 p-2 md:p-4'>
-        Gestion de Livraison
-      </h2>
-
       {/* Header */}
-      <div className='flex flex-wrap justify-between items-center gap-4 mb-4 px-2 md:px-4'>
+      <div className='flex flex-wrap justify-between items-center gap-4 mb-4 p-3'>
+        <h2 className='text-xl font-semibold text-gray-800'>
+          Gestion de Livraison
+        </h2>
         <div className='flex items-center gap-4'>
           <Search
             placeholder='Recherch'
             loading={searchSpinner}
             size='large'
-            onChange={(e)=> setSearchQuery(e.target.value)}
+            onChange={(e) => setSearchQuery(e.target.value)}
           />
 
           <Select
@@ -134,11 +132,11 @@ function Shipping() {
           </Button>
         </div>
       </div>
-     <ShippingTable
-          loading={loading}
-          documents={documents.data}
-          onSelectOrder={handleSelectOrder}
-        />
+      <ShippingTable
+        loading={loading}
+        documents={documents.data}
+        onSelectOrder={handleSelectOrder}
+      />
       {documents.next_page_url && (
         <div className='flex justify-center'>
           <Button
