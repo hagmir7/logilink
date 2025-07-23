@@ -21,6 +21,8 @@ function PreparationList() {
       const response = await api.get(`docentetes/${id}`)
       setData(response.data)
       setLoading(false)
+
+      
     } catch (err) {
       setLoading(false)
       console.error('Failed to fetch data:', err)
@@ -188,8 +190,9 @@ function PreparationList() {
                     <div className='text-sm text-gray-500'>
                       Epaisseur:{' '}
                       <span className='font-bold text-gray-800'>
+                        {item.Episseur} | {item.article.Episseur}
                         {Math.floor(
-                          item.article ? item.article.Episseur : item.Episseur
+                          item.article ? item.Episseur : item.article.Episseur
                         ) || '__'}
                       </span>
                     </div>

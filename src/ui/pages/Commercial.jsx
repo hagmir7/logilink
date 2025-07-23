@@ -32,6 +32,7 @@ function Commercial() {
       const response = await api.get(`docentetes/${id}`)
       setData(response.data)
       setLoading(false)
+      
     } catch (err) {
       setLoading(false)
       console.error('Failed to fetch data:', err)
@@ -282,6 +283,9 @@ function Commercial() {
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Profondeur
                         </th>
+                           <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
+                          Epaisseur
+                        </th>
 
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Couleur
@@ -290,9 +294,8 @@ function Commercial() {
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Chant
                         </th>
-
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
-                          Epaisseur
+                          Description
                         </th>
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
                           Quantité
@@ -357,14 +360,13 @@ function Commercial() {
                                 {item?.Nom ||
                                   item.article?.Nom ||
                                   item?.DL_Design ||
-                                  '__'}{' '}
-                                {item?.article?.Description || null}
+                                  '__'}
                               </div>
-                              {item?.article?.Description && (
+                              {/* {item?.article?.Description && (
                                 <div className='text-xs text-gray-500 mt-1'>
                                   {item.article.Description}
                                 </div>
-                              )}
+                              )} */}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
@@ -380,12 +382,13 @@ function Commercial() {
                                   : item?.article?.Largeur
                               ) || '__'}
                             </td>
+
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {Math.floor(
-                                item.Profondeur
-                                  ? item.Profondeur
-                                  : item?.article?.Profonduer
-                              ) || '__'}
+                              {(item.Profondeur | item?.article?.Profonduer ) || '__'}
+                            </td>
+
+                            <td className='px-2 text-sm border-r border-gray-100'>
+                              {item?.Episseur | item?.article?.Episseur }
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
@@ -400,14 +403,13 @@ function Commercial() {
                                 : item?.article?.Chant) || '__'}
                             </td>
 
-                            <td className='px-2 text-sm border-r border-gray-100'>
-                              {Math.floor(
-                                item.article
-                                  ? item?.article?.Episseur
-                                  : item?.Episseur
-                              ) || '__'}
+                             <td className='px-2 text-sm border-r border-gray-100'>
+                              {item?.Description } {" "}
+                              {item?.Rotation } {" "}
+                              {item?.Poignee } {" "}
                             </td>
 
+                        
                             <td className='px-4 py-2'>
                               <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
                                 {Math.floor(item.DL_Qte)}

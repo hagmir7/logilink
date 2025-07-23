@@ -9,17 +9,17 @@ export const setMainWindow = (window) => {
     mainWindowReference = window;
 };
 
-export const createShowWindow = (routeUrl) => {
+export const createShowWindow = (data) => {
     if (childWindow) return childWindow;
 
     childWindow = new BrowserWindow({
-        width: 1200,
-        height: 700,
-        resizable: false,
-        parent: mainWindowReference, 
-        modal: true,
-        minimizable: false,
-        alwaysOnTop: true,
+        width: data.width ?? 1200,
+        height: data.height ?? 700,
+        // resizable: false,
+        // parent: mainWindowReference, 
+        // modal: true,
+        // minimizable: false,
+        // alwaysOnTop: true,
         webPreferences: {
             preload: getPreloadPath()
         }
@@ -28,11 +28,11 @@ export const createShowWindow = (routeUrl) => {
     // childWindow.setMenu(null);
 
     if (isDev()) {
-        childWindow.loadURL(`http://localhost:5123/#${routeUrl}`);
+        childWindow.loadURL(`http://localhost:5123/#${data.url}`);
         
     } else {
          childWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'), {
-            hash: routeUrl
+            hash: data.url
         });
     }
 
