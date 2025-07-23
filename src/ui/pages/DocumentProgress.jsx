@@ -166,7 +166,7 @@ export const DocumentProgress = () => {
 
                       <td className='px-2 py-1 text-sm border-r border-gray-100 capitalize'>
                         {item.docligne?.Couleur |
-                          item?.article_stock.color |
+                          item?.article_stock?.color |
                           '__'}
                       </td>
 
