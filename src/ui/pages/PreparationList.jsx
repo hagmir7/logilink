@@ -34,15 +34,27 @@ function PreparationList() {
 
   const currentItems = data?.doclignes || [];
 
+   const getStatusColor = (status) => {
+     return status?.color || 'gray'
+   }
+
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-2'>
-          <h1 className='text-lg md:text-xl font-bold text-gray-800'>
-            {data.docentete.DO_Piece
-              ? `Commande ${data.docentete.DO_Piece}`
-              : 'Chargement...'}
+          <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
+            <span>
+              {data.docentete.DO_Piece
+                ? data.docentete.DO_Piece
+                : 'Chargement...'}
+            </span>
+
+            {data?.docentete?.document && (
+              <Tag color={getStatusColor(data?.docentete?.document?.status)}>
+                {data?.docentete?.document?.status.name}
+              </Tag>
+            )}
           </h1>
         </div>
         <Button onClick={fetchData} size='large'>
@@ -57,7 +69,6 @@ function PreparationList() {
 
       {/* Document Info */}
 
-      
       <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl p-6 mb-8'>
         <div className='flex flex-col space-y-1'>
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
@@ -104,7 +115,12 @@ function PreparationList() {
         </h2>
 
         <div className='flex gap-3'>
-          <Button color='green' variant='solid' href={`#/preparation/${id}`} className='btn'>
+          <Button
+            color='green'
+            variant='solid'
+            href={`#/preparation/${id}`}
+            className='btn'
+          >
             Preparation <ArrowRight size={18} />{' '}
           </Button>
         </div>
@@ -140,24 +156,24 @@ function PreparationList() {
                     {item?.article?.Description || null}
                   </Td>
                   <Td>{item.AR_Ref || '__'}</Td>
-                 <Td>
+                  <Td>
                     <div className='space-y-1'>
-                     <div className='text-sm text-gray-800'>
-                      H:{' '}
-                      {item.Hauteur > 0 ? (
-                        <strong>{Math.floor(item.Hauteur)}</strong>
-                      ) : (
-                        <strong>{Math.floor(item.article?.Hauteur)}</strong>
-                      )}
-                    </div>
-                       <div className='text-sm text-gray-800'>
-                      L:{' '}
-                      <strong>
-                        {Math.floor(
-                          item.Largeur ? item.Largeur : item?.article?.Largeur
-                        ) || '__'}
-                      </strong>
-                    </div>
+                      <div className='text-sm text-gray-800'>
+                        H:{' '}
+                        {item.Hauteur > 0 ? (
+                          <strong>{Math.floor(item.Hauteur)}</strong>
+                        ) : (
+                          <strong>{Math.floor(item.article?.Hauteur)}</strong>
+                        )}
+                      </div>
+                      <div className='text-sm text-gray-800'>
+                        L:{' '}
+                        <strong>
+                          {Math.floor(
+                            item.Largeur ? item.Largeur : item?.article?.Largeur
+                          ) || '__'}
+                        </strong>
+                      </div>
                       <div className='text-sm text-gray-600'>
                         <span className='font-medium'>P:</span>{' '}
                         <span className='font-bold'>
@@ -219,7 +235,6 @@ function PreparationList() {
                       )}
                     </Tag>
                   </Td>
-                  
 
                   {/* <Td>{item?.line?.palettes.length === Math.floor(item.DL_Qte) ? 'Yes' : 'No'}</Td> */}
                 </Tr>

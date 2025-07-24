@@ -125,7 +125,7 @@ const TransferOrdersList = () => {
               {transferBy.full_name}
             </span>
             <span className='text-xs text-gray-500'>
-              {transferBy.phone || transferBy.email || ''}
+              {transferBy.phone }
             </span>
           </div>
         </div>

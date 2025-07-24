@@ -2,12 +2,14 @@ import { Settings } from 'lucide-react'
 import { Tag } from 'antd'
 import { getExped } from '../utils/config'
 import Spinner from './ui/Spinner'
+import { useNavigate } from 'react-router-dom'
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
 function DocumentTable({ documents = [], onSelectOrder, loading }) {
+  const navigate = useNavigate();
 
   const getStatusBadgeColor = (color) => {
     const colorMap = {
@@ -50,7 +52,7 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
   return (
     <div className='w-full h-full flex flex-col bg-white'>
       {/* Desktop Table View */}
-      <div className='flex-1 overflow-hidden'>
+      <div className='flex-1 overflow-hidden hidden lg:block'>
         <div className='h-full overflow-auto'>
           <table className='w-full border-collapse'>
             <thead className='sticky top-0 bg-gradient-to-b from-gray-50 to-gray-100 border-b border-gray-300 shadow-sm z-10'>
@@ -107,8 +109,8 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <Tag 
-                      color={data?.document?.status?.color} 
+                    <Tag
+                      color={data?.document?.status?.color}
                       className='text-xs font-medium shadow-sm border'
                     >
                       {data?.document?.status?.name || 'En attente'}
@@ -116,7 +118,11 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <span className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(data.DO_Expedit)}`}>
+                    <span
+                      className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(
+                        data.DO_Expedit
+                      )}`}
+                    >
                       {getExped(data.DO_Expedit)}
                     </span>
                   </td>
@@ -126,15 +132,15 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                       {data.DO_Tiers}
                     </span>
                   </td>
-                  
+
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
                     {data.DO_Ref}
                   </td>
-                  
+
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
                     {formatDate(new Date(data.DO_Date))}
                   </td>
-                  
+
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
                     {formatDate(new Date(data.DO_DateLivr))}
                   </td>
@@ -192,10 +198,14 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
             <div className='space-y-2 text-sm'>
               <div className='flex justify-between'>
                 <span className='text-gray-500 font-medium'>Référence:</span>
-                <span className='font-semibold text-gray-900'>{data.DO_Ref}</span>
+                <span className='font-semibold text-gray-900'>
+                  {data.DO_Ref}
+                </span>
               </div>
               <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium'>Date du document:</span>
+                <span className='text-gray-500 font-medium'>
+                  Date du document:
+                </span>
                 <span className='font-semibold text-gray-900'>
                   {formatDate(new Date(data.DO_Date))}
                 </span>

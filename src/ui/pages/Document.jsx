@@ -32,9 +32,17 @@ function Document() {
   let url = `documents/preparation-list`
 
 
-  if (roles('commercial')) {
-    url = `docentetes/commercial?type=${documenType}&page=${page}&status=${documenStatus}&date=${dateFilter || ''}`
-  }
+if (roles('commercial')) {
+  const queryParams = new URLSearchParams({
+    type: documenType,
+    page: page,
+    status: documenStatus,
+    date: dateFilter || '',
+  })
+
+  url = `docentetes/commercial?${queryParams.toString()}`
+}
+
 
   const fetchData = async () => {
     setLoading(true)
@@ -154,7 +162,8 @@ const handleChangeDate = (dates, dateStrings) => {
               size='large'
               onChange={(value) => setDocumentStatus(value)}
               options={[
-                { value: '', label: 'En attente' },
+                { value: '', label: 'Tout' },
+                { value: '0', label: 'En attente' },
                 { value: '1', label: 'Transféré' },
                 { value: '2', label: 'Reçu' },
                 { value: '3', label: 'Fabrication' },

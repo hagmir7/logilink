@@ -11,9 +11,6 @@ const formatDate = (date) => {
 
 function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
-
-    console.log(documents);
-
     const { user } = useAuth();
     
     const company = (data) =>{
@@ -58,6 +55,8 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
       console.error('Error navigating to article:', error)
     }
   }
+
+  
 
   return (
     <div className='w-full h-full flex flex-col bg-white'>

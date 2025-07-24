@@ -119,7 +119,7 @@ export const DocumentProgress = () => {
               {loading ? (
                 [...Array(4)].map((_, i) => (
                   <tr key={i}>
-                    {[...Array(9)].map((_, j) => (
+                    {[...Array(8)].map((_, j) => (
                       <td key={j} className='px-6 py-4'>
                         <div className='h-4 bg-gray-200 rounded w-3/4 animate-pulse'></div>
                       </td>
