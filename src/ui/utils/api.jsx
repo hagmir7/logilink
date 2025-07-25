@@ -14,7 +14,7 @@ if (import.meta.env.MODE === 'development') {
   baseURL = 'http://localhost:8000/api/';
 
 } else {
-  baseURL = 'http://192.168.1.113/api/';
+  baseURL = 'http://192.168.1.165/api/';
   // baseURL = 'https://agmir.pdfdrive.me/api/'
 }
 
