@@ -1,6 +1,9 @@
 import { BrowserWindow, app } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDev } from '../util.js';
+import { fileURLToPath } from 'url';
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 let mainWindowReference = null;
 let childWindow = null;
@@ -16,6 +19,8 @@ export const createShowWindow = (data) => {
         width: data.width ?? 1200,
         height: data.height ?? 700,
         resizable: data.resizable ?? false,
+        icon: path.join(__dirname, '..', 'inter.ico'),
+
         // parent: mainWindowReference, 
         // modal: true,
         // minimizable: false,

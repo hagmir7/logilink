@@ -42,9 +42,11 @@ let loginWindow;
 
 const createMainWindow = () => {
     const mainWindow = new BrowserWindow({
-        title: "Production - INTERCOCINA",
+        title: "LOGILINK - INTERCOCINA",
         width: 1300,
+        // transparent: true,
         height: 800,
+        icon: path.join(__dirname, 'inter.ico'),
         webPreferences: {
             preload: getPreloadPath(),
             nodeIntegration: true,
@@ -54,8 +56,10 @@ const createMainWindow = () => {
 
     if (isDev()) {
         mainWindow.loadURL('http://localhost:5123');
+         mainWindow.setMenu(null)
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
+        mainWindow.setMenu(null)
     }
 
     return mainWindow;
