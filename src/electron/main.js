@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, ipcMain, dialog, Tray, Menu } from "electron";
 import path from "path";
 import { getPreloadPath, isDev } from "./util.js";
 import createLoginWindow from "./windows/loginWindow.js";
@@ -38,6 +38,7 @@ let showWindow;
 
 let mainWindow;
 let loginWindow;
+let tray;
 
 
 const createMainWindow = () => {
@@ -51,6 +52,51 @@ const createMainWindow = () => {
             preload: getPreloadPath(),
             nodeIntegration: true,
         },
+    });
+
+    tray = new Tray(path.join(__dirname, 'inter.ico'));
+
+    const contextMenu = Menu.buildFromTemplate([
+        {
+            label: 'Show App',
+            click: () => {
+                mainWindow.show();
+            },
+        },
+        {
+            label: 'Quit',
+            click: () => {
+                app.quit();
+            },
+        },
+    ]);
+
+    tray.setToolTip('LOGILINK - INTERCOCINA');
+    tray.setContextMenu(contextMenu);
+
+     tray.on('double-click', () => {
+        mainWindow.show();
+    });
+
+    mainWindow.on('minimize', (event) => {
+        event.preventDefault();
+        mainWindow.hide();
+
+        // Optional: Balloon notification (Windows only)
+        if (process.platform === 'win32') {
+            tray.displayBalloon({
+                icon: path.join(__dirname, 'inter.ico'),
+                title: 'LOGILINK - INTERCOCINA',
+                content: 'Application is minimized to the system tray.',
+            });
+        }
+    });
+
+    mainWindow.on('close', (event) => {
+        if (!app.isQuiting) {
+            event.preventDefault();
+            mainWindow.hide();
+        }
     });
 
 
