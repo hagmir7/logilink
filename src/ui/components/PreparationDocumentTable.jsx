@@ -47,6 +47,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
           width: 1200,
           height: 700,
           url,
+          resizable: true
         })
       } else {
         navigate(`/document/${id}`)
@@ -62,8 +63,8 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
     <div className='w-full h-full flex flex-col bg-white'>
       {/* Desktop Table View */}
       <div className='flex-1 overflow-hidden'>
-        <div className='h-full overflow-auto'>
-          <table className='w-full border-collapse'>
+        <div className='h-full overflow-auto hidden lg:block'>
+          <table className='w-full border-collapse '>
             <thead className='sticky top-0 bg-gradient-to-b from-gray-50 to-gray-100 border-b border-gray-300 shadow-sm z-10'>
               <tr>
                 <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
@@ -81,10 +82,10 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                 <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
                   Référence
                 </th>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Date Document
                 </th>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Date Prévue
                 </th>
               </tr>
@@ -119,10 +120,12 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag 
+                      
+                     
                       color={company(data)?.pivot?.status_id
                                   ? getStatus(Number(company(data).pivot.status_id)).color
                                   : 'gray'} 
-                      className='text-xs font-medium shadow-sm border'
+                      className='text-xs font-medium'
                     >
                       {company(data)?.pivot?.status_id
                                   ? getStatus(Number(company(data).pivot.status_id)).name
@@ -161,7 +164,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
       </div>
 
       {/* Mobile Card View (if needed for smaller windows) */}
-      <div className='lg:hidden'>
+      <div className='lg:hidden px-3'>
         {documents.map((data, index) => (
           <div
             key={index}
@@ -180,45 +183,47 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                   </span>
                 )}
               </div>
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getStatusBadgeColor(
-                  data?.document?.status?.color
-                )}`}
+              <Tag
+                color={company(data)?.pivot?.status_id
+                  ? getStatus(Number(company(data).pivot.status_id)).color
+                  : 'gray'}
+                className='text-xs font-medium shadow-sm p-4 border m-0'
+                style={{margin:0, fontSize: "20px", padding: "4px"}}
               >
-                {data?.document?.status?.name || 'En attente'}
-              </span>
+                {company(data)?.pivot?.status_id
+                  ? getStatus(Number(company(data).pivot.status_id)).name
+                  : 'En attente'}
+              </Tag>
             </div>
 
             {/* Expedition and Client badges */}
             <div className='flex flex-wrap gap-2 mb-3'>
               <span
-                className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(
-                  data.DO_Expedit
-                )}`}
+                className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold ${getExpeditionColor(data.DO_Expedit)}`}
               >
-                {getExped(data.DO_Expedit)}
+                {getExped(data.expedition)}
               </span>
-              <span className='inline-flex items-center px-3 py-1 rounded-md text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200'>
-                {data.DO_Tiers}
+              <span className='inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
+                {data.client_id}
               </span>
             </div>
 
             {/* Details */}
             <div className='space-y-2 text-sm'>
               <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium'>Référence:</span>
-                <span className='font-semibold text-gray-900'>{data.DO_Ref}</span>
+                <span className='text-gray-500 font-medium text-base'>Référence:</span>
+                <span className='font-semibold text-lg text-gray-900'>{data.ref}</span>
               </div>
               <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium'>Date du document:</span>
-                <span className='font-semibold text-gray-900'>
-                  {formatDate(new Date(data.DO_Date))}
+                <span className='text-gray-500 font-medium text-base'>Date du document:</span>
+                <span className='font-semibold text-lg text-gray-900'>
+                  {formatDate(new Date(data?.docentete?.DO_Date))}
                 </span>
               </div>
               <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium'>Date prévue:</span>
-                <span className='font-semibold text-gray-900'>
-                  {formatDate(new Date(data?.DO_DateLivr))}
+                <span className='text-gray-500 font-medium text-base'>Date prévue:</span>
+                <span className='font-semibold text-gray-900 text-lg'>
+                  {formatDate(new Date(data?.docentete?.DO_DateLivr))}
                 </span>
               </div>
             </div>

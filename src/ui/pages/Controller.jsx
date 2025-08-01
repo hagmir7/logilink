@@ -36,47 +36,47 @@ function Controller() {
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [status, setStatus] = useState({})
 
-const fetchData = async () => {
-  setLoading(true)
+  const fetchData = async () => {
+    setLoading(true)
 
-  try {
-    const response = await api.get(`docentetes/${id}`)
-    console.log('Fetched response:', response.data)
+    try {
+      const response = await api.get(`docentetes/${id}`)
+      console.log('Fetched response:', response.data)
 
-    setData(response.data)
+      setData(response.data)
 
-    const companies = response.data?.docentete?.document?.companies || []
-    const company = companies.find(
-      (item) => item.id === Number(user?.company_id)
-    )
+      const companies = response.data?.docentete?.document?.companies || []
+      const company = companies.find(
+        (item) => item.id === Number(user?.company_id)
+      )
 
-    console.log('Selected company:', company)
+      console.log('Selected company:', company)
 
-    if (company) {
-      setDocumentCompany(company)
-      if (company.pivot?.status_id) {
-        setStatus(getStatus(Number(company.pivot.status_id)))
+      if (company) {
+        setDocumentCompany(company)
+        if (company.pivot?.status_id) {
+          setStatus(getStatus(Number(company.pivot.status_id)))
+        }
+      } else {
+        console.warn('Company not found for user')
+        setDocumentCompany({})
+        setStatus({})
       }
-    } else {
-      console.warn('Company not found for user')
-      setDocumentCompany({})
-      setStatus({})
+    } catch (err) {
+      console.error('Failed to fetch data:', err)
+      message.error('Erreur lors du chargement des données')
+    } finally {
+      setLoading(false)
     }
-  } catch (err) {
-    console.error('Failed to fetch data:', err)
-    message.error('Erreur lors du chargement des données')
-  } finally {
-    setLoading(false)
   }
-}
 
 
 
-useEffect(() => {
-  if (user?.company_id) {
-    fetchData()
-  }
-}, [id, user])
+  useEffect(() => {
+    if (user?.company_id) {
+      fetchData()
+    }
+  }, [id, user])
 
   const currentItems = data?.doclignes || []
 
@@ -120,7 +120,7 @@ useEffect(() => {
     setTransferSpin(false)
   }
 
- 
+
 
   let listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },
@@ -149,10 +149,10 @@ useEffect(() => {
     setOpen(false)
   }
 
-  
-   const getStatusColor = (status) => {
-     return status?.color || 'gray'
-   }
+
+  const getStatusColor = (status) => {
+    return status?.color || 'gray'
+  }
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -177,10 +177,10 @@ useEffect(() => {
           {(Number(documentCompany?.pivot?.status_id) === 8 ||
             (Number(documentCompany?.pivot?.status_id) === 9 &&
               roles('controleur'))) && (
-            <Button href={`#/document/palettes/${id}`} className='btn'>
-              <ListTodo /> Contrôler
-            </Button>
-          )}
+              <Button href={`#/document/palettes/${id}`} className='btn'>
+                <ListTodo /> Contrôler
+              </Button>
+            )}
 
           <Button onClick={fetchData}>
             {loading ? (
@@ -303,9 +303,9 @@ useEffect(() => {
                   onChange={handleSelectAll}
                   checked={
                     selected.length ===
-                      data.doclignes.filter(
-                        (item) => item.line?.validated !== '1'
-                      ).length &&
+                    data.doclignes.filter(
+                      (item) => item.line?.validated !== '1'
+                    ).length &&
                     data.doclignes.filter(
                       (item) => item.line?.validated !== '1'
                     ).length > 0
@@ -406,15 +406,13 @@ useEffect(() => {
                   </td>
 
                   <td className='px-2 text-sm border-r border-gray-100'>
-                    <div className='text-sm font-medium text-gray-900'>
-                      {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                      {item?.article?.Description || null}
+                    <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
+                      {item?.Nom ||
+                        item.article?.Nom ||
+                        item?.DL_Design ||
+                        '__'}
                     </div>
-                    {item?.article?.Description && (
-                      <div className='text-xs text-gray-500 mt-1'>
-                        {item.article.Description}
-                      </div>
-                    )}
+
                   </td>
 
                   <td className='px-2 text-sm border-r border-gray-100'>
@@ -424,9 +422,11 @@ useEffect(() => {
                   </td>
 
                   <td className='px-2 text-sm border-r border-gray-100'>
-                    {Math.floor(
-                      item.Largeur ? item.Largeur : item?.article?.Largeur
-                    ) || '__'}
+                    {
+                      item.Largeur > 0
+                        ? Math.floor(item.Largeur)
+                        : Math.floor(item?.article?.Largeur) || '__'
+                    }
                   </td>
                   <td className='px-2 text-sm border-r border-gray-100'>
                     {item.Profondeur | item?.article?.Profonduer || '__'}
@@ -436,7 +436,7 @@ useEffect(() => {
                     {item?.Episseur | item?.article?.Episseur}
                   </td>
 
-                  <td className='px-2 text-sm border-r border-gray-100'>
+                  <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
                     {(item.Couleur ? item.Couleur : item?.article?.Couleur) ||
                       '__'}
                   </td>
@@ -508,72 +508,79 @@ useEffect(() => {
           currentItems.map((item, index) => (
             <div
               key={index}
-              className='bg-white border-1 border-gray-200 p-4 mb-4 shadow-sm'
+              className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6 hover:shadow-lg transition-all duration-200"
             >
-              <div className='flex justify-between items-center'>
-                <span className='font-medium text-gray-900'>
-                  <div className='font-bold text-gray-900'>
-                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                    {item?.article?.Description || null}
-                  </div>
-                  {item?.article?.Description && (
-                    <div className='text-sm text-gray-500'>
-                      {item.article.Description}
-                    </div>
-                  )}
-                </span>
-                <span className='px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                  {Math.floor(item.DL_Qte)}
-                </span>
-              </div>
-
-              <div className='h-px bg-gray-200 my-3'></div>
-
-              <div className='grid grid-cols-2 gap-y-2 text-sm'>
-                <div className='text-gray-500'>
-                  Hauteur:
-                  {item.Hauteur > 0 ? (
-                    <strong>{Math.floor(item.Hauteur)}</strong>
-                  ) : (
-                    <strong>{Math.floor(item.article?.Hauteur)}</strong>
-                  )}
+              <div className="flex justify-between items-start mb-4">
+                <div className="space-y-1">
+                  <h2 className="text-lg font-semibold text-gray-900 flex gap-3 items-center">
+                    <span>
+                      <Checkbox
+                        style={{
+                          transform: 'scale(1.5)',    
+                          transformOrigin: 'top left',
+                          fontSize: '18px',   
+                          // lineHeight: '60px',
+                          // height: '60px',
+                          display: 'flex',
+                          alignItems: 'center',
+                        }}
+                      >
+                      </Checkbox>
+                    </span>
+         
+                    <span>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</span>
+                  </h2>
+                  <p className="text-sm text-gray-500">
+                    {item?.Description || ''} {item?.Rotation || ''} {item?.Poignee || ''}
+                  </p>
                 </div>
-                <div className='text-gray-500'>
-                  Largeur:{' '}
-                  {Math.floor(
-                    item.Largeur ? item.Largeur : item?.article?.Largeur
-                  ) || '__'}
-                </div>
-                <div className='text-gray-500'>
-                  Profondeur:{' '}
-                  {Math.floor(
-                    item.Profondeur ? item.Profondeur : item.article?.Profonduer
-                  ) || '__'}
-                </div>
-                <div className='text-gray-500'>
-                  Epaisseur: {Math.floor(item.Episseur) || '__'}
+                <div className="flex items-center space-x-3">
+                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                    {Math.floor(item.DL_Qte)}
+                  </span>
+                  
                 </div>
               </div>
 
-              <div className='h-px bg-gray-200 my-3'></div>
+              <div className="border-t border-gray-200 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700">
+                <div>
+                  <span className="block text-gray-500">Hauteur</span>
+                  {item.Hauteur > 0
+                    ? Math.floor(item.Hauteur)
+                    : Math.floor(item.article?.Hauteur) || '__'}
+                </div>
+                <div>
+                  <span className="block text-gray-500">Largeur</span>
+                  {item.Largeur > 0
+                    ? Math.floor(item.Largeur)
+                    : Math.floor(item?.article?.Largeur) || '__'}
+                </div>
+                <div>
+                  <span className="block text-gray-500">Profondeur</span>
+                  {item.Profondeur || item?.article?.Profonduer || '__'}
+                </div>
+                <div>
+                  <span className="block text-gray-500">Épaisseur</span>
+                  {item?.Episseur || item?.article?.Episseur || '__'}
+                </div>
+              </div>
 
-              <div className='space-y-1 text-sm'>
-                <div className='text-gray-500'>
-                  Couleur:{' '}
-                  <strong>
-                    {(item.article ? item.article.Couleur : item.Couleur) ||
-                      '__'}
-                  </strong>
+              <div className="border-t border-gray-200 pt-4 grid grid-cols-3 gap-4 text-sm text-gray-700 mt-4">
+                <div>
+                  <span className="block text-gray-500">Couleur</span>
+                  <strong>{item.Couleur || item?.article?.Couleur || '__'}</strong>
                 </div>
-                <div className='text-gray-500'>
-                  Chant:{' '}
-                  {(item.article ? item.article.Chant : item.Chant) || '__'}
+                <div>
+                  <span className="block text-gray-500">Chant</span>
+                  {item.Chant || item?.article?.Chant || '__'}
                 </div>
-                <div className='text-gray-500'>
-                  Référence: {item.AR_Ref || '__'}
+                <div>
+                  <span className="block text-gray-500">Référence</span>
+                  {item.AR_Ref || '__'}
                 </div>
               </div>
             </div>
+
           ))
         ) : (
           <div className='bg-white border-1 border-gray-200 p-8 text-center'>
