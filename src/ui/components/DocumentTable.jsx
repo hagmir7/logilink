@@ -138,11 +138,11 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data.DO_Date))}
+                    {formatDate(new Date(data?.DO_Date))}
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data.DO_DateLivr))}
+                    {formatDate(new Date(data?.DO_DateLivr))}
                   </td>
                 </tr>
               ))}
@@ -213,7 +213,7 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
               <div className='flex justify-between'>
                 <span className='text-gray-500 font-medium'>Date prévue:</span>
                 <span className='font-semibold text-gray-900'>
-                  {formatDate(new Date(data.DO_DateLivr))}
+                  {formatDate(new Date(data?.DO_DateLivr))}
                 </span>
               </div>
             </div>

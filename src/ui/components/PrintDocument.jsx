@@ -245,7 +245,7 @@ export default function PrintDocument({ docentete, doclignes }) {
                 <span className="info-label">Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}
               </div>
               <div className="info-row">
-                <span className="info-label">Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete.DO_DateLivr) : '__'}
+                <span className="info-label">Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}
               </div>
               <div className="info-row">
                 <span className="info-label">Expédition:</span> {getExped(docentete?.DO_Expedit)}

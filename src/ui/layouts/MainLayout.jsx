@@ -222,7 +222,7 @@ const MainLayout = () => {
           <div>
             <Link to={'/'}>
               <img
-                src={`/logo.png`}
+                src='https://intercocina.com/public/logo.png'
                 alt='Intercocina logo'
                 className='max-h-full w-60'
               />

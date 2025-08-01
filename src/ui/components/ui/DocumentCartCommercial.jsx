@@ -47,7 +47,7 @@ function DocumentCardCommercial({ data, onSelectOrder }) {
           <div className='flex justify-between'>
             <span>Date prévue:</span>
             <span className='font-medium'>
-              {formatDate(new Date(data.DO_DateLivr))}
+              {formatDate(new Date(data?.DO_DateLivr))}
             </span>
           </div>
         </div>
