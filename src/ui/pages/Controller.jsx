@@ -136,13 +136,20 @@ useEffect(() => {
   }
 
   const handleOk = async () => {
-    setConfirmLoading(true)
-    await api.post(`docentetes/palettes/validate/${id}`, {
-      lines: selected,
-    })
-    setOpen(false)
-    setConfirmLoading(false)
-    fetchData()
+    try {
+      setConfirmLoading(true)
+      await api.post(`docentetes/palettes/validate/${id}`, {
+        lines: selected,
+      })
+      setOpen(false)
+      setConfirmLoading(false)
+      fetchData()
+    } catch (error) {
+      console.error(error)
+      message.error(error.response.data.message)
+      
+    }
+    
   }
 
   const handleCancel = () => {

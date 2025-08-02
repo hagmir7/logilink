@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
 import DocumentCard from '../components/ui/DocumentCard'
-import { Button, Select, Space, Input, Empty } from 'antd'
+import { Button, Select, Space, Input, Empty, message } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from '../components/ui/Spinner'
 import PreparationDocumentTable from '../components/PreparationDocumentTable'
@@ -34,6 +34,7 @@ function Validation() {
       setLoading(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
+      message.error(err.response.data.message)
       setLoading(false)
     }
   }
@@ -85,6 +86,7 @@ function Validation() {
       setSearchSpinner(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
+      message.error(err.response.data.message)
       setSearchSpinner(false)
     }
   }
