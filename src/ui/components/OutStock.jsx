@@ -8,9 +8,7 @@ import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine, ArrowUp
 import { debounce } from 'lodash'
 import InputField from '../components/ui/InputField'
 
-export default function InventoryMovement() {
-
-
+export default function OutStock() {
   const [quantity, setQuantity] = useState('')
   const [emplacementCode, setEmplacementCode] = useState('')
   const [articleCode, setArticleCode] = useState('')
@@ -52,7 +50,6 @@ export default function InventoryMovement() {
       setTotalQuantity(0)
     }
   }, [quantity, condition])
-
 
   const fetchEmplacementData = useCallback(
     debounce(async (code) => {
@@ -119,7 +116,7 @@ export default function InventoryMovement() {
       const { data } = await api.get('companies')
       const options = data.map((company) => ({
         label: company.name,
-        value: company.id, 
+        value: company.id,
       }))
       setCompanies(options)
     } catch (error) {
@@ -146,7 +143,7 @@ export default function InventoryMovement() {
 
     if (options.length === 1 && (type === 'Carton' || type === 'Palette')) {
       setCondition(options[0].value)
-    }else{
+    } else {
       setCondition(null)
     }
 
@@ -205,7 +202,6 @@ export default function InventoryMovement() {
         company: null,
       }
 
-
       await api.post(`stock/insert`, payload)
 
       setQuantity('')
@@ -228,8 +224,6 @@ export default function InventoryMovement() {
     }
   }
 
-  
-
   const changeEmplacement = (value) => {
     const result = sanitizeInput(value)
     setEmplacementCode(result)
@@ -237,11 +231,8 @@ export default function InventoryMovement() {
     setEmplacementError('')
     if (result.length >= 3) fetchEmplacementData(result)
   }
-  
-
 
   const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
-
 
   const changeArticle = (value) => {
     const cleaned = sanitizeInput(value)
@@ -253,8 +244,6 @@ export default function InventoryMovement() {
       fetchArticleData(cleaned)
     }
   }
-  
-
 
   const handleTypeChange = (e) => {
     if (quantityInput.current) {
@@ -268,8 +257,7 @@ export default function InventoryMovement() {
     }
   }
 
-
-  const is_electron = window.electron;
+  const is_electron = window.electron
 
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
@@ -280,7 +268,10 @@ export default function InventoryMovement() {
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
             <h1 className='text-2xl font-bold text-gray-900 truncate flex gap-5 items-center'>
-              <span>Mouvement de sortie</span> <span><ArrowUpFromLine color='blue' /> </span>
+              <span>Mouvement de sortie</span>{' '}
+              <span>
+                <ArrowUpFromLine color='blue' />{' '}
+              </span>
             </h1>
           </div>
         </div>
@@ -404,7 +395,13 @@ export default function InventoryMovement() {
             >
               <Radio.Button
                 value='Piece'
-                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
+                style={
+                  is_electron && {
+                    fontSize: '25px',
+                    height: '50px',
+                    display: 'flex',
+                  }
+                }
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Pièce
@@ -413,8 +410,13 @@ export default function InventoryMovement() {
               <Radio.Button
                 disabled={!articleData?.condition}
                 value='Carton'
-                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
-  
+                style={
+                  is_electron && {
+                    fontSize: '25px',
+                    height: '50px',
+                    display: 'flex',
+                  }
+                }
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Carton
@@ -422,7 +424,13 @@ export default function InventoryMovement() {
               <Radio.Button
                 disabled={!articleData?.palette_condition}
                 value='Palette'
-                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
+                style={
+                  is_electron && {
+                    fontSize: '25px',
+                    height: '50px',
+                    display: 'flex',
+                  }
+                }
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Palette
@@ -505,7 +513,9 @@ export default function InventoryMovement() {
       <div className='px-5 my-3 mt-10'>
         <Button
           className='w-full'
-          style={is_electron && { fontSize: '30px', padding: '30px', height: '60px' }}
+          style={
+            is_electron && { fontSize: '30px', padding: '30px', height: '60px' }
+          }
           size='large'
           type='primary'
           onClick={handleSubmit}
@@ -513,7 +523,6 @@ export default function InventoryMovement() {
         >
           Valider le mouvement
         </Button>
-
       </div>
 
       {/* Confirmation Modal */}

@@ -25,14 +25,14 @@ export default function MobileBottomNav() {
     {
       key: 'sortie',
       label: 'Sortie',
-      path: '/',
+      path: '/stock/out',
       icon: <ArrowUpFromLine className='h-6 w-6 mb-1' />,
       color: 'blue',
     },
     {
       key: 'entree',
       label: 'Entrée',
-      path: '/',
+      path: '/stock/in',
       icon: <ArrowDownFromLine className='h-6 w-6 mb-1' />,
       color: 'blue',
     },
@@ -43,7 +43,7 @@ export default function MobileBottomNav() {
       icon: <ArrowRightLeft className='h-6 w-6 mb-1' />,
       color: 'blue',
     },
-  ];
+  ]
 
   return (
     <nav className='fixed lg:hidden bottom-0 z-50 left-0 right-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg rounded-t-2xl'>

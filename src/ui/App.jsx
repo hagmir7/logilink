@@ -31,6 +31,9 @@ import Transfert from './pages/Transfert'
 import TransferOrder from './pages/TransferOrder'
 import TransferOrdersList from './pages/TransferOrdersList'
 import { DocumentProgress } from './pages/DocumentProgress'
+import OutStock from './components/OutStock'
+import InStock from './components/InStock'
+
 
 const NotFound = () => {
   return <>Page not found 404</>
@@ -64,6 +67,9 @@ function App() {
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
+
+          <Route path='stock/out' element={<OutStock />} />
+          <Route path='stock/in' element={<InStock />} />
 
           <Route path='transfer-orders/list' element={<TransferOrdersList />} />
 

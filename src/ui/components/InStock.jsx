@@ -8,7 +8,7 @@ import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine } from '
 import { debounce } from 'lodash'
 import InputField from '../components/ui/InputField'
 
-export default function InventoryMovement() {
+export default function InStock() {
 
 
   const [quantity, setQuantity] = useState('')
