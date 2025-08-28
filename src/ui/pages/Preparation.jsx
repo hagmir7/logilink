@@ -128,7 +128,8 @@ export default function Preparation() {
         palette: EmpalcementCode ?? currentPalette?.code,
       })
       console.log(data.palette.lines);
-
+      console.log(data.palette.lines);
+      
       setPalette(data.palette)
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
@@ -144,94 +145,91 @@ export default function Preparation() {
     if (id) createPalette()
   }, [id, checkedPalette])
 
-  const handleScan = async (value) => {
-    setLine(value)
-    if (!palette || value === '') return
+  
+  
+const handleScan = async (value) => {
+  setLine(value);
+  if (!palette || value === '') return;
 
-    const payload = { line: value, document: id, palette: palette.code }
-    console.log(document);
+  const payload = { line: value, document: id, palette: palette.code };
+  console.log(payload);
+
+  setLoading('scan', true);
+  setLineError('');
+
+  try {
+    const { data } = await api.post('palettes/scan', payload);
+
+    const height = Math.floor(data.docligne?.Hauteur || data?.docligne?.article?.Hauteur);
+    const width = Math.floor(data.docligne?.Largeur || data?.docligne?.article?.Largeur);
+    const dimensions = height && width ? `${height} * ${width}` : height || width || '';
+    const color = data?.docligne?.Couleur || data?.docligne?.article?.Couleur;
+
+    let arName;
+    if(data.docligne?.article?.Nom){
+      arName = data?.docligne?.article?.Nom + " " + dimensions + " " + color
+    }else{
+      arName = data?.docligne?.article?.AR_Design
+    }
+
+
+    // const parts = [
+    //   data.article?.Nom,
+    //   ,
+    //   dimensions,
+    //   color,
+    //   data?.docligne?.Description,
+    //   data?.docligne?.Rotation,
+    //   data?.docligne?.Poignée,
+    //   data?.docligne?.Couleur,
+    // ];
+
+    // const design = parts
+    //   .filter(part => part)
+    //   .join(' ');
+
+
+    setArticle({
+      id: data.id,
+      ref: data.ref ?? '',
+      design: arName,
+      profondeur: Math.floor(data.docligne?.Profondeur ?? data?.docligne?.article?.Profonduer ?? 0) || '',
+      epaisseur:
+        Math.floor(
+          data.docligne?.Epaisseur ??
+            data?.docligne?.article?.Epaisseur ??
+            0
+        ) || '',
+      chant: data.docligne?.Chant || data?.docligne?.article?.Chant || '',
+      qte: data.quantity ? Math.floor(data.quantity) : 0,
+      color: data.article?.Couleur || '',
+      height: height || '',
+      width: width || '',
+    });
+
+
     
 
-    setLoading('scan', true)
-
-    setLineError('')
-
-    try {
-      const { data } = await api.post('palettes/scan', payload)
-  
-
-      const height =
-        Math.floor(data.docligne?.Hauteur) ||
-        Math.floor(data.article_stock?.height) ||
-        false
-      const width =
-        Math.floor(data.docligne.Largeur) ||
-        Math.floor(data.article_stock?.width) ||
-        false
-
-      const dimensions = height && width ? height + ' * ' + width : width || height
-
-      const color = data?.article_stock?.color || ''
-
-      const designParts = []
-
-      if (data.article_stock?.name) {
-        designParts.push(data.article_stock.name)
-      } else {
-        if (data.article_stock?.description)
-          designParts.push(data.article_stock.description)
-        if (dimensions) designParts.push(dimensions)
-        if (color) designParts.push(color)
-      }
-
-      const parts = [
-        designParts.join(' '),
-        dimensions,
-        data?.docligne?.Description,
-        data?.docligne?.Rotation,
-        data?.docligne?.Poignée,
-        (data?.docligne?.Couleur || data?.article_stock?.color),
-
-      ];
-
-      const design = parts.filter(part => part && part.trim() !== '').join(' ');
-
-
-      setArticle({
-        id: data.id,
-        ref: data.ref ?? '',
-        design,
-        profondeur: Math.floor(data.docligne?.Profonduer || data?.docligne?.article?.Profonduer) || '',
-        episseur: Math.floor(data.docligne?.Episseur || data?.docligne?.article?.Episseur) || '',
-        chant: data.docligne?.Chant || data?.docligne?.article?.Chant,
-        qte: data.quantity ? Math.floor(data.quantity) : 0,
-        // qte: 0,
-        color: data.article_stock?.color || '',
-        height: height,
-        width: width,
-      })
-
-
-      paletteCodeInput.current.focus()
-    } catch (err) {
-      console.error('Error scanning:', err)
-      setArticle({
-        ref: '',
-        design: '',
-        profondeur: '',
-        episseur: '',
-        chant: '',
-        qte: 0,
-        color: '',
-        height: '',
-        width: '',
-      })
-      // message.error(err.response.data.message)
-      setLineError(err.response.data.message)
-    } finally {
-      setLoading('scan', false)
-    }
+    paletteCodeInput.current?.focus();
+  } catch (err) {
+    console.error('Error scanning:', err);
+    setArticle({
+      ref: '',
+      design: '',
+      profondeur: '',
+      epaisseur: '',
+      chant: '',
+      qte: 0,
+      color: '',
+      height: '',
+      width: '',
+    });
+    setLineError(err.response?.data?.message || 'Erreur lors du scan');
+  } finally {
+    setLoading('scan', false);
   }
+};
+
 
   const handleSubmit = async () => {
     setLoading('submit', true)
@@ -242,8 +240,8 @@ export default function Preparation() {
         line: article.id,
       })
 
-
-      setLines(data.lines || [])
+      createPalette()
+      // setLines(data.lines || [])
 
       setArticle({
         ref: '',
@@ -636,7 +634,7 @@ export default function Preparation() {
               const lineWidth =  item.docligne?.Largeur ?? item.docligne?.article?.Largeur ?? false
               return (<div key={item.id || index} className='relative'>
                 <div className='absolute -top-2 -right-2 z-10'>
-                  <span className='px-3 py-1 bg-cyan-500 text-white text-xs font-medium rounded-full'>
+                  <span className='px-3 py-1 bg-cyan-500 text-white text-lg font-medium rounded-full'>
                     {item.ref}
                   </span>
                 </div>
@@ -645,23 +643,25 @@ export default function Preparation() {
                   <div className='p-4 bg-gradient-to-r from-amber-50 to-orange-50'>
                     <div className='flex justify-between items-start mb-3'>
                       <div className='flex-1 pr-2'>
-                        <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate whitespace-normal'>
-                          {uppercaseFirst(
-                            item?.docligne?.Nome || item.article_stock?.name || item.design || 'N/A'
-                          )}
+                        <h3 className='text-xl font-bold text-gray-900 truncate whitespace-normal'>
+                          {uppercaseFirst(item?.docligne?.Nom || item?.docligne?.article?.Nom || item?.docligne?.article?.AR_Design || '__' )}
                         </h3>
 
-                        <p className='text-xs text-gray-600 mt-1'>
+                        <p className='text-xl text-gray-600 mt-1'>
                             {Math.floor(lineHeight)} {(lineHeight && lineWidth) && " * "  }
                             {Math.floor(lineWidth)} mm
                           </p>
-
-                        <span className='inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full mt-2'>
-                           { item.docligne?.Couleur !== '' ? item.docligne?.Couleur : item.docligne?.article?.Couleur}
+                       {(item.docligne?.Couleur || item.docligne?.article?.Couleur) ? (
+                        <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full mt-2 text-lg">
+                          {item.docligne?.Couleur || item.docligne?.article?.Couleur}
                         </span>
+                      ) : null}
+
+                        
+
                       </div>
                       <div className='text-right'>
-                        <div className='text-xl sm:text-2xl font-bold text-gray-900'>
+                        <div className='text-xl font-bold text-gray-900'>
                           {item.pivot?.quantity
                             ? Math.floor(item.pivot.quantity)
                             : 0}
@@ -671,7 +671,7 @@ export default function Preparation() {
                     </div>
 
                     <div className='flex justify-between items-center pt-4 border-t border-gray-200'>
-                      <div className='text-xs md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
+                      <div className='text-xl md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
                         <div>
                           Prof:{' '}
                           <strong>
@@ -679,8 +679,8 @@ export default function Preparation() {
                               Math.floor(
                                 item.docligne?.Profonduer > 0
                                   ? item.docligne.Profonduer
-                                  : item.docligne?.article?.Profonduer ?? 'N/A'
-                              ) || 'N/A'
+                                  : item.docligne?.article?.Profonduer ?? '__'
+                              ) || '__'
                             }
                           </strong>
                         </div>
@@ -691,8 +691,8 @@ export default function Preparation() {
                               Math.floor(
                                 item.docligne?.Episseur > 0
                                   ? item.docligne.Episseur
-                                  : item.docligne?.article?.Episseur ?? 'N/A'
-                              ) || 'N/A'
+                                  : item.docligne?.article?.Episseur ?? '__'
+                              ) || '__'
                             }
                           </strong>
                         </div>

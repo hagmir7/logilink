@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getExped, getDocumentType } from '../utils/config';
 import { useParams } from 'react-router-dom';
-import { Button, Tag } from 'antd';
+import { Button, Empty, message, Spin, Tag } from 'antd';
 import Skeleton from '../components/ui/Skeleton';
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table';
 import SkeletonTable from '../components/ui/SkeletonTable';
@@ -14,6 +14,8 @@ function PreparationList() {
   const { id } = useParams();
   const [data, setData] = useState({ docentete: {}, doclignes: [] });
   const [loading, setLoading] = useState(false);
+  const isElectron = Boolean(window?.electron);
+  const [loadingId, setLoadingId] = useState(null);
 
   const fetchData = async () => {
     setLoading(true)
@@ -22,21 +24,63 @@ function PreparationList() {
       setData(response.data)
       setLoading(false)
 
-      
+
     } catch (err) {
       setLoading(false)
       console.error('Failed to fetch data:', err)
     }
   }
+
+
+
+
   useEffect(() => {
     fetchData()
   }, [id])
 
   const currentItems = data?.doclignes || [];
 
-   const getStatusColor = (status) => {
-     return status?.color || 'gray'
-   }
+  const getStatusColor = (status) => {
+    return status?.color || 'gray'
+  }
+
+
+
+ const prepare = async (lineId) => {
+    setLoadingId(lineId);
+
+     const response = await api.post("lines/prepare", { line: lineId });
+
+      // ✅ update local items state so status changes to "Prepare"
+      setData((prev) => ({
+      ...prev,
+      doclignes: prev.doclignes.map((it) =>
+        it.line.id === lineId
+          ? {
+              ...it,
+              line: {
+                ...it.line,
+                status: {
+                  ...it.line.status,
+                  name: "Préparé",
+                },
+              },
+            }
+          : it
+      ),
+    }));
+
+      message.success("Preparation successfully");
+    try {
+     
+    } catch (error) {
+      message.warning(error.response?.data?.message || "Something went wrong");
+    } finally {
+      setLoadingId(null);
+    }
+  };
+
+
 
 
   return (
@@ -203,7 +247,7 @@ function PreparationList() {
                           '__'}
                       </span>
                     </div>
-                   {/* <div className='text-sm text-gray-500'>
+                    {/* <div className='text-sm text-gray-500'>
                     Epaisseur:{' '}
                     <span className='font-bold text-gray-800'>
                       {item.Episseur ?? '__' | item.article?.Episseur ?? '__'}{' '}
@@ -211,12 +255,12 @@ function PreparationList() {
                     </span>
                   </div> */}
 
-                  <div className='text-sm text-gray-500'>
-                Epaisseur:{' '}
-                <span className='font-bold text-gray-800'>
-                  {Math.floor(item.Episseur ?? item.article?.Episseur ) || '__'}
-                </span>
-              </div>
+                    <div className='text-sm text-gray-500'>
+                      Epaisseur:{' '}
+                      <span className='font-bold text-gray-800'>
+                        {Math.floor(item.Episseur ?? item.article?.Episseur) || '__'}
+                      </span>
+                    </div>
 
                   </Td>
                   <Td>
@@ -253,25 +297,28 @@ function PreparationList() {
       </div>
 
       {/* Improved Mobile Cards with structure similar to desktop */}
-      <div className='block md:hidden'>
+
+
+      {/* Improved Mobile Cards with structure similar to desktop */}
+      <div className={`block md:hidden ${isElectron ? "text-xl space-y-6" : ""}`}>
         {loading ? (
           // Mobile loading skeleton
-          <div className='space-y-4'>
+          <div className={`space-y-4 ${isElectron ? "space-y-6" : ""}`}>
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className='bg-white border-2 border-gray-200 rounded-md p-4 space-y-3 animate-pulse'
+                className={`bg-white border-2 border-gray-200 rounded-md p-4 space-y-3 animate-pulse ${isElectron ? "p-6 rounded-xl" : ""
+                  }`}
               >
                 <div className='flex justify-between'>
-                  <div className='h-5 bg-gray-200 rounded w-2/3'></div>
-                  <div className='h-6 bg-gray-200 rounded w-16'></div>
+                  <div className={`bg-gray-200 rounded ${isElectron ? "h-8 w-3/4" : "h-5 w-2/3"}`}></div>
+                  <div className={`bg-gray-200 rounded ${isElectron ? "h-10 w-24" : "h-6 w-16"}`}></div>
                 </div>
                 <div className='h-px bg-gray-200'></div>
-                <div className='grid grid-cols-2 gap-3'>
-                  <div className='h-4 bg-gray-200 rounded'></div>
-                  <div className='h-4 bg-gray-200 rounded'></div>
-                  <div className='h-4 bg-gray-200 rounded'></div>
-                  <div className='h-4 bg-gray-200 rounded'></div>
+                <div className={`grid grid-cols-2 gap-3 ${isElectron ? "gap-5" : ""}`}>
+                  {[1, 2, 3, 4].map(x => (
+                    <div key={x} className={`bg-gray-200 rounded ${isElectron ? "h-6" : "h-4"}`}></div>
+                  ))}
                 </div>
               </div>
             ))}
@@ -280,104 +327,69 @@ function PreparationList() {
           currentItems.map((item, index) => (
             <div
               key={index}
-              className='bg-white border-2 border-gray-200 rounded-lg p-4 mb-4 shadow-sm'
+              className={`bg-white border border-gray-200 rounded-lg shadow-sm mb-4 
+          ${isElectron ? "p-4 rounded-2xl" : "p-4"}`}
             >
-              <div className='flex justify-between items-center mb-2'>
-                <span className='font-black text-gray-800 text-lg'>
-                  {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
+              <div className='flex justify-between items-center mb-4'>
+                <span className={`font-black text-gray-800 ${isElectron ? "text-2xl" : "text-lg"}`}>
+                  {item.article ? item.article.Nom : item?.Nom || '__'}{" "}
                   {item?.article?.Description || null}
                 </span>
-                <Tag color={item.line.status.color}>
-                  {item.line?.status?.name}
+               <Button
+                  key={item.line.id}
+                  onClick={() => prepare(item.line.id)}
+                  style={
+                    isElectron
+                      ? { fontSize: "28px", height: "60px", padding: "0 24px" }
+                      : {}
+                  }
+                  color={item.line.status.color}
+                  disabled={loadingId === item.line.id}
+                >
+                  {loadingId === item.line.id ? (
+                    <>
+                      <Spin size="small" style={{ marginRight: 8 }} /> Preparing...
+                    </>
+                  ) : (
+                    item.line?.status?.name
+                  )}
+                </Button>
+              </div>
+
+              <div className='flex justify-between items-center mb-4'>
+                <span className={`${isElectron ? "text-lg" : "text-sm"} text-gray-500`}>
+                  Référence:{" "}
+                  <span className='font-medium text-gray-700'>
+                    {item.AR_Ref || "__"}
+                  </span>
+                </span>
+                <Tag color='green-inverse' style={isElectron ? { fontSize: "18px", padding: "6px 14px" } : {}}>
+                  {Math.floor(item.DL_Qte || 0)}
                 </Tag>
               </div>
 
-              <div className='flex justify-between items-center mb-2'>
-                <span className='text-sm text-gray-500'>
-                  Référence:{' '}
-                  <span className='font-medium text-gray-700'>
-                    {item.AR_Ref || '__'}
-                  </span>
-                </span>
-                <Tag color='green-inverse'>{Math.floor(item.DL_Qte || 0)}</Tag>
+              <div className='h-px bg-gray-200 my-4'></div>
+              <div className={`grid grid-cols-2 ${isElectron ? "gap-y-5 text-lg" : "gap-y-3 text-sm"}`}>
+                <div><span className='text-gray-500'>H: </span><span className='font-bold text-gray-800'>{Math.floor(item.article ? item.article.Hauteur : item.Hauteur) || '__'}</span></div>
+                <div><span className='text-gray-500'>L: </span><span className='font-bold text-gray-800'>{Math.floor(item.article ? item.article.Largeur : item.Largeur) || '__'}</span></div>
+                <div><span className='text-gray-500'>P: </span><span className='font-bold text-gray-800'>{Math.floor(item.article ? item.article.Profondeur : item.Profondeur) || '__'}</span></div>
+                <div><span className='text-gray-500'>Epaisseur: </span><span className='font-bold text-gray-800'>{Math.floor(item.article ? item.article.Episseur : item.Episseur) || '__'}</span></div>
               </div>
 
-              <div className='h-px bg-gray-200 my-3'></div>
-              <div className='grid grid-cols-2 gap-y-3'>
-                <div className='text-sm'>
-                  <span className='text-gray-500'>H: </span>
-                  <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Hauteur : item.Hauteur
-                    ) || '__'}
-                  </span>
-                </div>
-                <div className='text-sm'>
-                  <span className='text-gray-500'>L: </span>
-                  <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Largeur : item.Largeur
-                    ) || '__'}
-                  </span>
-                </div>
-                <div className='text-sm'>
-                  <span className='text-gray-500'>P: </span>
-                  <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Profondeur : item.Profondeur
-                    ) || '__'}
-                  </span>
-                </div>
-                <div className='text-sm'>
-                  <span className='text-gray-500'>Epaisseur: </span>
-                  <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Episseur : item.Episseur
-                    ) || '__'}
-                  </span>
-                </div>
-              </div>
-
-              <div className='h-px bg-gray-200 my-3'></div>
-
-              <div className='grid grid-cols-2 gap-y-3'>
-                <div className='text-sm'>
-                  <span className='text-gray-500'>Couleur: </span>
-                  <span className='font-bold text-gray-800'>
-                    {(item.article ? item.article.Couleur : item.Couleur) ||
-                      '__'}
-                  </span>
-                </div>
-                <div className='text-sm'>
-                  <span className='text-gray-500'>Chant: </span>
-                  <span className='font-bold text-gray-800'>
-                    {(item.article ? item.article.Chant : item.Chant) || '__'}
-                  </span>
-                </div>
+              <div className='h-px bg-gray-200 my-4'></div>
+              <div className={`grid grid-cols-2 ${isElectron ? "gap-y-5 text-lg" : "gap-y-3 text-sm"}`}>
+                <div><span className='text-gray-500'>Couleur: </span><span className='font-bold text-gray-800'>{(item.article ? item.article.Couleur : item.Couleur) || "__"}</span></div>
+                <div><span className='text-gray-500'>Chant: </span><span className='font-bold text-gray-800'>{(item.article ? item.article.Chant : item.Chant) || "__"}</span></div>
               </div>
             </div>
           ))
         ) : (
-          <div className='bg-white border-2 border-gray-200 rounded-md p-8 text-center'>
-            <svg
-              className='mx-auto h-12 w-12 text-gray-400'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={1}
-                d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
-              />
-            </svg>
-            <h3 className='mt-2 text-sm font-medium text-gray-900'>
-              Aucun article trouvé
-            </h3>
+          <div className={`bg-white border-2 border-gray-200 rounded-md text-center ${isElectron ? "p-16 text-xl" : "p-8"}`}>
+            <Empty description='Aucun article trouvé' />
           </div>
         )}
       </div>
+
     </div>
   )
 }
