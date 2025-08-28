@@ -2,6 +2,7 @@ import {
   RefreshCcw,
   ArrowRight,
   Undo2,
+  LoaderCircle,
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
@@ -145,11 +146,11 @@ function Commercial() {
                 className='flex items-center gap-2 hover:shadow-md transition-shadow'
               >
                 {loading ? (
-                  <RefreshCcw className='animate-spin h-4 w-4' />
+                  <LoaderCircle className='animate-spin h-4 w-4' />
                 ) : (
                   <RefreshCcw className='h-4 w-4' />
                 )}
-                Rafraîchir
+                Actualiser
               </Button>
               <PrintDocument
                 doclignes={data.doclignes}
@@ -352,7 +353,7 @@ function Commercial() {
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              <div className='text-sm font-medium text-gray-900'>
+                              <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
                                 {item?.Nom ||
                                   item.article?.Nom ||
                                   item?.DL_Design ||
@@ -372,11 +373,11 @@ function Commercial() {
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {Math.floor(
-                                item.Largeur
-                                  ? item.Largeur
-                                  : item?.article?.Largeur
-                              ) || '__'}
+                                {
+                                  item.Largeur > 0
+                                  ? Math.floor(item.Largeur)
+                                  : Math.floor(item?.article?.Largeur) || '__'
+                                }
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
@@ -387,7 +388,7 @@ function Commercial() {
                               {item?.Episseur | item?.article?.Episseur }
                             </td>
 
-                            <td className='px-2 text-sm border-r border-gray-100'>
+                            <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
                               {(item.Couleur
                                 ? item.Couleur
                                 : item?.article?.Couleur) || '__'}
@@ -399,7 +400,7 @@ function Commercial() {
                                 : item?.article?.Chant) || '__'}
                             </td>
 
-                             <td className='px-2 text-sm border-r border-gray-100'>
+                             <td className='px-2 text-sm border-r border-gray-100  whitespace-nowrap'>
                               {item?.Description } {" "}
                               {item?.Rotation } {" "}
                               {item?.Poignee } {" "}

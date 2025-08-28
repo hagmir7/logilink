@@ -170,7 +170,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 </td>
 
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(new Date(item?.docentete?.DO_DateLivr || item.DO_DateLivr))}
+                  {formatDate(new Date(item?.docentete?.DO_DateLivr || item?.DO_DateLivr))}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                   {/* {JSON.stringify(item.companies.find(company => company.id == user.company_id))} */}
@@ -254,7 +254,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   <span className='text-gray-500'>Date prévue:</span>
                   <span className='font-medium text-gray-900'>
                     {formatDate(
-                      new Date(item?.docentete?.DO_DateLivr || item.DO_DateLivr)
+                      new Date(item?.docentete?.DO_DateLivr || item?.DO_DateLivr)
                     )}
                   </span>
                 </div>

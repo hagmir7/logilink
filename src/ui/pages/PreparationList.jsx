@@ -203,15 +203,21 @@ function PreparationList() {
                           '__'}
                       </span>
                     </div>
-                    <div className='text-sm text-gray-500'>
-                      Epaisseur:{' '}
-                      <span className='font-bold text-gray-800'>
-                        {item.Episseur} | {item.article.Episseur}
-                        {Math.floor(
-                          item.article ? item.Episseur : item.article.Episseur
-                        ) || '__'}
-                      </span>
-                    </div>
+                   {/* <div className='text-sm text-gray-500'>
+                    Epaisseur:{' '}
+                    <span className='font-bold text-gray-800'>
+                      {item.Episseur ?? '__' | item.article?.Episseur ?? '__'}{' '}
+                      {Math.floor(item.article ? item.article.Episseur : item.Episseur) || '__'}
+                    </span>
+                  </div> */}
+
+                  <div className='text-sm text-gray-500'>
+                Epaisseur:{' '}
+                <span className='font-bold text-gray-800'>
+                  {Math.floor(item.Episseur ?? item.article?.Episseur ) || '__'}
+                </span>
+              </div>
+
                   </Td>
                   <Td>
                     <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>

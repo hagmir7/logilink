@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
-import { ArrowLeftCircle,
+import {
+  ArrowLeftCircle,
   ArrowRightCircle,
   X,
   Loader2,
@@ -64,28 +65,28 @@ export default function Preparation() {
   }
 
 
-const handleScanEmplacement = async (value) => {
-  setEmpalcementCodeLoading(true)
+  const handleScanEmplacement = async (value) => {
+    setEmpalcementCodeLoading(true)
 
-  if (value === '') {
-    setScannedEmplacement(null)
+    if (value === '') {
+      setScannedEmplacement(null)
+      setEmpalcementCodeLoading(false)
+      return
+    }
+
+    try {
+      const { data } = await api.get(`emplacement/${value}`)
+      setScannedEmplacement(data)
+      quantityInput.current.focus();
+    } catch (error) {
+      console.error(error)
+      setEmpalcementCodeError(
+        error.response?.data?.message || 'An error occurred'
+      )
+    }
+
     setEmpalcementCodeLoading(false)
-    return
   }
-
-  try {
-    const { data } = await api.get(`emplacement/${value}`)
-    setScannedEmplacement(data)
-    quantityInput.current.focus();
-  } catch (error) {
-    console.error(error)
-    setEmpalcementCodeError(
-      error.response?.data?.message || 'An error occurred'
-    )
-  }
-
-  setEmpalcementCodeLoading(false)
-}
 
 
 
@@ -126,6 +127,7 @@ const handleScanEmplacement = async (value) => {
         document_id: id,
         palette: EmpalcementCode ?? currentPalette?.code,
       })
+      console.log(data.palette.lines);
 
       setPalette(data.palette)
       setLines(data.palette.lines || [])
@@ -147,6 +149,8 @@ const handleScanEmplacement = async (value) => {
     if (!palette || value === '') return
 
     const payload = { line: value, document: id, palette: palette.code }
+    console.log(document);
+    
 
     setLoading('scan', true)
 
@@ -154,6 +158,8 @@ const handleScanEmplacement = async (value) => {
 
     try {
       const { data } = await api.post('palettes/scan', payload)
+  
+
       const height =
         Math.floor(data.docligne?.Hauteur) ||
         Math.floor(data.article_stock?.height) ||
@@ -163,8 +169,7 @@ const handleScanEmplacement = async (value) => {
         Math.floor(data.article_stock?.width) ||
         false
 
-      const dimensions =
-        height && width ? height + ' * ' + width : width || height
+      const dimensions = height && width ? height + ' * ' + width : width || height
 
       const color = data?.article_stock?.color || ''
 
@@ -179,20 +184,32 @@ const handleScanEmplacement = async (value) => {
         if (color) designParts.push(color)
       }
 
-      const design = designParts.join(' ')
+      const parts = [
+        designParts.join(' '),
+        dimensions,
+        data?.docligne?.Description,
+        data?.docligne?.Rotation,
+        data?.docligne?.Poignée,
+        (data?.docligne?.Couleur || data?.article_stock?.color),
 
-     setArticle({
-       id: data.id,
-       ref: data.ref ?? '',
-       design,
-       profondeur: data.article_stock?.depth ?? '',
-       episseur: data.article_stock?.thickness || '',
-       chant: data.docligne?.Chant || data.article_stock?.chant,
-      //  qte: data.quantity ? Math.floor(data.quantity) : 0,
-       color: data.article_stock?.color || '',
-       height: height,
-       width: width,
-     })
+      ];
+
+      const design = parts.filter(part => part && part.trim() !== '').join(' ');
+
+
+      setArticle({
+        id: data.id,
+        ref: data.ref ?? '',
+        design,
+        profondeur: Math.floor(data.docligne?.Profonduer || data?.docligne?.article?.Profonduer) || '',
+        episseur: Math.floor(data.docligne?.Episseur || data?.docligne?.article?.Episseur) || '',
+        chant: data.docligne?.Chant || data?.docligne?.article?.Chant,
+        qte: data.quantity ? Math.floor(data.quantity) : 0,
+        // qte: 0,
+        color: data.article_stock?.color || '',
+        height: height,
+        width: width,
+      })
 
 
       paletteCodeInput.current.focus()
@@ -271,8 +288,8 @@ const handleScanEmplacement = async (value) => {
     setLoadingCreate(true)
 
     try {
-      const {data} = await api.post('palettes/create', { document_id: id })
-    
+      const { data } = await api.post('palettes/create', { document_id: id })
+
 
       if (!data || !Array.isArray(data.palettes) || data.palettes.length === 0) {
         message.warning("La nouvelle palette n'a pas été récupérée.")
@@ -280,7 +297,7 @@ const handleScanEmplacement = async (value) => {
       }
       setPalettes(data.palettes)
 
-  
+
       const lastPalette = data.palettes[data.palettes.length - 1]
 
 
@@ -387,8 +404,8 @@ const handleScanEmplacement = async (value) => {
               }
             />
             {empalcementCodeError &&
-            empalcementCodeError !== '' &&
-            line !== '' ? (
+              empalcementCodeError !== '' &&
+              line !== '' ? (
               <Alert
                 message={empalcementCodeError}
                 type='error'
@@ -613,8 +630,11 @@ const handleScanEmplacement = async (value) => {
           )}
 
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
-            {lines?.map((item, index) => (
-              <div key={item.id || index} className='relative'>
+            {lines?.map((item, index) => {
+
+              const lineHeight =  item.docligne?.Hauteur ?? item.docligne?.article?.Hauteur ?? false
+              const lineWidth =  item.docligne?.Largeur ?? item.docligne?.article?.Largeur ?? false
+              return (<div key={item.id || index} className='relative'>
                 <div className='absolute -top-2 -right-2 z-10'>
                   <span className='px-3 py-1 bg-cyan-500 text-white text-xs font-medium rounded-full'>
                     {item.ref}
@@ -627,21 +647,17 @@ const handleScanEmplacement = async (value) => {
                       <div className='flex-1 pr-2'>
                         <h3 className='text-sm sm:text-base font-bold text-gray-900 truncate whitespace-normal'>
                           {uppercaseFirst(
-                            item?.name ||
-                              item.article_stock?.name ||
-                              item.design ||
-                              'N/A'
+                            item?.docligne?.Nome || item.article_stock?.name || item.design || 'N/A'
                           )}
                         </h3>
-                        {item.article_stock?.width &&
-                          item.article_stock?.height && (
-                            <p className='text-xs text-gray-600 mt-1'>
-                              {Math.floor(item.article_stock.height)} ×{' '}
-                              {Math.floor(item.article_stock.width)} mm
-                            </p>
-                          )}
+
+                        <p className='text-xs text-gray-600 mt-1'>
+                            {Math.floor(lineHeight)} {(lineHeight && lineWidth) && " * "  }
+                            {Math.floor(lineWidth)} mm
+                          </p>
+
                         <span className='inline-block px-2 py-1 bg-gray-100 text-gray-700 text-xs rounded-full mt-2'>
-                          {item.article_stock?.color || 'N/A'}
+                           { item.docligne?.Couleur !== '' ? item.docligne?.Couleur : item.docligne?.article?.Couleur}
                         </span>
                       </div>
                       <div className='text-right'>
@@ -658,18 +674,38 @@ const handleScanEmplacement = async (value) => {
                       <div className='text-xs md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
                         <div>
                           Prof:{' '}
-                          <strong>{item.article_stock?.depth || 'N/A'}</strong>
+                          <strong>
+                            {
+                              Math.floor(
+                                item.docligne?.Profonduer > 0
+                                  ? item.docligne.Profonduer
+                                  : item.docligne?.article?.Profonduer ?? 'N/A'
+                              ) || 'N/A'
+                            }
+                          </strong>
                         </div>
                         <div>
                           Ép:{' '}
                           <strong>
-                            {item.article_stock?.thickness || 'N/A'}
+                            {
+                              Math.floor(
+                                item.docligne?.Episseur > 0
+                                  ? item.docligne.Episseur
+                                  : item.docligne?.article?.Episseur ?? 'N/A'
+                              ) || 'N/A'
+                            }
                           </strong>
                         </div>
                         <div>
                           Chant:{' '}
-                          <strong>{item?.article_stock?.chant || 'N/A'}</strong>
+                          <strong>
+                            {
+                              item.docligne?.Chant ??
+                              item.docligne?.article?.Chant
+                            }
+                          </strong>
                         </div>
+
                       </div>
 
                       <button
@@ -682,8 +718,8 @@ const handleScanEmplacement = async (value) => {
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              </div>)
+            })}
           </div>
 
           {lines?.length === 0 && !loadingStates.remove && (

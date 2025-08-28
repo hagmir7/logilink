@@ -13,7 +13,8 @@
         "!**/node_modules/@tailwindcss/oxide-wasm32-wasi/**",
         "!**/node_modules/@emnapi/core/**"
     ],
-    "icon": "./intercocina-logo.png",
+    "icon": "inter.png",
+  
     "win": {
         "target": [
             "portable",

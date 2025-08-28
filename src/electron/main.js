@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain, dialog } from "electron";
+import { app, BrowserWindow, ipcMain } from "electron";
 import path from "path";
 import { getPreloadPath, isDev } from "./util.js";
 import createLoginWindow from "./windows/loginWindow.js";
@@ -39,7 +39,6 @@ let showWindow;
 let mainWindow;
 let loginWindow;
 
-
 const createMainWindow = () => {
     const mainWindow = new BrowserWindow({
         title: "LOGILINK - INTERCOCINA",
@@ -53,10 +52,18 @@ const createMainWindow = () => {
         },
     });
 
+   
+
+    mainWindow.on('close', (event) => {
+        if (!app.isQuiting) {
+            event.preventDefault();
+            mainWindow.hide();
+        }
+    });
+
 
     if (isDev()) {
         mainWindow.loadURL('http://localhost:5123');
-         mainWindow.setMenu(null)
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
         mainWindow.setMenu(null)

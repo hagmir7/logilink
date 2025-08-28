@@ -71,7 +71,7 @@
   "config": {
     "forge": {
       "packagerConfig": {
-        "icon": "./intercocina-logo.png"
+        "icon": "./inter.png"
       },
       "makers": [
         {

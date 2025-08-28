@@ -168,7 +168,7 @@ const Progress = () => {
                     onClick={()=> handleShow(order.piece)}
                     className='hover:bg-gray-50 transition-colors duration-200'
                   >
-                    <td className='px-6 py-4 whitespace-nowrap'>
+                    <td className='px-6 py-0 whitespace-nowrap'>
                       <div>
                         <div className='text-sm font-medium text-gray-900'>
                           {order.piece}
@@ -215,7 +215,7 @@ const Progress = () => {
                     </td>
 
                     <td className='px-6 py-4 whitespace-nowrap'>
-                      <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                      <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
                         {order.lines_count} - {order.company}
                       </span>
                     </td>
