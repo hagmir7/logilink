@@ -124,9 +124,10 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
             {documents.map((item, index) => (
               <tr
                 key={index}
-                className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
-                onClick={() =>
-                  onSelectOrder && handleShow(item.piece_bl || item.docentete.DO_Piece)
+                className='hover:bg-gray-50 cursor-pointer transition-colors duration-200 border-b border-gray-200'
+                onDoubleClick={() =>
+                  onSelectOrder &&
+                  handleShow(item.piece_bl || item.docentete.DO_Piece)
                 }
               >
                 {roles('commercial') && (
@@ -147,12 +148,16 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                     color={item?.status?.color || item?.document?.status?.color}
                     className='text-xl'
                   >
-                    {item?.status?.name || item?.document?.status?.name || 'En attente'}
+                    {item?.status?.name ||
+                      item?.document?.status?.name ||
+                      'En attente'}
                   </Tag>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(item.expedition || item.DO_Expedit)}`}
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(
+                      item.expedition || item.DO_Expedit
+                    )}`}
                   >
                     {getExped(item.expedition || item.DO_Expedit)}
                   </span>
@@ -166,29 +171,38 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   {item.ref || item.DO_Ref}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(new Date(item?.docentete?.DO_Date || item.DO_Date))}
+                  {formatDate(
+                    new Date(item?.docentete?.DO_Date || item.DO_Date)
+                  )}
                 </td>
 
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(new Date(item?.docentete?.DO_DateLivr || item?.DO_DateLivr))}
+                  {formatDate(
+                    new Date(item?.docentete?.DO_DateLivr || item?.DO_DateLivr)
+                  )}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {/* {JSON.stringify(item.companies.find(company => company.id == user.company_id))} */}
-                  {
-                    (item.companies.find(company => company.id == user.company_id)?.pivot.status_id == '11' && roles('preparation')) && <Select
-                      placeholder="Agent de chargement"
-                      defaultValue={item.user_id}
-                      style={{ width: 170 }}
-                      allowClear
-                      onChange={(value) => handleChange(value, item.id)}
-                      options={users}
-                    />
-                  }
-                  
-                  {
-                    roles('chargement') && <Link to={`/chargement/${item.piece}`}><Button >Chargement</Button></Link>
-                  }
-                  
+                  {['11', '12', '13'].includes(
+                    item.companies.find(
+                      (company) => company.id == user.company_id
+                    )?.pivot.status_id
+                  ) &&
+                    roles('preparation') && (
+                      <Select
+                        placeholder='Agent de chargement'
+                        defaultValue={item.user_id}
+                        style={{ width: 170 }}
+                        allowClear
+                        onChange={(value) => handleChange(value, item.id)}
+                        options={users}
+                      />
+                    )}
+
+                  {roles('chargement') && (
+                    <Link to={`/chargement/${item.piece}`}>
+                      <Button>Chargement</Button>
+                    </Link>
+                  )}
                 </td>
               </tr>
             ))}
@@ -205,23 +219,25 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
           return (
             <div
               key={index}
-              className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-200'
-              
+              className='border-b border-gray-300 p-6 hover:bg-gray-100 cursor-pointer transition-all duration-200'
             >
               {/* Header with document number and status */}
-              <div className='flex justify-between items-start mb-3' onClick={() => onSelectOrder(piecePL)}>
+              <div
+                className='flex justify-between items-start mb-4'
+                onClick={() => onSelectOrder(piecePL)}
+              >
                 <div className='flex items-center'>
-                  <span className='text-lg font-bold text-gray-900'>
+                  <span className='text-2xl font-extrabold text-gray-900'>
                     {roles('commercial') ? pieceBL : piecePL}
                   </span>
                   {(item.DO_Reliquat === 1 || item.reliquat === 1) && (
-                    <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded'>
-                      <Settings size={14} />
+                    <span className='ml-3 p-2 bg-gray-200 text-gray-700 rounded'>
+                      <Settings size={18} />
                     </span>
                   )}
                 </div>
                 <span
-                  className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusBadgeColor(
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${getStatusBadgeColor(
                     item?.status?.color || item?.document?.status?.color
                   )}`}
                 >
@@ -232,41 +248,56 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
               </div>
 
               {/* Expedition and Client badges */}
-              <div className='flex flex-wrap gap-2 mb-3'>
-                <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(item.expedition || item.DO_Expedit )}`}>
+              <div className='flex flex-wrap gap-3 mb-4'>
+                <span
+                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getExpeditionColor(
+                    item.expedition || item.DO_Expedit
+                  )}`}
+                >
                   {getExped(item.expedition || item.DO_Expedit)}
                 </span>
-                <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
+                <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-200 text-blue-900'>
                   {item.client_id || item.DO_Tiers}
                 </span>
               </div>
 
               {/* Details */}
-              <div className='space-y-2 text-sm'>
-                <div className='flex justify-between'>
-                  <span className='text-gray-500'>Référence:</span>
-                  <span className='font-medium text-gray-900'>
+              <div className='space-y-3 text-base'>
+                <div className='flex justify-between text-xl'>
+                  <span className='text-gray-600 font-medium'>Référence:</span>
+                  <span className='font-semibold text-gray-900'>
                     {item.ref || item.DO_Ref}
                   </span>
                 </div>
-          
-                <div className='flex justify-between'>
-                  <span className='text-gray-500'>Date prévue:</span>
-                  <span className='font-medium text-gray-900'>
+
+                <div className='flex justify-between text-xl'>
+                  <span className='text-gray-600 font-medium'>
+                    Date prévue:
+                  </span>
+                  <span className='font-semibold text-gray-900'>
                     {formatDate(
-                      new Date(item?.docentete?.DO_DateLivr || item?.DO_DateLivr)
+                      new Date(
+                        item?.docentete?.DO_DateLivr || item?.DO_DateLivr
+                      )
                     )}
                   </span>
                 </div>
-                <div className='flex justify-between'>
-                  <span className='text-gray-500'>Palettes:</span>
-                  <Tag className='font-blold text-gray-900'>
-                    <span className='font-bold text-[16px] p-4'>{item?.palettes_count}</span>
+
+                <div className='flex justify-between items-center text-xl'>
+                  <span className='text-gray-600 font-medium'>Palettes:</span>
+                  <Tag className='font-bold text-gray-900'>
+                    <div className='font-extrabold text-xl px-4 py-2'>
+                      {item?.palettes_count}
+                    </div>
                   </Tag>
                 </div>
               </div>
 
-              <Button className='mt-3 w-full' href={`/#/shargement/${item.id}`}> Chargement </Button>
+              <Link to={`/chargement/${item.piece}`}>
+                <Button className='mt-4 w-full text-lg py-3 rounded-xl' style={{ fontSize: "30px", padding: "30px" }}>
+                  🚚 Chargement
+                </Button>
+              </Link>
             </div>
           )
         })}

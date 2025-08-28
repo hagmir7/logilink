@@ -92,37 +92,59 @@ export default function PaletteControle() {
                   <div className='flex justify-between items-start'>
                     <div>
                       <h3 className='text-xl font-semibold text-gray-700'>
-                        {item?.docligne?.Nom || item?.docligne?.article?.Nom || item?.docligne.DL_Design || '__'}{' '}
-                        {item?.docligne?.article?.Description || null} {' '}
+                        {item?.docligne?.Nom ||
+                          item?.docligne?.article?.Nom ||
+                          item?.docligne.DL_Design ||
+                          '__'}{' '}
+                        {item?.docligne?.article?.Description || null}{' '}
                         {item?.docligne?.Poignée}
-                    <span>
-                      {(() => {
-                        const height = item?.docligne?.Hauteur ?? item?.docligne?.article?.Hauteur;
-                        const width = item?.docligne?.Largeur ?? item?.docligne?.article?.Largeur;
+                        <span>
+                          {(() => {
+                            const height =
+                              item?.docligne?.Hauteur ??
+                              item?.docligne?.article?.Hauteur
+                            const width =
+                              item?.docligne?.Largeur ??
+                              item?.docligne?.article?.Largeur
 
-                        if (!height && !width) return null; // nothing to display
+                            if (!height && !width) return null // nothing to display
 
-                        if (height && width) {
-                          return (
-                            <>
-                              <strong>{Math.floor(height)}</strong> * <strong>{Math.floor(width)}</strong>
-                            </>
-                          );
-                        }
+                            if (height && width) {
+                              return (
+                                <>
+                                  {' '}
+                                  <strong>{Math.floor(height)}</strong> *{' '}
+                                  <strong>{Math.floor(width)}</strong>
+                                </>
+                              )
+                            }
 
-                        // Only one exists
-                        return <strong>{Math.floor(height ?? width)}</strong>;
-                      })()}
-                    </span>
-
-
-
-                      </h3>
-                       {(item.docligne?.Couleur || item.docligne?.article?.Couleur) ? (
-                        <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full mt-2 text-lg">
-                          {item.docligne?.Couleur || item.docligne?.article?.Couleur}
+                            // Only one exists
+                            return (
+                              <strong>{Math.floor(height ?? width)}</strong>
+                            )
+                          })()}
                         </span>
-                      ) : null}
+                      </h3>
+                      {(() => {
+                        const invalidValues = [null, undefined, '', '0', 0]
+
+                        const couleur = !invalidValues.includes(
+                          item.docligne?.Couleur
+                        )
+                          ? item.docligne.Couleur
+                          : !invalidValues.includes(
+                              item.docligne?.article?.Couleur
+                            )
+                          ? item.docligne.article.Couleur
+                          : null
+
+                        return couleur ? (
+                          <span className='inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full mt-2 text-lg'>
+                            {couleur}
+                          </span>
+                        ) : null
+                      })()}
                     </div>
                     <span className='text-2xl font-bold text-gray-700 mt-4'>
                       {item.pivot?.quantity
@@ -135,15 +157,33 @@ export default function PaletteControle() {
                   <div className='flex justify-between items-center'>
                     <div className='text-xl flex justify-between text-gray-600 w-full'>
                       <div>
-                        Profondeur:  {Math.floor(item?.docligne.Profondeur ? item?.docligne?.Profondeur : item?.docligne?.article?.Profonduer) || '__'}
+                        Profondeur:{' '}
+                        <strong>
+                          {Math.floor(
+                            item?.docligne.Profondeur
+                              ? item?.docligne?.Profondeur
+                              : item?.docligne?.article?.Profonduer
+                          ) || '__'}
+                        </strong>
                       </div>
 
                       <div>
-                        Épaisseur: {Math.floor(item?.docligne?.Episseur ?? item?.docligne?.article?.Episseur) || '__'}
+                        Épaisseur:{' '}
+                        <strong>
+                          {Math.floor(
+                            item?.docligne?.Episseur ??
+                              item?.docligne?.article?.Episseur
+                          ) || '__'}
+                        </strong>
                       </div>
-                      
+
                       <div>
-                        Chant:  {(item?.docligne?.article ? item?.docligne?.article?.Chant : item?.Chant) ||'__'}
+                        Chant:{' '}
+                        <strong>
+                          {(item?.docligne?.article
+                            ? item?.docligne?.article?.Chant
+                            : item?.Chant) || '__'}
+                        </strong>
                       </div>
                     </div>
                     <button

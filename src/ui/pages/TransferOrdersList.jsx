@@ -257,10 +257,10 @@ const TransferOrdersList = () => {
               }
             >
               <Descriptions column={2} size='small'>
-                <Descriptions.Item label='Code Transfert'>
+                <Descriptions.Item label='Référence Transfert'>
                   #{selectedTransfer.id}
                 </Descriptions.Item>
-                <Descriptions.Item label='Date de Création'>
+                <Descriptions.Item label='Date de transfert'>
                   {new Date(selectedTransfer.created_at).toLocaleDateString(
                     'fr-FR',
                     {
@@ -287,7 +287,7 @@ const TransferOrdersList = () => {
               }
             >
               <Descriptions column={2} size='small'>
-                <Descriptions.Item label='Code Palette'>
+                <Descriptions.Item label='Référence Palette'>
                   <Tag color='blue'>{selectedTransfer.palette.code}</Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label='Type'>
