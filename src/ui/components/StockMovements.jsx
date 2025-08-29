@@ -105,7 +105,11 @@ function StockMovements({ company_id }) {
     setLoading(true)
 
     try {
-      const { data } = await api.get(`stock/movements/1?${params.toString()}`)
+      const baseUrl = `stock/movements${company_id ? `/${company_id}` : ''}`
+      const query = params.toString()
+      const url = query ? `${baseUrl}?${query}` : baseUrl
+
+      const { data } = await api.get(url)
       setMovments(data.movements)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -113,6 +117,7 @@ function StockMovements({ company_id }) {
       setLoading(false)
     }
   }
+
 
   const handleChange = (value) => {
     setTypes(value)
@@ -160,7 +165,7 @@ function StockMovements({ company_id }) {
   const handleEditQuantity = (movement) => {
     setSelectedMovement(movement)
     setNewQuantity((Number(movement.quantity) || 0).toFixed(3))
-    setNewEmplacement(movement.emplacement_id)
+    setNewEmplacement(movement.emplacement?.code)
     setIsEditModalOpen(true)
   }
 
@@ -178,7 +183,7 @@ function StockMovements({ company_id }) {
     try {
       await api.put(`stock/movements/update/${selectedMovement.id}`, {
         quantity: newQuantity,
-        emplacement: newEmplacement,
+        emplacement_code: newEmplacement,
         code_article: selectedMovement.code_article
       })
       message.success('Quantité mise à jour avec succès')
@@ -349,6 +354,7 @@ function StockMovements({ company_id }) {
         <div className='flex lg:hidden w-full'>
           <Input
             placeholder='Emplacement, Référence article'
+           
             value={emplacementSearch}
             size='large'
             allowClear={true}
@@ -425,7 +431,7 @@ function StockMovements({ company_id }) {
                     {getLabelWithIcon(movement.movement_type)}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                    {movement.emplacement_id || 'N/A'}
+                    {movement?.emplacement?.code || 'N/A'}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                     {(Number(movement.quantity) || 0).toFixed(3)}
@@ -554,7 +560,7 @@ function StockMovements({ company_id }) {
                     Emplacement
                   </span>
                   <p className='text-sm text-gray-700'>
-                    {movement.emplacement_id || 'N/A'}
+                    {movement.emplacement?.code || 'N/A'}
                   </p>
                 </div>
                 <div>
@@ -628,6 +634,8 @@ function StockMovements({ company_id }) {
                 <Input 
                   value={selectedMovement.code_article} 
                   onChange={(e) => setSelectedMovement({...selectedMovement, code_article: e.target.value})} 
+                  readOnly
+                  disabled
                 />
               </div>
 
@@ -671,7 +679,7 @@ function StockMovements({ company_id }) {
                   <strong>Type:</strong> {getLabelWithIcon(selectedMovement.movement_type)}
                 </p>
                 <p className='text-sm text-gray-600'>
-                  <strong>Emplacement actuel:</strong> {selectedMovement.emplacement_id || 'N/A'}
+                  <strong>Emplacement actuel:</strong> {selectedMovement.emplacement?.code || 'N/A'}
                 </p>
                 <p className='text-sm text-gray-600'>
                   <strong>Personnel:</strong> {selectedMovement?.moved_by?.full_name || 'N/A'}
