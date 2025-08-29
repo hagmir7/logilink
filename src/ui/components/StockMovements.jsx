@@ -66,7 +66,6 @@ const formatDate = (date) => {
 
 const { Search } = Input
 
-
 function StockMovements({ company_id }) {
   const [loading, setLoading] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
@@ -81,10 +80,9 @@ function StockMovements({ company_id }) {
   const [selectedDepots, setSelectedDepots] = useState([])
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
-  const [emplacementSearch, setEmplacementSearch] = useState([])
+  const [emplacementSearch, setEmplacementSearch] = useState('')
   const [controlleBtnLoading, setControlleBtnLoading] = useState(false);
-    const [page, setPage] = useState(30)
- 
+  const [page, setPage] = useState(30)
 
   const [movments, setMovments] = useState({
     data: [],
@@ -106,10 +104,8 @@ function StockMovements({ company_id }) {
   const fetchData = async () => {
     setLoading(true)
 
-
     try {
-      const { data } = await api.get(`inventory/${id}?${params.toString()}`)
-
+      const { data } = await api.get(`stock/movements/1?${params.toString()}`)
       setMovments(data.movements)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -135,13 +131,13 @@ function StockMovements({ company_id }) {
     selectedDepots,
     selectedUsers,
     emplacementSearch,
-   page
+    page
   ])
 
   const handleOk = async (movementId) => {
     setConfirmLoading(true)
     try {
-      await api.delete(`inventory/delete/movement/${movementId}`)
+      await api.delete(`stock/movements/delete/${movementId}`)
       fetchData()
     } catch (err) {
       console.error('Delete failed:', err)
@@ -161,11 +157,10 @@ function StockMovements({ company_id }) {
   const [newEmplacement, setNewEmplacement] = useState('')
   const [updateLoading, setUpdateLoading] = useState(false)
 
-
   const handleEditQuantity = (movement) => {
     setSelectedMovement(movement)
     setNewQuantity((Number(movement.quantity) || 0).toFixed(3))
-    setNewEmplacement(movement.emplacement_code)
+    setNewEmplacement(movement.emplacement_id)
     setIsEditModalOpen(true)
   }
 
@@ -173,25 +168,24 @@ function StockMovements({ company_id }) {
     setIsEditModalOpen(false)
     setSelectedMovement(null)
     setNewQuantity('')
-     setNewEmplacement('')
+    setNewEmplacement('')
   }
 
   const handleUpdateQuantity = async () => {
     if (!selectedMovement || !newQuantity) return
 
-
     setUpdateLoading(true)
     try {
-      await api.put(`inventory-movement/update/${selectedMovement.id}`, {
+      await api.put(`stock/movements/update/${selectedMovement.id}`, {
         quantity: newQuantity,
         emplacement: newEmplacement,
-        code_article : selectedMovement.code_article
+        code_article: selectedMovement.code_article
       })
       message.success('Quantité mise à jour avec succès')
       handleCancelEdit()
       fetchData()
     } catch (error) {
-      message.error(error.response.data.message)
+      message.error(error.response?.data?.message || 'Erreur lors de la mise à jour')
       console.error('Update error:', error)
     } finally {
       setUpdateLoading(false)
@@ -200,7 +194,7 @@ function StockMovements({ company_id }) {
 
   const exportMovements = async () => {
     try {
-      let api_url = `inventory/${id}/movements/export?depots=${selectedDepots}&user=${selectedUsers}`
+      let api_url = `stock/movements/${id}/export?depots=${selectedDepots}&user=${selectedUsers}`
       if (categoryFilter) {
         api_url += `&category=${categoryFilter}`
       }
@@ -217,7 +211,7 @@ function StockMovements({ company_id }) {
         contentDisposition && contentDisposition.match(/filename="?([^"]+)"?/)
       const fileName = fileNameMatch
         ? fileNameMatch[1]
-        : 'inventaier_movements.xlsx'
+        : 'stock_movements.xlsx'
 
       link.setAttribute('download', fileName)
       document.body.appendChild(link)
@@ -249,27 +243,12 @@ function StockMovements({ company_id }) {
       setUsers(data.map((item) => ({ label: item.full_name, value: item.id })))
     } catch (error) {
       console.error(error)
-      message.error(error.response?.data?.message || 'Failed to load depots')
+      message.error(error.response?.data?.message || 'Failed to load users')
     }
   }
 
   const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
 
-
-  const controllMovement = async (movement_id)=>{
-    setControlleBtnLoading(true)
-     try {
-     await api.get(`inventory/movements/controlle/${movement_id}`)
-      message.success("Mouvement contrôlé avec succès")
-      setControlleBtnLoading(false)
-      fetchData()
-    } catch (error) {
-      console.error(error)
-      message.error(error.response?.data?.message || 'Failed to load depots')
-      setControlleBtnLoading(false)
-    
-    }
-  }
 
   return (
     <div className='w-full'>
@@ -278,18 +257,18 @@ function StockMovements({ company_id }) {
         <div className='flex items-center gap-4'>
           <div className='hidden lg:block w-full'>
             <Search
-              placeholder='Recherch'
+              placeholder='Recherche'
               loading={searchSpinner}
               size='middle'
               onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
-          <div className='hidden'>
+          <div className='hidden lg:block w-full'>
             <Select
               mode='multiple'
               style={{ width: '100%' }}
-              placeholder='Filtre'
+              placeholder='Type de mouvement'
               onChange={handleChange}
               options={options}
               optionRender={(option) => (
@@ -307,7 +286,7 @@ function StockMovements({ company_id }) {
             <Select
               mode='multiple'
               style={{ width: '100%' }}
-              placeholder='Depot filter'
+              placeholder='Filtre par dépôt'
               onChange={(value) => setSelectedDepots(value)}
               options={depots}
             />
@@ -317,7 +296,7 @@ function StockMovements({ company_id }) {
             <Select
               mode='multiple'
               style={{ width: '100%' }}
-              placeholder='Utilisateur'
+              placeholder='Filtre par utilisateur'
               onChange={(value) => setSelectedUsers(value)}
               options={users}
             />
@@ -337,7 +316,7 @@ function StockMovements({ company_id }) {
 
           <div className='hidden lg:block w-full'>
             <Select
-              placeholder='Famille'
+              placeholder='Catégorie'
               size='middle'
               onChange={(value) => setCategoryFilter(value)}
               style={{ width: '100%' }}
@@ -369,7 +348,7 @@ function StockMovements({ company_id }) {
         </div>
         <div className='flex lg:hidden w-full'>
           <Input
-            placeholder='Emplacement, Article ref'
+            placeholder='Emplacement, Référence article'
             value={emplacementSearch}
             size='large'
             allowClear={true}
@@ -407,6 +386,9 @@ function StockMovements({ company_id }) {
                   Désignation
                 </th>
                 <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                  Type
+                </th>
+                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Emplacement
                 </th>
                 <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
@@ -439,34 +421,34 @@ function StockMovements({ company_id }) {
                       {uppercaseFirst(movement.designation)}
                     </span>
                   </td>
+                  <td className='px-6 py-2 whitespace-nowrap'>
+                    {getLabelWithIcon(movement.movement_type)}
+                  </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                    {movement.emplacement_code}
+                    {movement.emplacement_id || 'N/A'}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                     {(Number(movement.quantity) || 0).toFixed(3)}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                    {movement?.user?.full_name}
+                    {movement?.moved_by?.full_name || 'N/A'}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                     {formatDate(movement.created_at)}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 space-x-2 flex'>
-                     {
-                    movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> :  <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
-                  }
-
+               
                     <Button
                       type='primary'
-                      size='large'
+                      size='small'
                       onClick={() => handleEditQuantity(movement)}
                     >
-                      <Edit size={20} />
+                      <Edit size={16} />
                     </Button>
                     
                     <Popconfirm
                       title='Supprimer'
-                      description='Etes-vous sûr de vouloir Supprimer'
+                      description='Êtes-vous sûr de vouloir supprimer ce mouvement ?'
                       open={openConfirmId === movement.id}
                       onConfirm={() => handleOk(movement.id)}
                       okButtonProps={{ loading: confirmLoading }}
@@ -479,7 +461,7 @@ function StockMovements({ company_id }) {
                       <Button
                         color='danger'
                         variant='solid'
-                        size='large'
+                        size='small'
                         className='bg-red-500 hover:bg-red-600 text-white'
                         onClick={() => setOpenConfirmId(movement.id)}
                       >
@@ -507,22 +489,22 @@ function StockMovements({ company_id }) {
                     Référence
                   </span>
                   <p className='text-sm font-bold text-gray-900'>
-                     <Link to={`/articles/${movement.code_article}`}>
-                        {movement.code_article}
-                     </Link>
+                    <Link to={`/articles/${movement.code_article}`}>
+                      {movement.code_article}
+                    </Link>
                   </p>
                 </div>
                 <div className='flex space-x-2'>
                   <Button
                     type='primary'
-                    size='large'
+                    size='small'
                     onClick={() => handleEditQuantity(movement)}
                   >
-                    <Edit size={20} />
+                    <Edit size={16} />
                   </Button>
                   <Popconfirm
                     title='Supprimer'
-                    description='Etes-vous sûr de vouloir Supprimer'
+                    description='Êtes-vous sûr de vouloir supprimer ce mouvement ?'
                     open={openConfirmId === movement.id}
                     onConfirm={() => handleOk(movement.id)}
                     okButtonProps={{ loading: confirmLoading }}
@@ -535,11 +517,11 @@ function StockMovements({ company_id }) {
                     <Button
                       color='danger'
                       variant='solid'
-                      size='large'
+                      size='small'
                       className='bg-red-500 hover:bg-red-600 text-white'
                       onClick={() => setOpenConfirmId(movement.id)}
                     >
-                      <Trash size={20} />
+                      <Trash size={16} />
                     </Button>
                   </Popconfirm>
                 </div>
@@ -551,8 +533,8 @@ function StockMovements({ company_id }) {
                   Désignation
                 </span>
                 <p className='text-sm text-gray-900 font-medium'>
-                 <Link to={`/articles/${movement.code_article}`}>
-                  {uppercaseFirst(movement.designation)}
+                  <Link to={`/articles/${movement.code_article}`}>
+                    {uppercaseFirst(movement.designation)}
                   </Link>
                 </p>
               </div>
@@ -564,7 +546,7 @@ function StockMovements({ company_id }) {
                     Type
                   </span>
                   <p className='text-sm text-gray-700'>
-                    {getLabelWithIcon(movement.type)}
+                    {getLabelWithIcon(movement.movement_type)}
                   </p>
                 </div>
                 <div>
@@ -572,7 +554,7 @@ function StockMovements({ company_id }) {
                     Emplacement
                   </span>
                   <p className='text-sm text-gray-700'>
-                    {movement.emplacement_code}
+                    {movement.emplacement_id || 'N/A'}
                   </p>
                 </div>
                 <div>
@@ -588,7 +570,7 @@ function StockMovements({ company_id }) {
                     Personnel
                   </span>
                   <p className='text-sm text-gray-700'>
-                    {movement?.user?.full_name}
+                    {movement?.moved_by?.full_name || 'N/A'}
                   </p>
                 </div>
               </div>
@@ -597,16 +579,11 @@ function StockMovements({ company_id }) {
               <div className='mt-3 pt-3 border-t border-gray-100 flex justify-between'>
                 <div>
                   <span className='text-xs font-semibold text-gray-500 uppercase'>
-                  Date
-                </span>
-                <p className='text-sm text-gray-700'>
-                  {formatDate(movement.created_at)}
-                </p>
-                </div>
-                <div>
-                  {
-                    movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> :  <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
-                  }
+                    Date
+                  </span>
+                  <p className='text-sm text-gray-700'>
+                    {formatDate(movement.created_at)}
+                  </p>
                 </div>
               </div>
             </div>
@@ -615,47 +592,25 @@ function StockMovements({ company_id }) {
 
         <div className='m-5'>
           <Select
-            onChange={(value)=> setPage(value)}
+            onChange={(value) => setPage(value)}
             className='min-w-3/8'
             defaultValue={page}
             style={window.electron && { height: '35px', fontSize: '24px' }}
             options={[
-              {
-                value: 30,
-                label: 30
-              },
-              {
-                value: 100,
-                label: 100
-              },
-              {
-                value: 200,
-                label: 200
-              },
-              {
-                value: 300,
-                label: 300
-              },
-              {
-                value: 500,
-                label: 500
-              }
-              , {
-                value: 700,
-                label: 700
-              },
-              {
-                value: 800,
-                label: 800
-              }
+              { value: 30, label: 30 },
+              { value: 100, label: 100 },
+              { value: 200, label: 200 },
+              { value: 300, label: 300 },
+              { value: 500, label: 500 },
+              { value: 700, label: 700 },
+              { value: 800, label: 800 }
             ]}
-
           />
         </div>
 
         {/* Update Quantity Modal */}
         <Modal
-          title='Modifier la quantité'
+          title='Modifier le mouvement'
           open={isEditModalOpen}
           onOk={handleUpdateQuantity}
           onCancel={handleCancelEdit}
@@ -670,7 +625,10 @@ function StockMovements({ company_id }) {
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
                   Référence
                 </label>
-                <Input value={selectedMovement.code_article} onChange={(e) => setSelectedMovement({...selectedMovement, code_article: e.target.value})} />
+                <Input 
+                  value={selectedMovement.code_article} 
+                  onChange={(e) => setSelectedMovement({...selectedMovement, code_article: e.target.value})} 
+                />
               </div>
 
               <div>
@@ -685,7 +643,7 @@ function StockMovements({ company_id }) {
 
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Quantité actuelle
+                  Quantité
                 </label>
                 <Input
                   type='number'
@@ -699,27 +657,24 @@ function StockMovements({ company_id }) {
 
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
-                  Emplacement actuelle
+                  Emplacement
                 </label>
                 <Input
                   value={newEmplacement}
                   onChange={(e) => setNewEmplacement(e.target.value)}
-                  placeholder='Entrer la nouvelle quantité'
-                  autoFocus
+                  placeholder='Entrer le nouvel emplacement'
                 />
               </div>
+              
               <div className='bg-gray-50 p-3 rounded'>
                 <p className='text-sm text-gray-600'>
-                  <strong>Type:</strong>{' '}
-                  {getLabelWithIcon(selectedMovement.type)}
+                  <strong>Type:</strong> {getLabelWithIcon(selectedMovement.movement_type)}
                 </p>
                 <p className='text-sm text-gray-600'>
-                  <strong>Emplacement:</strong>{' '}
-                  {selectedMovement.emplacement_code}
+                  <strong>Emplacement actuel:</strong> {selectedMovement.emplacement_id || 'N/A'}
                 </p>
                 <p className='text-sm text-gray-600'>
-                  <strong>Personnel:</strong>{' '}
-                  {selectedMovement?.user?.full_name}
+                  <strong>Personnel:</strong> {selectedMovement?.moved_by?.full_name || 'N/A'}
                 </p>
               </div>
             </div>
@@ -731,7 +686,7 @@ function StockMovements({ company_id }) {
         <Spinner />
       ) : (
         movments.data.length === 0 && (
-          <Empty className='mt-10' description='Aucun article à afficher' />
+          <Empty className='mt-10' description='Aucun mouvement à afficher' />
         )
       )}
     </div>
