@@ -1,14 +1,16 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select } from 'antd'
-import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine, ArrowUpFromLine } from 'lucide-react'
+import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine } from 'lucide-react'
 import { debounce } from 'lodash'
 import InputField from '../components/ui/InputField'
 
 export default function OutStock() {
+
+
   const [quantity, setQuantity] = useState('')
   const [emplacementCode, setEmplacementCode] = useState('')
   const [articleCode, setArticleCode] = useState('')
@@ -31,6 +33,9 @@ export default function OutStock() {
   const conditionInput = useRef()
   const emplacemenInput = useRef()
 
+    const location = useLocation();
+  console.log(location.pathname);
+
   useEffect(() => {
     if (!articleCode) {
       setArticleData(null)
@@ -50,6 +55,7 @@ export default function OutStock() {
       setTotalQuantity(0)
     }
   }, [quantity, condition])
+
 
   const fetchEmplacementData = useCallback(
     debounce(async (code) => {
@@ -116,7 +122,7 @@ export default function OutStock() {
       const { data } = await api.get('companies')
       const options = data.map((company) => ({
         label: company.name,
-        value: company.id,
+        value: company.id, 
       }))
       setCompanies(options)
     } catch (error) {
@@ -143,7 +149,7 @@ export default function OutStock() {
 
     if (options.length === 1 && (type === 'Carton' || type === 'Palette')) {
       setCondition(options[0].value)
-    } else {
+    }else{
       setCondition(null)
     }
 
@@ -194,16 +200,18 @@ export default function OutStock() {
     try {
       const payload = {
         emplacement_code: emplacementData.code,
-        article_code: articleData.code,
+        code_article: articleData.code,
         quantity: condition ? totalQuantity : quantity,
         type_colis: type,
         condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
-        company: null,
+        company: company,
       }
 
-      await api.post(`stock/insert`, payload)
 
+      const {data} = await api.post(`stock/out`, payload)
+      console.log(data);
+      
       setQuantity('')
       setArticleCode('')
       setArticleData(null)
@@ -224,6 +232,8 @@ export default function OutStock() {
     }
   }
 
+  
+
   const changeEmplacement = (value) => {
     const result = sanitizeInput(value)
     setEmplacementCode(result)
@@ -231,8 +241,11 @@ export default function OutStock() {
     setEmplacementError('')
     if (result.length >= 3) fetchEmplacementData(result)
   }
+  
+
 
   const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
+
 
   const changeArticle = (value) => {
     const cleaned = sanitizeInput(value)
@@ -244,6 +257,8 @@ export default function OutStock() {
       fetchArticleData(cleaned)
     }
   }
+  
+
 
   const handleTypeChange = (e) => {
     if (quantityInput.current) {
@@ -257,7 +272,8 @@ export default function OutStock() {
     }
   }
 
-  const is_electron = window.electron
+
+  const is_electron = window.electron;
 
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
@@ -268,10 +284,7 @@ export default function OutStock() {
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
             <h1 className='text-2xl font-bold text-gray-900 truncate flex gap-5 items-center'>
-              <span>Mouvement de sortie</span>{' '}
-              <span>
-                <ArrowUpFromLine color='blue' />{' '}
-              </span>
+              <span>Mouvement d'entrée</span> <span><ArrowDownFromLine color='green' /> </span>
             </h1>
           </div>
         </div>
@@ -395,13 +408,7 @@ export default function OutStock() {
             >
               <Radio.Button
                 value='Piece'
-                style={
-                  is_electron && {
-                    fontSize: '25px',
-                    height: '50px',
-                    display: 'flex',
-                  }
-                }
+                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Pièce
@@ -410,13 +417,8 @@ export default function OutStock() {
               <Radio.Button
                 disabled={!articleData?.condition}
                 value='Carton'
-                style={
-                  is_electron && {
-                    fontSize: '25px',
-                    height: '50px',
-                    display: 'flex',
-                  }
-                }
+                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
+  
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Carton
@@ -424,13 +426,7 @@ export default function OutStock() {
               <Radio.Button
                 disabled={!articleData?.palette_condition}
                 value='Palette'
-                style={
-                  is_electron && {
-                    fontSize: '25px',
-                    height: '50px',
-                    display: 'flex',
-                  }
-                }
+                style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Palette
@@ -513,9 +509,7 @@ export default function OutStock() {
       <div className='px-5 my-3 mt-10'>
         <Button
           className='w-full'
-          style={
-            is_electron && { fontSize: '30px', padding: '30px', height: '60px' }
-          }
+          style={is_electron && { fontSize: '30px', padding: '30px', height: '60px' }}
           size='large'
           type='primary'
           onClick={handleSubmit}
@@ -523,6 +517,7 @@ export default function OutStock() {
         >
           Valider le mouvement
         </Button>
+
       </div>
 
       {/* Confirmation Modal */}

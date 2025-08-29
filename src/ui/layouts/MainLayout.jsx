@@ -20,6 +20,7 @@ import {
   CircleCheck,
   AudioWaveform,
   ArrowRightLeft,
+  Building,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -78,7 +79,7 @@ const sideMenu = () => {
         {
           key: 'submenu-13',
           icon: <ArrowDownUp size={19} />,
-          label: <Link to='/transfert'> Suivi </Link>,
+          label: <Link to='/stock'> Suivi </Link>,
         },
         {
           
@@ -94,8 +95,14 @@ const sideMenu = () => {
         {
           key: 'submenu-3',
           icon: <Warehouse size={19} />,
-          label: <Link to='/depots'>Depotss</Link>,
+          label: <Link to='/depots'>Depots</Link>,
         },
+
+        //  {
+        //   key: 'submenu-55',
+        //   icon: <Building size={19} />,
+        //   label: <Link to='/companies/stock'>Société</Link>,
+        // },
       ],
     },
 

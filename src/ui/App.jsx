@@ -27,12 +27,14 @@ import ViewArticle from './pages/ViewArticle'
 import DepotEmplacement from './pages/DepotEmplacement'
 import ScrollToTop from './components/ScrollToTop'
 import InventoryDepotEmplacment from './pages/InventoryDepotEmplacment'
-import Transfert from './pages/Transfert'
+import Stock from './pages/Stock'
 import TransferOrder from './pages/TransferOrder'
 import TransferOrdersList from './pages/TransferOrdersList'
 import { DocumentProgress } from './pages/DocumentProgress'
 import OutStock from './components/OutStock'
 import InStock from './components/InStock'
+import CompanyStock from './pages/CompanyStock'
+import StockMovement from './components/StockMovement'
 
 
 const NotFound = () => {
@@ -60,6 +62,7 @@ function App() {
           <Route path='/roles/:id' element={<ViewRole />} />
           <Route path='*' element={<NotFound />} />
           <Route path='/profile/:id' element={<Profile />} />
+          <Route path='companies/stock' element={<CompanyStock />} />
           <Route path='documents' element={<Document />} />
           <Route path='preparation/:id' element={<Preparation />} />
           <Route path='fabrication/:id' element={<Fabrication />} />
@@ -68,8 +71,8 @@ function App() {
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
 
-          <Route path='stock/out' element={<OutStock />} />
-          <Route path='stock/in' element={<InStock />} />
+          <Route path='stock/out' element={<StockMovement />} />
+          <Route path='stock/in' element={<StockMovement />} />
 
           <Route path='transfer-orders/list' element={<TransferOrdersList />} />
 
@@ -82,7 +85,7 @@ function App() {
           <Route path='inventories/:id' element={<ViewInventory />} />
           <Route path='depots' element={<Depots />} />
           <Route path='depots/view/:id' element={<DepotEmplacement />} />
-          <Route path='transfert' element={<Transfert />} />
+          <Route path='stock' element={<Stock />} />
           <Route path='depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
         </Route>

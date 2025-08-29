@@ -1,17 +1,13 @@
 import React, { useState } from 'react';
 import { Tabs } from 'antd';
-import { ArrowDown, ArrowDownUp, ArrowLeftRight, ArrowUp, ChartBar, ChartNoAxesColumn, Package, Warehouse } from 'lucide-react';
+import { ArrowDownUp, ChartNoAxesColumn, Package, Warehouse } from 'lucide-react';
 import { useParams } from 'react-router-dom';
-import InventoryOverview from '../components/InventoryOverview';
-import InventoryDepots from './InventoryDepots';
-import Article from './Article';
 import Depots from './Depots';
-import InventoryMovements from './InventoryMovements';
-import InStock from '../components/InStock';
-import OutStock from '../components/OutStock';
-import TransferStock from '../components/TransferStock';
+import StockOverView from '../components/StockOverView';
+import CompanyStock from './CompanyStock';
+import StockMovements from '../components/StockMovements';
 
-const Transfert = () => {
+const Stock = () => {
     const [activeKey, setActiveKey] = useState('1');
     const { id } = useParams();
 
@@ -24,7 +20,7 @@ const Transfert = () => {
           </span>
         ),
         key: '1',
-        children: <InventoryOverview />,
+        children: <StockOverView company_id={id} />,
       },
       {
         label: (
@@ -34,7 +30,7 @@ const Transfert = () => {
           </span>
         ),
         key: '2',
-        children: <Article />,
+        children: <CompanyStock company_id={id} />,
       },
       {
         label: (
@@ -44,7 +40,7 @@ const Transfert = () => {
           </span>
         ),
         key: '3',
-        children: <InventoryMovements id={id} />,
+        children: <StockMovements company_id={id} />,
       },
       {
         label: (
@@ -54,39 +50,7 @@ const Transfert = () => {
           </span>
         ),
         key: '4',
-        children: <Depots />,
-      },
-      {
-        label: (
-          <span className='flex items-center gap-2'>
-            <ArrowDown size={16} />
-            Entrée
-          </span>
-        ),
-        key: '5',
-        children: <InStock />,
-      },
-
-      {
-        label: (
-          <span className='flex items-center gap-2'>
-            <ArrowUp size={16} />
-            Sortie
-          </span>
-        ),
-        key: '6',
-        children: <OutStock />,
-      },
-
-      {
-        label: (
-          <span className='flex items-center gap-2'>
-            <ArrowLeftRight size={16} />
-            Transfert
-          </span>
-        ),
-        key: '7',
-        children: <TransferStock />,
+        children: <Depots company_id={id} />,
       },
     ]
 
@@ -108,4 +72,4 @@ const Transfert = () => {
     );
 };
 
-export default Transfert;
+export default Stock;

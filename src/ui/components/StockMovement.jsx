@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useLocation, useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
@@ -8,7 +8,7 @@ import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine } from '
 import { debounce } from 'lodash'
 import InputField from '../components/ui/InputField'
 
-export default function InStock() {
+export default function StockMovement() {
 
 
   const [quantity, setQuantity] = useState('')
@@ -26,7 +26,10 @@ export default function InStock() {
   const [conditionList, setConditionList] = useState([])
   const [totalQuantity, setTotalQuantity] = useState(0)
   const [companies, setCompanies] = useState([])
-  const [company, setCompany] = useState(null)
+  const [company, setCompany] = useState(null);
+
+
+  const location = useLocation();  
 
   const articleInput = useRef()
   const quantityInput = useRef()
@@ -206,7 +209,7 @@ export default function InStock() {
       }
 
 
-      const {data} = await api.post(`stock/in`, payload)
+      const {data} = await api.post(location.pathname.replace(/^\/+/, "") , payload)
       console.log(data);
       
       setQuantity('')
@@ -281,7 +284,19 @@ export default function InStock() {
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
             <h1 className='text-2xl font-bold text-gray-900 truncate flex gap-5 items-center'>
-              <span>Mouvement d'entrée</span> <span><ArrowDownFromLine color='green' /> </span>
+                {
+                    location.pathname === '/stock/in' ? (
+                        <>
+                            <span>Mouvement d'entrée</span>
+                            <span><ArrowDownFromLine color="green" /></span>
+                        </>
+                    ) : (
+                        <>
+                            <span>Mouvement sorti</span>
+                            <span><ArrowDownFromLine color="red" /></span>
+                        </>
+                    )
+                }
             </h1>
           </div>
         </div>
