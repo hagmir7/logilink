@@ -4,6 +4,7 @@ import Spinner from './ui/Spinner'
 
 import {getExped, getStatus } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext'
+import { data } from 'react-router-dom';
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
@@ -59,6 +60,8 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
   
 
+  
+
   return (
     <div className='w-full h-full flex flex-col bg-white'>
       {/* Desktop Table View */}
@@ -110,7 +113,8 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                       <span className='text-sm font-semibold text-gray-900'>
                         {data.piece || '__'}
                       </span>
-                      {data.DO_Reliquat === 1 && (
+                      
+                      {data?.docentete?.DO_Reliquat === "1" && (
                         <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
                           <Settings size={12} />
                         </span>

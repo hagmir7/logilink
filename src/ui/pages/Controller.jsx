@@ -8,6 +8,7 @@ import {
   Clock4,
   ListTodo,
   Printer,
+  Settings,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
@@ -115,7 +116,7 @@ function Controller() {
       fetchData()
       message.success('Articles transférés avec succès')
     } else {
-      message.error('Aucun article sélectionné')
+      message.warning('Aucun article sélectionné')
     }
     setTransferSpin(false)
   }
@@ -172,6 +173,12 @@ function Controller() {
                 : 'Chargement...'}
             </span>
 
+            {data?.docentete?.DO_Reliquat === '1' && (
+              <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
+                <Settings size={12} />
+              </span>
+            )}
+
             {data?.docentete?.document && (
               <Tag color={getStatusColor(data?.docentete?.document?.status)}>
                 {data?.docentete?.document?.status.name}
@@ -184,10 +191,10 @@ function Controller() {
           {(Number(documentCompany?.pivot?.status_id) === 8 ||
             (Number(documentCompany?.pivot?.status_id) === 9 &&
               roles('controleur'))) && (
-              <Button href={`#/document/palettes/${id}`} className='btn'>
-                <ListTodo /> Contrôler
-              </Button>
-            )}
+            <Button href={`#/document/palettes/${id}`} className='btn'>
+              <ListTodo /> Contrôler
+            </Button>
+          )}
 
           <Button onClick={fetchData}>
             {loading ? (
@@ -226,10 +233,14 @@ function Controller() {
             value: getExped(data.docentete.DO_Expedit),
           },
           {
-            label: 'Type de document',
-            value:
-              data.docentete.DO_Piece &&
-              getDocumentType(data.docentete.DO_Piece),
+            label: 'Société',
+            value: (
+              <div>
+                {data?.docentete?.document?.companies
+                  ?.map((company) => company.name)
+                  .join(' & ') || <Skeleton />}
+              </div>
+            ),
           },
         ].map(({ label, value }, idx) => (
           <div
@@ -310,9 +321,9 @@ function Controller() {
                   onChange={handleSelectAll}
                   checked={
                     selected.length ===
-                    data.doclignes.filter(
-                      (item) => item.line?.validated !== '1'
-                    ).length &&
+                      data.doclignes.filter(
+                        (item) => item.line?.validated !== '1'
+                      ).length &&
                     data.doclignes.filter(
                       (item) => item.line?.validated !== '1'
                     ).length > 0
@@ -334,9 +345,9 @@ function Controller() {
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Largeur
               </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+              {/* <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Profondeur
-              </th>
+              </th> */}
 
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Epaisseur
@@ -419,7 +430,6 @@ function Controller() {
                         item?.DL_Design ||
                         '__'}
                     </div>
-
                   </td>
 
                   <td className='px-2 text-sm border-r border-gray-100'>
@@ -429,15 +439,13 @@ function Controller() {
                   </td>
 
                   <td className='px-2 text-sm border-r border-gray-100'>
-                    {
-                      item.Largeur > 0
-                        ? Math.floor(item.Largeur)
-                        : Math.floor(item?.article?.Largeur) || '__'
-                    }
+                    {item.Largeur > 0
+                      ? Math.floor(item.Largeur)
+                      : Math.floor(item?.article?.Largeur) || '__'}
                   </td>
-                  <td className='px-2 text-sm border-r border-gray-100'>
+                  {/* <td className='px-2 text-sm border-r border-gray-100'>
                     {item.Profondeur | item?.article?.Profonduer || '__'}
-                  </td>
+                  </td> */}
 
                   <td className='px-2 text-sm border-r border-gray-100'>
                     {item?.Episseur | item?.article?.Episseur}
@@ -515,79 +523,84 @@ function Controller() {
           currentItems.map((item, index) => (
             <div
               key={index}
-              className="bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6 hover:shadow-lg transition-all duration-200"
+              className='bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6 hover:shadow-lg transition-all duration-200'
             >
-              <div className="flex justify-between items-start mb-4">
-                <div className="space-y-1">
-                  <h2 className="text-lg font-semibold text-gray-900 flex gap-3 items-center">
+              <div className='flex justify-between items-start mb-4'>
+                <div className='space-y-1'>
+                  <h2 className='text-lg font-semibold text-gray-900 flex gap-3 items-center'>
                     <span>
                       <Checkbox
                         style={{
-                          transform: 'scale(1.5)',    
+                          transform: 'scale(1.5)',
                           transformOrigin: 'top left',
-                          fontSize: '18px',   
+                          fontSize: '18px',
                           // lineHeight: '60px',
                           // height: '60px',
                           display: 'flex',
                           alignItems: 'center',
                         }}
-                      >
-                      </Checkbox>
+                      ></Checkbox>
                     </span>
-         
-                    <span>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</span>
+
+                    <span>
+                      {item?.Nom ||
+                        item.article?.Nom ||
+                        item?.DL_Design ||
+                        '__'}
+                    </span>
                   </h2>
-                  <p className="text-sm text-gray-500">
-                    {item?.Description || ''} {item?.Rotation || ''} {item?.Poignee || ''}
+                  <p className='text-sm text-gray-500'>
+                    {item?.Description || ''} {item?.Rotation || ''}{' '}
+                    {item?.Poignee || ''}
                   </p>
                 </div>
-                <div className="flex items-center space-x-3">
-                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
+                <div className='flex items-center space-x-3'>
+                  <span className='px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800'>
                     {Math.floor(item.DL_Qte)}
                   </span>
-                  
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700">
+              <div className='border-t border-gray-200 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700'>
                 <div>
-                  <span className="block text-gray-500">Hauteur</span>
+                  <span className='block text-gray-500'>Hauteur</span>
                   {item.Hauteur > 0
                     ? Math.floor(item.Hauteur)
                     : Math.floor(item.article?.Hauteur) || '__'}
                 </div>
                 <div>
-                  <span className="block text-gray-500">Largeur</span>
+                  <span className='block text-gray-500'>Largeur</span>
                   {item.Largeur > 0
                     ? Math.floor(item.Largeur)
                     : Math.floor(item?.article?.Largeur) || '__'}
                 </div>
                 <div>
-                  <span className="block text-gray-500">Profondeur</span>
+                  <span className='block text-gray-500'>Profondeur</span>
                   {item.Profondeur || item?.article?.Profonduer || '__'}
                 </div>
                 <div>
-                  <span className="block text-gray-500">Épaisseur</span>
+                  <span className='block text-gray-500'>Épaisseur</span>
                   {item?.Episseur || item?.article?.Episseur || '__'}
                 </div>
               </div>
 
-              <div className="border-t border-gray-200 pt-4 grid grid-cols-3 gap-4 text-sm text-gray-700 mt-4">
+              <div className='border-t border-gray-200 pt-4 grid grid-cols-3 gap-4 text-sm text-gray-700 mt-4'>
                 <div>
-                  <span className="block text-gray-500">Couleur</span>
-                  <strong>{item.Couleur || item?.article?.Couleur || '__'}</strong>
+                  <span className='block text-gray-500'>Couleur</span>
+                  <strong>
+                    {item.Couleur || item?.article?.Couleur || '__'}
+                  </strong>
                 </div>
                 <div>
-                  <span className="block text-gray-500">Chant</span>
+                  <span className='block text-gray-500'>Chant</span>
                   {item.Chant || item?.article?.Chant || '__'}
                 </div>
                 <div>
-                  <span className="block text-gray-500">Référence</span>
+                  <span className='block text-gray-500'>Référence</span>
                   {item.AR_Ref || '__'}
                 </div>
               </div>
             </div>
-
           ))
         ) : (
           <div className='bg-white border-1 border-gray-200 p-8 text-center'>

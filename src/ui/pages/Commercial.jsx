@@ -3,10 +3,12 @@ import {
   ArrowRight,
   Undo2,
   LoaderCircle,
+  PrinterCheck,
+  Settings,
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { getExped, getDocumentType, uppercaseFirst } from '../utils/config';
+import { getExped, getDocumentType, uppercaseFirst, getStatus } from '../utils/config';
 import { useParams } from 'react-router-dom';
 import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
@@ -92,7 +94,7 @@ function Commercial() {
       fetchData()
       message.success('Articles transférés avec succès')
     } else {
-      message.error('Aucun article sélectionné')
+      message.warning('Aucun article sélectionné')
     }
     setTransferSpin(false)
   }
@@ -117,6 +119,10 @@ function Commercial() {
      return status?.color || 'gray'
    }
 
+
+   
+   console.log(data.docentete.document);
+   
   return (
     <div className='h-full flex flex-col bg-gray-50'>
       <div className='flex-shrink-0 bg-white border-b border-gray-200 shadow-sm'>
@@ -130,6 +136,12 @@ function Commercial() {
                     ? data.docentete.DO_Piece
                     : 'Chargement...'}
                 </span>
+
+                {data?.docentete?.DO_Reliquat === '1' && (
+                  <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
+                    <Settings size={12} />
+                  </span>
+                )}
 
                 {data?.docentete?.document && (
                   <Tag
@@ -181,10 +193,14 @@ function Commercial() {
                 value: getExped(data.docentete.DO_Expedit),
               },
               {
-                label: 'Type de document',
-                value:
-                  data.docentete.DO_Piece &&
-                  getDocumentType(data.docentete.DO_Piece),
+                label: 'Société',
+                value: (
+                  <div>
+                    {data?.docentete?.document?.companies
+                      ?.map((company) => company.name)
+                      .join(' & ') || <Skeleton />}
+                  </div>
+                ),
               },
             ].map(({ label, value }, idx) => (
               <div
@@ -207,6 +223,11 @@ function Commercial() {
           <div className='flex justify-between items-center'>
             <h2 className='text-md font-semibold text-gray-800'>Articles</h2>
             <div className='flex gap-3'>
+              <Tag color='green'>
+                <div className='flex justify-center items-center pt-1.5'>
+                  <PrinterCheck size={18} />
+                </div>
+              </Tag>
               {data.docentete.document &&
                 Number(data.docentete.document.status_id) < 8 && (
                   <Popconfirm
@@ -280,7 +301,7 @@ function Commercial() {
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Profondeur
                         </th>
-                           <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Epaisseur
                         </th>
 
@@ -373,19 +394,18 @@ function Commercial() {
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                                {
-                                  item.Largeur > 0
-                                  ? Math.floor(item.Largeur)
-                                  : Math.floor(item?.article?.Largeur) || '__'
-                                }
+                              {item.Largeur > 0
+                                ? Math.floor(item.Largeur)
+                                : Math.floor(item?.article?.Largeur) || '__'}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {(item.Profondeur | item?.article?.Profonduer ) || '__'}
+                              {item.Profondeur | item?.article?.Profonduer ||
+                                '__'}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {item?.Episseur | item?.article?.Episseur }
+                              {item?.Episseur | item?.article?.Episseur}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
@@ -400,13 +420,11 @@ function Commercial() {
                                 : item?.article?.Chant) || '__'}
                             </td>
 
-                             <td className='px-2 text-sm border-r border-gray-100  whitespace-nowrap'>
-                              {item?.Description } {" "}
-                              {item?.Rotation } {" "}
-                              {item?.Poignee } {" "}
+                            <td className='px-2 text-sm border-r border-gray-100  whitespace-nowrap'>
+                              {item?.Description} {item?.Rotation}{' '}
+                              {item?.Poignee}{' '}
                             </td>
 
-                        
                             <td className='px-4 py-2'>
                               <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
                                 {Math.floor(item.DL_Qte)}

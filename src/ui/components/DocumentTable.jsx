@@ -100,7 +100,7 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                       <span className='text-sm font-semibold text-gray-900'>
                         {data.DO_Piece || '__'}
                       </span>
-                      {data.DO_Reliquat === 1 && (
+                      {data.DO_Reliquat === "1" && (
                         <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
                           <Settings size={12} />
                         </span>

@@ -216,99 +216,119 @@ export default function PrintDocument({ docentete, doclignes }) {
 
   return (
     <div>
-      <Button onClick={handlePrint} color="cyan" variant="solid" icon={<Printer className='h-4 w-4' />}>
+      <Button
+        onClick={handlePrint}
+        color='cyan'
+        variant='solid'
+        icon={<Printer className='h-4 w-4' />}
+      >
         Imprimer
       </Button>
 
-      <div id="print-section" style={{ display: 'none' }}>
-        <div className="document-content">
-          <div className="document-header">
-            <div className="company-section">
-              <div className="company-name">STILE MOBILI</div>
-              <div className="company-tagline">Fabricant de meubles de cuisine</div>
+      <div id='print-section' style={{ display: 'none' }}>
+        <div className='document-content'>
+          <div className='document-header'>
+            <div className='company-section'>
+              <div className='company-name'>STILE MOBILI</div>
+              <div className='company-tagline'>
+                Fabricant de meubles de cuisine
+              </div>
               <div>4ᵉ Tranche Zone Industrielle</div>
               <div style={{ marginTop: '2px' }}>
-                <strong>Pièce: {docentete?.DO_Piece || '__'}</strong><br />
+                <strong>Pièce: {docentete?.DO_Piece || '__'}</strong>
+                <br />
                 <span>{docentete?.DO_Ref || '__'}</span>
               </div>
             </div>
 
-            <div className="logo-section">
-              <img src="https://intercocina.com/assets/imgs/intercocina-logo.png" alt="Logo" />
+            <div className='logo-section'>
+              <img
+                src='https://intercocina.com/assets/imgs/intercocina-logo.png'
+                alt='Logo'
+              />
             </div>
 
-            <div className="client-section">
-              <div className="info-row">
-                <span className="info-label">Client:</span> {docentete?.DO_Tiers || '__'}
+            <div className='client-section'>
+              <div className='info-row'>
+                <span className='info-label'>Client:</span>{' '}
+                {docentete?.DO_Tiers || '__'}
               </div>
-              <div className="info-row">
-                <span className="info-label">Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}
+              <div className='info-row'>
+                <span className='info-label'>Date:</span>{' '}
+                {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}
               </div>
-              <div className="info-row">
-                <span className="info-label">Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}
+              <div className='info-row'>
+                <span className='info-label'>Livraison:</span>{' '}
+                {docentete?.DO_DateLivr
+                  ? dateFormat(docentete?.DO_DateLivr)
+                  : '__'}
               </div>
-              <div className="info-row">
-                <span className="info-label">Expédition:</span> {getExped(docentete?.DO_Expedit)}
+              <div className='info-row'>
+                <span className='info-label'>Expédition:</span>{' '}
+                {getExped(docentete?.DO_Expedit)}
               </div>
-              <div className="info-row">
-                <span className="info-label">Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}
+              <div className='info-row'>
+                <span className='info-label'>Type:</span>{' '}
+                {docentete?.DO_Piece
+                  ? getDocumentType(docentete.DO_Piece)
+                  : '__'}
               </div>
             </div>
           </div>
 
-          <div className="system-info">
+          <div className='system-info'>
             <div>STILE MOBILI - LOGILINK PRO version 2.00</div>
-            <div>Date de tirage {new Date().toISOString().split('T')[0]} à {new Date().toLocaleTimeString('fr-FR')}</div>
+            <div>
+              Date de tirage {new Date().toISOString().split('T')[0]} à{' '}
+              {new Date().toLocaleTimeString('fr-FR')}
+            </div>
           </div>
 
           {chunkLines(doclignes, 30).map((pageLines, pageIndex) => (
-            <div key={pageIndex} className="page-break">
+            <div key={pageIndex} className='page-break'>
               <table>
                 <thead>
                   <tr>
+                    <th>H</th>
                     <th>Pièce</th>
-                    <th>H x L x P</th>
+                    <th>L</th>
                     <th>Qté</th>
                     <th>Couleur</th>
                     <th>Chant</th>
+                    <th>Poignée</th>
                     <th>ÉP</th>
                     <th>Réf</th>
                   </tr>
                 </thead>
                 <tbody>
                   {pageLines.map((item, index) => {
-                    const art = item.article || {};
+                    const art = item.article || {}
                     return (
                       <tr key={index}>
-                        <td>
-                          <strong>{art?.Nom || "__"} </strong>
-                          <span style={{ fontSize: "10px", color: "#666" }}>
-                            {art.Description ? `(${art.Description})` : ""}
-                          </span>
-                        </td>
-                        <td>
-                          {`${Math.floor(item.Hauteur || art.Hauteur || 0)} x ${Math.floor(item.Largeur || art.Largeur || 0)} x ${Math.floor(item.Profondeur || art.Profondeur || 0)}`}
-                        </td>
+                        <td>{Math.floor(item.Hauteur || art.Hauteur || 0)}</td>
+                        <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
+                        <td>{Math.floor(item.Largeur || art.Largeur || 0)}</td>
                         <td>{Math.floor(item.DL_Qte || 0)}</td>
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
-                        <td>{item.Chant || art.Chant || "__"}</td>
+                        <td>{item.Chant || art.Chant || '__'}</td>
+                        <td>{item.Poignée}</td>
                         <td>{Math.floor(item.Epaisseur || art.Epaisseur || 0)}</td>
-                        <td>{item.AR_Ref || "__"}</td>
+                        <td>{item.AR_Ref || '__'}</td>
                       </tr>
-                    );
+                    )
                   })}
                 </tbody>
               </table>
 
               {pageIndex === chunkLines(doclignes, 30).length - 1 && (
-                <div className="signature-footer">
-                  <div className="signature-section">
-                    <div className="signature-header">Date & Heure</div>
-                    <div className="signature-content"></div>
+                <div className='signature-footer'>
+                  <div className='signature-section'>
+                    <div className='signature-header'>Date & Heure</div>
+                    <div className='signature-content'></div>
                   </div>
-                  <div className="signature-section">
-                    <div className="signature-header">Ramasseur</div>
-                    <div className="signature-content"></div>
+                  <div className='signature-section'>
+                    <div className='signature-header'>Ramasseur</div>
+                    <div className='signature-content'></div>
                   </div>
                 </div>
               )}
@@ -317,5 +337,5 @@ export default function PrintDocument({ docentete, doclignes }) {
         </div>
       </div>
     </div>
-  );
+  )
 }
