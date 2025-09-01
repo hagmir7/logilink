@@ -246,20 +246,6 @@ function Commercial() {
                   </Popconfirm>
                 )}
 
-                 <Popconfirm
-                    title='Réinitialiser la commande'
-                    description='Êtes-vous sûr de vouloir réinitialiser cette tâche ?'
-                    onConfirm={reset}
-                    okText='Réinitialiser'
-                    cancelText='Annuler'
-                  >
-                    <Button
-                      danger
-                      className='flex items-center gap-2 hover:shadow-md transition-shadow'
-                    >
-                      Réinitialiser <Undo2 size={18} />
-                    </Button>
-                  </Popconfirm>
 
               <Select
                 placeholder='Transférer vers'

@@ -39,7 +39,7 @@ function Controller() {
 
     try {
       const response = await api.get(`docentetes/${id}`)
-      console.log('Fetched response:', response.data)
+
 
       setData(response.data)
 
@@ -48,7 +48,6 @@ function Controller() {
         (item) => item.id === Number(user?.company_id)
       )
 
-      console.log('Selected company:', company)
 
       if (company) {
         setDocumentCompany(company)
@@ -82,7 +81,18 @@ function Controller() {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     )
+
   }
+
+
+  const validate = () => {
+    const result = data.doclignes
+      .filter(item => selected.includes(Number(item.line.status_id)))
+      .find(item => Number(item.line.status_id) !== 8);
+
+    console.log(result);
+  };
+
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -90,6 +100,8 @@ function Controller() {
     } else {
       setSelected([])
     }
+    
+    
   }
 
   const handleChangeTransfer = (value) => {
@@ -211,6 +223,10 @@ function Controller() {
             doclignes={data.doclignes}
             docentete={data.docentete}
           />
+
+          <Button onClick={validate} className='btn'>
+              <ListTodo /> Validate
+            </Button>
         </div>
       </div>
 
