@@ -222,7 +222,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
               </div>
             </div>
             {
-              data.status_id === "8" ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
+              Number(data.status_id) === 8 || Number(data.status_id) === 9 ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
                 color="cyan"
                 variant="solid"
                 onClick={() => navigate(`/document/palettes/${data?.piece}`)}
@@ -230,6 +230,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                 Controle
               </Button> : ''
             }
+            
           </div>
         ))}
       </div>
