@@ -290,9 +290,6 @@ function PreparationList() {
         </Table>
       </div>
 
-      {/* Improved Mobile Cards with structure similar to desktop */}
-
-      {/* Improved Mobile Cards with structure similar to desktop */}
       <div
         className={`block md:hidden ${isElectron ? 'text-xl space-y-6' : ''}`}
       >
@@ -307,23 +304,15 @@ function PreparationList() {
                 }`}
               >
                 <div className='flex justify-between'>
-                  <div
-                    className={`bg-gray-200 rounded ${
-                      isElectron ? 'h-8 w-3/4' : 'h-5 w-2/3'
-                    }`}
+                  <div className={`bg-gray-200 rounded ${isElectron ? 'h-8 w-3/4' : 'h-5 w-2/3'}`}
                   ></div>
                   <div
-                    className={`bg-gray-200 rounded ${
-                      isElectron ? 'h-10 w-24' : 'h-6 w-16'
-                    }`}
+                    className={`bg-gray-200 rounded ${isElectron ? 'h-10 w-24' : 'h-6 w-16'}`}
                   ></div>
                 </div>
                 <div className='h-px bg-gray-200'></div>
                 <div
-                  className={`grid grid-cols-2 gap-3 ${
-                    isElectron ? 'gap-5' : ''
-                  }`}
-                >
+                  className={`grid grid-cols-2 gap-3 ${isElectron ? 'gap-5' : '' }`}>
                   {[1, 2, 3, 4].map((x) => (
                     <div
                       key={x}
@@ -353,11 +342,12 @@ function PreparationList() {
                   {item?.article?.Description || null}
                 </span>
                 <Button
+                  // style={{display:'none'}}
                   key={item.line.id}
                   onClick={() => prepare(item.line.id)}
                   style={
                     isElectron
-                      ? { fontSize: '28px', height: '60px', padding: '0 24px' }
+                      ? { fontSize: '28px', height: '60px', padding: '0 24px', display:'none' }
                       : {}
                   }
                   color={item.line.status.color}
@@ -396,11 +386,7 @@ function PreparationList() {
               </div>
 
               <div className='h-px bg-gray-200 my-4'></div>
-              <div
-                className={`grid grid-cols-2 ${
-                  isElectron ? 'gap-y-5 text-lg' : 'gap-y-3 text-sm'
-                }`}
-              >
+              <div className={`grid grid-cols-2 ${isElectron ? 'gap-y-5 text-lg' : 'gap-y-3 text-sm' }`} >
                 <div>
                   <span className='text-gray-500'>H: </span>
                   <span className='font-bold text-gray-800'>

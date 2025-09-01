@@ -31,6 +31,8 @@ function Validation() {
     try {
       const response = await api.get('documents/validation-controller')
       setData(response.data)
+   
+      
       setLoading(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -66,10 +68,6 @@ function Validation() {
       console.error('Failed to fetch data:', err)
       setMoreSpinner(false)
     }
-  }
-
-  const handleChange = (value) => {
-    setDocumentStatus(value)
   }
 
   const handleSearch = async (e) => {

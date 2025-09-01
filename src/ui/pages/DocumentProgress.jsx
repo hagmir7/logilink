@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
-import { message, Progress, Skeleton } from 'antd'
+import { Empty, message, Progress, Skeleton } from 'antd'
 import { uppercaseFirst } from '../utils/config'
 
 export const DocumentProgress = () => {
@@ -191,7 +191,7 @@ export const DocumentProgress = () => {
               ) : (
                 <tr>
                   <td colSpan={7} className='p-8 text-center text-gray-400'>
-                    Aucun article trouvé
+                    <Empty description="Aucun article trouvé" />
                   </td>
                 </tr>
               )}

@@ -155,7 +155,7 @@ export default function PaletteControle() {
 
                   {/* Details & Button */}
                   <div className='flex justify-between items-center'>
-                    <div className='text-xl flex justify-between text-gray-600 w-full'>
+                    <div className='text-xl flex justify-between text-gray-600 w-full me-5'>
                       <div>
                         Profondeur:{' '}
                         <strong>
