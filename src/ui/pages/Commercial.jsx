@@ -10,7 +10,7 @@ import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getExped, getDocumentType, uppercaseFirst, getStatus } from '../utils/config';
 import { useParams } from 'react-router-dom';
-import { Button, Checkbox, message, Popconfirm, Select, Tag } from 'antd';
+import { Button, Checkbox, Empty, message, Popconfirm, Select, Tag } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import PrintDocument from '../components/PrintDocument';
@@ -244,6 +244,7 @@ function Commercial() {
                   </Popconfirm>
                 )}
 
+
               <Select
                 placeholder='Transférer vers'
                 style={{ width: 200 }}
@@ -434,24 +435,7 @@ function Commercial() {
                       ) : (
                         <tr>
                           <td colSpan='6' className='p-8'>
-                            <div className='text-center'>
-                              <svg
-                                className='mx-auto h-12 w-12 text-gray-400'
-                                fill='none'
-                                viewBox='0 0 24 24'
-                                stroke='currentColor'
-                              >
-                                <path
-                                  strokeLinecap='round'
-                                  strokeLinejoin='round'
-                                  strokeWidth={1}
-                                  d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
-                                />
-                              </svg>
-                              <h3 className='mt-2 text-sm font-medium text-gray-900'>
-                                Aucun article trouvé
-                              </h3>
-                            </div>
+                            <Empty description="Aucun article trouvé" />
                           </td>
                         </tr>
                       )}
@@ -589,22 +573,7 @@ function Commercial() {
                 ))
               ) : (
                 <div className='bg-white border border-gray-200 rounded-lg p-8 text-center shadow-sm'>
-                  <svg
-                    className='mx-auto h-12 w-12 text-gray-400'
-                    fill='none'
-                    viewBox='0 0 24 24'
-                    stroke='currentColor'
-                  >
-                    <path
-                      strokeLinecap='round'
-                      strokeLinejoin='round'
-                      strokeWidth={1}
-                      d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
-                    />
-                  </svg>
-                  <h3 className='mt-2 text-sm font-medium text-gray-900'>
-                    Aucun article trouvé
-                  </h3>
+                 <Empty description="Aucun article trouvé" />
                 </div>
               )}
             </div>

@@ -14,8 +14,10 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
-import { Alert, Input, message } from 'antd'
-import { PalettesModal } from '../components/PalettesModal'
+import { Alert, Input, message, Modal, Button, Radio, Space, ColorPicker } from 'antd'
+import { PalettesModal } from '../components/PalettesModal';
+import { CloseOutlined } from '@ant-design/icons';
+
 
 
 export default function Preparation() {
@@ -48,7 +50,25 @@ export default function Preparation() {
   const [empalcementCodeLoading, setEmpalcementCodeLoading] = useState(false);
   const [empalcementCodeError, setEmpalcementCodeError] = useState('');
   const [scannedEmplacement, setScannedEmplacement] = useState(null);
-  const paletteCodeInput = useRef()
+  const paletteCodeInput = useRef();
+
+
+  const [modalOptions, setModalOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState({});
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [defaultOptions, setDefaultOptins] = useState([]);
+  const showModal = () => {
+    setIsModalOpen(true);
+  };
+  const handleOk = () => {
+    setIsModalOpen(false);
+  };
+  const handleCancel = () => {
+    setIsModalOpen(false);
+  };
+
+
+
 
   const [loadingStates, setLoadingStates] = useState({
     createPalette: false,
@@ -127,8 +147,7 @@ export default function Preparation() {
         document_id: id,
         palette: EmpalcementCode ?? currentPalette?.code,
       })
-      console.log(data.palette.lines);
-      console.log(data.palette.lines);
+
       
       setPalette(data.palette)
       setLines(data.palette.lines || [])
@@ -145,6 +164,54 @@ export default function Preparation() {
     if (id) createPalette()
   }, [id, checkedPalette])
 
+  // Reusable generator for label, value, and article details
+  const lineNameGenerator = (data) => {
+    const height = Math.floor(data?.docligne?.Hauteur ?? data?.docligne?.article?.Hauteur ?? 0);
+    const width = Math.floor(data?.docligne?.Largeur ?? data?.docligne?.article?.Largeur ?? 0);
+
+    let dimensions = '';
+    if (height && width) {
+      dimensions = `${height} × ${width}`;
+    } else if (height) {
+      dimensions = `${height}`;
+    } else if (width) {
+      dimensions = `${width}`;
+    }
+
+    const pickColor = (c) => (c !== '' && c !== 0 ? c : null);
+    const color = pickColor(data?.docligne?.Couleur)
+      ?? pickColor(data?.docligne?.article?.Couleur)
+      ?? '';
+
+    const depth = Math.floor(data.docligne?.Profondeur ?? data?.docligne?.article?.Profonduer ?? "")
+
+
+    let arName;
+    if (data?.docligne?.article?.Nom) {
+      arName = `${data.docligne.article.Nom} ${dimensions} ${color}`.trim();
+    } else {
+      arName = data?.docligne?.article?.AR_Design ?? '';
+    }
+
+    return {
+      label: arName,
+      value: data?.id,
+      details: {
+        id: data.id,
+        ref: data.ref ?? '',
+        design: arName,
+        profondeur: depth,
+        epaisseur: Math.floor(data.docligne?.Epaisseur ?? data?.docligne?.article?.Epaisseur ?? 0) || '',
+        chant: data.docligne?.Chant || data?.docligne?.article?.Chant || '',
+        qte: data.quantity ? Math.floor(data.quantity) : 0,
+        color: data.article?.Couleur || '',
+        height: height || '',
+        width: width || '',
+      },
+    };
+  };
+
+
   
   
 const handleScan = async (value) => {
@@ -152,63 +219,27 @@ const handleScan = async (value) => {
   if (!palette || value === '') return;
 
   const payload = { line: value, document: id, palette: palette.code };
-  console.log(payload);
-
   setLoading('scan', true);
   setLineError('');
 
   try {
-    const { data } = await api.post('palettes/scan', payload);
-
-    const height = Math.floor(data.docligne?.Hauteur || data?.docligne?.article?.Hauteur);
-    const width = Math.floor(data.docligne?.Largeur || data?.docligne?.article?.Largeur);
-    const dimensions = height && width ? `${height} * ${width}` : height || width || '';
-    const color = data?.docligne?.Couleur || data?.docligne?.article?.Couleur;
-
-    let arName;
-    if(data.docligne?.article?.Nom){
-      arName = data?.docligne?.article?.Nom + " " + dimensions + " " + color
-    }else{
-      arName = data?.docligne?.article?.AR_Design
-    }
-
-
-    // const parts = [
-    //   data.article?.Nom,
-    //   ,
-    //   dimensions,
-    //   color,
-    //   data?.docligne?.Description,
-    //   data?.docligne?.Rotation,
-    //   data?.docligne?.Poignée,
-    //   data?.docligne?.Couleur,
-    // ];
-
-    // const design = parts
-    //   .filter(part => part)
-    //   .join(' ');
-
-
-    setArticle({
-      id: data.id,
-      ref: data.ref ?? '',
-      design: arName,
-      profondeur: Math.floor(data.docligne?.Profondeur ?? data?.docligne?.article?.Profonduer ?? 0) || '',
-      epaisseur:
-        Math.floor(
-          data.docligne?.Epaisseur ??
-            data?.docligne?.article?.Epaisseur ??
-            0
-        ) || '',
-      chant: data.docligne?.Chant || data?.docligne?.article?.Chant || '',
-      qte: data.quantity ? Math.floor(data.quantity) : 0,
-      color: data.article?.Couleur || '',
-      height: height || '',
-      width: width || '',
-    });
-
-
+    let { data } = await api.post('palettes/scan', payload);
+    setDefaultOptins(data);
     
+
+    if(data.length === 0){
+      message.warning("L’article est déjà préparé")
+      return;
+    }
+    
+    if (data.length === 1) {
+      const line = lineNameGenerator(data[0]);
+      setArticle(line.details);
+    } else if(data.length > 1) {
+      const options = data.map(item => lineNameGenerator(item));
+      setModalOptions(options);
+      setIsModalOpen(true);
+    }
 
     paletteCodeInput.current?.focus();
   } catch (err) {
@@ -229,6 +260,7 @@ const handleScan = async (value) => {
     setLoading('scan', false);
   }
 };
+
 
 
   const handleSubmit = async () => {
@@ -311,14 +343,96 @@ const handleScan = async (value) => {
         error?.response?.data?.message || 'Erreur lors de la création.'
       )
     } finally {
-      setLoadingCreate(false)
+      setLoadingCreate(false);
+      lineInput.current.focus()
     }
   }
+
+
+
+  const changeSelectedLine = (e) => {
+    const selectedId = e.target.value; 
+    setSelectedOption(selectedId);
+    const selected = defaultOptions.find(opt => opt.id === selectedId);
+    const height = Math.floor(selected.docligne?.Hauteur ?? selected?.docligne?.article?.Hauteur ?? 0);
+    const width = Math.floor(selected.docligne?.Largeur ?? selected?.docligne?.article?.Largeur ?? 0);
+    const dimensions = height && width ? `${height} * ${width}` : height || width || '';
+
+    const pickColor = (c) => (c !== '' && c !== 0 ? c : null);
+    const color = pickColor(selected?.docligne?.Couleur) 
+                ?? pickColor(selected?.docligne?.article?.Couleur) 
+                ?? '';
+
+    let arName;
+    if (selected.docligne?.article?.Nom) {
+      arName = `${selected?.docligne?.article?.Nom} ${dimensions} ${color}`.trim();
+    } else {
+      arName = selected?.docligne?.article?.AR_Design ?? '';
+    }
+
+    setArticle({
+      id: selected.id,
+      ref: selected.ref ?? '',
+      design: arName,
+      profondeur: Math.floor(selected.docligne?.Profondeur ?? selected?.docligne?.article?.Profondeur ?? 0) || '',
+      epaisseur: Math.floor(selected.docligne?.Epaisseur ?? selected?.docligne?.article?.Epaisseur ?? 0) || '',
+      chant: selected.docligne?.Chant || selected?.docligne?.article?.Chant || '',
+      qte: selected.quantity ? Math.floor(selected.quantity) : 0,
+      color,
+      height: height || '',
+      width: width || '',
+    });
+
+    setIsModalOpen(false)
+    
+  };
+
 
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
       {/* Header */}
+    <Modal
+      title="Sélectionnez une option"
+      closable={true}
+      closeIcon={<CloseOutlined aria-label="Close Modal" />}
+      open={isModalOpen}
+      onOk={handleOk}
+      onCancel={handleCancel}
+      footer={false}
+      width={600}
+      bodyStyle={{ padding: '24px' }}
+    >
+      <div style={{ padding: '16px 0' }}>
+        <Radio.Group
+          onChange={changeSelectedLine}
+          value={selectedOption}
+       
+          size="large"
+          style={{ width: '100%' }}
+        >
+          <Space direction="vertical" size="large" style={{ width: '100%' }}>
+            {modalOptions.map((option) => (
+              <Radio.Button
+                key={option.value}
+                value={option.value}
+                style={{
+                  height: '60px',
+                  lineHeight: '60px',
+                  fontSize: '20px',
+                  fontWeight: '500',
+                  width: '100%',
+                  border: '2px solid #d9d9d9',
+                  borderRadius: '8px',
+                }}
+              >
+                {option.label}
+              </Radio.Button>
+            ))}
+          </Space>
+        </Radio.Group>
+      </div>
+    </Modal>
       <div className='bg-white border-b border-gray-200'>
         <div className='mx-auto px-4 py-3 sm:py-4'>
           <div className='flex justify-between'>

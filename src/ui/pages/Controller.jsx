@@ -12,16 +12,13 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { getExped, getDocumentType, getStatus } from '../utils/config'
+import { getExped, getStatus } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, message, Select, Tag, Popconfirm } from 'antd'
+import { Button, Checkbox, message, Select, Tag, Popconfirm, Empty } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable'
 import { useAuth } from '../contexts/AuthContext'
 import PrintDocument from '../components/PrintDocument'
-import TicketPrint from '../components/TicketPrinter'
 import TicketPrinter from '../components/TicketPrinter'
 
 function Controller() {
@@ -42,7 +39,7 @@ function Controller() {
 
     try {
       const response = await api.get(`docentetes/${id}`)
-      console.log('Fetched response:', response.data)
+
 
       setData(response.data)
 
@@ -51,7 +48,6 @@ function Controller() {
         (item) => item.id === Number(user?.company_id)
       )
 
-      console.log('Selected company:', company)
 
       if (company) {
         setDocumentCompany(company)
@@ -85,7 +81,18 @@ function Controller() {
     setSelected((prev) =>
       prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     )
+
   }
+
+
+  const validate = () => {
+    const result = data.doclignes
+      .filter(item => selected.includes(Number(item.line.status_id)))
+      .find(item => Number(item.line.status_id) !== 8);
+
+    console.log(result);
+  };
+
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
@@ -93,6 +100,8 @@ function Controller() {
     } else {
       setSelected([])
     }
+    
+    
   }
 
   const handleChangeTransfer = (value) => {
@@ -214,6 +223,10 @@ function Controller() {
             doclignes={data.doclignes}
             docentete={data.docentete}
           />
+
+          <Button onClick={validate} className='btn'>
+              <ListTodo /> Validate
+            </Button>
         </div>
       </div>
 
@@ -469,24 +482,9 @@ function Controller() {
               ))
             ) : (
               <tr>
-                <td colSpan='6' className='p-8'>
+                <td colSpan='10' className='p-8'>
                   <div className='text-center'>
-                    <svg
-                      className='mx-auto h-12 w-12 text-gray-400'
-                      fill='none'
-                      viewBox='0 0 24 24'
-                      stroke='currentColor'
-                    >
-                      <path
-                        strokeLinecap='round'
-                        strokeLinejoin='round'
-                        strokeWidth={1}
-                        d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
-                      />
-                    </svg>
-                    <h3 className='mt-2 text-sm font-medium text-gray-900'>
-                      Aucun article trouvé
-                    </h3>
+                    <Empty  description="Aucun article trouvé"/>
                   </div>
                 </td>
               </tr>
@@ -604,22 +602,7 @@ function Controller() {
           ))
         ) : (
           <div className='bg-white border-1 border-gray-200 p-8 text-center'>
-            <svg
-              className='mx-auto h-12 w-12 text-gray-400'
-              fill='none'
-              viewBox='0 0 24 24'
-              stroke='currentColor'
-            >
-              <path
-                strokeLinecap='round'
-                strokeLinejoin='round'
-                strokeWidth={1}
-                d='M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4'
-              />
-            </svg>
-            <h3 className='mt-2 text-sm font-medium text-gray-900'>
-              Aucun article trouvé
-            </h3>
+           <Empty description="Aucun article trouvé" />
           </div>
         )}
       </div>

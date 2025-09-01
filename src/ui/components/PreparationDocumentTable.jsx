@@ -1,10 +1,10 @@
 import { Settings } from 'lucide-react'
-import { Tag } from 'antd'
+import { Button, Tag } from 'antd'
 import Spinner from './ui/Spinner'
 
-import {getExped, getStatus } from '../utils/config';
+import { getExped, getStatus } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext'
-import { data } from 'react-router-dom';
+import { data, useNavigate } from 'react-router-dom';
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
@@ -12,24 +12,17 @@ const formatDate = (date) => {
 
 function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
-    const { user } = useAuth();
-    
-    const company = (data) =>{
-        return data?.companies?.find(item => item.id === Number(user.company_id))
-    }
+  const { user } = useAuth();
 
-    
-    
-  const getStatusBadgeColor = (color) => {
-    const colorMap = {
-      green: 'bg-green-50 text-green-700 border border-green-200 shadow-sm',
-      orange: 'bg-orange-50 text-orange-700 border border-orange-200 shadow-sm',
-      red: 'bg-red-50 text-red-700 border border-red-200 shadow-sm',
-      blue: 'bg-blue-50 text-blue-700 border border-blue-200 shadow-sm',
-      gray: 'bg-gray-50 text-gray-700 border border-gray-200 shadow-sm',
-    }
-    return colorMap[color] || colorMap.gray
+  const company = (data) => {
+    return data?.companies?.find(item => item.id === Number(user.company_id))
   }
+
+  
+
+  const navigate = useNavigate()
+
+  
 
   const getExpeditionColor = (expedit) => {
     const colorMap = {
@@ -58,9 +51,6 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
     }
   }
 
-  
-
-  
 
   return (
     <div className='w-full h-full flex flex-col bg-white'>
@@ -113,7 +103,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                       <span className='text-sm font-semibold text-gray-900'>
                         {data.piece || '__'}
                       </span>
-                      
+
                       {data?.docentete?.DO_Reliquat === "1" && (
                         <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
                           <Settings size={12} />
@@ -123,17 +113,17 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <Tag 
-                      
-                     
+                    <Tag
+
+
                       color={company(data)?.pivot?.status_id
-                                  ? getStatus(Number(company(data).pivot.status_id)).color
-                                  : 'gray'} 
+                        ? getStatus(Number(company(data).pivot.status_id)).color
+                        : 'gray'}
                       className='text-xs font-medium'
                     >
                       {company(data)?.pivot?.status_id
-                                  ? getStatus(Number(company(data).pivot.status_id)).name
-                                  : 'En attente'}
+                        ? getStatus(Number(company(data).pivot.status_id)).name
+                        : 'En attente'}
                     </Tag>
                   </td>
 
@@ -148,15 +138,15 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                       {data.client_id}
                     </span>
                   </td>
-                  
+
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
                     {data.ref}
                   </td>
-                  
+
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
                     {formatDate(new Date(data.created_at))}
                   </td>
-                  
+
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
                     {formatDate(new Date(data?.docentete?.DO_DateLivr))}
                   </td>
@@ -173,7 +163,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
           <div
             key={index}
             className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-150 bg-white shadow-sm mb-2 rounded-lg border'
-            onClick={() => handleShow(data.piece)}
+
           >
             {/* Header with document number and status */}
             <div className='flex justify-between items-start mb-3'>
@@ -192,7 +182,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                   ? getStatus(Number(company(data).pivot.status_id)).color
                   : 'gray'}
                 className='text-xs font-medium shadow-sm p-4 border m-0'
-                style={{margin:0, fontSize: "20px", padding: "4px"}}
+                style={{ margin: 0, fontSize: "20px", padding: "4px" }}
               >
                 {company(data)?.pivot?.status_id
                   ? getStatus(Number(company(data).pivot.status_id)).name
@@ -231,6 +221,16 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                 </span>
               </div>
             </div>
+            {
+              Number(data.status_id) === 8 || Number(data.status_id) === 9 ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
+                color="cyan"
+                variant="solid"
+                onClick={() => navigate(`/document/palettes/${data?.piece}`)}
+              >
+                Controle
+              </Button> : ''
+            }
+            
           </div>
         ))}
       </div>
