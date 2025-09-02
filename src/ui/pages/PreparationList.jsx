@@ -190,8 +190,22 @@ function PreparationList() {
                     </Tag>
                   </Td>
                   <Td className='font-black text-gray-800'>
-                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                    {item?.article?.Description || null}
+                    {item?.Nom ||
+                      item.article?.Nom ||
+                      item?.DL_Design ||
+                      '__'}
+
+                    {" "}
+                    {item?.Description}
+                    {" "}
+                    {item?.Poignee}
+
+                    {" "}
+                    {item?.Chant}
+                    {" "}
+                    {item?.Rotation}
+
+
                   </Td>
                   <Td>{item.AR_Ref || '__'}</Td>
                   <Td>

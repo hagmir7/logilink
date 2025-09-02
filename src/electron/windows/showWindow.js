@@ -21,10 +21,10 @@ export const createShowWindow = (data) => {
         resizable: data.resizable ?? false,
         icon: path.join(__dirname, '..', 'inter.ico'),
 
-        // parent: mainWindowReference, 
-        // modal: true,
-        // minimizable: false,
-        // alwaysOnTop: true,
+        parent: mainWindowReference, 
+        modal: true,
+        minimizable: false,
+        alwaysOnTop: true,
         webPreferences: {
             preload: getPreloadPath()
         }

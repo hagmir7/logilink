@@ -442,6 +442,15 @@ function Controller() {
                         item.article?.Nom ||
                         item?.DL_Design ||
                         '__'}
+
+                      
+                        {" "}
+                        {item?.Poignee}
+                        {" "}
+                        {item?.Rotation}
+
+                        {" "}
+                        {item?.Description}
                     </div>
                   </td>
 

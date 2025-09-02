@@ -26,15 +26,31 @@ const TicketPrinter = ({ doclignes, docentete }) => {
             message.warning('Please select a printer.');
             return;
         }
+        
 
         try {
-            await window.electron.printTickets(selectedPrinter, { doclignes, docentete });
+            const safeDoclignes = (doclignes || []).map(ticket => ({
+                ...ticket,
+                line: {
+                    ...ticket.line,
+                    quantity: Number(ticket.line?.quantity) || 0
+                }
+            }));
+
+            await window.electron.printPaletteTickets(selectedPrinter, { 
+                doclignes: safeDoclignes, 
+                docentete 
+            });
+
             message.success('Printing started!');
             setVisible(false);
         } catch (error) {
+            console.error(error);
             message.error('Printing failed.');
         }
     };
+
+
 
     return (
         <div>
