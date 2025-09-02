@@ -93,6 +93,8 @@ function Commercial() {
       setSelected([])
       fetchData()
       message.success('Articles transférés avec succès')
+    
+      
     } else {
       message.warning('Aucun article sélectionné')
     }
@@ -118,10 +120,6 @@ function Commercial() {
    const getStatusColor = (status) => {
      return status?.color || 'gray'
    }
-
-
-   
-   console.log(data.docentete.document);
    
   return (
     <div className='h-full flex flex-col bg-gray-50'>
@@ -250,6 +248,7 @@ function Commercial() {
               <Select
                 placeholder='Transférer vers'
                 style={{ width: 200 }}
+                value={selectedCompany}
                 onChange={handleChangeTransfer}
                 options={listTransfer}
               />
