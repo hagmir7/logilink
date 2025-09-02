@@ -197,9 +197,9 @@ function Montage() {
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Largeur
               </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+              {/* <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Profondeur
-              </th>
+              </th> */}
                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Couleur
               </th>
@@ -221,7 +221,7 @@ function Montage() {
             {loading ? (
                [...Array(4)].map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  {[...Array(11)].map((_, colIndex) => (
+                  {[...Array(10)].map((_, colIndex) => (
                     <td className="px-6 py-4" key={colIndex}>
                       <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
                     </td>
@@ -238,9 +238,20 @@ function Montage() {
                     />
                   </td>
 
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                      {item?.article?.Description || null}
+             <td className='px-2 text-sm border-r border-gray-100'>
+                    <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
+                      {item?.Nom ||
+                        item.article?.Nom ||
+                        item?.DL_Design ||
+                        '__'}
+                        {" "}
+                        {item?.Poignee}
+                        {" "}
+                        {item?.Rotation}
+
+                        {" "}
+                        {item?.Description}
+                    </div>
                   </td>
 
                   <td className='px-2 text-sm border-r border-gray-100'>{item.AR_Ref || '__'}</td>
@@ -261,9 +272,9 @@ function Montage() {
                   <td className='px-2 text-sm border-r border-gray-100'>
                     {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
                   </td>
-                  <td className='px-2 text-sm border-r border-gray-100'>
+                  {/* <td className='px-2 text-sm border-r border-gray-100'>
                     {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
-                  </td>
+                  </td> */}
 
                   <td className='px-2 text-sm border-r border-gray-100'>
                     {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
