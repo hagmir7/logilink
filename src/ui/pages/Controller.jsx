@@ -20,6 +20,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { useAuth } from '../contexts/AuthContext'
 import PrintDocument from '../components/PrintDocument'
 import TicketPrinter from '../components/TicketPrinter'
+import { DocumentPalettesModal } from '../components/DocumentPalettesModal'
 
 function Controller() {
   const { id } = useParams()
@@ -223,6 +224,13 @@ function Controller() {
             doclignes={data.doclignes}
             docentete={data.docentete}
           />
+
+          {data.docentete.document && (
+            <DocumentPalettesModal
+              countPalettes={data?.docentete?.document?.palettes?.length}
+              documentPiece={data.docentete.DO_Piece}
+            />
+          )}
 
           <Button onClick={validate} className='btn'>
               <ListTodo /> Validate
@@ -442,8 +450,6 @@ function Controller() {
                         item.article?.Nom ||
                         item?.DL_Design ||
                         '__'}
-
-                      
                         {" "}
                         {item?.Poignee}
                         {" "}

@@ -170,126 +170,141 @@ function Fabrication() {
       </div>
 
       {/* Desktop Table */}
-      <div className='overflow-x-auto'>
-        <Table>
-          <Thead>
-            <Tr>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                <Checkbox
-                  onChange={handleSelectAll}
-                  checked={
-                    selected.length === data.doclignes.length &&
-                    data.doclignes.length > 0
-                  }
-                ></Checkbox>
-              </th>
-
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Piece </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Ref Article </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Date Livraison</th>
-                <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                Hauteur
-              </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                Largeur
-              </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                Profondeur
-              </th>
-                <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                Couleur
-              </th>
-
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                Chant
-              </th>
-
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                Epaisseur
-              </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Quantité</th>
-            </Tr>
-          </Thead>
-
-          <Tbody>
-            {loading ? (
-               [...Array(4)].map((_, rowIndex) => (
-                <tr key={rowIndex}>
-                  {[...Array(11)].map((_, colIndex) => (
-                    <td className="px-6 py-4" key={colIndex}>
-                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : data.doclignes?.length > 0 ? (
-              currentItems.map((item, index) => (
-                <Tr key={index} className='whitespace-nowrap'>
-                  <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
-                    <Checkbox
-                      checked={selected.includes(item.line?.id)}
-                      onChange={() => handleSelect(item.line?.id)}
-                    />
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item?.Nom || item.article.Nom || item?.DL_Design || '__'}{' '}
-                      {item?.article?.Description || null}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>{item.AR_Ref || '__'}</td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    <Tag> {item.line?.complation_date
-                      ? dateFormat(item.line.complation_date)
-                      : '__'}</Tag>
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item.Hauteur > 0 ?
-                      Math.floor(item.Hauteur) :
-                      Math.floor(item.article?.Hauteur) || '__'
-                    }
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
-                  </td>
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
-                  </td>
-                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
-                    <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                      {Math.floor(item.DL_Qte)}
-                    </span>
-                  </td>
-                </Tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan='6'
-                  className='px-6 py-4 text-center text-sm text-gray-500'
-                >
-                  <Empty description="Aucun article trouvé" />
-                </td>
-              </tr>
-            )}
-          </Tbody>
-        </Table>
-      </div>
+     <div className='overflow-x-auto'>
+           <Table>
+             {
+               data.doclignes?.length > 0 ? 
+                <Thead>
+               <Tr>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   <Checkbox
+                     onChange={handleSelectAll}
+                     checked={
+                       selected.length === data.doclignes.length &&
+                       data.doclignes.length > 0
+                     }
+                   ></Checkbox>
+                 </th>
+   
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Piece </th>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Ref Article </th>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Date Livraison</th>
+                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   Hauteur
+                 </th>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   Largeur
+                 </th>
+                 {/* <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   Profondeur
+                 </th> */}
+                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   Couleur
+                 </th>
+   
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   Chant
+                 </th>
+   
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   Epaisseur
+                 </th>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Quantité</th>
+               </Tr>
+             </Thead> : null
+             }
+            
+   
+             <Tbody>
+               {loading ? (
+                  [...Array(4)].map((_, rowIndex) => (
+                   <tr key={rowIndex}>
+                     {[...Array(10)].map((_, colIndex) => (
+                       <td className="px-6 py-4" key={colIndex}>
+                         <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                       </td>
+                     ))}
+                   </tr>
+                 ))
+               ) : data.doclignes?.length > 0 ? (
+                 currentItems.map((item, index) => (
+                   <Tr key={index} className='whitespace-nowrap'>
+                     <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
+                       <Checkbox
+                         checked={selected.includes(item.line?.id)}
+                         onChange={() => handleSelect(item.line?.id)}
+                       />
+                     </td>
+   
+                <td className='px-2 text-sm border-r border-gray-100'>
+                       <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
+                         {item?.Nom ||
+                           item.article?.Nom ||
+                           item?.DL_Design ||
+                           '__'}
+                           {" "}
+                           {item?.Poignee}
+                           {" "}
+                           {item?.Rotation}
+   
+                           {" "}
+                           {item?.Description}
+                       </div>
+                     </td>
+   
+                     <td className='px-2 text-sm border-r border-gray-100'>{item.AR_Ref || '__'}</td>
+   
+                     <td className='px-2 text-sm border-r border-gray-100'>
+                       <Tag> {item.line?.complation_date
+                         ? dateFormat(item.line.complation_date)
+                         : '__'}</Tag>
+                     </td>
+   
+                     <td className='px-2 text-sm border-r border-gray-100'>
+                       {item.Hauteur > 0 ?
+                         Math.floor(item.Hauteur) :
+                         Math.floor(item.article?.Hauteur) || '__'
+                       }
+                     </td>
+   
+                     <td className='px-2 text-sm border-r border-gray-100'>
+                       {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
+                     </td>
+                     {/* <td className='px-2 text-sm border-r border-gray-100'>
+                       {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
+                     </td> */}
+   
+                     <td className='px-2 text-sm border-r border-gray-100'>
+                       {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
+                     </td>
+   
+                     <td className='px-2 text-sm border-r border-gray-100'>
+                       {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
+                     </td>
+   
+                     <td className='px-2 text-sm border-r border-gray-100'>
+                       {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
+                     </td>
+                     <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                       <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                         {Math.floor(item.DL_Qte)}
+                       </span>
+                     </td>
+                   </Tr>
+                 ))
+               ) : (
+                 <tr>
+                   <td
+                     colSpan='10'
+                     className='px-6 py-4 text-center text-sm text-gray-500'
+                   >
+                     <Empty description="Aucun article trouvé"/>
+                   </td>
+                 </tr>
+               )}
+             </Tbody>
+           </Table>
+         </div>
     </div>
   )
 }

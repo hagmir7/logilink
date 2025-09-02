@@ -221,9 +221,9 @@ function PreparationList() {
                       <div className='text-sm text-gray-800'>
                         L:{' '}
                         <strong>
-                          {Math.floor(
-                            item.Largeur ? item.Largeur : item?.article?.Largeur
-                          ) || '__'}
+                          {item.Largeur > 0
+                                ? Math.floor(item.Largeur)
+                                : Math.floor(item?.article?.Largeur) || '__'}
                         </strong>
                       </div>
                       <div className='text-sm text-gray-600'>
@@ -404,18 +404,21 @@ function PreparationList() {
                 <div>
                   <span className='text-gray-500'>H: </span>
                   <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Hauteur : item.Hauteur
-                    ) || '__'}
+                    {item.Hauteur > 0
+                      ? Math.floor(item.Hauteur)
+                      : Math.floor(item?.article?.Hauteur) || '__'}
                   </span>
                 </div>
                 <div>
                   <span className='text-gray-500'>L: </span>
                   <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Largeur : item.Largeur
-                    ) || '__'}
+                    {item.Largeur > 0
+                      ? Math.floor(item.Largeur)
+                      : Math.floor(item?.article?.Largeur) || '__'}
+
+                    
                   </span>
+
                 </div>
                 <div>
                   <span className='text-gray-500'>P: </span>

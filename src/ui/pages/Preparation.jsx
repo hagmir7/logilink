@@ -148,6 +148,8 @@ export default function Preparation() {
         palette: EmpalcementCode ?? currentPalette?.code,
       })
 
+      console.log(data.palette.lines);
+      
       
       setPalette(data.palette)
       setLines(data.palette.lines || [])
@@ -164,11 +166,14 @@ export default function Preparation() {
     if (id) createPalette()
   }, [id, checkedPalette])
 
-  // Reusable generator for label, value, and article details
-  const lineNameGenerator = (data) => {
-    const height = Math.floor(data?.docligne?.Hauteur ?? data?.docligne?.article?.Hauteur ?? 0);
-    const width = Math.floor(data?.docligne?.Largeur ?? data?.docligne?.article?.Largeur ?? 0);
 
+  const lineNameGenerator = (data) => {
+    const height = Math.floor(data?.docligne?.Hauteur) || Math.floor(data?.docligne?.article?.Hauteur) || 0;
+    const width = Math.floor(data?.docligne?.Largeur) || Math.floor(data?.docligne?.article?.Largeur) || 0;
+
+
+    
+    
     let dimensions = '';
     if (height && width) {
       dimensions = `${height} × ${width}`;
@@ -273,7 +278,7 @@ const handleScan = async (value) => {
       })
 
       createPalette()
-      // setLines(data.lines || [])
+
 
       setArticle({
         ref: '',
@@ -320,7 +325,6 @@ const handleScan = async (value) => {
     try {
       const { data } = await api.post('palettes/create', { document_id: id })
 
-
       if (!data || !Array.isArray(data.palettes) || data.palettes.length === 0) {
         message.warning("La nouvelle palette n'a pas été récupérée.")
         return
@@ -354,8 +358,12 @@ const handleScan = async (value) => {
     const selectedId = e.target.value; 
     setSelectedOption(selectedId);
     const selected = defaultOptions.find(opt => opt.id === selectedId);
-    const height = Math.floor(selected.docligne?.Hauteur ?? selected?.docligne?.article?.Hauteur ?? 0);
-    const width = Math.floor(selected.docligne?.Largeur ?? selected?.docligne?.article?.Largeur ?? 0);
+
+    const height = Math.floor(selected.docligne?.Hauteur) || Math.floor(selected?.docligne?.article?.Hauteur) ||0;
+
+    const width = Math.floor(selected.docligne?.Largeur) || Math.floor(selected?.docligne?.article?.Largeur) ||0;
+    
+
     const dimensions = height && width ? `${height} * ${width}` : height || width || '';
 
     const pickColor = (c) => (c !== '' && c !== 0 ? c : null);
@@ -744,8 +752,8 @@ const handleScan = async (value) => {
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
             {lines?.map((item, index) => {
 
-              const lineHeight =  item.docligne?.Hauteur ?? item.docligne?.article?.Hauteur ?? false
-              const lineWidth =  item.docligne?.Largeur ?? item.docligne?.article?.Largeur ?? false
+              const lineHeight =  Math.floor(item.docligne?.Hauteur) || Math.floor(item.docligne?.article?.Hauteur) || false
+              const lineWidth =  Math.floor(item.docligne?.Largeur) || Math.floor(item.docligne?.article?.Largeur) || false
               return (<div key={item.id || index} className='relative'>
                 <div className='absolute -top-2 -right-2 z-10'>
                   <span className='px-3 py-1 bg-cyan-500 text-white text-lg font-medium rounded-full'>
@@ -758,7 +766,14 @@ const handleScan = async (value) => {
                     <div className='flex justify-between items-start mb-3'>
                       <div className='flex-1 pr-2'>
                         <h3 className='text-xl font-bold text-gray-900 truncate whitespace-normal'>
-                          {uppercaseFirst(item?.docligne?.Nom || item?.docligne?.article?.Nom || item?.docligne?.article?.AR_Design || '__' )}
+                          {uppercaseFirst(item?.docligne?.Nom || item?.docligne?.article?.Nom || item?.docligne?.article?.AR_Design || '__')}
+                          {" "}
+                          {item?.docligne?.Poignée}
+                          {" "}
+                          {item?.docligne?.Rotation}
+
+                          {" "}
+                          {item?.docligne?.Description}
                         </h3>
 
                         <p className='text-xl text-gray-600 mt-1'>
@@ -786,18 +801,6 @@ const handleScan = async (value) => {
 
                     <div className='flex justify-between items-center pt-4 border-t border-gray-200'>
                       <div className='text-xl md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
-                        <div>
-                          Prof:{' '}
-                          <strong>
-                            {
-                              Math.floor(
-                                item.docligne?.Profonduer > 0
-                                  ? item.docligne.Profonduer
-                                  : item.docligne?.article?.Profonduer ?? '__'
-                              ) || '__'
-                            }
-                          </strong>
-                        </div>
                         <div>
                           Ép:{' '}
                           <strong>

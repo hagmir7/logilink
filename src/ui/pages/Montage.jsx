@@ -297,7 +297,7 @@ function Montage() {
             ) : (
               <tr>
                 <td
-                  colSpan='11'
+                  colSpan='10'
                   className='px-6 py-4 text-center text-sm text-gray-500'
                 >
                   <Empty description="Aucun article trouvé"/>
