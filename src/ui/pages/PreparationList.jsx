@@ -36,9 +36,9 @@ function PreparationList() {
 
   const currentItems = data?.doclignes || []
 
-  const getStatusColor = (status) => {
-    return status?.color || 'gray'
-  }
+
+  
+
 
   const prepare = async (lineId) => {
     setLoadingId(lineId)
@@ -183,29 +183,21 @@ function PreparationList() {
               <SkeletonTable />
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => (
-                <Tr key={index}>
+                <Tr
+                  key={index}
+                  className={`${
+                    item.line.next_role_id == '4' ? 'opacity-40 disabled' : ''
+                  }`}
+                >
                   <Td>
                     <Tag color={item.line.status.color}>
                       {item.line?.status?.name}
                     </Tag>
                   </Td>
                   <Td className='font-black text-gray-800'>
-                    {item?.Nom ||
-                      item.article?.Nom ||
-                      item?.DL_Design ||
-                      '__'}
-
-                    {" "}
-                    {item?.Description}
-                    {" "}
-                    {item?.Poignee}
-
-                    {" "}
-                    {item?.Chant}
-                    {" "}
+                    {item?.Nom || item.article?.Nom || item?.DL_Design || '__'}{' '}
+                    {item?.Description} {item?.Poignee} {item?.Chant}{' '}
                     {item?.Rotation}
-
-
                   </Td>
                   <Td>{item.AR_Ref || '__'}</Td>
                   <Td>
@@ -222,8 +214,8 @@ function PreparationList() {
                         L:{' '}
                         <strong>
                           {item.Largeur > 0
-                                ? Math.floor(item.Largeur)
-                                : Math.floor(item?.article?.Largeur) || '__'}
+                            ? Math.floor(item.Largeur)
+                            : Math.floor(item?.article?.Largeur) || '__'}
                         </strong>
                       </div>
                       <div className='text-sm text-gray-600'>
@@ -318,15 +310,23 @@ function PreparationList() {
                 }`}
               >
                 <div className='flex justify-between'>
-                  <div className={`bg-gray-200 rounded ${isElectron ? 'h-8 w-3/4' : 'h-5 w-2/3'}`}
+                  <div
+                    className={`bg-gray-200 rounded ${
+                      isElectron ? 'h-8 w-3/4' : 'h-5 w-2/3'
+                    }`}
                   ></div>
                   <div
-                    className={`bg-gray-200 rounded ${isElectron ? 'h-10 w-24' : 'h-6 w-16'}`}
+                    className={`bg-gray-200 rounded ${
+                      isElectron ? 'h-10 w-24' : 'h-6 w-16'
+                    }`}
                   ></div>
                 </div>
                 <div className='h-px bg-gray-200'></div>
                 <div
-                  className={`grid grid-cols-2 gap-3 ${isElectron ? 'gap-5' : '' }`}>
+                  className={`grid grid-cols-2 gap-3 ${
+                    isElectron ? 'gap-5' : ''
+                  }`}
+                >
                   {[1, 2, 3, 4].map((x) => (
                     <div
                       key={x}
@@ -343,8 +343,9 @@ function PreparationList() {
           currentItems.map((item, index) => (
             <div
               key={index}
-              className={`bg-white border border-gray-200 rounded-lg shadow-sm mb-4 
-          ${isElectron ? 'p-4 rounded-2xl' : 'p-4'}`}
+              className={`bg-white border border-gray-200 rounded-lg shadow-sm mb-4 ${
+                isElectron ? 'p-4 rounded-2xl' : 'p-4'
+              } ${item.line.next_role_id == '4' ? 'opacity-40 disabled' : ''}`}
             >
               <div className='flex justify-between items-center mb-4'>
                 <span
@@ -361,7 +362,12 @@ function PreparationList() {
                   onClick={() => prepare(item.line.id)}
                   style={
                     isElectron
-                      ? { fontSize: '28px', height: '60px', padding: '0 24px', display:'none' }
+                      ? {
+                          fontSize: '28px',
+                          height: '60px',
+                          padding: '0 24px',
+                          display: 'none',
+                        }
                       : {}
                   }
                   color={item.line.status.color}
@@ -389,18 +395,38 @@ function PreparationList() {
                     {item.AR_Ref || '__'}
                   </span>
                 </span>
-                <Tag
-                  color='green-inverse'
-                  style={
-                    isElectron ? { fontSize: '18px', padding: '6px 14px' } : {}
-                  }
-                >
-                  {Math.floor(item.DL_Qte || 0)}
-                </Tag>
+
+                <div className='flex gap-3'>
+                  <Tag
+                    color={item.line.status.color}
+                    style={
+                      isElectron
+                        ? { fontSize: '18px', padding: '6px 14px' }
+                        : {}
+                    }
+                  >
+                    {item.line?.status?.name}
+                  </Tag>
+
+                  <Tag
+                    color='green-inverse'
+                    style={
+                      isElectron
+                        ? { fontSize: '18px', padding: '6px 14px' }
+                        : {}
+                    }
+                  >
+                    {Math.floor(item.DL_Qte || 0)}
+                  </Tag>
+                </div>
               </div>
 
               <div className='h-px bg-gray-200 my-4'></div>
-              <div className={`grid grid-cols-2 ${isElectron ? 'gap-y-5 text-lg' : 'gap-y-3 text-sm' }`} >
+              <div
+                className={`grid grid-cols-2 ${
+                  isElectron ? 'gap-y-5 text-lg' : 'gap-y-3 text-sm'
+                }`}
+              >
                 <div>
                   <span className='text-gray-500'>H: </span>
                   <span className='font-bold text-gray-800'>
@@ -415,10 +441,7 @@ function PreparationList() {
                     {item.Largeur > 0
                       ? Math.floor(item.Largeur)
                       : Math.floor(item?.article?.Largeur) || '__'}
-
-                    
                   </span>
-
                 </div>
                 <div>
                   <span className='text-gray-500'>P: </span>
