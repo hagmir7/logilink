@@ -517,7 +517,7 @@ function Controller() {
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100'>
-                      {item?.Episseur || item?.article?.Episseur}
+                      {item?.Episseur | item?.article?.Episseur}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
@@ -663,7 +663,7 @@ function Controller() {
                   </div>
                   <div>
                     <span className='block text-gray-500'>Épaisseur</span>
-                    {item?.Episseur || item?.article?.Episseur || '__'}
+                    {item?.Episseur | item?.article?.Episseur}
                   </div>
                 </div>
 
