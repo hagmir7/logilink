@@ -36,10 +36,6 @@ function PreparationList() {
 
   const currentItems = data?.doclignes || []
 
-
-  
-
-
   const prepare = async (lineId) => {
     setLoadingId(lineId)
     message.success('Preparation successfully')
@@ -264,8 +260,15 @@ function PreparationList() {
                     </div>
                   </Td>
                   <Td>
-                    <Tag color='green-inverse'>{Math.floor(item.DL_Qte)}</Tag>
+                    <Tag color='green-inverse'>
+                      {item?.line?.role_quantity?.length > 0
+                        ? Math.floor(
+                            item.line.role_quantity[0].pivot?.quantity ?? 0
+                          )
+                        : Math.floor(item.DL_Qte)}
+                    </Tag>
                   </Td>
+
                   <Td>
                     <Tag
                       color={
