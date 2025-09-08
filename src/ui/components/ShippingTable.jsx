@@ -7,18 +7,21 @@ import Spinner from './ui/Spinner'
 import { api } from '../utils/api'
 import { Link, useNavigate } from 'react-router-dom'
 
-// Mock utility functions for demo
+
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
 function ShippingTable({ documents = [], onSelectOrder, loading }) {
-  // Sample data for demonstration  
+
 
   const { roles, user } = useAuth();
   const [users, setUsers] = useState([]);
   const navigate = useNavigate()
-  // const [companies, setCompanies] = useState([]);
+
+
+  console.log(documents);
+  
 
 
 
@@ -127,63 +130,53 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200 border-b border-gray-200'
                 onDoubleClick={() =>
                   onSelectOrder &&
-                  handleShow(item.piece_bl || item.docentete.DO_Piece)
+                  handleShow(item.document.piece_bl || item.DO_Piece)
                 }
               >
                 {roles('commercial') && (
                   <td className='px-6 py-4 whitespace-nowrap'>
                     <div className='text-sm font-bold text-gray-900'>
-                      {item.piece_bl || item?.docentete?.DO_Piece || '__'}
+                      {item?.document?.piece_bl || item.DO_Piece || '__'}
                     </div>
                   </td>
                 )}
 
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <div className='text-sm font-bold text-gray-900'>
-                    {item.piece || '__'}
+                    {item?.document?.piece || '__'}
                   </div>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <Tag
-                    color={item?.status?.color || item?.document?.status?.color}
+                    color={item?.document?.status?.color}
                     className='text-xl'
                   >
-                    {item?.status?.name ||
-                      item?.document?.status?.name ||
-                      'En attente'}
+                    {item?.document?.status?.name|| 'En attente'}
                   </Tag>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
-                  <span
-                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(
-                      item.expedition || item.DO_Expedit
-                    )}`}
-                  >
-                    {getExped(item.expedition || item.DO_Expedit)}
+                  <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(item.DO_Expedit)}`}>
+                    {getExped(item.DO_Expedit)}
                   </span>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
                   <span className='text-sm text-gray-900 font-medium'>
-                    {item.client_id || item.DO_Tiers}
+                    {item.DO_Tiers}
                   </span>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {item.ref || item.DO_Ref}
+                  {item.DO_Ref}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(
-                    new Date(item?.docentete?.DO_Date || item.DO_Date)
-                  )}
+                  {formatDate(new Date(item.DO_Date))}
                 </td>
 
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(
-                    new Date(item?.docentete?.DO_DateLivr || item?.DO_DateLivr)
-                  )}
+                  {formatDate( new Date(item?.DO_DateLivr))}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                   {['11', '12', '13'].includes(
-                    item.companies.find(
+                    item?.document?.companies?.find(
                       (company) => company.id == user.company_id
                     )?.pivot.status_id
                   ) &&
@@ -199,7 +192,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                     )}
 
                   {roles('chargement') && (
-                    <Link to={`/chargement/${item.piece}`}>
+                    <Link to={`/chargement/${item?.document?.piece || item.DO_Piec }`}>
                       <Button>Chargement</Button>
                     </Link>
                   )}
@@ -213,8 +206,8 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
       {/* Mobile Card View */}
       <div className='lg:hidden'>
         {documents.map((item, index) => {
-          const pieceBL = item.piece_bl || item?.docentete?.DO_Piece || 0
-          const piecePL = item?.piece || '__'
+          const pieceBL = item?.document?.piece_bl || item?.DO_Piece || 0
+          const piecePL = item?.document?.piece || '__'
 
           return (
             <div
@@ -230,34 +223,25 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   <span className='text-2xl font-extrabold text-gray-900'>
                     {roles('commercial') ? pieceBL : piecePL}
                   </span>
-                  {(item.DO_Reliquat === 1 || item.reliquat === 1) && (
+                  {(item.DO_Reliquat === "1") && (
                     <span className='ml-3 p-2 bg-gray-200 text-gray-700 rounded'>
                       <Settings size={18} />
                     </span>
                   )}
                 </div>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${getStatusBadgeColor(
-                    item?.status?.color || item?.document?.status?.color
-                  )}`}
-                >
-                  {item?.status?.name ||
-                    item?.document?.status?.name ||
-                    'En attente'}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${getStatusBadgeColor(item?.document?.status?.color)}`}>
+                  {item?.document?.status?.name || 'En attente'}
                 </span>
               </div>
 
               {/* Expedition and Client badges */}
               <div className='flex flex-wrap gap-3 mb-4'>
-                <span
-                  className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getExpeditionColor(
-                    item.expedition || item.DO_Expedit
-                  )}`}
+                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getExpeditionColor(item.DO_Expedit)}`}
                 >
-                  {getExped(item.expedition || item.DO_Expedit)}
+                  {getExped(item.DO_Expedit)}
                 </span>
                 <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-200 text-blue-900'>
-                  {item.client_id || item.DO_Tiers}
+                  {item.DO_Tiers}
                 </span>
               </div>
 
@@ -266,7 +250,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 <div className='flex justify-between text-xl'>
                   <span className='text-gray-600 font-medium'>Référence:</span>
                   <span className='font-semibold text-gray-900'>
-                    {item.ref || item.DO_Ref}
+                    {item.DO_Ref}
                   </span>
                 </div>
 
@@ -276,9 +260,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   </span>
                   <span className='font-semibold text-gray-900'>
                     {formatDate(
-                      new Date(
-                        item?.docentete?.DO_DateLivr || item?.DO_DateLivr
-                      )
+                      new Date(item?.DO_DateLivr )
                     )}
                   </span>
                 </div>
@@ -287,13 +269,13 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   <span className='text-gray-600 font-medium'>Palettes:</span>
                   <Tag className='font-bold text-gray-900'>
                     <div className='font-extrabold text-xl px-4 py-2'>
-                      {item?.palettes_count}
+                      {/* {item?.palettes_count} */}
                     </div>
                   </Tag>
                 </div>
               </div>
 
-              <Link to={`/chargement/${item.piece}`}>
+              <Link to={`/chargement/${item?.document?.piece || item.DO_Piec}`}>
                 <Button className='mt-4 w-full text-lg py-3 rounded-xl' style={{ fontSize: "30px", padding: "30px" }}>
                   🚚 Chargement
                 </Button>

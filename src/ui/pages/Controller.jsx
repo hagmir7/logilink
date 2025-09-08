@@ -14,7 +14,17 @@ import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getStatus } from '../utils/config'
 import { useParams } from 'react-router-dom'
-import { Button, Checkbox, message, Select, Tag, Popconfirm, Empty } from 'antd'
+import {
+  Button,
+  Checkbox,
+  message,
+  Select,
+  Tag,
+  Popconfirm,
+  Empty,
+  Input,
+  InputNumber,
+} from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { useAuth } from '../contexts/AuthContext'
@@ -26,7 +36,8 @@ function Controller() {
   const { id } = useParams()
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
   const [loading, setLoading] = useState(false)
-  const [selected, setSelected] = useState([])
+  const [validatePartialLoading, setValidatePartialLoading] = useState(false);
+  const [selected, setSelected] = useState({}) // Changed to object to store quantities
   const [selectedRoles, setSelectedRoles] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
   const [documentCompany, setDocumentCompany] = useState({})
@@ -41,14 +52,12 @@ function Controller() {
     try {
       const response = await api.get(`docentetes/${id}`)
 
-
       setData(response.data)
 
       const companies = response.data?.docentete?.document?.companies || []
       const company = companies.find(
         (item) => item.id === Number(user?.company_id)
       )
-
 
       if (company) {
         setDocumentCompany(company)
@@ -68,8 +77,6 @@ function Controller() {
     }
   }
 
-
-
   useEffect(() => {
     if (user?.company_id) {
       fetchData()
@@ -78,31 +85,62 @@ function Controller() {
 
   const currentItems = data?.doclignes || []
 
-  const handleSelect = (id) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    )
+  const handleSelect = (lineId, item) => {
+    setSelected((prev) => {
+      const newSelected = { ...prev }
 
+      if (newSelected[lineId]) {
+        // If item is already selected, remove it
+        delete newSelected[lineId]
+      } else {
+        // If item is not selected, add it with default quantity
+        newSelected[lineId] = {
+          line_id: lineId,
+          quantity: Math.floor(item.DL_Qte), // Default to original quantity
+        }
+      }
+
+      return newSelected
+    })
   }
 
-
-  const validate = () => {
-    const result = data.doclignes
-      .filter(item => selected.includes(Number(item.line.status_id)))
-      .find(item => Number(item.line.status_id) !== 8);
-
-    console.log(result);
-  };
-
+  const validate = async () => {
+    setValidatePartialLoading(true)
+    const selectedItems = Object.values(selected)
+    if(selectedItems.length == 0){
+      message.warning("Select articles");
+      setValidatePartialLoading(false)
+      return;
+    }
+    try {
+      const response = await api.post(`docentetes/palettes/validate-partial/${id}`, {
+        lines: selectedItems
+      })
+      message.success("document validated successfully")
+        fetchData()
+      setValidatePartialLoading(false)
+    } catch (error) {
+      setValidatePartialLoading(false)
+       message.error(error.response.data.message);
+    }
+  }
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelected(data.doclignes.map((doc) => doc.line.id))
+      const newSelected = {}
+      data.doclignes
+        .filter((item) => item.line?.validated !== '1')
+        .forEach((doc) => {
+          const lineId = doc.line?.id || doc.id
+          newSelected[lineId] = {
+            line_id: lineId,
+            quantity: Math.floor(doc.DL_Qte),
+          }
+        })
+      setSelected(newSelected)
     } else {
-      setSelected([])
+      setSelected({})
     }
-    
-    
   }
 
   const handleChangeTransfer = (value) => {
@@ -112,26 +150,45 @@ function Controller() {
     }
   }
 
+  const handleQuantityChange = (lineId, value) => {
+    if (value && value > 0) {
+      setSelected((prev) => ({
+        ...prev,
+        [lineId]: {
+          ...prev[lineId],
+          quantity: value,
+        },
+      }))
+    }
+  }
+
   const transfer = async () => {
     setTransferSpin(true)
-    if (selectedRoles && selected.length > 0) {
-      setSelectedRoles(selectedRoles)
-      const data = {
+    const selectedItems = Object.values(selected)
+
+    if (selectedRoles && selectedItems.length > 0) {
+      console.log('Selected items for transfer:', selectedItems)
+
+      const transferData = {
         roles: selectedRoles,
-        lines: selected,
+        lines: selectedItems,
       }
-      const response = await api.post('docentetes/transfer', data)
-      setSelectedRoles(null)
-      setSelected([])
-      fetchData()
-      message.success('Articles transférés avec succès')
+
+      try {
+        const response = await api.post('docentetes/transfer', transferData)
+        setSelectedRoles(null)
+        setSelected({})
+        fetchData()
+        message.success('Articles transférés avec succès')
+      } catch (error) {
+        console.error('Transfer failed:', error)
+        message.error('Erreur lors du transfert')
+      }
     } else {
       message.warning('Aucun article sélectionné')
     }
     setTransferSpin(false)
   }
-
-
 
   let listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },
@@ -149,8 +206,9 @@ function Controller() {
   const handleOk = async () => {
     try {
       setConfirmLoading(true)
+      const selectedItems = Object.values(selected)
       await api.post(`docentetes/palettes/validate/${id}`, {
-        lines: selected,
+        lines: selectedItems,
       })
       setOpen(false)
       setConfirmLoading(false)
@@ -158,19 +216,26 @@ function Controller() {
     } catch (error) {
       console.error(error)
       message.error(error.response.data.message)
-      
     }
-    
   }
 
   const handleCancel = () => {
     setOpen(false)
   }
 
-
   const getStatusColor = (status) => {
     return status?.color || 'gray'
   }
+
+  const isItemSelected = (lineId) => {
+    return selected.hasOwnProperty(lineId)
+  }
+
+  const getSelectedQuantity = (lineId) => {
+    return selected[lineId]?.quantity || 0
+  }
+
+  
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -232,9 +297,9 @@ function Controller() {
             />
           )}
 
-          <Button onClick={validate} className='btn'>
-              <ListTodo /> Validate
-            </Button>
+          <Button onClick={validate} loading={validatePartialLoading} className='btn'>
+            <ListTodo /> Validate
+          </Button>
         </div>
       </div>
 
@@ -341,7 +406,7 @@ function Controller() {
                 <Checkbox
                   onChange={handleSelectAll}
                   checked={
-                    selected.length ===
+                    Object.keys(selected).length ===
                       data.doclignes.filter(
                         (item) => item.line?.validated !== '1'
                       ).length &&
@@ -366,24 +431,23 @@ function Controller() {
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Largeur
               </th>
-              {/* <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
-                Profondeur
-              </th> */}
-
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Epaisseur
               </th>
-
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Couleur
               </th>
-
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Chant
               </th>
-
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
-                Quantité
+                QTE
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
+                QTE transférée
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
+                Qte a Transfer
               </th>
             </Tr>
           </Thead>
@@ -391,7 +455,7 @@ function Controller() {
             {loading ? (
               [...Array(4)].map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  {[...Array(10)].map((_, colIndex) => (
+                  {[...Array(12)].map((_, colIndex) => (
                     <td className='px-6 py-4' key={colIndex}>
                       <div className='h-4 bg-gray-200 rounded w-3/4 animate-pulse'></div>
                     </td>
@@ -399,107 +463,127 @@ function Controller() {
                 </tr>
               ))
             ) : data.doclignes?.length > 0 ? (
-              currentItems.map((item, index) => (
-                <tr
-                  key={index}
-                  className={`
-                    border-b border-gray-200 
-                    hover:bg-blue-50 
-                    transition-colors 
-                    duration-150 
-                    ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                  `}
-                >
-                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
-                    {item.line?.validated === '1' ? (
-                      <div className='flex items-center justify-center'>
-                        <svg
-                          className='w-5 h-5 text-green-500'
-                          fill='currentColor'
-                          viewBox='0 0 20 20'
-                        >
-                          <path
-                            fillRule='evenodd'
-                            d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
-                            clipRule='evenodd'
-                          />
-                        </svg>
+              currentItems.map((item, index) => {
+                const lineId = item.line?.id || item.id
+                return (
+                  <tr
+                    key={index}
+                    className={`
+                      border-b border-gray-200 
+                      hover:bg-blue-50 
+                      transition-colors 
+                      duration-150 
+                      ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                    `}
+                  >
+                    <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                      {item.line?.validated === '1' ? (
+                        <div className='flex items-center justify-center'>
+                          <svg
+                            className='w-5 h-5 text-green-500'
+                            fill='currentColor'
+                            viewBox='0 0 20 20'
+                          >
+                            <path
+                              fillRule='evenodd'
+                              d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                              clipRule='evenodd'
+                            />
+                          </svg>
+                        </div>
+                      ) : (
+                        <Checkbox
+                          checked={isItemSelected(lineId)}
+                          onChange={() => handleSelect(lineId, item)}
+                        />
+                      )}
+                    </td>
+                    <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                      <Tag color={item.line?.status?.color}>
+                        {item.line?.status?.name}
+                      </Tag>
+                    </td>
+
+                    <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                      <span className='text-sm font-semibold text-gray-900'>
+                        {item.AR_Ref || '__'}
+                      </span>
+                    </td>
+
+                    <td className='px-2 text-sm border-r border-gray-100'>
+                      <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
+                        {item?.Nom ||
+                          item.article?.Nom ||
+                          item?.DL_Design ||
+                          '__'}{' '}
+                        {item?.Poignee} {item?.Rotation} {item?.Description}
                       </div>
-                    ) : (
-                      <Checkbox
-                        checked={selected.includes(item.line?.id || item.id)}
-                        onChange={() => handleSelect(item.line?.id || item.id)}
-                      />
-                    )}
-                  </td>
-                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
-                    <Tag color={item.line?.status?.color}>
-                      {item.line?.status?.name}
-                    </Tag>
-                  </td>
+                    </td>
 
-                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
-                    <span className='text-sm font-semibold text-gray-900'>
-                      {item.AR_Ref || '__'}
-                    </span>
-                  </td>
+                    <td className='px-2 text-sm border-r border-gray-100'>
+                      {item.Hauteur > 0
+                        ? Math.floor(item.Hauteur)
+                        : Math.floor(item.article?.Hauteur) || '__'}
+                    </td>
 
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
-                      {item?.Nom ||
-                        item.article?.Nom ||
-                        item?.DL_Design ||
+                    <td className='px-2 text-sm border-r border-gray-100'>
+                      {item.Largeur > 0
+                        ? Math.floor(item.Largeur)
+                        : Math.floor(item?.article?.Largeur) || '__'}
+                    </td>
+
+                    <td className='px-2 text-sm border-r border-gray-100'>
+                      {item?.Episseur | item?.article?.Episseur}
+                    </td>
+
+                    <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
+                      {(item.Couleur ? item.Couleur : item?.article?.Couleur) ||
                         '__'}
-                        {" "}
-                        {item?.Poignee}
-                        {" "}
-                        {item?.Rotation}
+                    </td>
 
-                        {" "}
-                        {item?.Description}
-                    </div>
-                  </td>
+                    <td className='px-2 text-sm border-r border-gray-100'>
+                      {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
+                    </td>
 
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item.Hauteur > 0
-                      ? Math.floor(item.Hauteur)
-                      : Math.floor(item.article?.Hauteur) || '__'}
-                  </td>
+                    <td className='px-4 py-2'>
+                      <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
+                        {Math.floor(item.DL_Qte)}
+                      </span>
+                    </td>
 
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item.Largeur > 0
-                      ? Math.floor(item.Largeur)
-                      : Math.floor(item?.article?.Largeur) || '__'}
-                  </td>
-                  {/* <td className='px-2 text-sm border-r border-gray-100'>
-                    {item.Profondeur | item?.article?.Profonduer || '__'}
-                  </td> */}
+                    <td className='px-4 py-2'>
+                      <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
+                        {Math.floor(
+                          item.line.role_quantity
+                            ? item.line.role_quantity.reduce(
+                                (sum, role) =>
+                                  sum + (role.pivot?.quantity ?? 0),
+                                0
+                              )
+                            : 0
+                        )}
+                      </span>
+                    </td>
 
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item?.Episseur | item?.article?.Episseur}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
-                    {(item.Couleur ? item.Couleur : item?.article?.Couleur) ||
-                      '__'}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
-                  </td>
-
-                  <td className='px-4 py-2'>
-                    <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                      {Math.floor(item.DL_Qte)}
-                    </span>
-                  </td>
-                </tr>
-              ))
+                    <td className='px-4 py-2'>
+                      <InputNumber
+                        min={0.1}
+                        max={Math.floor(item.DL_Qte)}
+                        value={getSelectedQuantity(lineId)}
+                        onChange={(value) =>
+                          handleQuantityChange(lineId, value)
+                        }
+                        disabled={!isItemSelected(lineId)}
+                      />
+                    </td>
+                  </tr>
+                )
+              })
             ) : (
               <tr>
-                <td colSpan='10' className='p-8'>
+                <td colSpan='11' className='p-8'>
                   <div className='text-center'>
-                    <Empty  description="Aucun article trouvé"/>
+                    <Empty description='Aucun article trouvé' />
                   </div>
                 </td>
               </tr>
@@ -511,7 +595,6 @@ function Controller() {
       {/* Mobile Cards */}
       <div className='block md:hidden'>
         {loading ? (
-          // Mobile loading skeleton
           <div className='space-y-4'>
             {[1, 2, 3].map((i) => (
               <div
@@ -533,91 +616,109 @@ function Controller() {
             ))}
           </div>
         ) : data.doclignes?.length > 0 ? (
-          currentItems.map((item, index) => (
-            <div
-              key={index}
-              className='bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6 hover:shadow-lg transition-all duration-200'
-            >
-              <div className='flex justify-between items-start mb-4'>
-                <div className='space-y-1'>
-                  <h2 className='text-lg font-semibold text-gray-900 flex gap-3 items-center'>
-                    <span>
-                      <Checkbox
-                        style={{
-                          transform: 'scale(1.5)',
-                          transformOrigin: 'top left',
-                          fontSize: '18px',
-                          // lineHeight: '60px',
-                          // height: '60px',
-                          display: 'flex',
-                          alignItems: 'center',
-                        }}
-                      ></Checkbox>
+          currentItems.map((item, index) => {
+            const lineId = item.line?.id || item.id
+            return (
+              <div
+                key={index}
+                className='bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6 hover:shadow-lg transition-all duration-200'
+              >
+                <div className='flex justify-between items-start mb-4'>
+                  <div className='space-y-1'>
+                    <h2 className='text-lg font-semibold text-gray-900 flex gap-3 items-center'>
+                      <span>
+                        <Checkbox
+                          checked={isItemSelected(lineId)}
+                          onChange={() => handleSelect(lineId, item)}
+                          style={{
+                            transform: 'scale(1.5)',
+                            transformOrigin: 'top left',
+                            fontSize: '18px',
+                            display: 'flex',
+                            alignItems: 'center',
+                          }}
+                        />
+                      </span>
+
+                      <span>
+                        {item?.Nom ||
+                          item.article?.Nom ||
+                          item?.DL_Design ||
+                          '__'}
+                      </span>
+                    </h2>
+                    <p className='text-sm text-gray-500'>
+                      {item?.Description || ''} {item?.Rotation || ''}{' '}
+                      {item?.Poignee || ''}
+                    </p>
+                  </div>
+                  <div className='flex items-center space-x-3'>
+                    <span className='px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800'>
+                      {Math.floor(item.DL_Qte)}
                     </span>
-
-                    <span>
-                      {item?.Nom ||
-                        item.article?.Nom ||
-                        item?.DL_Design ||
-                        '__'}
-                    </span>
-                  </h2>
-                  <p className='text-sm text-gray-500'>
-                    {item?.Description || ''} {item?.Rotation || ''}{' '}
-                    {item?.Poignee || ''}
-                  </p>
+                  </div>
                 </div>
-                <div className='flex items-center space-x-3'>
-                  <span className='px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800'>
-                    {Math.floor(item.DL_Qte)}
-                  </span>
+
+                {isItemSelected(lineId) && (
+                  <div className='mb-4 p-3 bg-blue-50 rounded-lg'>
+                    <label className='block text-sm font-medium text-gray-700 mb-2'>
+                      Quantité à transférer:
+                    </label>
+                    <InputNumber
+                      min={0.1}
+                      max={Math.floor(item.DL_Qte)}
+                      value={getSelectedQuantity(lineId)}
+                      onChange={(value) => handleQuantityChange(lineId, value)}
+                      style={{ width: '100%' }}
+                    />
+                  </div>
+                )}
+
+                <div className='border-t border-gray-200 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700'>
+                  <div>
+                    <span className='block text-gray-500'>Hauteur</span>
+                    {item.Hauteur > 0
+                      ? Math.floor(item.Hauteur)
+                      : Math.floor(item.article?.Hauteur) || '__'}
+                  </div>
+                  <div>
+                    <span className='block text-gray-500'>Largeur</span>
+                    {item.Largeur > 0
+                      ? Math.floor(item.Largeur)
+                      : Math.floor(item?.article?.Largeur) || '__'}
+                  </div>
+                  <div>
+                    <span className='block text-gray-500'>Profondeur</span>
+                    {item.Profondeur || item?.article?.Profonduer || '__'}
+                  </div>
+                  <div>
+                    <span className='block text-gray-500'>Épaisseur</span>
+                    {item?.Episseur | item?.article?.Episseur}
+                  </div>
+                </div>
+
+                <div className='border-t border-gray-200 pt-4 grid grid-cols-3 gap-4 text-sm text-gray-700 mt-4'>
+                  <div>
+                    <span className='block text-gray-500'>Couleur</span>
+                    <strong>
+                      {item.Couleur || item?.article?.Couleur || '__'}
+                    </strong>
+                  </div>
+                  <div>
+                    <span className='block text-gray-500'>Chant</span>
+                    {item.Chant || item?.article?.Chant || '__'}
+                  </div>
+                  <div>
+                    <span className='block text-gray-500'>Référence</span>
+                    {item.AR_Ref || '__'}
+                  </div>
                 </div>
               </div>
-
-              <div className='border-t border-gray-200 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700'>
-                <div>
-                  <span className='block text-gray-500'>Hauteur</span>
-                  {item.Hauteur > 0
-                    ? Math.floor(item.Hauteur)
-                    : Math.floor(item.article?.Hauteur) || '__'}
-                </div>
-                <div>
-                  <span className='block text-gray-500'>Largeur</span>
-                  {item.Largeur > 0
-                    ? Math.floor(item.Largeur)
-                    : Math.floor(item?.article?.Largeur) || '__'}
-                </div>
-                <div>
-                  <span className='block text-gray-500'>Profondeur</span>
-                  {item.Profondeur || item?.article?.Profonduer || '__'}
-                </div>
-                <div>
-                  <span className='block text-gray-500'>Épaisseur</span>
-                  {item?.Episseur || item?.article?.Episseur || '__'}
-                </div>
-              </div>
-
-              <div className='border-t border-gray-200 pt-4 grid grid-cols-3 gap-4 text-sm text-gray-700 mt-4'>
-                <div>
-                  <span className='block text-gray-500'>Couleur</span>
-                  <strong>
-                    {item.Couleur || item?.article?.Couleur || '__'}
-                  </strong>
-                </div>
-                <div>
-                  <span className='block text-gray-500'>Chant</span>
-                  {item.Chant || item?.article?.Chant || '__'}
-                </div>
-                <div>
-                  <span className='block text-gray-500'>Référence</span>
-                  {item.AR_Ref || '__'}
-                </div>
-              </div>
-            </div>
-          ))
+            )
+          })
         ) : (
           <div className='bg-white border-1 border-gray-200 p-8 text-center'>
-           <Empty description="Aucun article trouvé" />
+            <Empty description='Aucun article trouvé' />
           </div>
         )}
       </div>

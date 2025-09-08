@@ -1,7 +1,7 @@
 import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { useNavigate } from 'react-router-dom'
+import { data, useNavigate } from 'react-router-dom'
 import { Button, Select, DatePicker, Input } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import ShippingTable from '../components/ShippingTable'
@@ -11,11 +11,7 @@ const { RangePicker } = DatePicker
 
 function Shipping() {
  
-  const [documents, setDocuments] = useState({
-    data: [],
-    next_page_url: null,
-    total: 0,
-  })
+  const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(false)
   const [documenStatus, setDocumentStatus] = useState('')
   const [page, setPage] = useState(1)
@@ -30,12 +26,7 @@ function Shipping() {
     setLoading(true)
     try {
       const response = await api.get(`documents/livraison?status=${documenStatus}&search=${searchQuery}`);
-      setDocuments(prev => ({
-        ...prev,
-        data: response.data.data,
-        next_page_url: response.data.next_page_url,
-        total: response.data.total
-      }))
+      setDocuments(response.data)
       
       setLoading(false)
     } catch (err) {
@@ -82,11 +73,7 @@ function Shipping() {
 
     try {
       const response = await api.get(`${url}&search=${inputValue}`)
-      setDocuments({
-        data: response.data.data,
-        next_page_url: response.data.next_page_url,
-        total: response.data.total,
-      })
+      setDocuments(response.data)
       setSearchSpinner(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -139,7 +126,7 @@ function Shipping() {
       </div>
       <ShippingTable
         loading={loading}
-        documents={documents.data}
+        documents={documents}
         onSelectOrder={handleSelectOrder}
       />
       {documents.next_page_url && (

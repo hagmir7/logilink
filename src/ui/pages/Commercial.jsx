@@ -244,7 +244,6 @@ function Commercial() {
                   </Popconfirm>
                 )}
 
-
               <Select
                 placeholder='Transférer vers'
                 style={{ width: 200 }}
@@ -318,6 +317,8 @@ function Commercial() {
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
                           Quantité
                         </th>
+
+                    
                       </tr>
                     </thead>
                     <tbody className='bg-white'>
@@ -435,7 +436,7 @@ function Commercial() {
                       ) : (
                         <tr>
                           <td colSpan='6' className='p-8'>
-                            <Empty description="Aucun article trouvé" />
+                            <Empty description='Aucun article trouvé' />
                           </td>
                         </tr>
                       )}
@@ -573,7 +574,7 @@ function Commercial() {
                 ))
               ) : (
                 <div className='bg-white border border-gray-200 rounded-lg p-8 text-center shadow-sm'>
-                 <Empty description="Aucun article trouvé" />
+                  <Empty description='Aucun article trouvé' />
                 </div>
               )}
             </div>

@@ -15,8 +15,8 @@ const Login = () => {
   // Initialize form with default values
   useEffect(() => {
     form.setFieldsValue({
-      login: 'admin',
-      password: ''
+      login: import.meta.env.MODE === 'development' ? 'admin' : '',
+      password: import.meta.env.MODE === 'development' ? 'password' : ''
     });
     checkAuth();
   }, [form]);
