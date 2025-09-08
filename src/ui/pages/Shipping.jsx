@@ -57,14 +57,19 @@ function Shipping() {
   const loadMore = async () => {
     setMoreSpinner(true)
     setPage(page + 1)
-    try {
-      const response = await api.get(`${url}&page=${page}`)
-      setDocuments({
-        data: [...data.data, ...response.data.data],
+
+     const response = await api.get(`documents/livraison?page=${page}`)
+      setDocuments(prev => ({
+        ...prev,
+        data: response.data.data,
         next_page_url: response.data.next_page_url,
-        total: response.data.total,
-      })
+        total: response.data.total
+      }))
       setMoreSpinner(false)
+    
+    try {
+      
+     
     } catch (err) {
       console.error('Failed to fetch data:', err)
       setMoreSpinner(false)
@@ -138,7 +143,7 @@ function Shipping() {
         onSelectOrder={handleSelectOrder}
       />
       {documents.next_page_url && (
-        <div className='flex justify-center'>
+        <div className='flex justify-center py-6'>
           <Button
             onClick={loadMore}
             type='primary'

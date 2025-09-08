@@ -213,7 +213,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
       {/* Mobile Card View */}
       <div className='lg:hidden'>
         {documents.map((item, index) => {
-          const pieceBL = item.piece_bl || item?.docentete?.DO_Piece || '__'
+          const pieceBL = item.piece_bl || item?.docentete?.DO_Piece || 0
           const piecePL = item?.piece || '__'
 
           return (

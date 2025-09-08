@@ -169,7 +169,7 @@ function Commercial() {
               {data.docentete.document && (
                 <DocumentPalettesModal
                   countPalettes={data.docentete.document.palettes.length}
-                  documentPiece={data.docentete.DO_Piece}
+                  documentPiece={data.docentete.document.piece || data.docentete.DO_Piece}
                 />
               )}
             </div>
