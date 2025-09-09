@@ -175,7 +175,7 @@ function CompanyStock({ company_id }) {
                   Disponible
                 </th>
 
-                 <th className='px-4 py-3 text-left text-md font-medium text-gray-700 uppercase tracking-wider'>
+                <th className='px-4 py-3 text-left text-md font-medium text-gray-700 uppercase tracking-wider'>
                   Physique
                 </th>
 
@@ -183,9 +183,6 @@ function CompanyStock({ company_id }) {
                   Preparation
                 </th>
 
-              
-
-                
                 <th className='px-4 py-3 text-left text-md font-medium text-gray-700 uppercase tracking-wider'>
                   Action
                 </th>
@@ -231,7 +228,7 @@ function CompanyStock({ company_id }) {
 
                   <td className='px-4 py-2'>
                     <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                      {article.quantity}
+                      { article.quantity + article.stock_prepare }
                     </span>
                   </td>
 
@@ -243,7 +240,7 @@ function CompanyStock({ company_id }) {
 
                   <td className='px-4 py-2'>
                     <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                      {article.quantity}
+                      {parseFloat(article.stock_prepartion)}
                     </span>
                   </td>
 

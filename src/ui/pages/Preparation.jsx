@@ -14,7 +14,7 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
-import { Alert, Input, message, Modal, Button, Radio, Space, ColorPicker } from 'antd'
+import { Alert, Input, message, Modal, Radio, Space } from 'antd'
 import { PalettesModal } from '../components/PalettesModal';
 import { CloseOutlined } from '@ant-design/icons';
 
@@ -57,6 +57,8 @@ export default function Preparation() {
   const [selectedOption, setSelectedOption] = useState({});
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [defaultOptions, setDefaultOptins] = useState([]);
+
+
   const showModal = () => {
     setIsModalOpen(true);
   };
@@ -98,6 +100,7 @@ export default function Preparation() {
       const { data } = await api.get(`emplacement/${value}`)
       setScannedEmplacement(data)
       quantityInput.current.focus();
+      setEmpalcementCodeError(null)
     } catch (error) {
       console.error(error)
       setEmpalcementCodeError(
@@ -226,6 +229,7 @@ const handleScan = async (value) => {
   const payload = { line: value, document: id, palette: palette.code };
   setLoading('scan', true);
   setLineError('');
+  
 
   try {
     let { data } = await api.post('palettes/scan', payload);
@@ -275,6 +279,7 @@ const handleScan = async (value) => {
         quantity: article.qte,
         palette: palette?.code,
         line: article.id,
+        emplacement: scannedEmplacement?.code || false
       })
 
       createPalette()
@@ -476,8 +481,8 @@ const handleScan = async (value) => {
               value={line}
               onChange={(e) => {
                 const newValue = e.target.value
-                setLine(newValue) // Update state immediately
-                handleScan(newValue) // Then trigger scan
+                setLine(newValue)
+                handleScan(newValue)
               }}
               autoFocus={true}
               ref={lineInput}
