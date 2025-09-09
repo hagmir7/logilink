@@ -98,10 +98,6 @@ export const DocumentProgress = () => {
                   'État',
                   'Ref Article',
                   'Désignation',
-                  'Hauteur',
-                  'Largeur',
-                  'Couleur',
-
                   'Société',
                   'Quantité',
                 ].map((h) => (
@@ -153,23 +149,6 @@ export const DocumentProgress = () => {
                       <td className='px-2 py-1 text-sm border-r border-gray-100'>
                         {uppercaseFirst(item.docligne.DL_Design)}
                       </td>
-                      <td className='px-2 py-1 text-sm border-r border-gray-100'>
-                        {item.docligne?.Hauteur |
-                          item.article_stock?.height |
-                          '__'}
-                      </td>
-                      <td className='px-2 py-1 text-sm border-r border-gray-100'>
-                        {Math.floor(
-                          item.docligne?.Langeur | item.article_stock?.width
-                        ) || '__'}
-                      </td>
-
-                      <td className='px-2 py-1 text-sm border-r border-gray-100 capitalize'>
-                        {item.docligne?.Couleur |
-                          item?.article_stock?.color |
-                          '__'}
-                      </td>
-
                       <td className='px-2 py-1 text-sm border-r border-gray-100 capitalize'>
                         <span
                           className={`inline-block px-2 py-0.5 rounded-full text-md font-medium ${

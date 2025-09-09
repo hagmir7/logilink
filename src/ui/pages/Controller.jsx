@@ -37,7 +37,7 @@ function Controller() {
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
   const [loading, setLoading] = useState(false)
   const [validatePartialLoading, setValidatePartialLoading] = useState(false);
-  const [selected, setSelected] = useState({}) // Changed to object to store quantities
+  const [selected, setSelected] = useState({});
   const [selectedRoles, setSelectedRoles] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
   const [documentCompany, setDocumentCompany] = useState({})
@@ -90,13 +90,13 @@ function Controller() {
       const newSelected = { ...prev }
 
       if (newSelected[lineId]) {
-        // If item is already selected, remove it
+        
         delete newSelected[lineId]
       } else {
-        // If item is not selected, add it with default quantity
+       
         newSelected[lineId] = {
           line_id: lineId,
-          quantity: Math.floor(item.DL_Qte), // Default to original quantity
+          quantity: Math.floor(item.DL_Qte), 
         }
       }
 

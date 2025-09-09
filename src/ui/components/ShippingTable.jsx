@@ -14,22 +14,15 @@ const formatDate = (date) => {
 
 function ShippingTable({ documents = [], onSelectOrder, loading }) {
 
-
   const { roles, user } = useAuth();
   const [users, setUsers] = useState([]);
   const navigate = useNavigate()
-
-
-  console.log(documents);
-  
-
-
 
   const fetchData = async () => {
     try {
       const response = await api.get('roles/chargement');
       setUsers(response.data);
-      
+
     } catch (error) {
       console.error("Error fetching users:", error);
     }
@@ -37,13 +30,18 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
 
   useEffect(() => {
     fetchData();
-  
+
   }, []);
 
 
   const handleChange = async (value, document_id) => {
-    api.post(`/documents/chargement/${document_id}`, {'user_id' : value});
-    message.success('Agent attribué avec succès');
+    try {
+      await api.post(`/documents/chargement/${document_id}`, { 'user_id': value });
+      message.success('Agent attribué avec succès');
+    } catch (error) {
+      console.error(error);
+      message.error(error?.response?.data?.message || "Errur d'attribué un agent de chargement")
+    }
   };
 
 
@@ -86,7 +84,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
     return colorMap[expedit] || 'bg-gray-100 text-gray-800'
   }
 
-  
+
 
   return (
     <div className='w-full '>
@@ -96,29 +94,29 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
           <thead className='bg-gray-50 border-b border-gray-200'>
             <tr>
               {roles('commercial') && (
-                <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+                <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                   Document
                 </th>
               )}
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Préparation
               </th>
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Statut
               </th>
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Expédition
               </th>
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Client
               </th>
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Référence
               </th>
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
-                Date Document
+              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
+                Palettes
               </th>
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Date Prévue
               </th>
             </tr>
@@ -130,7 +128,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200 border-b border-gray-200'
                 onDoubleClick={() =>
                   onSelectOrder &&
-                  handleShow(item.document.piece_bl || item.DO_Piece)
+                  handleShow(item?.document?.piece_bl || item.DO_Piece)
                 }
               >
                 {roles('commercial') && (
@@ -151,7 +149,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                     color={item?.document?.status?.color}
                     className='text-xl'
                   >
-                    {item?.document?.status?.name|| 'En attente'}
+                    {item?.document?.status?.name || 'En attente'}
                   </Tag>
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap'>
@@ -168,31 +166,31 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   {item.DO_Ref}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate(new Date(item.DO_Date))}
+                  <Tag className='font-bold text-gray-900'>
+                    <div className='font-extrabold text-md px-1 py-1'>
+                      {item?.palettes_count}
+                    </div>
+                  </Tag>
                 </td>
 
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {formatDate( new Date(item?.DO_DateLivr))}
+                  {formatDate(new Date(item?.DO_DateLivr))}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {['11', '12', '13'].includes(
-                    item?.document?.companies?.find(
-                      (company) => company.id == user.company_id
-                    )?.pivot.status_id
-                  ) &&
-                    roles('preparation') && (
+                  {roles('preparation') && (
                       <Select
+                        disabled={item?.document?.status?.id !== 12}
                         placeholder='Agent de chargement'
-                        defaultValue={item.user_id}
+                        value={item?.document?.delivered_by}
                         style={{ width: 170 }}
                         allowClear
-                        onChange={(value) => handleChange(value, item.id)}
+                        onChange={(value) => handleChange(value, item.document.id)}
                         options={users}
                       />
                     )}
 
                   {roles('chargement') && (
-                    <Link to={`/chargement/${item?.document?.piece || item.DO_Piec }`}>
+                    <Link to={`/chargement/${item?.document?.piece || item.DO_Piec}`}>
                       <Button>Chargement</Button>
                     </Link>
                   )}
@@ -260,7 +258,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   </span>
                   <span className='font-semibold text-gray-900'>
                     {formatDate(
-                      new Date(item?.DO_DateLivr )
+                      new Date(item?.DO_DateLivr)
                     )}
                   </span>
                 </div>
@@ -269,17 +267,38 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   <span className='text-gray-600 font-medium'>Palettes:</span>
                   <Tag className='font-bold text-gray-900'>
                     <div className='font-extrabold text-xl px-4 py-2'>
-                      {/* {item?.palettes_count} */}
+                      {item?.palettes_count}
                     </div>
                   </Tag>
                 </div>
               </div>
 
-              <Link to={`/chargement/${item?.document?.piece || item.DO_Piec}`}>
-                <Button className='mt-4 w-full text-lg py-3 rounded-xl' style={{ fontSize: "30px", padding: "30px" }}>
-                  🚚 Chargement
-                </Button>
-              </Link>
+              {/* Agent de chargement selection for mobile */}
+              {['11', '12', '13'].includes(
+                item?.document?.companies?.find(
+                  (company) => company.id == user.company_id
+                )?.pivot.status_id
+              ) &&
+                roles('preparation') && (
+                  <div className='mt-4'>
+                    <Select
+                      placeholder='Agent de chargement'
+                      value={item?.document?.delivered_by || item?.user_id}
+                      style={{ width: '100%' }}
+                      allowClear
+                      onChange={(value) => handleChange(value, item.document.id)}
+                      options={users}
+                    />
+                  </div>
+                )}
+
+              {roles('chargement') && (
+                <Link to={`/chargement/${item?.document?.piece || item.DO_Piec}`}>
+                  <Button className='mt-4 w-full text-lg py-3 rounded-xl' style={{ fontSize: "30px", padding: "30px" }}>
+                    🚚 Chargement
+                  </Button>
+                </Link>
+              )}
             </div>
           )
         })}
