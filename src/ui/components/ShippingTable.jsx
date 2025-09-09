@@ -168,7 +168,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
                   <Tag className='font-bold text-gray-900'>
                     <div className='font-extrabold text-md px-1 py-1'>
-                      {item?.palettes_count}
+                      {item?.document?.palettes_count}
                     </div>
                   </Tag>
                 </td>
@@ -267,7 +267,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   <span className='text-gray-600 font-medium'>Palettes:</span>
                   <Tag className='font-bold text-gray-900'>
                     <div className='font-extrabold text-xl px-4 py-2'>
-                      {item?.palettes_count}
+                      {item?.document?.palettes_count}
                     </div>
                   </Tag>
                 </div>

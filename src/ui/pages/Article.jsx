@@ -106,25 +106,25 @@ function Article() {
         <table className='w-full'>
           <thead className='bg-gray-50 border-b border-gray-200'>
             <tr>
-              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-2 text-left text-md font-semibold text-gray-700 uppercase whitespace-nowrap'>
                 Référence
               </th>
-              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-2 text-left text-md font-semibold text-gray-700 uppercase whitespace-nowrap'>
                 Désignation
               </th>
-              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-2 text-left text-md font-semibold text-gray-700 uppercase whitespace-nowrap'>
                 Quantity
               </th>
-              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-2 text-left text-md font-semibold text-gray-700 uppercase whitespace-nowrap'>
                 Couleur
               </th>
-              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-2 text-left text-md font-semibold text-gray-700 uppercase whitespace-nowrap'>
                 H / L / P
               </th>
-              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-2 text-left text-md font-semibold text-gray-700 uppercase whitespace-nowrap'>
                 Condition
               </th>
-              <th className='px-6 py-4 text-left text-md font-semibold text-gray-500 uppercase whitespace-nowrap'>
+              <th className='px-6 py-2 text-left text-md font-semibold text-gray-700 uppercase whitespace-nowrap'>
                 Palette Condition
               </th>
             </tr>
