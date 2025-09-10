@@ -108,7 +108,7 @@ function Controller() {
     setValidatePartialLoading(true)
     const selectedItems = Object.values(selected)
     if(selectedItems.length == 0){
-      message.warning("Select articles");
+      message.warning("Aucun article sélectionné");
       setValidatePartialLoading(false)
       return;
     }
