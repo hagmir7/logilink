@@ -179,16 +179,19 @@ function Controller() {
         setSelectedRoles(null)
         setSelected({})
         fetchData()
-        message.success('Articles transférés avec succès')
+        message.success(response.data.message ?? 'Transfert réussi')
       } catch (error) {
         console.error('Transfer failed:', error)
-        message.error('Erreur lors du transfert')
+        message.error(error.response?.data?.message ?? 'Erreur lors du transfert')
+      } finally {
+        setTransferSpin(false)
       }
     } else {
       message.warning('Aucun article sélectionné')
+      setTransferSpin(false)
     }
-    setTransferSpin(false)
   }
+
 
   let listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },
