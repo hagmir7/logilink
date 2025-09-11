@@ -440,11 +440,14 @@ function Controller() {
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Chant
               </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
-                QTE
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
+                QTE CMD
+              </th>
+               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
+                QTE Prp
               </th>
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
-                QTE transférée
+                QTE tran
               </th>
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
                 Qte a Transfer
@@ -548,6 +551,12 @@ function Controller() {
                     <td className='px-4 py-2'>
                       <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
                         {Math.floor(item.DL_Qte)}
+                      </span>
+                    </td>
+
+                    <td className='px-4 py-2'>
+                      <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
+                        {Math.floor(item.DL_QteBL)}
                       </span>
                     </td>
 

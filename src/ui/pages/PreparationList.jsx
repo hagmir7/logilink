@@ -228,6 +228,10 @@ function PreparationList() {
                       </div>
                     </div>
                   </Td>
+
+
+
+
                   <Td>
                     <div className='text-sm text-gray-500'>
                       Couleur:{' '}
@@ -243,13 +247,7 @@ function PreparationList() {
                           '__'}
                       </span>
                     </div>
-                    {/* <div className='text-sm text-gray-500'>
-                    Epaisseur:{' '}
-                    <span className='font-bold text-gray-800'>
-                      {item.Episseur ?? '__' | item.article?.Episseur ?? '__'}{' '}
-                      {Math.floor(item.article ? item.article.Episseur : item.Episseur) || '__'}
-                    </span>
-                  </div> */}
+
 
                     <div className='text-sm text-gray-500'>
                       Epaisseur:{' '}
@@ -259,37 +257,24 @@ function PreparationList() {
                       </span>
                     </div>
                   </Td>
+
+
                   <Td>
                     <Tag color='green-inverse'>
-                      {item?.line?.role_quantity?.length > 0
-                        ? Math.floor(
-                            item.line.role_quantity[0].pivot?.quantity ?? 0
-                          )
-                        : Math.floor(item.DL_Qte)}
+                      {Math.floor(item.DL_Qte)}
                     </Tag>
                   </Td>
 
                   <Td>
                     <Tag
-                      color={
-                        item?.line?.palettes?.reduce(
-                          (sum, palette) =>
-                            sum + Number(palette?.pivot?.quantity || 0),
-                          0
-                        ) == Math.floor(item.DL_Qte)
+                      color={ item.DL_QteBL == Math.floor(item.DL_Qte)
                           ? 'green-inverse'
                           : 'red-inverse'
                       }
                     >
-                      {item?.line?.palettes?.reduce(
-                        (sum, palette) =>
-                          sum + Number(palette?.pivot?.quantity || 0),
-                        0
-                      )}
+                      {Number(item.DL_QteBL || 0)}
                     </Tag>
                   </Td>
-
-                  {/* <Td>{item?.line?.palettes.length === Math.floor(item.DL_Qte) ? 'Yes' : 'No'}</Td> */}
                 </Tr>
               ))
             ) : (

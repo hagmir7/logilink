@@ -237,7 +237,7 @@ const handleScan = async (value) => {
     
 
     if(data.length === 0){
-      message.warning("L’article est déjà préparé")
+      message.warning("L’article pas valid ou déjà préparé")
       return;
     }
     
@@ -776,7 +776,6 @@ const handleScan = async (value) => {
                           {item?.docligne?.Poignée}
                           {" "}
                           {item?.docligne?.Rotation}
-
                           {" "}
                           {item?.docligne?.Description}
                         </h3>
@@ -784,7 +783,7 @@ const handleScan = async (value) => {
                         <p className='text-xl text-gray-600 mt-1'>
                             {Math.floor(lineHeight)} {(lineHeight && lineWidth) && " * "  }
                             {Math.floor(lineWidth)} mm
-                          </p>
+                        </p>
                        {(item.docligne?.Couleur || item.docligne?.article?.Couleur) ? (
                         <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full mt-2 text-lg">
                           {item.docligne?.Couleur || item.docligne?.article?.Couleur}
