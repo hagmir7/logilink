@@ -15,6 +15,8 @@ export const DocumentProgress = () => {
         setLoading(true)
         const { data } = await api.get(`documents/${piece}`)
         setData(data)
+        console.log(data);
+        
       } catch (error) {
         console.error(error)
         message.error(error?.response?.data?.message || 'Erreur')
@@ -115,7 +117,7 @@ export const DocumentProgress = () => {
               {loading ? (
                 [...Array(4)].map((_, i) => (
                   <tr key={i}>
-                    {[...Array(8)].map((_, j) => (
+                    {[...Array(5)].map((_, j) => (
                       <td key={j} className='px-6 py-4'>
                         <div className='h-4 bg-gray-200 rounded w-3/4 animate-pulse'></div>
                       </td>
@@ -146,22 +148,19 @@ export const DocumentProgress = () => {
                       <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100 font-semibold text-sm text-gray-900'>
                         {item.ref}
                       </td>
+
                       <td className='px-2 py-1 text-sm border-r border-gray-100'>
                         {uppercaseFirst(item.docligne.DL_Design)}
                       </td>
                       <td className='px-2 py-1 text-sm border-r border-gray-100 capitalize'>
-                        <span
-                          className={`inline-block px-2 py-0.5 rounded-full text-md font-medium ${
-                            companyColorMap[item.company.id] || 'bg-gray-400'
-                          }`}
-                        >
+                        <span className={`inline-block px-2 py-0.5 rounded-full text-md font-medium ${companyColorMap[item.company.id] || 'bg-gray-400' }`}>
                           {item.company.name}
                         </span>
                       </td>
 
                       <td className='px-2 py-1 text-sm'>
                         <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                          {Number(item.quantity)}
+                          {parseFloat(item.docligne.DL_Qte)}
                         </span>
                       </td>
                     </tr>

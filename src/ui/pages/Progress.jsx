@@ -26,6 +26,8 @@ const Progress = () => {
       setLoading(true)
       const { data } = await api.get(`documents?search=${search}&dates=${dateFilter || ''}`)
       setDocuments(data)
+ 
+      
       setLoading(false)
     }
     
