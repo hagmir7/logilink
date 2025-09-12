@@ -1,5 +1,5 @@
 import { Settings } from 'lucide-react'
-import { Tag } from 'antd'
+import { Skeleton, Tag, Tooltip } from 'antd'
 import { getExped } from '../utils/config'
 import Spinner from './ui/Spinner'
 import { useNavigate } from 'react-router-dom'
@@ -141,8 +141,25 @@ function DocumentTable({ documents = [], onSelectOrder, loading }) {
                     {formatDate(new Date(data?.DO_Date))}
                   </td>
 
-                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data?.DO_DateLivr))}
+                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-4 items-center'>
+                    <span>
+                      {formatDate(new Date(data?.DO_DateLivr))}
+                    </span>
+
+                    <span className='text-md'>
+                    {data?.document?.companies?.length > 0 ? (
+                      data.document.companies.map((company, index) => (
+                        <span key={company.id || index}>
+                          <Tooltip title={company.name}>
+                            <span>
+                              {company.pivot.printed == 1 ? "🖨️" : ''}
+                            </span>
+                          </Tooltip>
+                         
+                        </span>
+                      ))
+                    ) : null}
+                  </span>
                   </td>
                 </tr>
               ))}

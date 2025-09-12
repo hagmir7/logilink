@@ -53,6 +53,8 @@ function Controller() {
       const response = await api.get(`docentetes/${id}`)
 
       setData(response.data)
+      console.log(response.data);
+      
 
       const companies = response.data?.docentete?.document?.companies || []
       const company = companies.find(
@@ -240,6 +242,8 @@ function Controller() {
 
   
 
+  console.log(data?.docentete?.document?.companies);
+  
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
@@ -325,9 +329,13 @@ function Controller() {
             label: 'Société',
             value: (
               <div>
-                {data?.docentete?.document?.companies
-                  ?.map((company) => company.name)
-                  .join(' & ') || <Skeleton />}
+                {data?.docentete?.document?.companies?.length > 0 ? (
+                  data.docentete.document.companies
+                    .map((company) => `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''}`)
+                    .join(' & ')
+                ) : (
+                  <Skeleton />
+                )}
               </div>
             ),
           },
@@ -461,7 +469,7 @@ function Controller() {
             {loading ? (
               [...Array(4)].map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  {[...Array(12)].map((_, colIndex) => (
+                  {[...Array(13)].map((_, colIndex) => (
                     <td className='px-6 py-4' key={colIndex}>
                       <div className='h-4 bg-gray-200 rounded w-3/4 animate-pulse'></div>
                     </td>

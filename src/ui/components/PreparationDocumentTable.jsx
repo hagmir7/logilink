@@ -114,8 +114,6 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag
-
-
                       color={company(data)?.pivot?.status_id
                         ? getStatus(Number(company(data).pivot.status_id)).color
                         : 'gray'}

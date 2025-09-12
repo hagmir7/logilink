@@ -5,6 +5,8 @@ import {
   LoaderCircle,
   PrinterCheck,
   Settings,
+  Edit2,
+  Wrench,
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
@@ -15,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import PrintDocument from '../components/PrintDocument';
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal';
+import ResetPrinter from '../components/ResetPrinter';
 
 function Commercial() {
   const { id } = useParams()
@@ -128,6 +131,8 @@ function Commercial() {
    const getStatusColor = (status) => {
      return status?.color || 'gray'
    }
+
+
    
   return (
     <div className='h-full flex flex-col bg-gray-50'>
@@ -202,9 +207,13 @@ function Commercial() {
                 label: 'Société',
                 value: (
                   <div>
-                    {data?.docentete?.document?.companies
-                      ?.map((company) => company.name)
-                      .join(' & ') || <Skeleton />}
+                    {data?.docentete?.document?.companies?.length > 0 ? (
+                      data.docentete.document.companies
+                        .map((company) => `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''}`)
+                        .join(' & ')
+                    ) : (
+                      <Skeleton />
+                    )}
                   </div>
                 ),
               },
@@ -229,11 +238,11 @@ function Commercial() {
           <div className='flex justify-between items-center'>
             <h2 className='text-md font-semibold text-gray-800'>Articles</h2>
             <div className='flex gap-3'>
-              <Tag color='green'>
-                <div className='flex justify-center items-center pt-1.5'>
-                  <PrinterCheck size={18} />
-                </div>
-              </Tag>
+
+
+              <ResetPrinter document={data?.docentete?.document} fetchData={fetchData} />
+
+
               {data.docentete.document &&
                 Number(data.docentete.document.status_id) < 8 && (
                   <Popconfirm
@@ -296,8 +305,6 @@ function Commercial() {
                          <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           État
                         </th>
-
-
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Ref Article
                         </th>
@@ -340,7 +347,7 @@ function Commercial() {
                       {loading ? (
                         [...Array(4)].map((_, rowIndex) => (
                           <tr key={rowIndex}>
-                            {[...Array(10)].map((_, colIndex) => (
+                            {[...Array(12)].map((_, colIndex) => (
                               <td className='px-6 py-4' key={colIndex}>
                                 <div className='h-4 bg-gray-200 rounded w-3/4 animate-pulse'></div>
                               </td>

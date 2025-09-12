@@ -1,7 +1,8 @@
-import { Button } from 'antd';
+import { Button, message } from 'antd';
 import { Printer } from 'lucide-react';
 import { getExped, getDocumentType } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext';
+import { api } from '../utils/api';
 
 export default function PrintDocument({ docentete, doclignes }) {
   const handlePrint = () => {
@@ -196,7 +197,17 @@ export default function PrintDocument({ docentete, doclignes }) {
       </html>
     `;
     window.electron.ipcRenderer.send("print-content", styledHtml);
+    printEvent();
   };
+
+    const printEvent = async () => {
+    try {
+      await api.get(`documents/print/${docentete.document.id}`)
+      message.success('Document imprimé avec succès')
+    } catch (error) {
+      message.error(error?.response?.data?.message || "Errur d'imprimer le document");
+    }
+  }
 
   const dateFormat = (date) => {
     if (!date) return '__';
@@ -243,8 +254,8 @@ export default function PrintDocument({ docentete, doclignes }) {
 
             <div className='logo-section'>
               <img
-                src='https://intercocina.com/assets/imgs/intercocina-logo.png'
-                alt='Logo'
+                src='https://intercocina.com/storage/StileMobili-01.png'
+                alt='StileMobili'
               />
             </div>
 
