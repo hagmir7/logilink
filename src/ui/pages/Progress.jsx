@@ -167,13 +167,13 @@ const Progress = () => {
                 {documents.map((order) => (
                   <tr
                     key={order.id}
-                    onClick={()=> handleShow(order.piece)}
+                    onClick={()=> handleShow(order.piece_fa || order.piece_bl || order.piece)}
                     className='hover:bg-gray-50 transition-colors duration-200'
                   >
                     <td className='px-6 py-0 whitespace-nowrap'>
                       <div>
                         <div className='text-sm font-medium text-gray-900'>
-                          {order.piece}
+                          {order.piece_fa || order.piece_bl || order.piece}
                         </div>
                         <div className='text-sm text-gray-500'>
                           Réf: {order.ref}

@@ -562,14 +562,29 @@ function Controller() {
                     <td className='px-4 py-2'>
                       <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
                         {item?.line?.quantity_prepare ? Math.floor(item.DL_Qte) - item?.line?.quantity_prepare : Math.floor(item.DL_Qte)}
+                       {/* {Math.floor(item.DL_Qte)} */}
                       </span>
                     </td>
 
-                    <td className='px-4 py-2'>
-                      <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                        {item?.line?.quantity_prepare ? Math.floor(item.DL_QteBL) - item?.line?.quantity_prepare : Math.floor(item.DL_QteBL)}
-                      </span>
-                    </td>
+                      <td className="px-4 py-2">
+                        <span
+                          className={`inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold border
+                            ${
+                              (item?.line?.quantity_prepare
+                                ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
+                                : Math.floor(item.DL_QteBL)) <
+                              (item?.line?.quantity_prepare
+                                ? Math.floor(item.DL_Qte) - item.line.quantity_prepare
+                                : Math.floor(item.DL_Qte))
+                                ? 'bg-red-50 text-red-700 border-red-200'
+                                : 'bg-green-50 text-green-700 border-green-200'
+                            }`}
+                        >
+                          {item?.line?.quantity_prepare
+                            ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
+                            : Math.floor(item.DL_QteBL)}
+                        </span>
+                      </td>
 
                     <td className='px-4 py-2'>
                       <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>

@@ -8,13 +8,14 @@ import {
   Package,
   Plus,
   Minus,
+  List,
 } from 'lucide-react'
 import QScanner from '../components/QScanner'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
-import { Alert, Input, message, Modal, Radio, Space } from 'antd'
+import { Alert, Button, Input, message, Modal, Radio, Space } from 'antd'
 import { PalettesModal } from '../components/PalettesModal';
 import { CloseOutlined } from '@ant-design/icons';
 
@@ -151,9 +152,7 @@ export default function Preparation() {
         palette: EmpalcementCode ?? currentPalette?.code,
       })
 
-      console.log(data.palette.lines);
-      
-      
+
       setPalette(data.palette)
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
@@ -175,8 +174,8 @@ export default function Preparation() {
     const width = Math.floor(data?.docligne?.Largeur) || Math.floor(data?.docligne?.article?.Largeur) || 0;
 
 
-    
-    
+
+
     let dimensions = '';
     if (height && width) {
       dimensions = `${height} × ${width}`;
@@ -201,6 +200,10 @@ export default function Preparation() {
       arName = data?.docligne?.article?.AR_Design ?? '';
     }
 
+    
+    console.log(data?.docligne?.article?.Episseur);
+    
+    
     return {
       label: arName,
       value: data?.id,
@@ -209,7 +212,7 @@ export default function Preparation() {
         ref: data.ref ?? '',
         design: arName,
         profondeur: depth,
-        epaisseur: Math.floor(data.docligne?.Epaisseur ?? data?.docligne?.article?.Epaisseur ?? 0) || '',
+        epaisseur: Math.floor(data.docligne?.Epaisseur || data?.docligne?.article?.Episseur || 0) || '',
         chant: data.docligne?.Chant || data?.docligne?.article?.Chant || '',
         qte: data.quantity ? Math.floor(data.quantity) : 0,
         color: data.article?.Couleur || '',
@@ -220,55 +223,57 @@ export default function Preparation() {
   };
 
 
-  
-  
-const handleScan = async (value) => {
-  setLine(value);
-  if (!palette || value === '') return;
 
-  const payload = { line: value, document: id, palette: palette.code };
-  setLoading('scan', true);
-  setLineError('');
-  
 
-  try {
-    let { data } = await api.post('palettes/scan', payload);
-    setDefaultOptins(data);
-    
+  const handleScan = async (value, all = false) => {
+    setLine(value);
+    if (!palette || value === '') return;
 
-    if(data.length === 0){
-      message.warning("L’article pas valid ou déjà préparé")
-      return;
+    const payload = { line: value, document: id, palette: palette.code };
+    setLoading('scan', true);
+    setLineError('');
+
+
+    try {
+      const url = all ? ('palettes/scan' + '?all=true') : 'palettes/scan';
+
+      let { data } = await api.post(url, payload);
+      setDefaultOptins(data);
+
+      if (data.length === 0) {
+        message.warning("L’article pas valid ou déjà préparé")
+        return;
+      }
+
+      if (data.length === 1) {
+        const line = lineNameGenerator(data[0]);
+        setArticle(line.details);
+        
+      } else if (data.length > 1) {
+        const options = data.map(item => lineNameGenerator(item));
+        setModalOptions(options);
+        setIsModalOpen(true);
+      }
+
+      paletteCodeInput.current?.focus();
+    } catch (err) {
+      console.error('Error scanning:', err);
+      setArticle({
+        ref: '',
+        design: '',
+        profondeur: '',
+        epaisseur: '',
+        chant: '',
+        qte: 0,
+        color: '',
+        height: '',
+        width: '',
+      });
+      setLineError(err.response?.data?.message || 'Erreur lors du scan');
+    } finally {
+      setLoading('scan', false);
     }
-    
-    if (data.length === 1) {
-      const line = lineNameGenerator(data[0]);
-      setArticle(line.details);
-    } else if(data.length > 1) {
-      const options = data.map(item => lineNameGenerator(item));
-      setModalOptions(options);
-      setIsModalOpen(true);
-    }
-
-    paletteCodeInput.current?.focus();
-  } catch (err) {
-    console.error('Error scanning:', err);
-    setArticle({
-      ref: '',
-      design: '',
-      profondeur: '',
-      epaisseur: '',
-      chant: '',
-      qte: 0,
-      color: '',
-      height: '',
-      width: '',
-    });
-    setLineError(err.response?.data?.message || 'Erreur lors du scan');
-  } finally {
-    setLoading('scan', false);
-  }
-};
+  };
 
 
 
@@ -360,21 +365,21 @@ const handleScan = async (value) => {
 
 
   const changeSelectedLine = (e) => {
-    const selectedId = e.target.value; 
+    const selectedId = e.target.value;
     setSelectedOption(selectedId);
     const selected = defaultOptions.find(opt => opt.id === selectedId);
 
-    const height = Math.floor(selected.docligne?.Hauteur) || Math.floor(selected?.docligne?.article?.Hauteur) ||0;
+    const height = Math.floor(selected.docligne?.Hauteur) || Math.floor(selected?.docligne?.article?.Hauteur) || 0;
 
-    const width = Math.floor(selected.docligne?.Largeur) || Math.floor(selected?.docligne?.article?.Largeur) ||0;
-    
+    const width = Math.floor(selected.docligne?.Largeur) || Math.floor(selected?.docligne?.article?.Largeur) || 0;
+
 
     const dimensions = height && width ? `${height} * ${width}` : height || width || '';
 
     const pickColor = (c) => (c !== '' && c !== 0 ? c : null);
-    const color = pickColor(selected?.docligne?.Couleur) 
-                ?? pickColor(selected?.docligne?.article?.Couleur) 
-                ?? '';
+    const color = pickColor(selected?.docligne?.Couleur)
+      ?? pickColor(selected?.docligne?.article?.Couleur)
+      ?? '';
 
     let arName;
     if (selected.docligne?.article?.Nom) {
@@ -383,12 +388,20 @@ const handleScan = async (value) => {
       arName = selected?.docligne?.article?.AR_Design ?? '';
     }
 
+    setLine(selected.ref)
+    console.log("---------------");
+    
+
+    
+    
+    
+
     setArticle({
       id: selected.id,
       ref: selected.ref ?? '',
       design: arName,
       profondeur: Math.floor(selected.docligne?.Profondeur ?? selected?.docligne?.article?.Profondeur ?? 0) || '',
-      epaisseur: Math.floor(selected.docligne?.Epaisseur ?? selected?.docligne?.article?.Epaisseur ?? 0) || '',
+      epaisseur: Math.floor(selected.docligne?.Epaisseur || selected?.docligne?.article?.Epaisseur || 0) || '',
       chant: selected.docligne?.Chant || selected?.docligne?.article?.Chant || '',
       qte: selected.quantity ? Math.floor(selected.quantity) : 0,
       color,
@@ -397,7 +410,7 @@ const handleScan = async (value) => {
     });
 
     setIsModalOpen(false)
-    
+
   };
 
 
@@ -405,47 +418,47 @@ const handleScan = async (value) => {
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
       {/* Header */}
-    <Modal
-      title="Sélectionnez une option"
-      closable={true}
-      closeIcon={<CloseOutlined aria-label="Close Modal" />}
-      open={isModalOpen}
-      onOk={handleOk}
-      onCancel={handleCancel}
-      footer={false}
-      width={600}
-      bodyStyle={{ padding: '24px' }}
-    >
-      <div style={{ padding: '16px 0' }}>
-        <Radio.Group
-          onChange={changeSelectedLine}
-          value={selectedOption}
-       
-          size="large"
-          style={{ width: '100%' }}
-        >
-          <Space direction="vertical" size="large" style={{ width: '100%' }}>
-            {modalOptions.map((option) => (
-              <Radio.Button
-                key={option.value}
-                value={option.value}
-                style={{
-                  height: '60px',
-                  lineHeight: '60px',
-                  fontSize: '20px',
-                  fontWeight: '500',
-                  width: '100%',
-                  border: '2px solid #d9d9d9',
-                  borderRadius: '8px',
-                }}
-              >
-                {option.label}
-              </Radio.Button>
-            ))}
-          </Space>
-        </Radio.Group>
-      </div>
-    </Modal>
+      <Modal
+        title="Sélectionnez une option"
+        closable={true}
+        closeIcon={<CloseOutlined aria-label="Close Modal" />}
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={false}
+        width={600}
+        styles={{ padding: '24px' }}
+      >
+        <div style={{ padding: '16px 0' }}>
+          <Radio.Group
+            onChange={changeSelectedLine}
+            value={selectedOption}
+
+            size="large"
+            style={{ width: '100%' }}
+          >
+            <Space direction="vertical" size="large" style={{ width: '100%' }}>
+              {modalOptions.map((option) => (
+                <Radio.Button
+                  key={option.value}
+                  value={option.value}
+                  style={{
+                    height: '60px',
+                    lineHeight: '60px',
+                    fontSize: '20px',
+                    fontWeight: '500',
+                    width: '100%',
+                    border: '2px solid #d9d9d9',
+                    borderRadius: '8px',
+                  }}
+                >
+                  {option.label}
+                </Radio.Button>
+              ))}
+            </Space>
+          </Radio.Group>
+        </div>
+      </Modal>
       <div className='bg-white border-b border-gray-200'>
         <div className='mx-auto px-4 py-3 sm:py-4'>
           <div className='flex justify-between'>
@@ -456,12 +469,22 @@ const handleScan = async (value) => {
                 Préparation des Palettes
               </h1>
             </div>
-            <PalettesModal
-              countPalettes={palettes.length}
-              documentPiece={id}
-              selectPalette={selectPalette}
-              checkedPalette={palette}
-            />
+
+            <div className='flex gap-3'>
+            <Button color="cyan" variant="solid" size='large' onClick={() => handleScan(1, true)}>
+                <List />
+            </Button>
+
+              <PalettesModal
+                countPalettes={palettes.length}
+                documentPiece={id}
+                selectPalette={selectPalette}
+                checkedPalette={palette}
+              />
+            </div>
+            
+
+            
           </div>
         </div>
       </div>
@@ -641,7 +664,7 @@ const handleScan = async (value) => {
                 </label>
                 <input
                   type='text'
-                  value={article.episseur}
+                  value={article.epaisseur}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
                   placeholder='-'
@@ -757,8 +780,8 @@ const handleScan = async (value) => {
           <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
             {lines?.map((item, index) => {
 
-              const lineHeight =  Math.floor(item.docligne?.Hauteur) || Math.floor(item.docligne?.article?.Hauteur) || false
-              const lineWidth =  Math.floor(item.docligne?.Largeur) || Math.floor(item.docligne?.article?.Largeur) || false
+              const lineHeight = Math.floor(item.docligne?.Hauteur) || Math.floor(item.docligne?.article?.Hauteur) || false
+              const lineWidth = Math.floor(item.docligne?.Largeur) || Math.floor(item.docligne?.article?.Largeur) || false
               return (<div key={item.id || index} className='relative'>
                 <div className='absolute -top-2 -right-2 z-10'>
                   <span className='px-3 py-1 bg-cyan-500 text-white text-lg font-medium rounded-full'>
@@ -781,16 +804,16 @@ const handleScan = async (value) => {
                         </h3>
 
                         <p className='text-xl text-gray-600 mt-1'>
-                            {Math.floor(lineHeight)} {(lineHeight && lineWidth) && " * "  }
-                            {Math.floor(lineWidth)} mm
+                          {Math.floor(lineHeight)} {(lineHeight && lineWidth) && " * "}
+                          {Math.floor(lineWidth)} mm
                         </p>
-                       {(item.docligne?.Couleur || item.docligne?.article?.Couleur) ? (
-                        <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full mt-2 text-lg">
-                          {item.docligne?.Couleur || item.docligne?.article?.Couleur}
-                        </span>
-                      ) : null}
+                        {(item.docligne?.Couleur || item.docligne?.article?.Couleur) ? (
+                          <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full mt-2 text-lg">
+                            {item.docligne?.Couleur || item.docligne?.article?.Couleur}
+                          </span>
+                        ) : null}
 
-                        
+
 
                       </div>
                       <div className='text-right'>

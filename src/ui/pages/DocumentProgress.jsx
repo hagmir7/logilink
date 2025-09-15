@@ -11,11 +11,11 @@ export const DocumentProgress = () => {
 
   useEffect(() => {
     const getDocuments = async () => {
+      
       try {
         setLoading(true)
         const { data } = await api.get(`documents/${piece}`)
         setData(data)
-        console.log(data);
         
       } catch (error) {
         console.error(error)

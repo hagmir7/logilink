@@ -79,9 +79,7 @@ function PreparationList() {
         <div className='flex items-center space-x-2'>
           <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
             <span>
-              {data.docentete.DO_Piece
-                ? data.docentete.DO_Piece
-                : 'Chargement...'}
+              {data.docentete.DO_Piece ? data.docentete.DO_Piece : 'Chargement...'}
             </span>
 
             {data?.docentete?.document && (
@@ -385,6 +383,20 @@ function PreparationList() {
                 </span>
 
                 <div className='flex gap-3'>
+                   <Tag
+                      color={ item.DL_QteBL == Math.floor(item.DL_Qte)
+                          ? 'green-inverse'
+                          : 'red-inverse'
+                      }
+                      style={
+                      isElectron
+                        ? { fontSize: '18px', padding: '6px 14px' }
+                        : {}
+                    }
+                    >
+                      {Number(item.DL_QteBL || 0)}
+                    </Tag>
+
                   <Tag
                     color={item.line.status.color}
                     style={
