@@ -228,9 +228,6 @@ function Controller() {
     setOpen(false)
   }
 
-  const getStatusColor = (status) => {
-    return status?.color || 'gray'
-  }
 
   const isItemSelected = (lineId) => {
     return selected.hasOwnProperty(lineId)
@@ -240,9 +237,15 @@ function Controller() {
     return selected[lineId]?.quantity || 0
   }
 
-  
 
-  console.log(data?.docentete?.document?.companies);
+  // const company = data?.docentete?.document?.companies?.find(
+  //   c => +c.id === +user.company_id
+  // );
+  // setStatus(company ? getStatus(company.pivot.status_id) : null);
+
+
+
+
   
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -260,10 +263,9 @@ function Controller() {
                 <Settings size={12} />
               </span>
             )}
-
             {data?.docentete?.document && (
-              <Tag color={getStatusColor(data?.docentete?.document?.status)}>
-                {data?.docentete?.document?.status.name}
+              <Tag color={status.color}>
+                {status.name}
               </Tag>
             )}
           </h1>

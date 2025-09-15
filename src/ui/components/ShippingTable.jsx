@@ -177,20 +177,22 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   {formatDate(new Date(item?.DO_DateLivr))}
                 </td>
                 <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-                  {roles('preparation') && (
-                      <Select
-                        disabled={item?.document?.status?.id !== 12}
-                        placeholder='Agent de chargement'
-                        value={item?.document?.delivered_by}
-                        style={{ width: 170 }}
-                        allowClear
-                        onChange={(value) => handleChange(value, item.document.id)}
-                        options={users}
-                      />
-                    )}
+          
+                 {roles('preparation') && (
+                    <Select
+                      disabled={item?.document?.status?.id !== 12 && item?.document?.status?.id !== 13}
+                      placeholder="Agent de chargement"
+                      value={item?.document?.delivered_by}
+                      style={{ width: 170 }}
+                      allowClear
+                      onChange={(value) => handleChange(value, item.document.id)}
+                      options={users}
+                    />
+                  )}
+
 
                   {roles('chargement') && (
-                    <Link to={`/chargement/${item?.document?.piece || item.DO_Piec}`}>
+                    <Link to={`/chargement/${item?.document?.piece_fa || item?.document?.piece_bl || item?.document?.piece}`}>
                       <Button>Chargement</Button>
                     </Link>
                   )}

@@ -8,20 +8,39 @@ import {
   AlertCircle,
   Loader2,
 } from 'lucide-react';
-import { getExped } from '../utils/config';
+import { getExped, getStatus } from '../utils/config';
 import { Button, Tag } from 'antd';
 import BackButton from '../components/ui/BackButton';
+import { useAuth } from '../contexts/AuthContext';
 
 function DocumentPalettes() {
   const { piece } = useParams();
   const [document, setDocument] = useState({ palettes: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [status, setStatus] = useState(null);
+
+  const {user} = useAuth();
 
   const fetchData = async () => {
     try {
       const { data } = await api.get(`palettes/document/${piece}`);
       setDocument(data);
+
+      const company = data?.companies?.find(
+        c => parseInt(c.id) === parseInt(user.company_id)
+      );
+
+      console.log(company);
+      
+
+      if (company?.pivot?.status_id) {
+        setStatus(getStatus(company.pivot.status_id));
+      }
+
+      console.log(status);
+      
+
     } catch (err) {
       console.error(err);
       setError('Failed to load document data.');
@@ -29,6 +48,7 @@ function DocumentPalettes() {
       setLoading(false);
     }
   };
+
 
   useEffect(() => {
     fetchData();
@@ -86,10 +106,10 @@ function DocumentPalettes() {
             </div>
           </div>
           <div
-            style={{ backgroundColor: document?.status?.color }}
+            style={{ backgroundColor: status?.color }}
             className={`flex items-center space-x-2 px-3 py-1 rounded-full border text-white`}
           >
-            {document?.status?.name}
+            {status?.name}
           </div>
         </div>
       </div>

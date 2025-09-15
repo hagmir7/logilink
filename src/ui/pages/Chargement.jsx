@@ -84,6 +84,8 @@ export default function Chargement() {
     setLoading('submit', true)
     try {
       const { data } = await api.post(`palettes/confirm/${paletteCode}/${id}`);
+      console.log(data);
+      message.success("La palette est livrée")
       loadPalettes()
     } catch (err) {
       message.error(err.response.data.message + id, 5)
@@ -204,7 +206,7 @@ export default function Chargement() {
               </div>
               <div>
                 <label className='block text-sm font-medium text-gray-700 mb-1 sm:mb-2'>
-                  Épaisseur
+                  Quantity
                 </label>
                 <input
                   type='text'
