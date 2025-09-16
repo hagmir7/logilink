@@ -45,7 +45,7 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          disabled: !roles('controleur'),
+          disabled: !roles('controleur') && !roles('commercial'),
           icon: <CircleCheck size={19} />,
           label: <Link to='/validation'>Validation</Link>,
         },

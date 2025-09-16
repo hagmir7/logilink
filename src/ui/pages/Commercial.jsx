@@ -179,12 +179,18 @@ function Commercial() {
                 doclignes={data.doclignes}
                 docentete={data.docentete}
               />
-              {data.docentete.document && (
-                <DocumentPalettesModal
-                  countPalettes={data.docentete.document.palettes.length}
-                  documentPiece={data.docentete.document.piece || data.docentete.DO_Piece}
-                />
-              )}
+             {data?.docentete?.document && (
+              <DocumentPalettesModal
+                countPalettes={data.docentete.document.palettes?.length ?? 0}
+                documentPiece={
+                  data.docentete.document?.piece_fa ||
+                  data.docentete.document?.piece_bl ||
+                  data.docentete.document?.piece ||
+                  data.docentete?.DO_Piece
+                }
+              />
+            )}
+
             </div>
           </div>
 
@@ -241,6 +247,7 @@ function Commercial() {
 
 
               <ResetPrinter document={data?.docentete?.document} fetchData={fetchData} />
+          
 
 
               {data.docentete.document &&

@@ -7,7 +7,7 @@ export default function ResetPrinter({ document, fetchData }) {
     const [loading, setLoading] = useState(false)
 
 
-    const resetPrinter = async () => {
+    const reset = async () => {
         setLoading(true);
         try {
             await api.get(`documents/reset-print/${document.id}`);
@@ -27,15 +27,18 @@ export default function ResetPrinter({ document, fetchData }) {
     return (
         <div>
             {document?.companies?.length > 0 &&
-                document.companies?.every((company) => Number(company.pivot?.printed) === 1) && (
-                    <Button onClick={resetPrinter} loading={loading} color="cyan" variant="outlined">
-                        {
-                            !loading ? <div className="flex justify-center items-center">
-                                <Wrench size={18} />
-                            </div> : ''
-                        }
-                    </Button>
-                )}
+            document.companies?.some((company) => Number(company.pivot?.printed) === 1) && (
+                <Button onClick={reset} loading={loading} color="cyan" variant="outlined">
+                    {!loading ? (
+                        <div className="flex justify-center items-center">
+                            <Wrench size={18} />
+                        </div>
+                    ) : (
+                        ''
+                    )}
+                </Button>
+            )}
+
         </div>
     )
 }

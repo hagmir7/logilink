@@ -10,7 +10,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
+function ReadyOrder({ documents = [], onSelectOrder, loading }) {
 
   const { user } = useAuth();
 
@@ -117,14 +117,10 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag
-                      color={company(data)?.pivot?.status_id
-                        ? getStatus(Number(company(data).pivot.status_id)).color
-                        : 'gray'}
+                      color={data.status_id ? getStatus(Number(data.status_id)).color : 'gray'}
                       className='text-xs font-medium'
                     >
-                      {company(data)?.pivot?.status_id
-                        ? getStatus(Number(company(data).pivot.status_id)).name
-                        : 'En attente'}
+                      {data.status_id ? getStatus(Number(data.status_id)).name : 'En attente'}
                     </Tag>
                   </td>
 
@@ -150,15 +146,6 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-2 items-center'>
                     <span>{formatDate(new Date(data?.docentete?.DO_DateLivr))}</span>
-                    <span className="text-md">
-                     {parseInt(
-                          data?.companies?.find(
-                            (company) => parseInt(company.id) === parseInt(user.company_id)
-                          )?.pivot?.updated ?? 0
-                        ) === 1 && <Edit className='text-red-600' size={17} />}
-
-                    </span>
-
                   </td>
                 </tr>
               ))}
@@ -231,7 +218,8 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                 </span>
               </div>
             </div>
-            {
+        
+             {
               Number(data.status_id) === 8 || Number(data.status_id) === 9 ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
                 color="cyan"
                 variant="solid"
@@ -240,6 +228,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                 Controle
               </Button> : ''
             }
+         
             
           </div>
         ))}
@@ -254,4 +243,4 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
   )
 }
 
-export default PreparationDocumentTable
+export default ReadyOrder
