@@ -146,7 +146,7 @@ function Validation() {
 
       {roles('preparation') && (
         <PreparationDocumentTable
-          loading={loading}
+          // loading={loading}
           documents={data.data}
           onSelectOrder={handleSelectOrder}
         />
@@ -155,7 +155,7 @@ function Validation() {
       {
         roles('commercial') && (
           <ReadyOrder
-            loading={loading}
+            // loading={loading}
             documents={data.data}
             onSelectOrder={handleSelectOrder}
           />

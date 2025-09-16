@@ -1,132 +1,114 @@
-import { Loader2, RefreshCcw } from 'lucide-react'
-import React, { useState, useEffect } from 'react'
-import { api } from '../utils/api'
-import { useNavigate } from 'react-router-dom'
-import DocumentCard from '../components/ui/DocumentCard'
-import { Button, Select, DatePicker, Input, Empty } from 'antd'
-import { useAuth } from '../contexts/AuthContext'
-import DocumentTable from '../components/DocumentTable'
+import { Loader2, RefreshCcw } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { api } from '../utils/api';
+import { useNavigate } from 'react-router-dom';
+import DocumentCard from '../components/ui/DocumentCard';
+import { Button, Select, DatePicker, Input, Empty } from 'antd';
+import { useAuth } from '../contexts/AuthContext';
+import DocumentTable from '../components/DocumentTable';
 import dayjs from 'dayjs';
-import PreparationDocumentTable from '../components/PreparationDocumentTable'
+import PreparationDocumentTable from '../components/PreparationDocumentTable';
 
-const { Search } = Input
+const { Search } = Input;
 const { RangePicker } = DatePicker;
 
-
 function Document() {
-  const [data, setData] = useState({
-    data: [],
-    next_page_url: null,
-    total: 0,
-  })
-  const [loading, setLoading] = useState(false)
-  const [documenType, setDocumentType] = useState(2)
-  const [documenStatus, setDocumentStatus] = useState('')
-  const [page, setPage] = useState(1)
-  const [moreSpinner, setMoreSpinner] = useState(false)
-  const [searchSpinner, setSearchSpinner] = useState(false)
-  const navigate = useNavigate();
+  const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
+  const [loading, setLoading] = useState(false);
+  const [documenType, setDocumentType] = useState(2);
+  const [documenStatus, setDocumentStatus] = useState('');
+  const [page, setPage] = useState(1);
+  const [moreSpinner, setMoreSpinner] = useState(false);
+  const [searchSpinner, setSearchSpinner] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState(null);
-  const { roles } = useAuth()
 
-  let url = `documents/preparation-list`
+  const navigate = useNavigate();
+  const { roles } = useAuth();
 
+  // Build the API URL dynamically
+  const buildUrl = (pageNumber = 1, search = searchTerm) => {
+    const queryParams = new URLSearchParams();
+    if (documenType) queryParams.append('type', documenType);
+    if (documenStatus) queryParams.append('status', documenStatus);
+    if (dateFilter?.length) queryParams.append('date', dateFilter.join(','));
+    if (search) queryParams.append('search', search);
+    if (pageNumber) queryParams.append('page', pageNumber);
 
-if (roles('commercial')) {
-  const queryParams = new URLSearchParams({
-    type: documenType,
-    page: page,
-    status: documenStatus,
-    date: dateFilter || '',
-  })
+    let url = 'documents/preparation-list';
+    if (roles('commercial')) url = 'docentetes/commercial';
 
-  url = `docentetes/commercial?${queryParams.toString()}`
-}
+    return `${url}?${queryParams.toString()}`;
+  };
 
-
-  const fetchData = async () => {
-    setLoading(true)
+  const fetchData = async (pageNumber = 1, search = searchTerm) => {
+    setLoading(true);
     try {
-      const response = await api.get(url)
-      setData(response.data)  
-      setLoading(false)
+      const response = await api.get(buildUrl(pageNumber, search));
+      setData(response.data);
     } catch (err) {
-      console.error('Failed to fetch data:', err)
-      setLoading(false)
+      console.error('Failed to fetch data:', err);
+    } finally {
+      setLoading(false);
     }
-  }
+  };
 
-  const handleSelectOrder = (orderId) => {
-    navigate(`/layout/document/${orderId}`)
-  }
-
-
-
-    useEffect(() => {
-      const fetchAndNotify = async () => {
-        await fetchData()
-        window.electron?.notifyPrintReady?.()
-      }
-
-      fetchAndNotify()
-
-
-      const intervalId = setInterval(() => {
-        fetchAndNotify()
-      }, 40000)
-
-      return () => clearInterval(intervalId)
-    }, [documenType, documenStatus, dateFilter])
-
-
+  useEffect(() => {
+    const fetchAndNotify = async () => {
+      await fetchData();
+      window.electron?.notifyPrintReady?.();
+    };
+    fetchAndNotify();
+    const intervalId = setInterval(fetchAndNotify, 40000);
+    return () => clearInterval(intervalId);
+  }, [documenType, documenStatus, dateFilter]);
 
   const loadMore = async () => {
-    setMoreSpinner(true)
-    const nextPage = page + 1  // Calculate next page value
-    setPage(nextPage)
-    
+    if (!data.next_page_url) return;
+    setMoreSpinner(true);
+    const nextPage = page + 1;
+    setPage(nextPage);
+
     try {
-      const response = await api.get(`${url}&page=${nextPage}`)  // Use the calculated next page
+      const response = await api.get(buildUrl(nextPage));
       setData({
         data: [...data.data, ...response.data.data],
         next_page_url: response.data.next_page_url,
         total: response.data.total,
-      })
-      setMoreSpinner(false)
+      });
     } catch (err) {
-      console.error('Failed to fetch data:', err)
-      setMoreSpinner(false)
+      console.error('Failed to fetch data:', err);
+    } finally {
+      setMoreSpinner(false);
     }
-  }
-
+  };
 
   const handleSearch = async (e) => {
-    setSearchSpinner(true)
-    const { value: inputValue } = e.target
+    const value = e.target.value;
+    setSearchTerm(value);
+    setSearchSpinner(true);
 
     try {
-      const response = await api.get(`${url}&search=${inputValue}`)
-      setData({
-        data: response.data.data,
-        next_page_url: response.data.next_page_url,
-        total: response.data.total,
-      })
-      setSearchSpinner(false)
+      const response = await api.get(buildUrl(1, value));
+      setData(response.data);
     } catch (err) {
-      console.error('Failed to fetch data:', err)
-      setSearchSpinner(false)
+      console.error('Failed to fetch data:', err);
+    } finally {
+      setSearchSpinner(false);
     }
-  }
+  };
 
-const handleChangeDate = (dates, dateStrings) => {
-  if (dates && dates.length === 2) {
-    const formattedDates = dates.map(date => dayjs(date).format('YYYY-MM-DD'));
-    setDateFilter(formattedDates);
-  } else {
-    setDateFilter([]);
-  }
-};
+  const handleChangeDate = (dates) => {
+    if (dates && dates.length === 2) {
+      setDateFilter(dates.map((d) => dayjs(d).format('YYYY-MM-DD')));
+    } else {
+      setDateFilter([]);
+    }
+  };
 
+  const handleSelectOrder = (orderId) => {
+    navigate(`/layout/document/${orderId}`);
+  };
 
   return (
     <div className='min-h-screen'>
@@ -171,7 +153,7 @@ const handleChangeDate = (dates, dateStrings) => {
             />
           )}
 
-          <Button onClick={fetchData} size='large'>
+          <Button onClick={() => fetchData()} size='large'>
             {loading ? (
               <Loader2 className='animate-spin text-blue-500' size={17} />
             ) : (
@@ -182,18 +164,12 @@ const handleChangeDate = (dates, dateStrings) => {
         </div>
       </div>
 
-      {/* End Header */}
-
-      {/* Commercail Table */}
+      {/* Tables / Cards */}
       {roles('commercial') && (
-        <DocumentTable
-          // loading={loading}
-          documents={data.data}
-          onSelectOrder={handleSelectOrder}
-        />
+        <DocumentTable documents={data.data} onSelectOrder={handleSelectOrder} />
       )}
 
-      {roles('preparation') && (
+      {(roles('preparation') || roles('montage') || roles('fabrication')) && (
         <PreparationDocumentTable
           // loading={loading}
           documents={data.data}
@@ -201,20 +177,11 @@ const handleChangeDate = (dates, dateStrings) => {
         />
       )}
 
-      {(roles('montage') || roles('fabrication')) && (
-        <PreparationDocumentTable
-          loading={loading}
-          documents={data.data}
-          onSelectOrder={handleSelectOrder}
-        />
-      )}
-
-      {/* Cards Container */}
       {(roles('preparation_cuisine') ||
         roles('preparation_trailer') ||
         roles('magasinier')) && (
         <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
-          {data?.data?.length > 0
+          {data.data.length > 0
             ? data.data.map((item, index) => (
                 <DocumentCard
                   key={index}
@@ -244,7 +211,7 @@ const handleChangeDate = (dates, dateStrings) => {
         <Empty className='mt-10' description='Aucun document à afficher' />
       )}
     </div>
-  )
+  );
 }
 
-export default Document
+export default Document;

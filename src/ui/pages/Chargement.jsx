@@ -117,7 +117,7 @@ export default function Chargement() {
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
             <h1 className='text-sm md:text-xl font-bold text-gray-900 truncate'>
-              {id} - {document?.palettes_count}
+              {id} 
             </h1>
           </div>
         </div>
