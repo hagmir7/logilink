@@ -152,7 +152,8 @@ export default function Preparation() {
         palette: EmpalcementCode ?? currentPalette?.code,
       })
 
-
+      console.log(data.palette.lines);
+      
       setPalette(data.palette)
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
@@ -199,9 +200,6 @@ export default function Preparation() {
     } else {
       arName = data?.docligne?.article?.AR_Design ?? '';
     }
-
-    
-    console.log(data?.docligne?.article?.Episseur);
     
     
     return {
@@ -313,15 +311,31 @@ export default function Preparation() {
     }
   }
 
-  const remove = async (ln) => {
+  const remove = async (line, pivot_id) => {
     setLoading('remove', true)
     try {
       const { data } = await api.post('palettes/detach', {
-        line: ln,
+        line,
         palette: palette.code,
+        pivot_id
       })
-      setPalette(data)
-      setLines(data?.lines || [])
+      createPalette()
+
+
+      setArticle({
+        ref: '',
+        design: '',
+        profondeur: '',
+        episseur: '',
+        chant: '',
+        qte: 0,
+        color: '',
+        height: '',
+        width: '',
+      })
+
+      setLine('')
+      message.success('Article ajouté avec succès')
     } catch (err) {
       console.error('Error removing line:', err)
     } finally {
@@ -389,12 +403,6 @@ export default function Preparation() {
     }
 
     setLine(selected.ref)
-    console.log("---------------");
-    
-
-    
-    
-    
 
     setArticle({
       id: selected.id,
@@ -853,7 +861,7 @@ export default function Preparation() {
                       </div>
 
                       <button
-                        onClick={() => remove(item.id)}
+                        onClick={() => remove(item.id, item.pivot.id)}
                         disabled={loadingStates.remove}
                         className='p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
                       >
