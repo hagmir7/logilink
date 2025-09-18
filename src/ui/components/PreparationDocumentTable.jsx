@@ -50,8 +50,6 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
       console.error('Error navigating to article:', error)
     }
   }
-
-  console.log(documents);
   
 
 

@@ -43,8 +43,6 @@ function Validation() {
       }
 
       const response = await api.get(url)
-      console.log(response.data);
-      
       
       if (append) {
         setData(prevData => ({

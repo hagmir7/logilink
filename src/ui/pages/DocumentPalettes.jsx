@@ -26,18 +26,13 @@ const fetchData = async () => {
     const { data } = await api.get(`palettes/document/${piece}`);
     setDocument(data);
 
-    console.log("📦 Document data:", data);
-    console.log("👤 Current user company_id:", user.company_id);
-
     const company = data?.companies?.find(
       (c) => parseInt(c.id) === parseInt(user.company_id)
     );
-    console.log("🏢 Matched company:", company);
 
     if (company?.pivot?.status_id) {
-      console.log("📊 Status ID:", company.pivot.status_id);
+
       const st = getStatus(company.pivot.status_id);
-      console.log("🎨 Resolved status:", st);
       setStatus(st || null);
     } else {
       console.log("⚠️ No status_id found for this company.");

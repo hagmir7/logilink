@@ -151,8 +151,6 @@ export default function Preparation() {
         document_id: id,
         palette: EmpalcementCode ?? currentPalette?.code,
       })
-
-      console.log(data.palette.lines);
       
       setPalette(data.palette)
       setLines(data.palette.lines || [])
@@ -195,7 +193,7 @@ export default function Preparation() {
 
 
     let arName;
-    if (data?.docligne?.article?.Nom) {
+    if (data?.docligne?.article?.Nom && data?.docligne?.article?.Nom !== "NULL") {
       arName = `${data.docligne.article.Nom} ${dimensions} ${color}`.trim();
     } else {
       arName = data?.docligne?.article?.AR_Design ?? '';
@@ -396,7 +394,9 @@ export default function Preparation() {
       ?? '';
 
     let arName;
-    if (selected.docligne?.article?.Nom) {
+
+    
+    if (selected.docligne?.article?.Nom && selected?.docligne?.article?.Nom !== "NULL") {
       arName = `${selected?.docligne?.article?.Nom} ${dimensions} ${color}`.trim();
     } else {
       arName = selected?.docligne?.article?.AR_Design ?? '';

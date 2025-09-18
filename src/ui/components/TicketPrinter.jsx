@@ -61,7 +61,7 @@ const TicketPrinter = ({ doclignes, docentete }) => {
 
             <Modal
                 title="Sélectionner l'imprimante"
-                visible={visible}
+                open={visible}
                 onOk={handlePrint}
                 onCancel={() => setVisible(false)}
                 okText="Imprimer"

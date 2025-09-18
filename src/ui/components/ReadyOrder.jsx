@@ -51,9 +51,6 @@ function ReadyOrder({ documents = [], onSelectOrder, loading }) {
     }
   }
 
-  console.log(documents);
-  
-
 
   return (
     <div className='w-full h-full flex flex-col bg-white'>

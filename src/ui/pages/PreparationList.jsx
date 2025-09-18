@@ -189,7 +189,7 @@ function PreparationList() {
                     </Tag>
                   </Td>
                   <Td className='font-black text-gray-800'>
-                    {item?.Nom || item.article?.Nom || item?.DL_Design || '__'}{' '}
+                    {[item?.Nom, item.article?.Nom, item?.DL_Design].find(v => v && v !== "NULL") || "__"}
                     {item?.Description} {item?.Poignee} {item?.Chant}{' '}
                     {item?.Rotation}
                   </Td>
@@ -308,11 +308,7 @@ function PreparationList() {
                   ></div>
                 </div>
                 <div className='h-px bg-gray-200'></div>
-                <div
-                  className={`grid grid-cols-2 gap-3 ${
-                    isElectron ? 'gap-5' : ''
-                  }`}
-                >
+                <div className={`grid grid-cols-2 gap-3 ${isElectron ? 'gap-5' : ''}`}>
                   {[1, 2, 3, 4].map((x) => (
                     <div
                       key={x}
@@ -339,7 +335,7 @@ function PreparationList() {
                     isElectron ? 'text-2xl' : 'text-lg'
                   }`}
                 >
-                  {item.article ? item.article.Nom : item?.Nom || '__'}{' '}
+                  {[item?.Nom, item.article?.Nom, item?.DL_Design].find(v => v && v !== "NULL") || "__"}
                   {item?.article?.Description || null}
                 </span>
                 <Button

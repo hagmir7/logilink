@@ -53,8 +53,6 @@ function Controller() {
       const response = await api.get(`docentetes/${id}`)
 
       setData(response.data)
-      console.log(response.data);
-      
 
       const companies = response.data?.docentete?.document?.companies || []
       const company = companies.find(
@@ -169,8 +167,6 @@ function Controller() {
     const selectedItems = Object.values(selected)
 
     if (selectedRoles && selectedItems.length > 0) {
-      console.log('Selected items for transfer:', selectedItems)
-
       const transferData = {
         roles: selectedRoles,
         lines: selectedItems,
@@ -589,16 +585,17 @@ function Controller() {
                       </td>
 
                     <td className='px-4 py-2'>
+                      {/* {JSON.stringify(item.line.role_quantity.reduce())} */}
                       <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
                         {Math.floor(
                           item.line.role_quantity
                             ? item.line.role_quantity.reduce(
-                                (sum, role) =>
-                                  sum + (role.pivot?.quantity ?? 0),
+                                (sum, role) => sum + Number(role.pivot?.quantity ?? 0),
                                 0
                               )
                             : 0
                         )}
+
                       </span>
                     </td>
 
