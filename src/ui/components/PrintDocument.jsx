@@ -205,7 +205,8 @@ export default function PrintDocument({ docentete, doclignes }) {
       await api.get(`documents/print/${docentete.document.id}`)
       message.success('Document imprimé avec succès')
     } catch (error) {
-      message.error(error?.response?.data?.message || "Errur d'imprimer le document");
+      console.error(error);
+      // message.error(error?.response?.data?.message || "Errur d'imprimer le document");
     }
   }
 
@@ -320,12 +321,13 @@ export default function PrintDocument({ docentete, doclignes }) {
                       ? Math.floor(item.Hauteur)
                       : Math.floor(item.article?.Hauteur) || '__'}</td>
                         <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
-                        <td>{Math.floor(item.Largeur || art.Largeur || 0)}</td>
+                        <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
+                        
                         <td>{Math.floor(item.DL_Qte || 0)}</td>
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
                         <td>{item.Poignee} {" "} {item?.Rotation}</td>
-                        <td>{Math.floor(item.Epaisseur || art.Epaisseur || 0)}</td>
+                        <td>{item?.Episseur | item?.article?.Episseur}</td>
                         <td>{item.AR_Ref || '__'}</td>
                       </tr>
                     )

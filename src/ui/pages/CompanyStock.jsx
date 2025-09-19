@@ -228,7 +228,7 @@ function CompanyStock({ company_id }) {
 
                   <td className='px-4 py-2'>
                     <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                      { article.quantity + article.stock_prepare }
+                      { parseFloat(article.quantity) + parseFloat(article.stock_prepare) }
                     </span>
                   </td>
 

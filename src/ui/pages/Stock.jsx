@@ -8,25 +8,25 @@ import CompanyStock from './CompanyStock';
 import StockMovements from '../components/StockMovements';
 
 const Stock = () => {
-    const [activeKey, setActiveKey] = useState('1');
+    const [activeKey, setActiveKey] = useState('2');
     const { id } = useParams();
 
     const items = [
+      // {
+      //   label: (
+      //     <span className='flex items-center gap-2 ml-3'>
+      //       <ChartNoAxesColumn size={16} />
+      //       Aperçu
+      //     </span>
+      //   ),
+      //   key: '1',
+      //   children: <StockOverView company_id={id} />,
+      // },
       {
         label: (
           <span className='flex items-center gap-2 ml-3'>
-            <ChartNoAxesColumn size={16} />
-            Aperçu
-          </span>
-        ),
-        key: '1',
-        children: <StockOverView company_id={id} />,
-      },
-      {
-        label: (
-          <span className='flex items-center gap-2'>
             <Package size={16} />
-            Articles
+            Stock
           </span>
         ),
         key: '2',

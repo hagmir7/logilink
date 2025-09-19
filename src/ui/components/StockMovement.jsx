@@ -29,7 +29,7 @@ export default function StockMovement() {
   const [company, setCompany] = useState(null);
 
 
-  const location = useLocation();  
+  const location = useLocation();
 
   const articleInput = useRef()
   const quantityInput = useRef()
@@ -122,7 +122,7 @@ export default function StockMovement() {
       const { data } = await api.get('companies')
       const options = data.map((company) => ({
         label: company.name,
-        value: company.id, 
+        value: company.id,
       }))
       setCompanies(options)
     } catch (error) {
@@ -149,7 +149,7 @@ export default function StockMovement() {
 
     if (options.length === 1 && (type === 'Carton' || type === 'Palette')) {
       setCondition(options[0].value)
-    }else{
+    } else {
       setCondition(null)
     }
 
@@ -201,7 +201,7 @@ export default function StockMovement() {
       const payload = {
         emplacement_code: emplacementData.code,
         code_article: articleData.code,
-        quantity: condition ? totalQuantity : quantity,
+        quantity: quantity,
         type_colis: type,
         condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
@@ -209,9 +209,9 @@ export default function StockMovement() {
       }
 
 
-      const {data} = await api.post(location.pathname.replace(/^\/+/, "") , payload)
+      const { data } = await api.post(location.pathname.replace(/^\/+/, ""), payload)
       console.log(data);
-      
+
       setQuantity('')
       setArticleCode('')
       setArticleData(null)
@@ -232,7 +232,7 @@ export default function StockMovement() {
     }
   }
 
-  
+
 
   const changeEmplacement = (value) => {
     const result = sanitizeInput(value)
@@ -241,7 +241,7 @@ export default function StockMovement() {
     setEmplacementError('')
     if (result.length >= 3) fetchEmplacementData(result)
   }
-  
+
 
 
   const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
@@ -257,7 +257,7 @@ export default function StockMovement() {
       fetchArticleData(cleaned)
     }
   }
-  
+
 
 
   const handleTypeChange = (e) => {
@@ -284,19 +284,19 @@ export default function StockMovement() {
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
             <h1 className='text-2xl font-bold text-gray-900 truncate flex gap-5 items-center'>
-                {
-                    location.pathname === '/stock/in' ? (
-                        <>
-                            <span>Mouvement d'entrée</span>
-                            <span><ArrowDownFromLine color="green" /></span>
-                        </>
-                    ) : (
-                        <>
-                            <span>Mouvement sorti</span>
-                            <span><ArrowDownFromLine color="red" /></span>
-                        </>
-                    )
-                }
+              {
+                location.pathname === '/stock/in' ? (
+                  <>
+                    <span>Mouvement d'entrée</span>
+                    <span><ArrowDownFromLine color="green" /></span>
+                  </>
+                ) : (
+                  <>
+                    <span>Mouvement sorti</span>
+                    <span><ArrowDownFromLine color="red" /></span>
+                  </>
+                )
+              }
             </h1>
           </div>
         </div>
@@ -430,7 +430,7 @@ export default function StockMovement() {
                 disabled={!articleData?.condition}
                 value='Carton'
                 style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
-  
+
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Carton

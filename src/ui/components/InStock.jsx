@@ -198,26 +198,31 @@ export default function InStock() {
       const payload = {
         emplacement_code: emplacementData.code,
         code_article: articleData.code,
-        quantity: condition ? totalQuantity : quantity,
+        quantity: quantity,
         type_colis: type,
         condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
         company: company,
       }
 
+       console.log(payload);
+       return;
 
-      const {data} = await api.post(`stock/in`, payload)
-      console.log(data);
+
+
+
+      // const {data} = await api.post(`stock/in`, payload)
+     
       
-      setQuantity('')
-      setArticleCode('')
-      setArticleData(null)
-      setType(null)
-      setCondition(null)
-      setCompany(null)
-      setTotalQuantity(0)
-      articleInput?.current?.focus()
-      message.success('Opération effectuée avec succès')
+      // setQuantity('')
+      // setArticleCode('')
+      // setArticleData(null)
+      // setType(null)
+      // setCondition(null)
+      // setCompany(null)
+      // setTotalQuantity(0)
+      // articleInput?.current?.focus()
+      // message.success('Opération effectuée avec succès')
     } catch (error) {
       console.error(error)
 
