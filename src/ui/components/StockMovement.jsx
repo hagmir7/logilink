@@ -4,7 +4,7 @@ import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select } from 'antd'
-import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine } from 'lucide-react'
+import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine, ArrowUpFromLine } from 'lucide-react'
 import { debounce } from 'lodash'
 import InputField from '../components/ui/InputField'
 
@@ -278,29 +278,39 @@ export default function StockMovement() {
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* Header Section */}
-      <div className='bg-white border-b border-gray-200'>
-        <div className='mx-auto px-4 py-3 sm:py-4'>
-          <div className='flex items-center gap-3'>
-            <BackButton className='w-8 h-8' />
-            <div className='w-px h-6 bg-gray-300' />
-            <h1 className='text-2xl font-bold text-gray-900 truncate flex gap-5 items-center'>
-              {
-                location.pathname === '/stock/in' ? (
-                  <>
-                    <span>Mouvement d'entrée</span>
-                    <span><ArrowDownFromLine color="green" /></span>
-                  </>
-                ) : (
-                  <>
-                    <span>Mouvement sorti</span>
-                    <span><ArrowDownFromLine color="red" /></span>
-                  </>
-                )
-              }
+     <div
+        className={`border-b ${
+          location.pathname === '/stock/in'
+            ? 'bg-green-50 border-green-200'
+            : 'bg-red-50 border-red-200'
+        }`}
+      >
+        <div className="mx-auto px-4 py-3 sm:py-4">
+          <div className="flex items-center gap-3">
+            <div className='border border-gray-400 rounded-3xl'><BackButton className="w-8 h-8" /></div>
+            <div className="w-px h-6 bg-gray-300" />
+
+            <h1
+              className={`text-2xl font-bold truncate flex gap-3 items-center ${
+                location.pathname === '/stock/in' ? 'text-green-700' : 'text-red-700'
+              }`}
+            >
+              {location.pathname === '/stock/in' ? (
+                <>
+                  <span>Mouvement d'entrée</span>
+                  <ArrowDownFromLine className="w-6 h-6 text-green-600" />
+                </>
+              ) : (
+                <>
+                  <span>Mouvement de sortie</span>
+                  <ArrowUpFromLine className="w-6 h-6 text-red-600" />
+                </>
+              )}
             </h1>
           </div>
         </div>
       </div>
+
 
       {/* Emplacement Section */}
       <div className='px-5'>

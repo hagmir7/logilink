@@ -31,8 +31,6 @@ import Stock from './pages/Stock'
 import TransferOrder from './pages/TransferOrder'
 import TransferOrdersList from './pages/TransferOrdersList'
 import { DocumentProgress } from './pages/DocumentProgress'
-import OutStock from './components/OutStock'
-import InStock from './components/InStock'
 import CompanyStock from './pages/CompanyStock'
 import StockMovement from './components/StockMovement'
 
