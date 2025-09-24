@@ -109,14 +109,9 @@ const sideMenu = () => {
     {
       key: 'menu-6',
       icon: <FileDown size={20} />,
-      disabled: true,
-      label: <span className='text-base'>Reception</span>,
-      children: [
-        {
-          key: 'submenu-6',
-          label: 'Préparation',
-        },
-      ],
+      // disabled: true,
+      label: <Link to='/reception'>Reception</Link>,
+
     },
     {
       key: 'menu-7',
@@ -280,7 +275,7 @@ const MainLayout = () => {
             onClose={toggleSidebar}
             open={sidebarVisible}
             width={240}
-            bodyStyle={{
+            styles={{
               padding: 0,
               paddingTop: '12px',
               background: colorBgContainer,

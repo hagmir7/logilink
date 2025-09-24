@@ -244,12 +244,7 @@ function Commercial() {
           <div className='flex justify-between items-center'>
             <h2 className='text-md font-semibold text-gray-800'>Articles</h2>
             <div className='flex gap-3'>
-
-
               <ResetPrinter document={data?.docentete?.document} fetchData={fetchData} />
-          
-
-
               {data.docentete.document &&
                 Number(data.docentete.document.status_id) < 8 && (
                   <Popconfirm

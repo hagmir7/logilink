@@ -33,6 +33,8 @@ import TransferOrdersList from './pages/TransferOrdersList'
 import { DocumentProgress } from './pages/DocumentProgress'
 import CompanyStock from './pages/CompanyStock'
 import StockMovement from './components/StockMovement'
+import Reception from './pages/Reception'
+import ViewReception from './pages/ViewReception'
 
 
 const NotFound = () => {
@@ -48,6 +50,7 @@ function App() {
         <Route path='articles/:id' element={<ViewArticle />} />
         <Route path='/document/:id' element={<ViewDocument />} />
         <Route path='document/:piece/progress' element={<DocumentProgress />} />
+        <Route path='reception/:id' element={<ViewReception />} />
 
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
@@ -86,6 +89,7 @@ function App() {
           <Route path='stock' element={<Stock />} />
           <Route path='depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
+          <Route path='reception' element={<Reception />} />
         </Route>
       </Routes>
     </>
