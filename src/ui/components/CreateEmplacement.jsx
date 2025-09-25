@@ -118,21 +118,26 @@ const CreateEmplacement = () => {
               { required: true, message: 'Veuillez sélectionner un dépôt!' },
             ]}
           >
-            <Select
-              placeholder='Sélectionnez un dépôt'
-              loading={loadingDepots}
-              showSearch
-              optionFilterProp='children'
-              filterOption={(input, option) =>
-                option.children.toLowerCase().includes(input.toLowerCase())
-              }
-            >
-              {depots.map((depot) => (
-                <Option key={depot.id} value={depot.id}>
-                  {depot.name} - {depot.code}
-                </Option>
-              ))}
-            </Select>
+        <Select
+            placeholder="Sélectionnez un dépôt"
+            loading={loadingDepots}
+            showSearch
+            optionFilterProp="label"
+            filterOption={(input, option) =>
+              option?.label?.toLowerCase().includes(input.toLowerCase())
+            }
+          >
+            {depots.map((depot) => (
+              <Option
+                key={depot.id}
+                value={depot.id}
+                label={`${depot.name} - ${depot.code}`}
+              >
+                {depot.name} - {depot.code}
+              </Option>
+            ))}
+          </Select>
+
           </Form.Item>
 
           <Form.Item

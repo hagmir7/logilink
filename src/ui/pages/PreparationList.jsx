@@ -1,15 +1,15 @@
-import { RefreshCcw, ArrowRight, Loader2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { api } from '../utils/api'
-import { getExped, getDocumentType, getStatus } from '../utils/config'
-import { useParams } from 'react-router-dom'
-import { Button, Empty, message, Spin, Tag } from 'antd'
-import Skeleton from '../components/ui/Skeleton'
-import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable'
-import { QRCode } from 'antd'
-import { useAuth } from '../contexts/AuthContext'
+import { RefreshCcw, ArrowRight, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { api } from '../utils/api';
+import { getExped, getDocumentType, getStatus } from '../utils/config';
+import { useParams } from 'react-router-dom';
+import { Button, Empty, message, Spin, Tag } from 'antd';
+import Skeleton from '../components/ui/Skeleton';
+import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table';
+import SkeletonTable from '../components/ui/SkeletonTable';
+import EmptyTable from '../components/ui/EmptyTable';
+import { useAuth } from '../contexts/AuthContext';
+
 
 function PreparationList() {
   const { id } = useParams()
@@ -78,7 +78,7 @@ function PreparationList() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-2'>
           <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
-            <span>
+            <span className='text-xl'>
               {data.docentete.DO_Piece ? data.docentete.DO_Piece : 'Chargement...'}
             </span>
 
@@ -226,9 +226,6 @@ function PreparationList() {
                       </div>
                     </div>
                   </Td>
-
-
-
 
                   <Td>
                     <div className='text-sm text-gray-500'>
