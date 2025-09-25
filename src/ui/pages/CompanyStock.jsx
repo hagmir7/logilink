@@ -131,9 +131,12 @@ function CompanyStock({ company_id }) {
             </Button>
           </div>
 
-          <div>
-            <ImportArticle />
-          </div>
+          {
+            roles('admin') ? <div>
+              <ImportArticle />
+            </div> : ""
+          }
+
         </div>
 
         {/* Stats */}
@@ -183,9 +186,15 @@ function CompanyStock({ company_id }) {
                   Preparation
                 </th>
 
-                <th className='px-4 py-3 text-left text-md font-medium text-gray-700 uppercase tracking-wider'>
+                {
+            roles('admin') ? <div>
+              <th className='px-4 py-3 text-left text-md font-medium text-gray-700 uppercase tracking-wider'>
                   Action
                 </th>
+            </div> : ""
+          }
+
+               
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
@@ -243,20 +252,19 @@ function CompanyStock({ company_id }) {
                       {parseFloat(article.stock_prepartion)}
                     </span>
                   </td>
-
-                 
-
-                 
-
-                  <td className='px-4 py-2'>
-                    <Button
-                      type='text'
-                      size='small'
-                      icon={<Eye size={14} />}
-                      onClick={() => handleShow(article.code)}
-                      className='text-blue-600 hover:text-blue-700'
-                    />
-                  </td>
+                  {
+                    roles('admin') ? <div>
+                      <td className='px-4 py-2'>
+                        <Button
+                          type='text'
+                          size='small'
+                          icon={<Eye size={14} />}
+                          onClick={() => handleShow(article.code)}
+                          className='text-blue-600 hover:text-blue-700'
+                        />
+                      </td>
+                    </div> : ""
+                  }
                 </tr>
               ))}
             </tbody>

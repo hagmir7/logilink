@@ -13,6 +13,7 @@ import {
 import { PlusOutlined, EnvironmentOutlined } from '@ant-design/icons'
 import { api } from '../utils/api'
 import { data } from 'react-router-dom'
+import { useAuth } from '../contexts/AuthContext'
 
 const { Option } = Select
 
@@ -22,11 +23,13 @@ const CreateEmplacement = () => {
   const [loading, setLoading] = useState(false)
   const [depots, setDepots] = useState([])
   const [loadingDepots, setLoadingDepots] = useState(false)
+  const { roles } = useAuth();
+
   const getDepots = async () => {
     setLoadingDepots(true)
     try {
       const response = await api.get('depots')
-      
+
       setDepots(response?.data?.data || [])
     } catch (error) {
       message.error('Erreur lors du chargement des dépôts')
@@ -79,18 +82,20 @@ const CreateEmplacement = () => {
 
   return (
     <div>
-      <Card>
-        <Space direction='vertical' size='large'>
+
+      {
+        roles('admin') ? <div>
           <Button
             type='primary'
             icon={<PlusOutlined />}
-            size='large'
+            size='middle'
             onClick={showModal}
           >
             Créer
           </Button>
-        </Space>
-      </Card>
+        </div> : ""
+      }
+
 
       <Modal
         title='Créer un Nouvel Emplacement'
