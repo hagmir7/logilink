@@ -21,6 +21,7 @@ import {
   AudioWaveform,
   ArrowRightLeft,
   Building,
+  Lock,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -52,16 +53,19 @@ const sideMenu = () => {
         {
           key: 'submenu-21',
           icon: <AudioWaveform size={19} />,
+          disabled: !roles('controleur') && !roles('commercial'),
           label: <Link to='/progress'>Progrès</Link>,
         },
         {
           key: 'submenu-15',
           icon: <Truck size={19} />,
+          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement'),
           label: <Link to='/shipping'>Expédition</Link>,
         },
          {
           key: 'submenu-16',
           icon: <ArrowRightLeft size={19} />,
+          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement'),
           label: <Link to='/transfer-orders/list'>Transfert</Link>,
         },
         // {
@@ -85,6 +89,7 @@ const sideMenu = () => {
           
           key: 'submenu-2',
           icon: <ClipboardCheck size={19} />,
+           disabled: !roles('logistique') && !roles('admin'),
           label: <Link to='/inventories'>Inventaire</Link>,
         },
         {
@@ -109,7 +114,7 @@ const sideMenu = () => {
     {
       key: 'menu-6',
       icon: <FileDown size={20} />,
-      // disabled: true,
+      disabled: !roles('logistique') && !roles('admin'),
       label: <Link to='/reception'>Reception</Link>,
 
     },
@@ -135,6 +140,13 @@ const sideMenu = () => {
           disabled: !permissions('view:users'),
           icon: <UserCheck size={20} />,
           label: <Link to='/users'>Utilisateurs</Link>,
+        },
+
+        {
+          key: 'submenu-8-14',
+          disabled: !permissions('view:users'),
+          icon: <Lock size={20} />,
+          label: <Link to='/update-password'>Mots de passe</Link>,
         },
         {
           key: 'submenu-8-2',
