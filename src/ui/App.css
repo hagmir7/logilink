@@ -1,0 +1,70 @@
+@import "tailwindcss";
+
+
+/* *{
+  user-select: none!important;
+} */
+
+.frame{
+  -webkit-app-region: drag;
+}
+
+.frame div button {
+  -webkit-app-region: no-drag;
+}
+
+* {
+  font-family: 'Inter', 'Segoe UI', Roboto, sans-serif !important;
+  /* font-weight: 600; */
+}
+
+
+
+/* WebKit Scrollbar Customization */
+.scrollable::-webkit-scrollbar {
+  width: 12px;
+  height: 10px;
+}
+
+.scrollable::-webkit-scrollbar-track {
+  background: #f0f0f0;
+  border-radius: 10px;
+}
+
+.scrollable::-webkit-scrollbar-thumb {
+  background-color: #a3a1a1;
+  border-radius: 10px;
+  border: 2px solid #f0f0f0;
+}
+
+.scrollable::-webkit-scrollbar-thumb:hover {
+  background-color: #818080;
+}
+
+/* Add this CSS to your global stylesheet or component styles */
+.custom-select .ant-select-selector {
+  height: 60px !important;
+  font-size: 30px !important;
+}
+
+.custom-select .ant-select-selection-item {
+  font-size: 30px !important;
+  line-height: 58px !important;
+}
+
+.custom-select .ant-select-selection-placeholder {
+  font-size: 30px !important;
+  line-height: 58px !important;
+}
+
+/* For dropdown options */
+.custom-select-dropdown .ant-select-item {
+  font-size: 30px !important;
+  padding: 12px 11px !important;
+  min-height: 50px !important;
+}
+
+.anticon-close-circle svg {
+  font-size: 25px!important;
+}
+
