@@ -211,48 +211,14 @@ ipcMain.on("print-content", (event, htmlContent) => {
 
   printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
 
-<<<<<<< HEAD
-    printWindow.webContents.on("did-finish-load", () => {
-        const printOptions = {
-            silent: false,                  // Set to true to skip print dialog
-            printBackground: true,          // Print CSS backgrounds
-            deviceName: '',                 // Specify printer by name (e.g., 'Brother HL-2270DW series')
-            color: true,                    // Print in color
-            margins: {
-                marginType: 'none',        // 'default', 'none', 'printableArea', 'custom'
-                top: 0,
-                bottom: 0,
-                left: 0,
-                right: 0
-            },
-            landscape: false,               // false = portrait, true = landscape
-            pagesPerSheet: 1,
-            collate: true,
-            copies: 1,
-            dpi: {
-                horizontal: 600,
-                vertical: 600,
-            },
-            scaleFactor: 100,               // 100% scaling
-            pageSize: 'A4',                 // Could also be 'Letter', { height: 100000, width: 100000 }, etc.
-        };
-
-        printWindow.webContents.print(printOptions, (success, errorType) => {
-            if (!success) {
-                console.error("Print failed:", errorType);
-            }
-            printWindow.close();
-        });
-    });
-=======
   printWindow.webContents.on("did-finish-load", () => {
     const printOptions = {
-      silent: false,                  // Set to true to skip print dialog
+      silent: true,                   // Skip print dialog - prints to default printer
       printBackground: true,          // Print CSS backgrounds
-      deviceName: '',                 // Specify printer by name (e.g., 'Brother HL-2270DW series')
+      deviceName: '',                 // Leave empty to use default printer
       color: true,                    // Print in color
       margins: {
-        marginType: 'none',        // 'default', 'none', 'printableArea', 'custom'
+        marginType: 'none',          // 'default', 'none', 'printableArea', 'custom'
         top: 0,
         bottom: 0,
         left: 0,
@@ -277,7 +243,6 @@ ipcMain.on("print-content", (event, htmlContent) => {
       printWindow.close();
     });
   });
->>>>>>> 5ac528e2cacf7c6445397b472761d14415b55ce6
 });
 
 
@@ -298,8 +263,6 @@ ipcMain.handle('print-tickets', async (event, { printerName, tickets }) => {
                 nodeIntegration: false
             }
         });
-
-        console.log(ticket.line.di);
 
         const barcodeImage = await generateBarcodeBase64(ticket.line.id);
 

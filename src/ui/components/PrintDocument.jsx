@@ -20,13 +20,10 @@ export default function PrintDocument({ docentete, doclignes }) {
               font-size: 12px;
               line-height: 1.4;
             }
-<<<<<<< HEAD
             @page {
-                margin: 7; /* remove page margins */
+                margin: 15; /* remove page margins */
                 size: A4;  /* force paper size */
               }
-=======
->>>>>>> 5ac528e2cacf7c6445397b472761d14415b55ce6
 
             @media print {
               body {
@@ -73,7 +70,7 @@ export default function PrintDocument({ docentete, doclignes }) {
             }
             
             th {
-              background-color: gray;
+              // background-color: gray;
             }
 
             .company-section {
@@ -133,11 +130,7 @@ export default function PrintDocument({ docentete, doclignes }) {
 
             th, td {
               border: 1px solid #333;
-<<<<<<< HEAD
               padding: 3px 8px;
-=======
-              padding: 6px 8px;
->>>>>>> 5ac528e2cacf7c6445397b472761d14415b55ce6
               text-align: left;
               vertical-align: top;
             }
@@ -149,7 +142,7 @@ export default function PrintDocument({ docentete, doclignes }) {
             }
 
             tbody tr:nth-child(even) {
-              background-color: gray;
+              // background-color: gray;
             }
 
             .footer {
@@ -320,11 +313,7 @@ export default function PrintDocument({ docentete, doclignes }) {
                     <th>Qté</th>
                     <th>Couleur</th>
                     <th>Chant</th>
-<<<<<<< HEAD
                     <th>Description</th>
-=======
-                    <th>Poignée</th>
->>>>>>> 5ac528e2cacf7c6445397b472761d14415b55ce6
                     <th>ÉP</th>
                     <th>Réf</th>
                   </tr>
@@ -343,14 +332,12 @@ export default function PrintDocument({ docentete, doclignes }) {
                         <td>{Math.floor(item.DL_Qte || 0)}</td>
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
-<<<<<<< HEAD
                         {/* <td>{item.Poignee} {" "} {item?.Rotation}</td> */}
                         <td>{item.Description}</td>
                         
-=======
-                        <td>{item.Poignee} {" "} {item?.Rotation}</td>
->>>>>>> 5ac528e2cacf7c6445397b472761d14415b55ce6
-                        <td>{item?.Episseur | item?.article?.Episseur}</td>
+                        <td>{item.Episseur > 0
+                          ? Math.floor(item.Episseur)
+                          : Math.floor(item?.article?.Episseur) || '__'}</td>
                         <td>{item.AR_Ref || '__'}</td>
                       </tr>
                     )

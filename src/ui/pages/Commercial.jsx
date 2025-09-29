@@ -431,7 +431,9 @@ function Commercial() {
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {item?.Episseur | item?.article?.Episseur}
+                              {item.Episseur > 0
+                                ? Math.floor(item.Episseur)
+                                : Math.floor(item?.article?.Episseur) || '__'}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
