@@ -2,15 +2,22 @@ import {
   ArrowDownFromLine,
   ArrowRightLeft,
   ArrowUpFromLine,
+  Package,
   ShoppingBag,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import { Button, Modal } from 'antd';
 
 export default function MobileBottomNav() {
   const navigate = useNavigate();
   const location = useLocation();
   const [activeTab, setActiveTab] = useState('/');
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const showModal = () => setIsModalOpen(true);
+  const handleOk = () => setIsModalOpen(false);
+  const handleCancel = () => setIsModalOpen(false);
 
   // Sync activeTab with current location
   useEffect(() => {
@@ -47,9 +54,9 @@ export default function MobileBottomNav() {
     {
       key: 'transfer',
       label: 'Transfert',
-      path: '/transfer-order',
       icon: <ArrowRightLeft className="h-6 w-6 mb-1" />,
       color: 'blue',
+      onClick: showModal, // ✅ Opens modal
     },
   ];
 
@@ -58,10 +65,17 @@ export default function MobileBottomNav() {
       <div className="flex justify-around items-center py-3 px-2">
         {navItems.map((item) => {
           const isActive = activeTab === item.path;
+
           return (
             <button
               key={item.key}
-              onClick={() => handleNavClick(item.path)}
+              onClick={() => {
+                if (item.onClick) {
+                  item.onClick();
+                } else if (item.path) {
+                  handleNavClick(item.path);
+                }
+              }}
               className={`
                 group relative flex flex-col items-center justify-center w-full
                 p-2 rounded-xl transition-all duration-200
@@ -94,13 +108,58 @@ export default function MobileBottomNav() {
               <div
                 className={`
                   absolute -bottom-1 left-1/2 transform -translate-x-1/2 h-0.5 rounded-full transition-all duration-200
-                  ${isActive ? `w-8 bg-${item.color}-600` : 'w-0 bg-transparent group-hover:w-8 group-hover:bg-gray-400'}
+                  ${
+                    isActive
+                      ? `w-8 bg-${item.color}-600`
+                      : 'w-0 bg-transparent group-hover:w-8 group-hover:bg-gray-400'
+                  }
                 `}
               ></div>
             </button>
           );
         })}
       </div>
+
+      {/* Modal */}
+      <Modal
+      title={
+        <div className="flex items-center gap-2 text-xl font-semibold">
+          <ArrowRightLeft className="w-6 h-6 text-blue-600" />
+          Transfert
+        </div>
+      }
+      open={isModalOpen}
+      onOk={handleOk}
+      footer={false}
+      onCancel={handleCancel}
+      centered
+    >
+      <div className="flex flex-col gap-6 mt-6">
+        <Button
+          type="primary"
+          size="large"
+          className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+          style={{ fontSize: "1.5rem" }}
+          onClick={()=> {
+            navigate('/transfer-order');
+            setIsModalOpen(false)
+          }}
+        >
+          <Package className="w-6 h-6" />
+          Transfert de Commande
+        </Button>
+
+        <Button
+          type="default"
+          size="large"
+          className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+          style={{ fontSize: "1.5rem" }}
+        >
+          <ArrowRightLeft className="w-6 h-6" />
+          Transfert de Stock
+        </Button>
+      </div>
+    </Modal>
     </nav>
   );
 }
