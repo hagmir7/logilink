@@ -133,7 +133,6 @@ app.on('ready', () => {
     if (!isDev()) {
         autoUpdater.checkForUpdatesAndNotify();
     }
-
 });
 
 app.on('window-all-closed', () => {
@@ -160,10 +159,7 @@ ipcMain.on('restart_app', () => {
     autoUpdater.quitAndInstall();
 });
 
-
-
 ipcMain.on('openShow', async (event, preload) => {
-
     try {
         if (!showWindow || showWindow.isDestroyed()) {
             showWindow = createShowWindow(preload);
@@ -200,7 +196,6 @@ ipcMain.on('print', () => {
 
 
 
-
 ipcMain.on("print-content", (event, htmlContent) => {
   const printWindow = new BrowserWindow({
     show: false,
@@ -213,7 +208,7 @@ ipcMain.on("print-content", (event, htmlContent) => {
 
   printWindow.webContents.on("did-finish-load", () => {
     const printOptions = {
-      silent: true,                   // Skip print dialog - prints to default printer
+      silent: false,                   // Skip print dialog - prints to default printer
       printBackground: true,          // Print CSS backgrounds
       deviceName: '',                 // Leave empty to use default printer
       color: true,                    // Print in color
@@ -245,7 +240,6 @@ ipcMain.on("print-content", (event, htmlContent) => {
   });
 });
 
-
 // ---- Tiket
 
 ipcMain.handle('get-printers', async (event) => {
@@ -263,6 +257,8 @@ ipcMain.handle('print-tickets', async (event, { printerName, tickets }) => {
                 nodeIntegration: false
             }
         });
+
+
 
         const barcodeImage = await generateBarcodeBase64(ticket.line.id);
 

@@ -51,7 +51,7 @@ const sideMenu = () => {
         {
           key: 'submenu-21',
           icon: <AudioWaveform size={19} />,
-          disabled: !roles('controleur') && !roles('commercial') && !roles('expedition'),
+          disabled: !roles('commercial') && !roles('expedition'),
           label: <Link to='/progress'>Progrès</Link>,
         },
         {

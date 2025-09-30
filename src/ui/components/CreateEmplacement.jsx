@@ -56,7 +56,7 @@ const CreateEmplacement = () => {
       // You can add a callback here to refresh the parent component's data
       // onEmplacementCreated?.(response.data);
     } catch (error) {
-      message.error("Erreur lors de la création de l'emplacement")
+      message.error(error.response.data.message || "Erreur lors de la création de l'emplacement")
       console.error('Error creating emplacement:', error)
     } finally {
       setLoading(false)
