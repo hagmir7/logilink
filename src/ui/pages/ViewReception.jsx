@@ -4,7 +4,7 @@ import { getExped } from '../utils/config'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import Skeleton from '../components/ui/Skeleton'
-import { ArrowRight, Clock, Settings, Undo2 } from 'lucide-react'
+import { ArrowRight, CheckCircle, Clock, Settings, Undo2 } from 'lucide-react'
 
 function ViewReception() {
   const [data, setData] = useState([])
@@ -14,15 +14,17 @@ function ViewReception() {
   const [user, setUser] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
 
-  const { id } = useParams()
+  const { id, company } = useParams()
 
   const fetchData = async (controller) => {
     setLoading(true)
     try {
-      const response = await api.get(`receptions/${id}`, {
+      const response = await api.get(`receptions/${id}?company=${company}`, {
         signal: controller.signal,
       })
       setData(response.data)
+      console.log(response.data);
+      
     } catch (error) {
       if (error.name !== 'CanceledError') {
         console.error('Error fetching reception:', error)
@@ -108,7 +110,10 @@ function ViewReception() {
       const response = await api.post('receptions/transfer', {
         document_piece: id,
         user_id: user,
+        lines: selected
       });
+      const controller = new AbortController()
+      fetchData(controller)
       setTransferSpin(false);
       message.success("Document transféré avec succès");
       console.log(response);
@@ -125,7 +130,8 @@ function ViewReception() {
     try {
       await api.get(`receptions/reset/${id}`)
       message.success('Réinitialiser avec succès')
-      fetchData()
+      const controller = new AbortController()
+      fetchData(controller)
     } catch (error) {
       console.log(error);
       
@@ -133,6 +139,22 @@ function ViewReception() {
       console.error(error);
     }
   }
+
+  const statuses = [
+    // { id: 1, name: "En attente", color: "#f39c12" },
+    { id: 1, name: "Transféré", color: "#2980b9" },
+    { id: 2, name: "Réceptionné", color: "#27ae60" },
+    { id: 3, name: "Validé", color: "#2ecc71" },
+  ];
+
+  function getStatus(id) {
+    return statuses.find(status => status.id === Number(id)) || null;
+  }
+
+  // console.log(data);
+  
+
+
 
   return (
     <div className='h-full flex flex-col bg-gray-50'>
@@ -147,13 +169,15 @@ function ViewReception() {
                   <Settings size={12} />
                 </span>
               )}
+              {/* {JSON.stringify(data?.document.status_id) */}
 
-              <Tag
-                color={data?.document?.status?.color}
+              {loading ? <Skeleton /> : <Tag
+                color={getStatus(data?.document?.status_id)?.color}
                 className='text-xs font-medium shadow-sm border'
               >
-                {data?.document?.status?.name || 'En attente'}
-              </Tag>
+                {getStatus(data?.document?.status_id)?.name || 'En attente'}
+              </Tag>}
+              
             </h1>
             <div className='flex gap-1 items-center'><Clock size={17} className='text-gray-500' /> {loading ? <Skeleton /> : formatDate(data.DO_Date)} </div>
           </div>
@@ -243,10 +267,15 @@ function ViewReception() {
                   data.doclignes.map((item) => (
                     <tr key={item.cbMarq} className='border-t'>
                       <td className='px-2 py-1 border-r flex items-center justify-center'>
-                        <Checkbox
-                          checked={selected.includes(item.cbMarq)}
-                          onChange={() => handleSelect(item.cbMarq)}
-                        />
+                        <span>{item?.line?.user_role?.full_name} &#xa0; </span>
+                        
+                        {
+                          item?.line?.role_id ? <CheckCircle className='mt-1 text-green-700' size={16} /> :
+                            <Checkbox
+                              checked={selected.includes(item.cbMarq)}
+                              onChange={() => handleSelect(item.cbMarq)}
+                            />
+                        }
                       </td>
                       <td className='px-2 py-1'>{item.AR_Ref}</td>
                       <td className='px-2 py-1'>{item.DL_Design}</td>

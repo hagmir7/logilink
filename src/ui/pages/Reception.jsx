@@ -189,7 +189,7 @@ function Reception() {
       </div>
 
       {/* Table */}
-      <ReceptionTable documents={data.data} onSelectOrder={handleSelectOrder} />
+      <ReceptionTable documents={data.data} onSelectOrder={handleSelectOrder} company={company} />
 
       {/* Load more */}
       {data.next_page_url && (

@@ -8,7 +8,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function ReceptionTable({ documents = [], onSelectOrder, loading }) {
+function ReceptionTable({ documents = [], onSelectOrder, loading, company }) {
   const navigate = useNavigate();
 
   const getStatusBadgeColor = (color) => {
@@ -33,7 +33,7 @@ function ReceptionTable({ documents = [], onSelectOrder, loading }) {
 
   const handleShow = async (id) => {
     try {
-      const url = `/reception/${id}`
+      const url = `/reception/${id}/${company}`
       if (window.electron && typeof window.electron.openShow === 'function') {
         await window.electron.openShow({
           width: 1200,
@@ -47,6 +47,17 @@ function ReceptionTable({ documents = [], onSelectOrder, loading }) {
     } catch (error) {
       console.error('Error navigating to article:', error)
     }
+  }
+
+    const statuses = [
+    // { id: 1, name: "En attente", color: "#f39c12" },
+    { id: 1, name: "Transféré", color: "#2980b9" },
+    { id: 2, name: "Réceptionné", color: "#27ae60" },
+    { id: 3, name: "Validé", color: "#2ecc71" },
+  ];
+
+  function getStatus(id) {
+    return statuses.find(status => status.id === Number(id)) || null;
   }
 
   return (
@@ -117,10 +128,10 @@ function ReceptionTable({ documents = [], onSelectOrder, loading }) {
                   </td>
                     <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag
-                      color={data?.document?.status?.color}
+                      color={getStatus(data?.document?.status_id)?.color}
                       className='text-xs font-medium shadow-sm border'
                     >
-                      {data?.document?.status?.name || 'En attente'}
+                      {getStatus(data?.document?.status_id)?.name || 'En attente'}
                     </Tag>
                   </td>
 

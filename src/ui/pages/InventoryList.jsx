@@ -120,7 +120,7 @@ export default function InventoryList() {
           <div className=''>
             {/* Title */}
             <h1 className='text-xl font-semibold text-gray-800 mb-2'>
-              Gestion de la préparation
+              Gestion d'inventaires
             </h1>
             <p className='text-gray-600'>
               Gérez vos inventaires et suivez leur statut

@@ -3,6 +3,8 @@ import {
   ArrowRightLeft,
   ArrowUpFromLine,
   Package,
+  PlaneLanding,
+  PlaneTakeoff,
   ShoppingBag,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -157,6 +159,21 @@ export default function MobileBottomNav() {
         >
           <ArrowRightLeft className="w-6 h-6" />
           Transfert de Stock
+        </Button>
+
+
+        <Button
+          type="info"
+          size="large"
+          className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+          style={{ fontSize: "1.5rem" }}
+           onClick={()=> {
+            navigate('/reception-movement-list');
+            setIsModalOpen(false)
+          }}
+        >
+          <PlaneLanding className="w-6 h-6" />
+         Reception
         </Button>
       </div>
     </Modal>

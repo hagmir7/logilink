@@ -36,6 +36,8 @@ import StockMovement from './components/StockMovement'
 import Reception from './pages/Reception'
 import ViewReception from './pages/ViewReception'
 import UpdatePassword from './pages/UpdatePassword'
+import ReceptionMovement from './components/ReceptionMovement'
+import ReceptionMovementList from './pages/ReceptionMovementList'
 
 
 const NotFound = () => {
@@ -51,7 +53,7 @@ function App() {
         <Route path='articles/:id' element={<ViewArticle />} />
         <Route path='/document/:id' element={<ViewDocument />} />
         <Route path='document/:piece/progress' element={<DocumentProgress />} />
-        <Route path='reception/:id' element={<ViewReception />} />
+        <Route path='reception/:id/:company' element={<ViewReception />} />
 
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
@@ -76,6 +78,8 @@ function App() {
 
           <Route path='stock/out' element={<StockMovement />} />
           <Route path='stock/in' element={<StockMovement />} />
+          <Route path='reception-movement-list' element={<ReceptionMovementList />} />
+          <Route path='reception-movement/:id' element={<ReceptionMovement />} />
 
           <Route path='transfer-orders/list' element={<TransferOrdersList />} />
 
