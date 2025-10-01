@@ -107,7 +107,7 @@ function ViewReception() {
 
     try {
       setTransferSpin(true);
-      const response = await api.post('receptions/transfer', {
+      const response = await api.post(`receptions/transfer?company=${company}`, {
         document_piece: id,
         user_id: user,
         lines: selected
@@ -128,7 +128,7 @@ function ViewReception() {
 
   const reset = async () => {
     try {
-      await api.get(`receptions/reset/${id}`)
+      await api.get(`receptions/reset/${id}?company=${company}`)
       message.success('Réinitialiser avec succès')
       const controller = new AbortController()
       fetchData(controller)
@@ -141,7 +141,6 @@ function ViewReception() {
   }
 
   const statuses = [
-    // { id: 1, name: "En attente", color: "#f39c12" },
     { id: 1, name: "Transféré", color: "#2980b9" },
     { id: 2, name: "Réceptionné", color: "#27ae60" },
     { id: 3, name: "Validé", color: "#2ecc71" },
@@ -150,10 +149,6 @@ function ViewReception() {
   function getStatus(id) {
     return statuses.find(status => status.id === Number(id)) || null;
   }
-
-  // console.log(data);
-  
-
 
 
   return (
