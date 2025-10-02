@@ -263,7 +263,6 @@ function ViewReception() {
                     <tr key={item.cbMarq} className='border-t'>
                       <td className='px-2 py-1 border-r flex items-center justify-center'>
                         <span>{item?.line?.user_role?.full_name} &#xa0; </span>
-                        
                         {
                           item?.line?.role_id ? <CheckCircle className='mt-1 text-green-700' size={16} /> :
                             <Checkbox

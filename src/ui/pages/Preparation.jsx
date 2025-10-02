@@ -59,10 +59,6 @@ export default function Preparation() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [defaultOptions, setDefaultOptins] = useState([]);
 
-
-  const showModal = () => {
-    setIsModalOpen(true);
-  };
   const handleOk = () => {
     setIsModalOpen(false);
   };
