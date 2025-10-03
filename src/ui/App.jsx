@@ -40,6 +40,7 @@ import ReceptionMovement from './components/ReceptionMovement'
 import ReceptionMovementList from './pages/ReceptionMovementList'
 import UpdateArticleRef from './pages/UpdateArticleRef'
 import InvoiceDuplicate from './components/InvoiceDuplicate'
+import ImportMovements from './components/ImportMovements'
 
 
 const NotFound = () => {
@@ -62,6 +63,7 @@ function App() {
 
         <Route path='update-article-ref' element={<UpdateArticleRef />} />
         <Route path='duplicate-invoice' element={<InvoiceDuplicate />} />
+        <Route path='import-movements' element={<ImportMovements />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />
