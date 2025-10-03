@@ -38,6 +38,8 @@ import ViewReception from './pages/ViewReception'
 import UpdatePassword from './pages/UpdatePassword'
 import ReceptionMovement from './components/ReceptionMovement'
 import ReceptionMovementList from './pages/ReceptionMovementList'
+import UpdateArticleRef from './pages/UpdateArticleRef'
+import InvoiceDuplicate from './components/InvoiceDuplicate'
 
 
 const NotFound = () => {
@@ -57,9 +59,13 @@ function App() {
 
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
+
+        <Route path='update-article-ref' element={<UpdateArticleRef />} />
+        <Route path='duplicate-invoice' element={<InvoiceDuplicate />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />
+          
           <Route path='/users' element={<Users />} />
           <Route path='update-password' element={<UpdatePassword />} />
           <Route path='/layout/document/:id' element={<ViewDocument />} />

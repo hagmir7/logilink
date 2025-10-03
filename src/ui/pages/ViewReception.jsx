@@ -180,7 +180,7 @@ function ViewReception() {
           {/* Info cards */}
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 my-4'>
             <div className='bg-white border rounded-lg p-2 shadow-sm'>
-              <span className='text-sm text-gray-500'>Client</span>
+              <span className='text-sm text-gray-500'>N° Fournisseur</span>
               <div className='text-sm font-semibold'>
                 {loading ? <Skeleton /> : data.DO_Tiers}
               </div>
@@ -262,7 +262,11 @@ function ViewReception() {
                   data.doclignes.map((item) => (
                     <tr key={item.cbMarq} className='border-t'>
                       <td className='px-2 py-1 border-r flex items-center justify-center'>
-                        <span>{item?.line?.user_role?.full_name} &#xa0; </span>
+                       
+                        <span>
+                          {users?.find((u) => Number(u.value) == Number(item?.line?.role_id))?.label} &nbsp;
+                        </span>
+
                         {
                           item?.line?.role_id ? <CheckCircle className='mt-1 text-green-700' size={16} /> :
                             <Checkbox

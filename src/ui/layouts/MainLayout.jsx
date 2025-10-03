@@ -25,6 +25,7 @@ import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
 import { useAuth } from '../contexts/AuthContext'
 import MobileBottomNav from './MobileButtomNav'
+import Tools from '../components/Tools'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
@@ -240,8 +241,16 @@ const MainLayout = () => {
               />
             </Link>
           </div>
-          <div>
-            <DropMenu />
+          <div className='flex gap-3 items-center'>
+             <div>
+              <Tools />
+            </div>
+            <div>
+              <DropMenu />
+
+            </div>
+
+           
           </div>
         </div>
       </Header>
