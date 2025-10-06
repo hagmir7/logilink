@@ -14,14 +14,14 @@ export default function PrintDocument({ docentete, doclignes }) {
             body {
               font-family: 'Arial', sans-serif;
               margin: 0;
-              padding: 15px;
+              padding: 25px;
               color: #000;
               background: #fff;
               font-size: 12px;
               line-height: 1.4;
             }
             @page {
-                margin: 15; /* remove page margins */
+                margin: 25; /* remove page margins */
                 size: A4;  /* force paper size */
               }
 

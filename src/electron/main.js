@@ -196,6 +196,7 @@ ipcMain.on('print', () => {
 
 
 
+
 ipcMain.on("print-content", (event, htmlContent) => {
   const printWindow = new BrowserWindow({
     show: false,
@@ -204,22 +205,23 @@ ipcMain.on("print-content", (event, htmlContent) => {
     },
   });
 
+  // Load HTML content
   printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
 
   printWindow.webContents.on("did-finish-load", () => {
     const printOptions = {
-      silent: false,                   // Skip print dialog - prints to default printer
-      printBackground: true,          // Print CSS backgrounds
-      deviceName: '',                 // Leave empty to use default printer
-      color: true,                    // Print in color
+      silent: true,                   // ✅ Always print silently to the default printer
+      printBackground: true,          // Include CSS backgrounds
+      deviceName: '',                 // Leave empty for default printer
+      color: true,
       margins: {
-        marginType: 'none',          // 'default', 'none', 'printableArea', 'custom'
+        marginType: 'none',           // No margins
         top: 0,
         bottom: 0,
         left: 0,
-        right: 0
+        right: 0,
       },
-      landscape: false,               // false = portrait, true = landscape
+      landscape: false,
       pagesPerSheet: 1,
       collate: true,
       copies: 1,
@@ -227,13 +229,14 @@ ipcMain.on("print-content", (event, htmlContent) => {
         horizontal: 600,
         vertical: 600,
       },
-      scaleFactor: 100,               // 100% scaling
-      pageSize: 'A4',                 // Could also be 'Letter', { height: 100000, width: 100000 }, etc.
+      scaleFactor: 100,
+      pageSize: 'A4',
     };
 
-    printWindow.webContents.print(printOptions, (success, errorType) => {
+    // Print directly
+    printWindow.webContents.print(printOptions, (success, failureReason) => {
       if (!success) {
-        console.error("Print failed:", errorType);
+        console.error("❌ Print failed:", failureReason);
       }
       printWindow.close();
     });

@@ -2,11 +2,13 @@ import React, { useState } from 'react';
 import { Button, Card, Flex, FloatButton, message, Modal } from 'antd';
 import { Copy, Grid, Grip, Import, PlusCircle, SquarePen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext'
 
 
 const Tools = () => {
     const [open, setOpen] = useState(false);
-    const navigate = useNavigate()
+    const navigate = useNavigate();
+    const { roles } = useAuth()
 
 
     const handleShow = async (path) => {
@@ -31,12 +33,16 @@ const Tools = () => {
     return (
         <Flex vertical gap="middle" align="flex-start">
 
+        {
+            roles('admin') || roles('supper_admin') ?
             <FloatButton
 
                 style={{ height: 50, width: 50 }}
                 icon={<PlusCircle size={30} style={{ marginRight: 20 }} onClick={() => setOpen(true)} className="m-0 p-0 text-gray-700" />}
                 tooltip={<span>Outils</span>}
-            />
+            /> : ""
+        }
+            
 
             <Modal
                 title=""

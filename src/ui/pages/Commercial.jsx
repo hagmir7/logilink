@@ -97,7 +97,6 @@ function Commercial() {
         setSelectedCompany(null)
         setSelected([])
         fetchData()
-        message.success('Articles transférés avec succès')
       } catch (error) {
         console.error(error);
         message.error(error.response.data.message || "Can't trnsfer the article");

@@ -193,10 +193,10 @@ const TransferOrdersList = () => {
       <div className='flex justify-between items-center mb-6 px-2 pt-2'>
         <div>
           <h1 className='text-xl font-bold text-gray-900'>
-            Ordres de Transfert
+            Transferts des commandes
           </h1>
           <p className='text-gray-600 mt-1'>
-            Gérer et suivre tous les ordres de transfert de palettes
+            Gérer et suivre tous les transferts des commandes de palettes
           </p>
         </div>
         <Button
