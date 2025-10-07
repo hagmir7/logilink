@@ -18,7 +18,7 @@ const ViewArticle = () => {
     try {
       setLoading(true)
       const { data } = await api.get(`articles/${id}`)
-      
+
       // Set form values
       form.setFieldsValue({
         ...data,
@@ -57,7 +57,7 @@ const ViewArticle = () => {
       console.error('❌ Error saving article:', error)
       message.error(
         error.response?.data?.message ||
-          "Erreur lors de l'enregistrement du produit."
+        "Erreur lors de l'enregistrement du produit."
       )
     } finally {
       setLoading(false)
@@ -133,7 +133,7 @@ const ViewArticle = () => {
                 Prix de vente <span className='text-gray-500'>(MAD)</span>
               </span>
             }
-           
+
             rules={[
               { required: true, message: 'Le prix est obligatoire' },
               { min: 0, message: 'Le prix doit être positif' }
@@ -142,7 +142,7 @@ const ViewArticle = () => {
             <InputNumber
               className='w-full'
               placeholder='Ex: 125.50'
-               style={{width: "100%"}}
+              style={{ width: "100%" }}
               step={0.01}
               precision={2}
             />
@@ -187,7 +187,7 @@ const ViewArticle = () => {
               key={dim.name}
               name={dim.name}
               className='w-full'
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
               label={
                 <span>
                   {dim.label} <span className='text-gray-500'>(mm)</span>
@@ -201,7 +201,7 @@ const ViewArticle = () => {
               ]}
             >
               <InputNumber
-                style={{width: "100%"}}
+                style={{ width: "100%" }}
                 className='w-full'
                 placeholder='Ex: 600'
               />
@@ -223,7 +223,7 @@ const ViewArticle = () => {
           <Form.Item
             name='quantity'
             label='Quantité'
-            
+
             initialValue={0}
             rules={[
               {
@@ -234,7 +234,7 @@ const ViewArticle = () => {
           >
             <InputNumber
               className='w-full'
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
               placeholder='Quantité en stock'
             />
           </Form.Item>
@@ -252,7 +252,7 @@ const ViewArticle = () => {
           >
             <InputNumber
               className='w-full'
-              style={{width: "100%"}}
+              style={{ width: "100%" }}
               placeholder='Ex: 600'
             />
           </Form.Item>

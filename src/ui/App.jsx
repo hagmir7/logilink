@@ -41,6 +41,7 @@ import ReceptionMovementList from './pages/ReceptionMovementList'
 import UpdateArticleRef from './pages/UpdateArticleRef'
 import InvoiceDuplicate from './components/InvoiceDuplicate'
 import ImportMovements from './components/ImportMovements'
+import PreparationArchive from './pages/PreparationArchive'
 
 
 const NotFound = () => {
@@ -85,6 +86,7 @@ function App() {
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
+          <Route path='preparation/archive' element={<PreparationArchive />} />
 
           <Route path='stock/out' element={<StockMovement />} />
           <Route path='stock/in' element={<StockMovement />} />

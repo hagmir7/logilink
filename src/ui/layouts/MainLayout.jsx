@@ -20,6 +20,7 @@ import {
   AudioWaveform,
   ArrowRightLeft,
   Lock,
+  Archive,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -61,11 +62,17 @@ const sideMenu = () => {
           disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
           label: <Link to='/shipping'>Expédition</Link>,
         },
-         {
+        {
           key: 'submenu-16',
           icon: <ArrowRightLeft size={19} />,
           disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
           label: <Link to='/transfer-orders/list'>Transfert</Link>,
+        },
+        {
+          key: 'submenu-17',
+          icon: <Archive size={19} />,
+          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          label: <Link to='/preparation/archive'>Archives</Link>,
         },
         // {
         //   key: 'submenu-13',
@@ -85,7 +92,7 @@ const sideMenu = () => {
           label: <Link to='/stock'> Suivi </Link>,
         },
         {
-          
+
           key: 'submenu-2',
           icon: <ClipboardCheck size={19} />,
           disabled: !roles('logistique') && !roles('admin'),
@@ -242,15 +249,12 @@ const MainLayout = () => {
             </Link>
           </div>
           <div className='flex gap-3 items-center'>
-             <div>
+            <div>
               <Tools />
             </div>
             <div>
               <DropMenu />
-
             </div>
-
-           
           </div>
         </div>
       </Header>

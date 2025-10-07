@@ -267,6 +267,7 @@ function Commercial() {
                 style={{ width: 200 }}
                 value={selectedCompany}
                 onChange={handleChangeTransfer}
+                disabled={id.includes('BL') || id.includes('FA')}
                 options={listTransfer}
               />
 
@@ -274,6 +275,7 @@ function Commercial() {
                 type='primary'
                 onClick={transfer}
                 loading={transferSpin}
+                disabled={id.includes('BL') || id.includes('FA')}
                 className='flex items-center gap-2 hover:shadow-md transition-shadow'
               >
                 Transfer <ArrowRight size={18} />
