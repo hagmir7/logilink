@@ -394,7 +394,7 @@ export default function ReceptionMovement() {
                             </div>
                             <div className='flex gap-4 w-full'>
                               <Tag color="blue" style={{fontSize: "20px", padding: '10px'}}>Qté: {Math.round(option.DL_Qte)}</Tag>
-                              <Tag color="orange" style={{fontSize: "20px", padding: '10px'}}>Préparée: {Math.round(option.DL_QteBL)}</Tag>
+                              <Tag color="orange" style={{fontSize: "20px", padding: '10px'}}>Qté Réceptionné: {Math.round(option.DL_QteBL)}</Tag>
                             </div>
                           </div>
                         </Radio.Button>

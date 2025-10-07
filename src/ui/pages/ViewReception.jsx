@@ -4,7 +4,7 @@ import { getExped } from '../utils/config'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import Skeleton from '../components/ui/Skeleton'
-import { ArrowRight, CheckCircle, Clock, Settings, Undo2 } from 'lucide-react'
+import { ArrowRight, CheckCircle, CircleCheckBig, Clock, Settings, Undo2 } from 'lucide-react'
 
 function ViewReception() {
   const [data, setData] = useState([])
@@ -13,6 +13,7 @@ function ViewReception() {
   const [users, setUsers] = useState([]);
   const [user, setUser] = useState();
   const [transferSpin, setTransferSpin] = useState(false);
+  const [validationSpin, setValidationSpin] = useState(false)
 
   const { id, company } = useParams()
 
@@ -98,10 +99,36 @@ function ViewReception() {
     return parsed.toLocaleDateString(locale, dateOptions)
   }
 
+  const handleValidation = async () => {
+    setValidationSpin(true);
+    if (Number(data.document.status_id) !== 2) {
+      message.warning("Le document etat pas valid");
+      setValidationSpin(false)
+      return;
+    }
+    try {
+      await api.get(`receptions/validation/${id}?company_db=${company}`);
+      setValidationSpin(false)
+      const controller = new AbortController()
+      fetchData(controller)
+      message.success("Le document est validé avec succès");
+    } catch (error) {
+      setValidationSpin(false)
+      console.error(error);
+      message.error(error.response.data.message || "Erurr de validé le document")
+    }
+
+  }
+
   const handleTransfer = async () => {
 
     if (!user) {
       message.warning("Veuillez sélectionner magasinier");
+      return;
+    }
+
+    if (Number(data?.document?.status_id) === 3) {
+      message.warning("Le document est déjà valide");
       return;
     }
 
@@ -164,7 +191,7 @@ function ViewReception() {
                   <Settings size={12} />
                 </span>
               )}
-              {/* {JSON.stringify(data?.document.status_id) */}
+
 
               {loading ? <Skeleton /> : <Tag
                 color={getStatus(data?.document?.status_id)?.color}
@@ -198,9 +225,9 @@ function ViewReception() {
               </div>
             </div>
             <div className='bg-white border rounded-lg p-2 shadow-sm'>
-              <span className='text-sm text-gray-500'>Total HT</span>
+              <span className='text-sm text-gray-500'>Date livraison</span>
               <div className='text-sm font-semibold'>
-                {loading ? <Skeleton /> : formatCurrency(data.DO_TotalHT)}
+                {loading ? <Skeleton /> : formatDate(data.DO_DateLivr)}
               </div>
             </div>
           </div>
@@ -208,35 +235,48 @@ function ViewReception() {
           {/* Articles Table */}
           <div className='flex justify-between items-center'>
             <h2 className='text-md font-semibold text-gray-800 mb-2'>Articles {!loading ? "(" + data?.doclignes?.length + ")" : ""}</h2>
-            <div className='mb-3 flex gap-2 '>
-              {
-                data.document ? <Popconfirm
-                  title='Réinitialiser la commande'
-                  description='Êtes-vous sûr de vouloir réinitialiser cette tâche ?'
-                  onConfirm={reset}
-                  okText='Réinitialiser'
-                  cancelText='Annuler'
-                >
-                  <Button
-                    danger
-                    className='flex items-center gap-2 hover:shadow-md transition-shadow'
-                  >
-                    Réinitialiser <Undo2 size={18} />
-                  </Button>
-                </Popconfirm> : ""
-              }
-              
 
-              <Select
-                style={{ width: 250 }}
-                options={users}
-                onChange={(value) => setUser(value)}
-                placeholder='Magasinier'
-              />
-              <Button onClick={handleTransfer} loading={transferSpin} color="cyan" variant="solid">
-                Transfer <ArrowRight size={18} />
-              </Button>
-            </div>
+            {Number(data?.document?.status_id) === 2 ? (
+          <Button color="success" variant="solid" onClick={handleValidation} loading={validationSpin} className="mb-2">
+            Valider <CircleCheckBig size={18} />
+          </Button>
+        ) : (
+          <div className="mb-3 flex gap-2">
+            {data.document && (
+              <Popconfirm
+                title="Réinitialiser la commande"
+                description="Êtes-vous sûr de vouloir réinitialiser cette tâche ?"
+                onConfirm={reset}
+                okText="Réinitialiser"
+                cancelText="Annuler"
+              >
+                <Button danger disabled={Number(data?.document?.status_id) > 1} className="flex items-center gap-2 hover:shadow-md transition-shadow">
+                  Réinitialiser <Undo2 size={18} />
+                </Button>
+              </Popconfirm>
+            )}
+
+            <Select
+              style={{ width: 250 }}
+              options={users}
+              onChange={setUser}
+              placeholder="Magasinier"
+              disabled={Number(data?.document?.status_id) > 2}
+            />
+
+            <Button
+              onClick={handleTransfer}
+              loading={transferSpin}
+              color="cyan"
+              variant="solid"
+              disabled={Number(data?.document?.status_id) > 2}
+            >
+              Transfer <ArrowRight size={18} />
+            </Button>
+          </div>
+        )}
+
+           
           </div>
           <div className='bg-white border rounded-lg overflow-hidden'>
             <table className='w-full border-collapse'>

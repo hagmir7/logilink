@@ -53,7 +53,9 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path='/login' element={<Login />} />
-        <Route path='articles/:id' element={<ViewArticle />} />
+        <Route path="articles/:id" element={<ViewArticle />} />
+        <Route path="articles/create" element={<ViewArticle />} />
+
         <Route path='/document/:id' element={<ViewDocument />} />
         <Route path='document/:piece/progress' element={<DocumentProgress />} />
         <Route path='reception/:id/:company' element={<ViewReception />} />

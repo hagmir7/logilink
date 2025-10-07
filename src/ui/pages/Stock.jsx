@@ -12,16 +12,7 @@ const Stock = () => {
     const { id } = useParams();
 
     const items = [
-      // {
-      //   label: (
-      //     <span className='flex items-center gap-2 ml-3'>
-      //       <ChartNoAxesColumn size={16} />
-      //       Aperçu
-      //     </span>
-      //   ),
-      //   key: '1',
-      //   children: <StockOverView company_id={id} />,
-      // },
+
       {
         label: (
           <span className='flex items-center gap-2 ml-3'>
