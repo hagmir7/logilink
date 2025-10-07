@@ -21,6 +21,7 @@ import {
   ArrowRightLeft,
   Lock,
   Archive,
+  ScrollText,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -149,15 +150,23 @@ const sideMenu = () => {
         },
 
         {
-          key: 'submenu-8-14',
+          key: 'submenu-8-14-9',
           disabled: !permissions('view:users'),
           icon: <Lock size={20} />,
           label: <Link to='/update-password'>Mots de passe</Link>,
         },
+
         {
-          key: 'submenu-8-2',
+          key: 'submenu-8-14',
+          disabled: !permissions('view:users'),
+          icon: <ScrollText size={20} />,
+          label: <Link to='/users/actions'>Actions</Link>,
+        },
+        {
+          key: 'submenu-8-209',
           disabled: !permissions('view:roles'),
-          icon: <Shield size={20} />,
+          
+          icon: <Lock size={20} />,
           label: <Link to='/roles'>Roles</Link>,
         },
       ],

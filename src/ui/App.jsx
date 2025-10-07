@@ -42,6 +42,7 @@ import UpdateArticleRef from './pages/UpdateArticleRef'
 import InvoiceDuplicate from './components/InvoiceDuplicate'
 import ImportMovements from './components/ImportMovements'
 import PreparationArchive from './pages/PreparationArchive'
+import UsersActions from './pages/UsersActions'
 
 
 const NotFound = () => {
@@ -72,6 +73,7 @@ function App() {
           <Route path='/transfer-order' element={<TransferOrder />} />
           
           <Route path='/users' element={<Users />} />
+          <Route path='/users/actions' element={<UsersActions />} />
           <Route path='update-password' element={<UpdatePassword />} />
           <Route path='/layout/document/:id' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />
@@ -87,6 +89,7 @@ function App() {
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
           <Route path='preparation/archive' element={<PreparationArchive />} />
+          
 
           <Route path='stock/out' element={<StockMovement />} />
           <Route path='stock/in' element={<StockMovement />} />
