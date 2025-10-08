@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Select, message } from 'antd';
 import { ReceiptText } from 'lucide-react';
+import { useAuth } from '../contexts/AuthContext'
 
 const { Option } = Select;
 
@@ -8,6 +9,7 @@ const TicketPrinter = ({ doclignes, docentete }) => {
     const [visible, setVisible] = useState(false);
     const [printers, setPrinters] = useState([]);
     const [selectedPrinter, setSelectedPrinter] = useState(null);
+    const {user, roles} = useAuth()
 
     useEffect(() => {
         const fetchPrinters = async () => {
@@ -20,6 +22,7 @@ const TicketPrinter = ({ doclignes, docentete }) => {
         };
         fetchPrinters();
     }, []);
+
 
     const handlePrint = async () => {
         if (!selectedPrinter) {
@@ -39,8 +42,11 @@ const TicketPrinter = ({ doclignes, docentete }) => {
 
             await window.electron.printPaletteTickets(selectedPrinter, { 
                 doclignes: safeDoclignes, 
-                docentete 
+                docentete : roles('admin') ? docentete?.document?.palettes : docentete?.document?.palettes?.filter(palette => palette?.company_id == user?.company_id)
             });
+
+            
+            
 
             message.success('Printing started!');
             setVisible(false);
@@ -67,6 +73,7 @@ const TicketPrinter = ({ doclignes, docentete }) => {
                 okText="Imprimer"
                 cancelText="Annuler"
             >
+   
                 <Select
                     style={{ width: '100%' }}
                     placeholder="Sélectionnez une imprimante"

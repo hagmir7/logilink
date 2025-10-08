@@ -6,6 +6,7 @@ import {
   CheckCircle,
   Download,
   Edit,
+  IterationCw,
   Loader2,
   RefreshCcw,
   Trash,
@@ -47,6 +48,13 @@ const options = [
     value: 'TRANSFER',
     emoji: <ArrowUpDown size={18} color='orange' />,
     desc: 'Transfert',
+  },
+
+   {
+    label: 'Retour',
+    value: 'RETURN',
+    emoji: <IterationCw size={18} color='blue' />,
+    desc: 'Retour',
   },
 ]
 

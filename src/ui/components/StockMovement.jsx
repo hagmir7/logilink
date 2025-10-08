@@ -208,9 +208,7 @@ export default function StockMovement() {
         company: company,
       }
 
-
       const { data } = await api.post(location.pathname.replace(/^\/+/, ""), payload)
-      console.log(data);
 
       setQuantity('')
       setArticleCode('')
@@ -278,24 +276,35 @@ export default function StockMovement() {
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* Header Section */}
-     <div
-        className={`border-b ${
-          location.pathname === '/stock/in'
-            ? 'bg-green-50 border-green-200'
-            : 'bg-red-50 border-red-200'
-        }`}
+      <div
+        className={`border-b ${location.pathname.includes('return')
+            ? 'bg-yellow-50 border-yellow-300'
+            : location.pathname === '/stock/in'
+              ? 'bg-green-50 border-green-200'
+              : 'bg-red-50 border-red-200'
+          }`}
       >
         <div className="mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center gap-3">
-            <div className='border border-gray-400 rounded-3xl'><BackButton className="w-8 h-8" /></div>
+            <div className="border border-gray-400 rounded-3xl">
+              <BackButton className="w-8 h-8" />
+            </div>
             <div className="w-px h-6 bg-gray-300" />
 
             <h1
-              className={`text-2xl font-bold truncate flex gap-3 items-center ${
-                location.pathname === '/stock/in' ? 'text-green-700' : 'text-red-700'
-              }`}
+              className={`text-2xl font-bold truncate flex gap-3 items-center ${location.pathname.includes('return')
+                  ? 'text-yellow-600'
+                  : location.pathname === '/stock/in'
+                    ? 'text-green-700'
+                    : 'text-red-700'
+                }`}
             >
-              {location.pathname === '/stock/in' ? (
+              {location.pathname.includes('return') ? (
+                <>
+                  <span>Retour de stock</span>
+                  <ArrowDownFromLine className="w-6 h-6 text-yellow-600" />
+                </>
+              ) : location.pathname === '/stock/in' ? (
                 <>
                   <span>Mouvement d'entrée</span>
                   <ArrowDownFromLine className="w-6 h-6 text-green-600" />
@@ -309,6 +318,7 @@ export default function StockMovement() {
             </h1>
           </div>
         </div>
+
       </div>
 
 

@@ -93,6 +93,7 @@ function App() {
 
           <Route path='stock/out' element={<StockMovement />} />
           <Route path='stock/in' element={<StockMovement />} />
+          <Route path='stock/return' element={<StockMovement />} />
           <Route path='reception-movement-list' element={<ReceptionMovementList />} />
           <Route path='reception-movement/:id/:company_db' element={<ReceptionMovement />} />
 

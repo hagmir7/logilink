@@ -1,6 +1,6 @@
 import { Settings } from 'lucide-react'
 import { Tag } from 'antd'
-import { getExped } from '../utils/config'
+import { getExped, getStatus } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
 
 const formatDate = (date) => {
@@ -98,7 +98,7 @@ function ArchiveTable({ documents = [], documentType=1}) {
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag
-                      color={data?.status?.color}
+                       color={data?.status?.color}
                       className='text-xs font-medium shadow-sm border'
                     >
                       {data?.status?.name || 'En attente'}

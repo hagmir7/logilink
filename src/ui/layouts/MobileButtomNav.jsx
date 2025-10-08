@@ -2,14 +2,17 @@ import {
   ArrowDownFromLine,
   ArrowRightLeft,
   ArrowUpFromLine,
+  IterationCw,
   Package,
   PlaneLanding,
   PlaneTakeoff,
+  Plus,
   ShoppingBag,
 } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button, Modal } from 'antd';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function MobileBottomNav() {
   const navigate = useNavigate();
@@ -20,6 +23,7 @@ export default function MobileBottomNav() {
   const showModal = () => setIsModalOpen(true);
   const handleOk = () => setIsModalOpen(false);
   const handleCancel = () => setIsModalOpen(false);
+  const {roles} = useAuth()
 
   // Sync activeTab with current location
   useEffect(() => {
@@ -55,8 +59,8 @@ export default function MobileBottomNav() {
     },
     {
       key: 'transfer',
-      label: 'Transfert',
-      icon: <ArrowRightLeft className="h-6 w-6 mb-1" />,
+      label: 'Plus',
+      icon: <Plus className="h-6 w-6 mb-1" />,
       color: 'blue',
       onClick: showModal, // ✅ Opens modal
     },
@@ -88,9 +92,8 @@ export default function MobileBottomNav() {
             >
               <div className="relative">
                 <div
-                  className={`transition-transform duration-200 ${
-                    isActive ? 'scale-110' : 'group-hover:scale-110 group-active:scale-90'
-                  }`}
+                  className={`transition-transform duration-200 ${isActive ? 'scale-110' : 'group-hover:scale-110 group-active:scale-90'
+                    }`}
                 >
                   {item.icon}
                 </div>
@@ -101,19 +104,17 @@ export default function MobileBottomNav() {
                 )}
               </div>
               <span
-                className={`text-sm font-medium transition-colors duration-200 ${
-                  isActive ? `text-${item.color}-600` : ''
-                }`}
+                className={`text-sm font-medium transition-colors duration-200 ${isActive ? `text-${item.color}-600` : ''
+                  }`}
               >
                 {item.label}
               </span>
               <div
                 className={`
                   absolute -bottom-1 left-1/2 transform -translate-x-1/2 h-0.5 rounded-full transition-all duration-200
-                  ${
-                    isActive
-                      ? `w-8 bg-${item.color}-600`
-                      : 'w-0 bg-transparent group-hover:w-8 group-hover:bg-gray-400'
+                  ${isActive
+                    ? `w-8 bg-${item.color}-600`
+                    : 'w-0 bg-transparent group-hover:w-8 group-hover:bg-gray-400'
                   }
                 `}
               ></div>
@@ -124,59 +125,70 @@ export default function MobileBottomNav() {
 
       {/* Modal */}
       <Modal
-      title={
-        <div className="flex items-center gap-2 text-xl font-semibold">
-          <ArrowRightLeft className="w-6 h-6 text-blue-600" />
-          Transfert
+        title={
+          <div className="flex items-center gap-2 text-xl font-semibold">
+            <ArrowRightLeft className="w-6 h-6 text-blue-600" />
+            Transfert
+          </div>
+        }
+        open={isModalOpen}
+        onOk={handleOk}
+        footer={false}
+        onCancel={handleCancel}
+        centered
+      >
+        <div className="flex flex-col gap-6 mt-6">
+          <Button
+            type="primary"
+            size="large"
+            className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+            style={{ fontSize: "1.5rem", height: 60 }}
+            onClick={() => {
+              navigate('/transfer-order');
+              setIsModalOpen(false)
+            }}
+          >
+            <Package className="w-6 h-6" />
+            Transfert de Commande
+          </Button>
+
+          <Button
+            type="default" size="large" color='lime' variant="solid"
+            className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+            style={{ fontSize: "1.5rem", height: 60 }}
+          >
+            <ArrowRightLeft className="w-6 h-6" />
+            Transfert de Stock
+          </Button>
+
+
+          <Button
+            color="danger" variant="solid" size="large"
+            className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+            style={{ fontSize: "1.5rem", height: 60 }}
+            onClick={() => {
+              navigate('/reception-movement-list');
+              setIsModalOpen(false)
+            }}
+          >
+            <PlaneLanding className="w-6 h-6" />
+            Reception
+          </Button>
+
+          <Button
+            color="gold" variant="solid" size="large"
+            className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+            style={{ fontSize: "1.5rem", height: 60 }}
+            onClick={() => {
+              navigate('/stock/return');
+              setIsModalOpen(false)
+            }}
+          >
+            <IterationCw className="w-6 h-6" />
+            Movement de Retour
+          </Button>
         </div>
-      }
-      open={isModalOpen}
-      onOk={handleOk}
-      footer={false}
-      onCancel={handleCancel}
-      centered
-    >
-      <div className="flex flex-col gap-6 mt-6">
-        <Button
-          type="primary"
-          size="large"
-          className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
-          style={{ fontSize: "1.5rem" }}
-          onClick={()=> {
-            navigate('/transfer-order');
-            setIsModalOpen(false)
-          }}
-        >
-          <Package className="w-6 h-6" />
-          Transfert de Commande
-        </Button>
-
-        <Button
-          type="default"
-          size="large"
-          className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
-          style={{ fontSize: "1.5rem" }}
-        >
-          <ArrowRightLeft className="w-6 h-6" />
-          Transfert de Stock
-        </Button>
-
-
-        <Button
-          type="info"
-          size="large"
-          className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
-          style={{ fontSize: "1.5rem" }}
-           onClick={()=> {
-            navigate('/reception-movement-list');
-            setIsModalOpen(false)
-          }}
-        >
-          <PlaneLanding className="w-6 h-6" />
-         Reception
-        </Button>
-      </div>
-    </Modal>
+      </Modal>
     </nav>
   );
 }
