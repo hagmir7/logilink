@@ -5,7 +5,6 @@ import {
   IterationCw,
   Package,
   PlaneLanding,
-  PlaneTakeoff,
   Plus,
   ShoppingBag,
 } from 'lucide-react';
@@ -62,7 +61,7 @@ export default function MobileBottomNav() {
       label: 'Plus',
       icon: <Plus className="h-6 w-6 mb-1" />,
       color: 'blue',
-      onClick: showModal, // ✅ Opens modal
+      onClick: showModal,
     },
   ];
 
@@ -156,6 +155,10 @@ export default function MobileBottomNav() {
             type="default" size="large" color='lime' variant="solid"
             className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
             style={{ fontSize: "1.5rem", height: 60 }}
+            onClick={() => {
+              navigate('/transfer-stock');
+              setIsModalOpen(false)
+            }}
           >
             <ArrowRightLeft className="w-6 h-6" />
             Transfert de Stock

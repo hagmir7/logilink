@@ -43,6 +43,7 @@ import InvoiceDuplicate from './components/InvoiceDuplicate'
 import ImportMovements from './components/ImportMovements'
 import PreparationArchive from './pages/PreparationArchive'
 import UsersActions from './pages/UsersActions'
+import TransferStock from './components/TransferStock'
 
 
 const NotFound = () => {
@@ -71,6 +72,7 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />
+          <Route path='/transfer-stock' element={<TransferStock />} />
           
           <Route path='/users' element={<Users />} />
           <Route path='/users/actions' element={<UsersActions />} />
