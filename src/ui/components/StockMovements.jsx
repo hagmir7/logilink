@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import {
   ArrowDownIcon,
+  ArrowRight,
   ArrowUp,
   ArrowUpDown,
   CheckCircle,
@@ -118,6 +119,8 @@ function StockMovements({ company_id }) {
       const url = query ? `${baseUrl}?${query}` : baseUrl
 
       const { data } = await api.get(url)
+      console.log(data);
+      
       setMovments(data.movements)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -438,8 +441,24 @@ function StockMovements({ company_id }) {
                   <td className='px-6 py-2 whitespace-nowrap'>
                     {getLabelWithIcon(movement.movement_type)}
                   </td>
-                  <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
-                    {movement?.emplacement?.code || 'N/A'}
+                  <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 flex'>
+
+                    <span> {movement?.emplacement?.code || 'N/A'}</span>
+
+                    <span>
+                      {
+                        movement?.to_emplacement ? (<span className='flex gap-2'><ArrowRight size={20} />  <span>{movement?.to_emplacement?.code}</span></span>)
+                          : ''
+                      }
+                    </span>
+
+                    <span>
+                      {
+                        movement?.to_company ? (<span className='flex gap-2'><ArrowRight size={20} />  <span>{movement?.to_company?.name}</span></span>)
+                          : ''
+                      }
+                    </span>
+
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                     {(Number(movement.quantity) || 0).toFixed(3)}

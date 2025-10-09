@@ -4,7 +4,7 @@ import { getExped, getDocumentType } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../utils/api';
 
-export default function PrintDocument({ docentete, doclignes }) {
+export default function PrintDocument({ docentete, doclignes, largeSize }) {
   const handlePrint = () => {
     const content = document.getElementById("print-section").innerHTML;
     const styledHtml = `
@@ -234,9 +234,10 @@ export default function PrintDocument({ docentete, doclignes }) {
     <div>
       <Button
         onClick={handlePrint}
+        style={largeSize ? {height: 60, fontSize: 25} : {}}
         color='cyan'
         variant='solid'
-        icon={<Printer className='h-4 w-4' />}
+        icon={<Printer size={ largeSize ? 40 : 16} />}
       >
         Imprimer
       </Button>

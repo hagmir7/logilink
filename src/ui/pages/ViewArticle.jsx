@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 import { useParams, useNavigate } from 'react-router-dom'
-import { Info, Package, Ruler } from 'lucide-react'
+import { Info, MapPin, Package, Ruler } from 'lucide-react'
 import { Form, Input, InputNumber, message, Select, Tabs, Button } from 'antd'
 import { categories } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
+import ArticleEmpacement from './ArticleEmpacement'
 
 const ViewArticle = () => {
   const [activeKey, setActiveKey] = useState('1')
@@ -207,6 +208,21 @@ const ViewArticle = () => {
               />
             </Form.Item>
           ))}
+        </div>
+      )
+    },
+
+     {
+      label: (
+        <span className='flex items-center gap-2'>
+          <MapPin size={16} />
+          Emplacements
+        </span>
+      ),
+      key: '6',
+      children: (
+        <div>
+          <ArticleEmpacement code={id} />
         </div>
       )
     },
