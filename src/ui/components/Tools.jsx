@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Button, Card, Flex, FloatButton, message, Modal } from 'antd';
-import { Copy, Grid, Grip, Import, PlusCircle, SquarePen } from 'lucide-react';
+import { ArrowDownCircle, Copy, Grid, Grip, Import, PlusCircle, SquarePen } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext'
 
@@ -93,6 +93,17 @@ const Tools = () => {
                         <div className='flex gap-3 items-center'>
                             <Import size={20}/>
                              <span className='text-md font-bold'>Import Movements</span>
+                        </div>
+                   
+                </Card>
+                <div className='mt-4'></div>
+                 <Card 
+                    size="small" className='cursor-pointer hover:shadow-sm mt-5'
+                    onClick={()=> handleShow("import-stock")}
+                    >
+                        <div className='flex gap-3 items-center'>
+                            <ArrowDownCircle size={20}/>
+                             <span className='text-md font-bold'>Import Stock</span>
                         </div>
                    
                 </Card>

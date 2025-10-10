@@ -44,6 +44,7 @@ import ImportMovements from './components/ImportMovements'
 import PreparationArchive from './pages/PreparationArchive'
 import UsersActions from './pages/UsersActions'
 import TransferStock from './components/TransferStock'
+import ImportStock from './components/ImportStock'
 
 
 const NotFound = () => {
@@ -65,10 +66,12 @@ function App() {
 
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
+        
 
         <Route path='update-article-ref' element={<UpdateArticleRef />} />
         <Route path='duplicate-invoice' element={<InvoiceDuplicate />} />
         <Route path='import-movements' element={<ImportMovements />} />
+        <Route path='import-stock' element={<ImportStock />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />

@@ -77,7 +77,7 @@ const UsersActions = () => {
   return (
     <div>
       <div className="p-2 flex justify-between items-center">
-        <Typography.Title level={4}>Liste des utilisateurs</Typography.Title>
+        <Typography.Title className="p-2" level={4}>Liste d'actions</Typography.Title>
         <DatePicker
           picker="month"
           locale={locale}

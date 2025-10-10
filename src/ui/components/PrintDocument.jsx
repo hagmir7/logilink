@@ -228,7 +228,6 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
     return chunks;
   };
 
-  const { roles } = useAuth();
 
   return (
     <div>

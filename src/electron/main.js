@@ -437,3 +437,12 @@ ipcMain.handle('print-palette-tickets', async (event, { printerName, tickets }) 
         });
     }
 });
+
+
+// Downlaod file
+ipcMain.handle('download-file', async (event, url) => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    win.webContents.downloadURL(url);
+  }
+});
