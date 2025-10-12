@@ -179,18 +179,17 @@ function Commercial() {
                 doclignes={data.doclignes}
                 docentete={data.docentete}
               />
-             {data?.docentete?.document && (
-              <DocumentPalettesModal
-                countPalettes={data.docentete.document.palettes?.length ?? 0}
-                documentPiece={
-                  data.docentete.document?.piece_fa ||
-                  data.docentete.document?.piece_bl ||
-                  data.docentete.document?.piece ||
-                  data.docentete?.DO_Piece
-                }
-              />
-            )}
-
+              {data?.docentete?.document && (
+                <DocumentPalettesModal
+                  countPalettes={data.docentete.document.palettes?.length ?? 0}
+                  documentPiece={
+                    data.docentete.document?.piece_fa ||
+                    data.docentete.document?.piece_bl ||
+                    data.docentete.document?.piece ||
+                    data.docentete?.DO_Piece
+                  }
+                />
+              )}
             </div>
           </div>
 
@@ -215,7 +214,12 @@ function Commercial() {
                   <div>
                     {data?.docentete?.document?.companies?.length > 0 ? (
                       data.docentete.document.companies
-                        .map((company) => `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''}`)
+                        .map(
+                          (company) =>
+                            `${company.name} ${
+                              company.pivot.printed == 1 ? '🖨️' : ''
+                            }`
+                        )
                         .join(' & ')
                     ) : (
                       <Skeleton />
@@ -244,11 +248,10 @@ function Commercial() {
           <div className='flex justify-between items-center'>
             <h2 className='text-md font-semibold text-gray-800'>Articles</h2>
             <div className='flex gap-3'>
-
-
-              <ResetPrinter document={data?.docentete?.document} fetchData={fetchData} />
-          
-
+              <ResetPrinter
+                document={data?.docentete?.document}
+                fetchData={fetchData}
+              />
 
               {data.docentete.document &&
                 Number(data.docentete.document.status_id) < 8 && (
@@ -309,7 +312,7 @@ function Commercial() {
                             }
                           />
                         </th>
-                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           État
                         </th>
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
@@ -324,7 +327,7 @@ function Commercial() {
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Largeur
                         </th>
-                       
+
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Epaisseur
                         </th>
@@ -343,11 +346,9 @@ function Commercial() {
                           QTE CMD
                         </th>
 
-                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
-                           QTE PREP
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
+                          QTE PREP
                         </th>
-
-                    
                       </tr>
                     </thead>
                     <tbody className='bg-white'>
@@ -462,7 +463,7 @@ function Commercial() {
                               </span>
                             </td>
 
-                             <td className='px-4 py-2'>
+                            <td className='px-4 py-2'>
                               <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200'>
                                 {Math.floor(item.DL_QteBL)}
                               </span>
