@@ -166,7 +166,10 @@ function Document() {
 
       {/* Tables / Cards */}
       {roles('commercial') && (
-        <DocumentTable documents={data.data} onSelectOrder={handleSelectOrder} />
+        <DocumentTable
+          documents={data.data}
+          onSelectOrder={handleSelectOrder}
+        />
       )}
 
       {(roles('preparation') || roles('montage') || roles('fabrication')) && (
@@ -211,7 +214,7 @@ function Document() {
         <Empty className='mt-10' description='Aucun document à afficher' />
       )}
     </div>
-  );
+  )
 }
 
 export default Document;

@@ -84,8 +84,8 @@ function PreparationList() {
             </span>
 
             {data?.docentete?.document && (
-              <Tag color={getStatus(statusId).color} style={{height: 25, fontSize: 15}}>
-                {getStatus(statusId).name}
+              <Tag color={getStatus(statusId)?.color} style={{height: 25, fontSize: 15}}>
+                {getStatus(statusId)?.name}
               </Tag>
             )}
           </h1>

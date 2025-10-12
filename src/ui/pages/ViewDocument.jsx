@@ -27,7 +27,11 @@ export default function ViewDocument() {
   }
 
 
-  if(roles('preparation_cuisine') || roles('preparation_trailer')){
-     return <PreparationList />
+  if (
+    roles('preparation_cuisine') ||
+    roles('preparation_trailer') ||
+    roles('magasinier')
+  ) {
+    return <PreparationList />
   }
 }
