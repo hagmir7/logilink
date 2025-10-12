@@ -268,7 +268,9 @@ function Fabrication() {
                      </td>
    
                      <td className='px-2 text-sm border-r border-gray-100'>
-                       {Math.floor(item.Largeur ? item.Largeur : item?.article?.Largeur) || '__'}
+                       {item.Largeur > 0
+                         ? Math.floor(item.Largeur)
+                         : Math.floor(item?.article?.Largeur) || '__'}
                      </td>
                      {/* <td className='px-2 text-sm border-r border-gray-100'>
                        {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
@@ -283,7 +285,9 @@ function Fabrication() {
                      </td>
    
                      <td className='px-2 text-sm border-r border-gray-100'>
-                       {Math.floor(item.article ? item?.article?.Episseur : item?.Episseur) || '__'}
+                       {item.Episseur > 0
+                         ? Math.floor(item.Episseur)
+                         : Math.floor(item?.article?.Episseur) || '__'}
                      </td>
                      <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                        <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>

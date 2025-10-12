@@ -1,14 +1,14 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
-import BackButton from '../components/ui/BackButton'
-import { Button, Input, message, Modal, Radio, Select } from 'antd'
-import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine, ArrowUpFromLine } from 'lucide-react'
+import BackButton from './ui/BackButton'
+import { Button, Input, message, Modal, Radio, Select, Space, Tag } from 'antd'
+import { Building2, Package, Hash, AlertCircle, PlaneLanding, List } from 'lucide-react'
 import { debounce } from 'lodash'
-import InputField from '../components/ui/InputField'
+import InputField from './ui/InputField'
 
-export default function StockMovement() {
+export default function ReceptionMovement() {
 
 
   const [quantity, setQuantity] = useState('')
@@ -28,8 +28,22 @@ export default function StockMovement() {
   const [companies, setCompanies] = useState([])
   const [company, setCompany] = useState(null);
 
+  const { id, company_db } = useParams();
 
-  const location = useLocation();
+  const [isListModalOpen, setListIsModalOpen] = useState(false);
+
+  const [modalOptions, setModalOptions] = useState([]);
+  const [selectedOption, setSelectedOption] = useState({});
+
+
+  const showModal = () => {
+    setListIsModalOpen(true);
+  };
+
+  const handleListModalCancel = () => {
+    setListIsModalOpen(false);
+  };
+
 
   const articleInput = useRef()
   const quantityInput = useRef()
@@ -44,6 +58,7 @@ export default function StockMovement() {
       setConditionList([])
       getCompanies()
     }
+
   }, [articleCode])
 
   useEffect(() => {
@@ -208,7 +223,8 @@ export default function StockMovement() {
         company: company,
       }
 
-      const { data } = await api.post(location.pathname.replace(/^\/+/, ""), payload)
+
+      const { data } = await api.post(`receptions/movement/${id}?company_db=${company_db}`, payload);
 
       setQuantity('')
       setArticleCode('')
@@ -218,7 +234,8 @@ export default function StockMovement() {
       setCompany(null)
       setTotalQuantity(0)
       articleInput?.current?.focus()
-      message.success('Opération effectuée avec succès')
+      message.success('Opération effectuée avec succès');
+      fetchArticles()
     } catch (error) {
       console.error(error)
 
@@ -273,52 +290,123 @@ export default function StockMovement() {
 
   const is_electron = window.electron;
 
+
+
+  const fetchArticles = async () => {
+    try {
+      const response = await api.get(`/receptions/${id}?company=${company_db}`);
+      setModalOptions(response.data.doclignes)
+      return response.data;
+
+    } catch (error) {
+      message.error(error.response.data?.message || "Une erreur est survenue !");
+      console.error("API Error:", error.response);
+    }
+  };
+
+
+  const changeSelectedLine = (e) => {
+    const newCode = e.target.value;
+    setArticleCode(newCode);
+    fetchArticleData(newCode);
+    setListIsModalOpen(false)
+  };
+
+
+  useEffect(() => {
+    fetchArticles();
+  }, [])
+
+
+
   return (
     <div className='max-w-4xl mx-auto space-y-6'>
       {/* Header Section */}
       <div
-        className={`border-b ${location.pathname.includes('return')
-            ? 'bg-yellow-50 border-yellow-300'
-            : location.pathname === '/stock/in'
-              ? 'bg-green-50 border-green-200'
-              : 'bg-red-50 border-red-200'
-          }`}
+        className={`border-b bg-blue-50 border-blue-200`}
       >
         <div className="mx-auto px-4 py-3 sm:py-4">
           <div className="flex items-center gap-3">
-            <div className="border border-gray-400 rounded-3xl">
-              <BackButton className="w-8 h-8" />
-            </div>
-            <div className="w-px h-6 bg-gray-300" />
+            <div className='border border-gray-400 rounded-3xl'><BackButton className="w-8 h-8" /></div>
+            <div className="w-px h-6 bg-gray-300 flex justify-between" />
 
-            <h1
-              className={`text-2xl font-bold truncate flex gap-3 items-center ${location.pathname.includes('return')
-                  ? 'text-yellow-600'
-                  : location.pathname === '/stock/in'
-                    ? 'text-green-700'
-                    : 'text-red-700'
-                }`}
-            >
-              {location.pathname.includes('return') ? (
+            <div className="flex items-center justify-between w-full">
+              <h1 className={'text-2xl font-bold truncate flex gap-3 items-center text-blue-700'}>
                 <>
-                  <span>Retour de stock</span>
-                  <ArrowDownFromLine className="w-6 h-6 text-yellow-600" />
+                  <span>Reception </span>
+                  <PlaneLanding className="w-6 h-6 text-blue-600" />
+                  - {id}
                 </>
-              ) : location.pathname === '/stock/in' ? (
-                <>
-                  <span>Mouvement d'entrée</span>
-                  <ArrowDownFromLine className="w-6 h-6 text-green-600" />
-                </>
-              ) : (
-                <>
-                  <span>Mouvement de sortie</span>
-                  <ArrowUpFromLine className="w-6 h-6 text-red-600" />
-                </>
-              )}
-            </h1>
+              </h1>
+
+
+              <div>
+                <Button type="primary" onClick={showModal} style={{ padding: 20 }}>
+                  <List size={25} />
+                </Button>
+                <Modal
+                  title="List de Reception"
+                  closable={{ 'aria-label': 'Custom Close Button' }}
+                  open={isListModalOpen}
+                  onCancel={handleListModalCancel}
+                  width={{
+                    xs: '90%',
+                    sm: '80%',
+                    md: '70%',
+                    lg: '60%',
+                    xl: '50%',
+                    xxl: '40%',
+                  }}
+                >
+                  <Radio.Group
+                    onChange={changeSelectedLine}
+                    value={selectedOption}
+                    size="large"
+                    style={{ width: "100%" }}
+                  >
+                    <Space
+                      direction="vertical"
+                      size="middle"
+                      style={{ width: "100%" }}
+                    >
+                      {modalOptions.map((option) => (
+                        <Radio.Button
+                          key={option.AR_Ref}
+                          value={option.AR_Ref}
+                          disabled={option.DL_Qte === option.DL_QteBL}
+                          style={{
+                            width: "100%",
+                            padding: "16px 20px",
+                            height: "110px",
+                            textAlign: "left",
+                            borderRadius: "12px",
+                            border: "1px solid #e5e7eb",
+                            background: "#fff",
+                            boxShadow: "0 2px 6px rgba(0,0,0,0.05)",
+                            justifyContent: "space-between",
+                            alignItems: "center",
+                            transition: "all 0.2s ease-in-out",
+                          }}
+                        >
+                          <div className='w-full'>
+                            <div style={{ fontSize: "18px", fontWeight: 600, marginBottom: 4 }}>
+                              {option.AR_Ref} – {option.DL_Design}
+                            </div>
+                            <div className='flex gap-4 w-full'>
+                              <Tag color="blue" style={{fontSize: "20px", padding: '10px'}}>Qté: {Math.round(option.DL_Qte)}</Tag>
+                              <Tag color="orange" style={{fontSize: "20px", padding: '10px'}}>Qté Réceptionné: {Math.round(option.DL_QteBL)}</Tag>
+                            </div>
+                          </div>
+                        </Radio.Button>
+                      ))}
+                    </Space>
+                  </Radio.Group>
+
+                </Modal>
+              </div>
+            </div>
           </div>
         </div>
-
       </div>
 
 

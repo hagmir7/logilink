@@ -13,19 +13,21 @@ import {
   Menu as MenuIcon,
   X,
   Warehouse,
-  Layers2,
   FileDown,
   Truck,
   RefreshCcw,
   CircleCheck,
   AudioWaveform,
   ArrowRightLeft,
-  Building,
+  Lock,
+  Archive,
+  ScrollText,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
 import { useAuth } from '../contexts/AuthContext'
 import MobileBottomNav from './MobileButtomNav'
+import Tools from '../components/Tools'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
@@ -45,24 +47,33 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          disabled: !roles('controleur') && !roles('commercial'),
+          disabled: !roles('controleur') && !roles('commercial') && !roles('expedition'),
           icon: <CircleCheck size={19} />,
           label: <Link to='/validation'>Validation</Link>,
         },
         {
           key: 'submenu-21',
           icon: <AudioWaveform size={19} />,
+          disabled: !roles('commercial') && !roles('expedition'),
           label: <Link to='/progress'>Progrès</Link>,
         },
         {
           key: 'submenu-15',
           icon: <Truck size={19} />,
+          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
           label: <Link to='/shipping'>Expédition</Link>,
         },
-         {
+        {
           key: 'submenu-16',
           icon: <ArrowRightLeft size={19} />,
+          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
           label: <Link to='/transfer-orders/list'>Transfert</Link>,
+        },
+        {
+          key: 'submenu-17',
+          icon: <Archive size={19} />,
+          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          label: <Link to='/preparation/archive'>Archives</Link>,
         },
         // {
         //   key: 'submenu-13',
@@ -82,9 +93,10 @@ const sideMenu = () => {
           label: <Link to='/stock'> Suivi </Link>,
         },
         {
-          
+
           key: 'submenu-2',
           icon: <ClipboardCheck size={19} />,
+          disabled: !roles('logistique') && !roles('admin'),
           label: <Link to='/inventories'>Inventaire</Link>,
         },
         {
@@ -109,14 +121,9 @@ const sideMenu = () => {
     {
       key: 'menu-6',
       icon: <FileDown size={20} />,
-      disabled: true,
-      label: <span className='text-base'>Reception</span>,
-      children: [
-        {
-          key: 'submenu-6',
-          label: 'Préparation',
-        },
-      ],
+      disabled: !roles('logistique') && !roles('admin'),
+      label: <Link to='/reception'>Reception</Link>,
+
     },
     {
       key: 'menu-7',
@@ -141,10 +148,25 @@ const sideMenu = () => {
           icon: <UserCheck size={20} />,
           label: <Link to='/users'>Utilisateurs</Link>,
         },
+
         {
-          key: 'submenu-8-2',
+          key: 'submenu-8-14-9',
+          disabled: !permissions('view:users'),
+          icon: <Lock size={20} />,
+          label: <Link to='/update-password'>Mots de passe</Link>,
+        },
+
+        {
+          key: 'submenu-8-14',
+          disabled: !permissions('view:users'),
+          icon: <ScrollText size={20} />,
+          label: <Link to='/users/actions'>Actions</Link>,
+        },
+        {
+          key: 'submenu-8-209',
           disabled: !permissions('view:roles'),
-          icon: <Shield size={20} />,
+          
+          icon: <Lock size={20} />,
           label: <Link to='/roles'>Roles</Link>,
         },
       ],
@@ -235,8 +257,13 @@ const MainLayout = () => {
               />
             </Link>
           </div>
-          <div>
-            <DropMenu />
+          <div className='flex gap-3 items-center'>
+            <div>
+              <Tools />
+            </div>
+            <div>
+              <DropMenu />
+            </div>
           </div>
         </div>
       </Header>
@@ -280,7 +307,7 @@ const MainLayout = () => {
             onClose={toggleSidebar}
             open={sidebarVisible}
             width={240}
-            bodyStyle={{
+            styles={{
               padding: 0,
               paddingTop: '12px',
               background: colorBgContainer,

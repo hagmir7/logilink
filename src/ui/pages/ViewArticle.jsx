@@ -1,65 +1,79 @@
 import { useEffect, useState } from 'react'
 import { api } from '../utils/api'
-import { useParams } from 'react-router-dom'
-import { ArrowDownUp, ChartBar, Diamond, Info, Package, Ruler } from 'lucide-react'
-import { Input, message, Select, Tabs } from 'antd'
+import { useParams, useNavigate } from 'react-router-dom'
+import { Info, MapPin, Package, Ruler } from 'lucide-react'
+import { Form, Input, InputNumber, message, Select, Tabs, Button } from 'antd'
 import { categories } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
+import ArticleEmpacement from './ArticleEmpacement'
 
 const ViewArticle = () => {
   const [activeKey, setActiveKey] = useState('1')
-  const { id } = useParams();
+  const [form] = Form.useForm()
+  const { id } = useParams()
+  const navigate = useNavigate()
+  const [loading, setLoading] = useState(false)
 
-  const [product, setProduct] = useState({
-    code: "",
-    description: "",
-    name: "",
-    color: "",
-    qte_inter: "",
-    qte_serie: "",
-    quantity: "",
-    stock_min: "",
-    price: "",
-    thickness: "",
-    height: "",
-    width: "",
-    depth: "",
-    chant: "",
-    condition: '',
-    code_supplier: '',
-    qr_code: '',
-    palette_condition: '',
-    unit: '',
-    gamme: '',
-    category: ''
-  });
-
+  // Load product if editing
   const getArticle = async () => {
-    const { data } = await api.get(`articles/${id}`)
-    setProduct(data);
+    try {
+      setLoading(true)
+      const { data } = await api.get(`articles/${id}`)
+
+      // Set form values
+      form.setFieldsValue({
+        ...data,
+        category: data.category?.id || data.category
+      })
+    } catch (error) {
+      console.error('❌ Erreur lors du chargement du produit:', error)
+      message.error('Erreur lors du chargement du produit.')
+    } finally {
+      setLoading(false)
+    }
   }
 
-  const handleTabChange = (key) => {
-    setActiveKey(key);
-  };
-
-
-  const handleSave = async () => {
+  // Handle create / update
+  const handleSave = async (values) => {
     try {
-      try {
-        await api.put(`articles/update/${id}`, product)
+      setLoading(true)
+      const url = id !== 'null' ? `articles/update/${id}` : `articles/store`
+
+      // Clean payload
+      const payload = {
+        ...values,
+        category_id: values.category
+      }
+      delete payload.category
+
+      if (id !== 'null') {
+        await api.put(url, payload)
         message.success('Produit modifié avec succès.')
-      } catch (error) {
-        message.error(error.response.data.message);
+      } else {
+        const response = await api.post(url, payload)
+        navigate(`/articles/${response.data.id}`)
+        message.success('Produit créé avec succès.')
       }
     } catch (error) {
-      console.error('Error saving article:', error);
+      console.error('❌ Error saving article:', error)
+      message.error(
+        error.response?.data?.message ||
+        "Erreur lors de l'enregistrement du produit."
+      )
+    } finally {
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    getArticle()
-  }, [])
+    if (id !== 'null') {
+      getArticle()
+    }
+  }, [id])
+
+  const handleTabChange = (key) => {
+    setActiveKey(key)
+  }
 
   const tabs = [
     {
@@ -71,146 +85,88 @@ const ViewArticle = () => {
       ),
       key: '1',
       children: (
-        <div className='px-3 grid grid-cols-2 gap-4'>
-          <div className='space-y-2 col-span-2'>
-            <label
-              htmlFor='designation'
-              className='text-sm font-medium text-gray-700'
-            >
-              Désignation
-            </label>
-            <Input
-              onChange={(e) =>
-                setProduct({ ...product, description: e.target.value })
-              }
-              value={product.description}
-              placeholder='Entrer la désignation'
-            />
-          </div>
-          <div className='space-y-2'>
-            <label htmlFor='code' className='text-sm font-medium text-gray-700'>
-              Référence
-            </label>
-            <Input
-              id='code'
-              value={product.code}
-              placeholder='Référence'
-              readOnly
-              disabled
-            />
-          </div>
+        <div className='px-3 grid grid-cols-2 gap-x-4'>
+          <Form.Item
+            name='description'
+            label='Désignation'
+            className='col-span-2'
+            rules={[
+              { required: true, message: 'La désignation est obligatoire' }
+            ]}
+          >
+            <Input placeholder='Entrer la désignation' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label htmlFor='name' className='text-sm font-medium text-gray-700'>
-              Nom
-            </label>
-            <Input
-              onChange={(e) => setProduct({ ...product, name: e.target.value })}
-              value={product.name}
-              placeholder='Entrer le nom'
-            />
-          </div>
+          <Form.Item
+            name='code'
+            label='Référence'
+            rules={[
+              { required: true, message: 'La référence est obligatoire' }
+            ]}
+          >
+            <Input placeholder='Référence' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='color'
-              className='text-sm font-medium text-gray-700'
-            >
-              Couleur
-            </label>
-            <Input
-              onChange={(e) =>
-                setProduct({ ...product, color: e.target.value })
-              }
-              value={product.color}
-              placeholder='Sélectionner la couleur'
-            />
-          </div>
+          <Form.Item
+            name='name'
+            label='Nom'
+            rules={[{ required: true, message: 'Le nom est obligatoire' }]}
+          >
+            <Input placeholder='Entrer le nom' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='chant'
-              className='text-sm font-medium text-gray-700'
-            >
-              Chant
-            </label>
-            <Input
-              value={product.chant}
-              max={10}
-              onChange={(e) =>
-                setProduct({ ...product, chant: e.target.value })
-              }
-              placeholder='Type de chant'
-            />
-          </div>
+          <Form.Item name='color' label='Couleur'>
+            <Input placeholder='Sélectionner la couleur' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='gamme'
-              className='text-sm font-medium text-gray-700'
-            >
-              Gamme
-            </label>
-            <Input
-              value={product.gamme}
-              onChange={(e) =>
-                setProduct({ ...product, gamme: e.target.value })
-              }
-              placeholder='Sélectionner la gamme'
-            />
-          </div>
+          <Form.Item name='chant' label='Chant'>
+            <Input placeholder='Type de chant' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='price'
-              className='text-sm font-medium text-gray-700'
-            >
-              Prix de vente <span className='text-gray-500'>(MAD)</span>
-            </label>
-            <Input
-              value={product.price}
-              type='number'
-              onChange={(e) =>
-                setProduct({ ...product, price: e.target.value })
-              }
-              step='0.01'
-              placeholder='Ex: 125.50'
-            />
-          </div>
+          <Form.Item name='gamme' label='Gamme'>
+            <Input placeholder='Sélectionner la gamme' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='category'
-              className='text-sm font-medium text-gray-700'
-            >
-              Category
-            </label>
+          <Form.Item
+            name='price'
+            label={
+              <span>
+                Prix de vente <span className='text-gray-500'>(MAD)</span>
+              </span>
+            }
 
-            <Select
+            rules={[
+              { required: true, message: 'Le prix est obligatoire' },
+              { min: 0, message: 'Le prix doit être positif' }
+            ]}
+          >
+            <InputNumber
               className='w-full'
-              value={product.category || undefined} // fallback to undefined if null
-              onChange={(value) => setProduct({ ...product, category: value })}
+              placeholder='Ex: 125.50'
+              style={{ width: "100%" }}
+              step={0.01}
+              precision={2}
+            />
+          </Form.Item>
+
+          <Form.Item
+            name='category'
+            label='Catégorie'
+            rules={[
+              { required: true, message: 'La catégorie est obligatoire' }
+            ]}
+          >
+            <Select
               placeholder='Catégorie du produit'
               options={categories}
             />
-          </div>
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='prix-vente'
-              className='text-sm font-medium text-gray-700'
-            >
-              Unité
-            </label>
-            <Input
-              max={20}
-              value={product.unit}
-              onChange={(e) => setProduct({ ...product, unit: e.target.value })}
-              placeholder='m, m², g, kg'
-            />
-          </div>
+          <Form.Item name='unit' label='Unité'>
+            <Input placeholder='m, m², g, kg' />
+          </Form.Item>
         </div>
-      ),
+      )
     },
     {
       label: (
@@ -221,74 +177,54 @@ const ViewArticle = () => {
       ),
       key: '2',
       children: (
-        <div className='px-3 grid grid-cols-2 gap-4'>
-          <div className='space-y-2'>
-            <label
-              htmlFor='hauteur'
-              className='text-sm font-medium text-gray-700'
-            >
-              Hauteur <span className='text-gray-500'>(mm)</span>
-            </label>
-            <Input
-              value={product.height}
-              onChange={(e) =>
-                setProduct({ ...product, height: e.target.value })
+        <div className='px-3 grid grid-cols-2 gap-x-4'>
+          {[
+            { name: 'height', label: 'Hauteur' },
+            { name: 'width', label: 'Largeur' },
+            { name: 'depth', label: 'Profondeur' },
+            { name: 'thickness', label: 'Épaisseur' }
+          ].map((dim) => (
+            <Form.Item
+              key={dim.name}
+              name={dim.name}
+              className='w-full'
+              style={{ width: "100%" }}
+              label={
+                <span>
+                  {dim.label} <span className='text-gray-500'>(mm)</span>
+                </span>
               }
-              type='number'
-              placeholder='Ex: 2800'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <label
-              htmlFor='largeur'
-              className='text-sm font-medium text-gray-700'
+              rules={[
+                {
+                  min: 0,
+                  message: 'La valeur doit être positive'
+                }
+              ]}
             >
-              Largeur <span className='text-gray-500'>(mm)</span>
-            </label>
-            <Input
-              value={product.width}
-              onChange={(e) =>
-                setProduct({ ...product, width: e.target.value })
-              }
-              type='number'
-              placeholder='Ex: 2070'
-            />
-          </div>
-          <div className='space-y-2'>
-            <label
-              htmlFor='profondeur'
-              className='text-sm font-medium text-gray-700'
-            >
-              Profondeur <span className='text-gray-500'>(mm)</span>
-            </label>
-            <Input
-              value={product.depth}
-              onChange={(e) =>
-                setProduct({ ...product, depth: e.target.value })
-              }
-              type='number'
-              placeholder='Ex: 600'
-            />
-          </div>
-          <div className='space-y-2'>
-            <label
-              htmlFor='epaisseur'
-              className='text-sm font-medium text-gray-700'
-            >
-              Épaisseur <span className='text-gray-500'>(mm)</span>
-            </label>
-            <Input
-              value={product.thickness}
-              onChange={(e) =>
-                setProduct({ ...product, thickness: e.target.value })
-              }
-              type='number'
-              placeholder='Ex: 18'
-            />
-          </div>
+              <InputNumber
+                style={{ width: "100%" }}
+                className='w-full'
+                placeholder='Ex: 600'
+              />
+            </Form.Item>
+          ))}
         </div>
+      )
+    },
+
+     {
+      label: (
+        <span className='flex items-center gap-2'>
+          <MapPin size={16} />
+          Emplacements
+        </span>
       ),
+      key: '6',
+      children: (
+        <div>
+          <ArticleEmpacement code={id} />
+        </div>
+      )
     },
     {
       label: (
@@ -299,171 +235,104 @@ const ViewArticle = () => {
       ),
       key: '3',
       children: (
-        <div className='px-3 grid grid-cols-2 gap-4'>
-          <div className='space-y-2'>
-            <label
-              htmlFor='epaisseur'
-              className='text-sm font-medium text-gray-700'
-            >
-              Quantité
-            </label>
-            <Input
-              value={product.quantity}
-              onChange={(e) =>
-                setProduct({ ...product, quantity: e.target.value })
+        <div className='px-3 grid grid-cols-2 gap-x-4'>
+          <Form.Item
+            name='quantity'
+            label='Quantité'
+
+            initialValue={0}
+            rules={[
+              {
+                min: 0,
+                message: 'La quantité doit être positive'
               }
-              type='number'
+            ]}
+          >
+            <InputNumber
+              className='w-full'
+              style={{ width: "100%" }}
               placeholder='Quantité en stock'
             />
-          </div>
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='stock_min'
-              className='text-sm font-medium text-gray-700'
-            >
-              Stock minimum <span className='text-gray-500'></span>
-            </label>
-            <Input
-              value={product.stock_min}
-              onChange={(e) =>
-                setProduct({ ...product, stock_min: e.target.value })
+          <Form.Item
+            name='stock_min'
+            label='Stock minimum'
+            initialValue={0}
+            rules={[
+              {
+                min: 0,
+                message: 'Le stock minimum doit être positif'
               }
-              type='number'
+            ]}
+          >
+            <InputNumber
+              className='w-full'
+              style={{ width: "100%" }}
               placeholder='Ex: 600'
             />
-          </div>
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='condition'
-              className='text-sm font-medium text-gray-700'
-            >
-              Condition (<small>Carton, Sac..</small>)
-            </label>
-            <Input
-              value={product.condition}
-              onChange={(e) =>
-                setProduct({ ...product, condition: e.target.value })
-              }
-              placeholder='État du produit'
-            />
-          </div>
+          <Form.Item name='condition' label='Condition'>
+            <Input placeholder='Carton, Sac...' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='palette-condition'
-              className='text-sm font-medium text-gray-700'
-            >
-              Condition palette
-            </label>
-            <Input
-              value={product.palette_condition}
-              onChange={(e) =>
-                setProduct({ ...product, palette_condition: e.target.value })
-              }
-              placeholder='État de la palette'
-            />
-          </div>
+          <Form.Item name='palette_condition' label='Condition palette'>
+            <Input placeholder='État de la palette' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='code_supplier'
-              className='text-sm font-medium text-gray-700'
-            >
-              Référence du fournisseur
-            </label>
-            <Input
-              value={product.code_supplier}
-              onChange={(e) =>
-                setProduct({ ...product, code_supplier: e.target.value })
-              }
-              placeholder='Code du fournisseur'
-            />
-          </div>
+          <Form.Item name='code_supplier' label='Référence du fournisseur'>
+            <Input placeholder='Code du fournisseur' />
+          </Form.Item>
 
-          <div className='space-y-2'>
-            <label
-              htmlFor='qr_code'
-              className='text-sm font-medium text-gray-700'
-            >
-              QR / BAR Code
-            </label>
-            <Input
-              value={product.qr_code}
-              onChange={(e) =>
-                setProduct({ ...product, qr_code: e.target.value })
-              }
-              placeholder='QR ou BAR Code'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <label
-              htmlFor='qte_inter'
-              className='text-sm font-medium text-gray-700'
-            >
-              Quantité INTERCOCINA
-            </label>
-            <Input
-              value={product.qte_inter}
-              onChange={(e) =>
-                setProduct({ ...product, qte_inter: e.target.value })
-              }
-              placeholder='Quantité'
-            />
-          </div>
-
-          <div className='space-y-2'>
-            <label
-              htmlFor='qte_serie'
-              className='text-sm font-medium text-gray-700'
-            >
-              Quantité SERIEMOBLE
-            </label>
-            <Input
-              value={product.qte_serie}
-              onChange={(e) =>
-                setProduct({ ...product, qte_serie: e.target.value })
-              }
-              placeholder='Quantité'
-            />
-          </div>
+          <Form.Item name='qr_code' label='QR / BAR Code'>
+            <Input placeholder='QR ou BAR Code' />
+          </Form.Item>
         </div>
-      ),
-    },
+      )
+    }
   ]
 
-
-
   return (
-    <div className="min-h-screen flex flex-col max-w-4xl mx-auto bg-white">
-      { !window.electron && <BackButton />}
-      
-      <Tabs
-        activeKey={activeKey}
-        onChange={handleTabChange}
-        size="middle"
-        type="line"
-        items={tabs}
-        style={{ marginBottom: 32 }}
-      />
-      <div className="flex-grow"></div>
+    <div className='min-h-screen flex flex-col max-w-4xl mx-auto bg-white'>
+      {!window.electron && <BackButton />}
 
-      {/* Boutons d'action */}
-      <div className="mt-8 flex justify-end space-x-3 px-4 pb-4">
-        <button
-          className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Réinitialiser
-        </button>
-        <button
-          onClick={handleSave}
-          className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
-        >
-          Enregistrer
-        </button>
-      </div>
+      <Form
+        form={form}
+        layout='vertical'
+        onFinish={handleSave}
+        initialValues={{
+          quantity: 0,
+          stock_min: 0,
+          qte_inter: 0,
+          qte_serie: 0
+        }}
+      >
+        <Tabs
+          activeKey={activeKey}
+          onChange={handleTabChange}
+          size='middle'
+          type='line'
+          items={tabs}
+          style={{ marginBottom: 32 }}
+        />
+
+        <div className='mt-8 flex justify-end space-x-3 px-4 pb-4'>
+          <Button
+            onClick={() => form.resetFields()}
+          >
+            Réinitialiser
+          </Button>
+
+          <Button
+            type='primary'
+            htmlType='submit'
+            loading={loading}
+          >
+            {id !== 'null' ? 'Mettre à jour' : 'Créer'}
+          </Button>
+        </div>
+      </Form>
     </div>
   )
 }

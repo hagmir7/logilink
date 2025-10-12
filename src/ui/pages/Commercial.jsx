@@ -97,7 +97,6 @@ function Commercial() {
         setSelectedCompany(null)
         setSelected([])
         fetchData()
-        message.success('Articles transférés avec succès')
       } catch (error) {
         console.error(error);
         message.error(error.response.data.message || "Can't trnsfer the article");
@@ -276,6 +275,7 @@ function Commercial() {
                 style={{ width: 200 }}
                 value={selectedCompany}
                 onChange={handleChangeTransfer}
+                disabled={id.includes('BL') || id.includes('FA')}
                 options={listTransfer}
               />
 
@@ -283,6 +283,7 @@ function Commercial() {
                 type='primary'
                 onClick={transfer}
                 loading={transferSpin}
+                disabled={id.includes('BL') || id.includes('FA')}
                 className='flex items-center gap-2 hover:shadow-md transition-shadow'
               >
                 Transfer <ArrowRight size={18} />
@@ -437,7 +438,9 @@ function Commercial() {
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100'>
-                              {item?.Episseur | item?.article?.Episseur}
+                              {item.Episseur > 0
+                                ? Math.floor(item.Episseur)
+                                : Math.floor(item?.article?.Episseur) || '__'}
                             </td>
 
                             <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>

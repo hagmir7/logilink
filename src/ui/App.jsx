@@ -33,6 +33,18 @@ import TransferOrdersList from './pages/TransferOrdersList'
 import { DocumentProgress } from './pages/DocumentProgress'
 import CompanyStock from './pages/CompanyStock'
 import StockMovement from './components/StockMovement'
+import Reception from './pages/Reception'
+import ViewReception from './pages/ViewReception'
+import UpdatePassword from './pages/UpdatePassword'
+import ReceptionMovement from './components/ReceptionMovement'
+import ReceptionMovementList from './pages/ReceptionMovementList'
+import UpdateArticleRef from './pages/UpdateArticleRef'
+import InvoiceDuplicate from './components/InvoiceDuplicate'
+import ImportMovements from './components/ImportMovements'
+import PreparationArchive from './pages/PreparationArchive'
+import UsersActions from './pages/UsersActions'
+import TransferStock from './components/TransferStock'
+import ImportStock from './components/ImportStock'
 
 
 const NotFound = () => {
@@ -45,16 +57,29 @@ function App() {
       <ScrollToTop />
       <Routes>
         <Route path='/login' element={<Login />} />
-        <Route path='articles/:id' element={<ViewArticle />} />
+        <Route path="articles/:id" element={<ViewArticle />} />
+        <Route path="articles/create" element={<ViewArticle />} />
+
         <Route path='/document/:id' element={<ViewDocument />} />
         <Route path='document/:piece/progress' element={<DocumentProgress />} />
+        <Route path='reception/:id/:company' element={<ViewReception />} />
 
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
+        
+
+        <Route path='update-article-ref' element={<UpdateArticleRef />} />
+        <Route path='duplicate-invoice' element={<InvoiceDuplicate />} />
+        <Route path='import-movements' element={<ImportMovements />} />
+        <Route path='import-stock' element={<ImportStock />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />
+          <Route path='/transfer-stock' element={<TransferStock />} />
+          
           <Route path='/users' element={<Users />} />
+          <Route path='/users/actions' element={<UsersActions />} />
+          <Route path='update-password' element={<UpdatePassword />} />
           <Route path='/layout/document/:id' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />
           <Route path='/roles/:id' element={<ViewRole />} />
@@ -68,9 +93,14 @@ function App() {
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
+          <Route path='preparation/archive' element={<PreparationArchive />} />
+          
 
           <Route path='stock/out' element={<StockMovement />} />
           <Route path='stock/in' element={<StockMovement />} />
+          <Route path='stock/return' element={<StockMovement />} />
+          <Route path='reception-movement-list' element={<ReceptionMovementList />} />
+          <Route path='reception-movement/:id/:company_db' element={<ReceptionMovement />} />
 
           <Route path='transfer-orders/list' element={<TransferOrdersList />} />
 
@@ -86,6 +116,7 @@ function App() {
           <Route path='stock' element={<Stock />} />
           <Route path='depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
+          <Route path='reception' element={<Reception />} />
         </Route>
       </Routes>
     </>

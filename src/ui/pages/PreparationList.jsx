@@ -1,15 +1,16 @@
-import { RefreshCcw, ArrowRight, Loader2 } from 'lucide-react'
-import { useState, useEffect } from 'react'
-import { api } from '../utils/api'
-import { getExped, getDocumentType, getStatus } from '../utils/config'
-import { useParams } from 'react-router-dom'
-import { Button, Empty, message, Spin, Tag } from 'antd'
-import Skeleton from '../components/ui/Skeleton'
-import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable'
-import { QRCode } from 'antd'
-import { useAuth } from '../contexts/AuthContext'
+import { RefreshCcw, ArrowRight, Loader2 } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { api } from '../utils/api';
+import { getExped, getDocumentType, getStatus } from '../utils/config';
+import { useParams } from 'react-router-dom';
+import { Button, Empty, message, Spin, Tag } from 'antd';
+import Skeleton from '../components/ui/Skeleton';
+import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table';
+import SkeletonTable from '../components/ui/SkeletonTable';
+import EmptyTable from '../components/ui/EmptyTable';
+import { useAuth } from '../contexts/AuthContext';
+import PrintDocument from '../components/PrintDocument';
+
 
 function PreparationList() {
   const { id } = useParams()
@@ -78,25 +79,32 @@ function PreparationList() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-2'>
           <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
-            <span>
+            <span className='text-2xl'>
               {data.docentete.DO_Piece ? data.docentete.DO_Piece : 'Chargement...'}
             </span>
 
             {data?.docentete?.document && (
-              <Tag color={getStatus(statusId).color}>
+              <Tag color={getStatus(statusId).color} style={{height: 25, fontSize: 15}}>
                 {getStatus(statusId).name}
               </Tag>
             )}
           </h1>
         </div>
-        <Button onClick={fetchData} size='large'>
+        <div className='flex gap-4'>
+          <Button onClick={fetchData} style={{height: 60, fontSize: 25}} size='large'>
           {loading ? (
-            <Loader2 className='animate-spin text-blue-500' size={17} />
+            <Loader2 className='animate-spin text-blue-500' size={25} />
           ) : (
-            <RefreshCcw size={17} />
+            <RefreshCcw size={25} />
           )}
           <span className='hidden sm:inline'>Rafraîchir</span>
         </Button>
+         <PrintDocument
+            doclignes={data.doclignes}
+            docentete={data.docentete}
+            largeSize={true}
+          />
+        </div>
       </div>
 
       {/* Document Info */}
@@ -142,7 +150,7 @@ function PreparationList() {
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-md font-semibold text-gray-800'>
+        <h2 className='text-3xl font-semibold text-gray-800'>
           Articles ({data.doclignes.length})
         </h2>
 
@@ -152,8 +160,9 @@ function PreparationList() {
             variant='solid'
             href={`#/preparation/${id}`}
             className='btn'
+            style={{height: 60, fontSize: 25}}
           >
-            Preparation <ArrowRight size={18} />{' '}
+            Preparation <ArrowRight size={25} />{' '}
           </Button>
         </div>
       </div>
@@ -226,9 +235,6 @@ function PreparationList() {
                       </div>
                     </div>
                   </Td>
-
-
-
 
                   <Td>
                     <div className='text-sm text-gray-500'>

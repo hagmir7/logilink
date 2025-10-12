@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Loader2, RefreshCcw, Eye } from 'lucide-react'
+import { Loader2, RefreshCcw, Eye, PlusCircle } from 'lucide-react'
 import { Button, Empty, Input, Select, Pagination, Tag } from 'antd'
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
@@ -66,22 +66,41 @@ function CompanyStock({ company_id }) {
     fetchData(newPage, searchQuery, selectedCategory)
   }
 
-  const handleShow = async (id) => {
+  const handleShow = async (id = null) => {
     try {
-      const url = `/articles/${id}`
+      let url;
+
+
+      if (id) {
+        if (typeof id === 'object') {
+          console.warn('⚠️ handleShow received an object instead of ID:', id);
+          id = id.id || id.code || null;
+        }
+        url = `/articles/${id}`;
+      }
+      // ✅ Otherwise → create mode
+      else {
+        url = '/articles/create';
+      }
+
+      // ✅ Open inside Electron or in browser
       if (window.electron && typeof window.electron.openShow === 'function') {
         await window.electron.openShow({
           width: 900,
           height: 700,
           url,
-        })
+        });
       } else {
-        navigate(`/articles/${id}`)
+        navigate(url);
       }
+
     } catch (error) {
-      console.error('Error navigating to article:', error)
+      console.error('❌ Error navigating to article:', error);
     }
-  }
+  };
+
+
+
 
   const getConditionColor = (condition) => {
     const conditionColors = {
@@ -131,9 +150,13 @@ function CompanyStock({ company_id }) {
             </Button>
           </div>
 
-          <div>
-            <ImportArticle />
-          </div>
+          {
+            roles('admin') ? <div className='flex gap-4'>
+              <ImportArticle />
+              <Button color='success' variant="solid" onClick={handleShow} ><PlusCircle size={16} /> Create</Button>
+            </div> : ""
+          }
+
         </div>
 
         {/* Stats */}
@@ -183,9 +206,15 @@ function CompanyStock({ company_id }) {
                   Preparation
                 </th>
 
-                <th className='px-4 py-3 text-left text-md font-medium text-gray-700 uppercase tracking-wider'>
+                {
+            roles('admin') ? <div>
+              <th className='px-4 py-3 text-left text-md font-medium text-gray-700 uppercase tracking-wider'>
                   Action
                 </th>
+            </div> : ""
+          }
+
+               
               </tr>
             </thead>
             <tbody className='bg-white divide-y divide-gray-200'>
@@ -226,37 +255,38 @@ function CompanyStock({ company_id }) {
                   
                   </> : ''}
 
-                  <td className='px-4 py-2'>
-                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                      { parseFloat(article.quantity) + parseFloat(article.stock_prepare) }
+                   <td className='px-4 py-2'>
+                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
+                      {article.stock - parseFloat(article.stock_prepare) }
                     </span>
                   </td>
 
                   <td className='px-4 py-2'>
-                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                      {article.quantity}
-                    </span>
-                  </td>
-
-                  <td className='px-4 py-2'>
-                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800'>
-                      {parseFloat(article.stock_prepartion)}
+                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
+                      { parseFloat(article.stock) + parseFloat(article.stock_prepartion) }
                     </span>
                   </td>
 
                  
 
-                 
-
                   <td className='px-4 py-2'>
-                    <Button
-                      type='text'
-                      size='small'
-                      icon={<Eye size={14} />}
-                      onClick={() => handleShow(article.code)}
-                      className='text-blue-600 hover:text-blue-700'
-                    />
+                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
+                      {parseFloat(article.stock_prepare)}
+                    </span>
                   </td>
+                  {
+                    roles('admin') ? <div>
+                      <td className='px-4 py-2'>
+                        <Button
+                          type='text'
+                          size='small'
+                          icon={<Eye size={14} />}
+                          onClick={() => handleShow(article.code)}
+                          className='text-blue-600 hover:text-blue-700'
+                        />
+                      </td>
+                    </div> : ""
+                  }
                 </tr>
               ))}
             </tbody>
@@ -268,7 +298,7 @@ function CompanyStock({ company_id }) {
           <div className='py-12'>
             <Empty 
               description='Aucun article trouvé' 
-              imageStyle={{ height: 60 }}
+              styles={{ height: 60 }}
             />
           </div>
         )}

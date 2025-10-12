@@ -21,24 +21,24 @@ export const createShowWindow = (data) => {
         resizable: data.resizable ?? false,
         icon: path.join(__dirname, '..', 'inter.ico'),
 
-        // parent: mainWindowReference, 
-        // modal: true,
+        parent: mainWindowReference,
+        modal: true,
         // minimizable: false,
-        // alwaysOnTop: true,
+        alwaysOnTop: true,
         webPreferences: {
             preload: getPreloadPath()
         }
     });
 
-    // childWindow.setMenu(null);
+
 
     if (isDev()) {
         childWindow.loadURL(`http://localhost:5123/#${data.url}`);
-        
     } else {
-         childWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'), {
+        childWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'), {
             hash: data.url
         });
+        childWindow.setMenu(null);
     }
 
     childWindow.on('closed', () => {

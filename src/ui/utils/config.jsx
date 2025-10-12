@@ -161,3 +161,9 @@ export const categories = [
   { value: 'emballage-colle', label: 'Emballage & Colle' },
   { value: 'peinture-et-consommable', label: 'Peinture et consommable' },
 ];
+
+
+export const formatCurrency = (value) => {
+  if (!value) return <Skeleton />
+  return `${parseFloat(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD`
+}

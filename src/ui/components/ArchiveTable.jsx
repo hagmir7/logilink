@@ -1,13 +1,13 @@
 import { Settings } from 'lucide-react'
 import { Tag } from 'antd'
-import { getExped } from '../utils/config'
+import { getExped, getStatus } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function DocumentTable({ documents = []}) {
+function ArchiveTable({ documents = [], documentType=1}) {
   const navigate = useNavigate();
 
   const getExpeditionColor = (expedit) => {
@@ -81,12 +81,12 @@ function DocumentTable({ documents = []}) {
                     duration-150 
                     ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   `}
-                  onClick={() => handleShow(data.DO_Piece)}
+                  onClick={() => handleShow(data.piece_fa || data.piece_bl || data.piece)}
                 >
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <div className='flex items-center'>
                       <span className='text-sm font-semibold text-gray-900'>
-                        {data.DO_Piece || '__'}
+                        {documentType == 1 ? data?.piece : data?.piece_bl}
                       </span>
                       {data.DO_Reliquat === "1" && (
                         <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
@@ -98,40 +98,40 @@ function DocumentTable({ documents = []}) {
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag
-                      color={data?.document?.status?.color}
+                       color={data?.status?.color}
                       className='text-xs font-medium shadow-sm border'
                     >
-                      {data?.document?.status?.name || 'En attente'}
+                      {data?.status?.name || 'En attente'}
                     </Tag>
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <span
                       className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(
-                        data.DO_Expedit
+                        data?.docentete?.DO_Expedit
                       )}`}
                     >
-                      {getExped(data.DO_Expedit)}
+                      {getExped(data?.docentete?.DO_Expedit)}
                     </span>
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <span className='text-sm text-gray-900 font-medium'>
-                      {data.DO_Tiers}
+                      {data?.docentete?.DO_Tiers}
                     </span>
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {data.DO_Ref}
+                    {data?.docentete?.DO_Ref}
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data?.DO_Date))}
+                    {formatDate(new Date(data?.docentete?.DO_Date))}
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-4 items-center'>
                     <span>
-                      {formatDate(new Date(data?.DO_DateLivr))}
+                      {formatDate(new Date(data?.docentete?.DO_DateLivr))}
                     </span>
                   </td>
                 </tr>
@@ -144,4 +144,4 @@ function DocumentTable({ documents = []}) {
   )
 }
 
-export default DocumentTable
+export default ArchiveTable

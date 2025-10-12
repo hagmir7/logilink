@@ -4,7 +4,7 @@ import { getExped, getDocumentType } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../utils/api';
 
-export default function PrintDocument({ docentete, doclignes }) {
+export default function PrintDocument({ docentete, doclignes, largeSize }) {
   const handlePrint = () => {
     const content = document.getElementById("print-section").innerHTML;
     const styledHtml = `
@@ -14,12 +14,16 @@ export default function PrintDocument({ docentete, doclignes }) {
             body {
               font-family: 'Arial', sans-serif;
               margin: 0;
-              padding: 15px;
+              padding: 25px;
               color: #000;
               background: #fff;
               font-size: 12px;
               line-height: 1.4;
             }
+            @page {
+                margin: 25; /* remove page margins */
+                size: A4;  /* force paper size */
+              }
 
             @media print {
               body {
@@ -66,7 +70,7 @@ export default function PrintDocument({ docentete, doclignes }) {
             }
             
             th {
-              background-color: gray;
+              // background-color: gray;
             }
 
             .company-section {
@@ -126,7 +130,7 @@ export default function PrintDocument({ docentete, doclignes }) {
 
             th, td {
               border: 1px solid #333;
-              padding: 6px 8px;
+              padding: 3px 8px;
               text-align: left;
               vertical-align: top;
             }
@@ -138,7 +142,7 @@ export default function PrintDocument({ docentete, doclignes }) {
             }
 
             tbody tr:nth-child(even) {
-              background-color: gray;
+              // background-color: gray;
             }
 
             .footer {
@@ -224,20 +228,22 @@ export default function PrintDocument({ docentete, doclignes }) {
     return chunks;
   };
 
-  const { roles } = useAuth();
 
   return (
     <div>
       <Button
         onClick={handlePrint}
+        style={largeSize ? {height: 60, fontSize: 25} : {}}
         color='cyan'
         variant='solid'
-        icon={<Printer className='h-4 w-4' />}
+        icon={<Printer size={ largeSize ? 40 : 16} />}
       >
         Imprimer
       </Button>
 
-      <div id='print-section' style={{ display: 'none' }}>
+      <div id='print-section'
+       style={{ display: 'none' }}
+       >
         <div className='document-content'>
           <div className='document-header'>
             <div className='company-section'>
@@ -307,7 +313,7 @@ export default function PrintDocument({ docentete, doclignes }) {
                     <th>Qté</th>
                     <th>Couleur</th>
                     <th>Chant</th>
-                    <th>Poignée</th>
+                    <th>Description</th>
                     <th>ÉP</th>
                     <th>Réf</th>
                   </tr>
@@ -326,8 +332,12 @@ export default function PrintDocument({ docentete, doclignes }) {
                         <td>{Math.floor(item.DL_Qte || 0)}</td>
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
-                        <td>{item.Poignee} {" "} {item?.Rotation}</td>
-                        <td>{item?.Episseur | item?.article?.Episseur}</td>
+                        {/* <td>{item.Poignee} {" "} {item?.Rotation}</td> */}
+                        <td>{item.Description}</td>
+                        
+                        <td>{item.Episseur > 0
+                          ? Math.floor(item.Episseur)
+                          : Math.floor(item?.article?.Episseur) || '__'}</td>
                         <td>{item.AR_Ref || '__'}</td>
                       </tr>
                     )

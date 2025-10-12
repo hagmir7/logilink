@@ -68,3 +68,12 @@
   font-size: 25px!important;
 }
 
+
+
+.ant-float-btn-icon{
+  margin-right: 12px!important;
+}
+
+.no-wrap-table .ant-table-cell {
+  white-space: nowrap;
+}

@@ -133,7 +133,6 @@ app.on('ready', () => {
     if (!isDev()) {
         autoUpdater.checkForUpdatesAndNotify();
     }
-
 });
 
 app.on('window-all-closed', () => {
@@ -160,10 +159,7 @@ ipcMain.on('restart_app', () => {
     autoUpdater.quitAndInstall();
 });
 
-
-
 ipcMain.on('openShow', async (event, preload) => {
-
     try {
         if (!showWindow || showWindow.isDestroyed()) {
             showWindow = createShowWindow(preload);
@@ -209,22 +205,23 @@ ipcMain.on("print-content", (event, htmlContent) => {
     },
   });
 
+  // Load HTML content
   printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
 
   printWindow.webContents.on("did-finish-load", () => {
     const printOptions = {
-      silent: false,                  // Set to true to skip print dialog
-      printBackground: true,          // Print CSS backgrounds
-      deviceName: '',                 // Specify printer by name (e.g., 'Brother HL-2270DW series')
-      color: true,                    // Print in color
+      silent: true,                   // ✅ Always print silently to the default printer
+      printBackground: true,          // Include CSS backgrounds
+      deviceName: '',                 // Leave empty for default printer
+      color: true,
       margins: {
-        marginType: 'none',        // 'default', 'none', 'printableArea', 'custom'
+        marginType: 'none',           // No margins
         top: 0,
         bottom: 0,
         left: 0,
-        right: 0
+        right: 0,
       },
-      landscape: false,               // false = portrait, true = landscape
+      landscape: false,
       pagesPerSheet: 1,
       collate: true,
       copies: 1,
@@ -232,19 +229,19 @@ ipcMain.on("print-content", (event, htmlContent) => {
         horizontal: 600,
         vertical: 600,
       },
-      scaleFactor: 100,               // 100% scaling
-      pageSize: 'A4',                 // Could also be 'Letter', { height: 100000, width: 100000 }, etc.
+      scaleFactor: 100,
+      pageSize: 'A4',
     };
 
-    printWindow.webContents.print(printOptions, (success, errorType) => {
+    // Print directly
+    printWindow.webContents.print(printOptions, (success, failureReason) => {
       if (!success) {
-        console.error("Print failed:", errorType);
+        console.error("❌ Print failed:", failureReason);
       }
       printWindow.close();
     });
   });
 });
-
 
 // ---- Tiket
 
@@ -264,7 +261,7 @@ ipcMain.handle('print-tickets', async (event, { printerName, tickets }) => {
             }
         });
 
-        console.log(ticket.line.di);
+
 
         const barcodeImage = await generateBarcodeBase64(ticket.line.id);
 
@@ -351,9 +348,7 @@ ipcMain.handle('print-tickets', async (event, { printerName, tickets }) => {
 
 
 ipcMain.handle('print-palette-tickets', async (event, { printerName, tickets }) => {
-    console.log(tickets?.docentete?.document?.palettes);
-    
-    for (const ticket of tickets?.docentete?.document?.palettes) {
+    for (const ticket of tickets?.docentete) {
         const ticketWindow = new BrowserWindow({
             show: false,
             webPreferences: {
@@ -441,4 +436,13 @@ ipcMain.handle('print-palette-tickets', async (event, { printerName, tickets }) 
             });
         });
     }
+});
+
+
+// Downlaod file
+ipcMain.handle('download-file', async (event, url) => {
+  const win = BrowserWindow.getFocusedWindow();
+  if (win) {
+    win.webContents.downloadURL(url);
+  }
 });
