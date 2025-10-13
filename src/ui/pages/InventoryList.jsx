@@ -155,11 +155,11 @@ export default function InventoryList() {
             />
           </div>
         ) : (
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6'>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
             {inventories.map((item) => (
               <div
                 key={item.id}
-                className='bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow'
+                className={`bg-white rounded-xl shadow-sm border border-gray-100 p-4 hover:shadow-md transition-shadow ${item.status === '0' ? 'opacity-80' : ''}`}
                 bodyStyle={{ padding: '24px' }}
               >
                 <div className='flex justify-between items-start mb-4'>
@@ -194,6 +194,7 @@ export default function InventoryList() {
                     <Link to={`/inventories/in/${item.id}`} className='w-full'>
                       <Button
                         className='w-full'
+                        disabled={item.status === '0'}
                        style={window.electron && { height: '50px', fontSize: '24px' }}
                         color='green'
                         variant='solid'

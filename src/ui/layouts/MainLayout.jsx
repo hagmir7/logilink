@@ -96,7 +96,7 @@ const sideMenu = () => {
 
           key: 'submenu-2',
           icon: <ClipboardCheck size={19} />,
-          disabled: !roles('logistique') && !roles('admin'),
+          // disabled: !roles('logistique') && !roles('admin'),
           label: <Link to='/inventories'>Inventaire</Link>,
         },
         {
