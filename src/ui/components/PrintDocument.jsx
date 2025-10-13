@@ -220,7 +220,7 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
     return `${inputDate.getFullYear()}/${String(inputDate.getMonth() + 1).padStart(2, '0')}/${String(inputDate.getDate()).padStart(2, '0')}`;
   };
 
-  const chunkLines = (lines, size = 30) => {
+  const chunkLines = (lines, size = 40) => {
     const chunks = [];
     for (let i = 0; i < lines.length; i += size) {
       chunks.push(lines.slice(i, i + size));

@@ -100,12 +100,10 @@ export default function PaletteControle() {
                         {item?.docligne?.Poignée}
                         <span>
                           {(() => {
-                            const height =
-                              item?.docligne?.Hauteur ??
-                              item?.docligne?.article?.Hauteur
-                            const width =
-                              item?.docligne?.Largeur ??
-                              item?.docligne?.article?.Largeur
+                            const height = item?.docligne?.Hauteur > 0 || item?.docligne?.article?.Hauteur
+                            const width = item?.docligne?.Largeur > 0 || item?.docligne?.article?.Largeur
+                            console.log(item);
+                            
 
                             if (!height && !width) return null // nothing to display
 
@@ -171,7 +169,7 @@ export default function PaletteControle() {
                         Épaisseur:{' '}
                         <strong>
                           {Math.floor(
-                            item?.docligne?.Episseur ??
+                            item?.docligne?.Episseur > 0 || 
                               item?.docligne?.article?.Episseur
                           ) || '__'}
                         </strong>
@@ -180,9 +178,7 @@ export default function PaletteControle() {
                       <div>
                         Chant:{' '}
                         <strong>
-                          {(item?.docligne?.article
-                            ? item?.docligne?.article?.Chant
-                            : item?.Chant) || '__'}
+                          {(item?.docligne?.article ? item?.docligne?.article?.Chant : item?.Chant) || '__'}
                         </strong>
                       </div>
                     </div>
