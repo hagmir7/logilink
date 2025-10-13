@@ -1,9 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Form, Input, Button, Card, Alert, Typography, Spin } from 'antd';
+import { Form, Input, Button, Alert, Typography, Modal, Select, AutoComplete } from 'antd';
 import { UserOutlined, LockOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext';
 import { api } from '../utils/api';
+import Connection from '../components/Connection';
+import { Link } from 'lucide-react';
 
 const { Title } = Typography;
 
@@ -11,8 +13,18 @@ const Login = () => {
   const [form] = Form.useForm();
   const navigate = useNavigate();
   const { login, loading, message } = useAuth();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [usernames, setUsernames] = useState([]);
 
-  // Initialize form with default values
+  const showModal = () => setIsModalOpen(true);
+  const handleCancel = () => setIsModalOpen(false);
+
+  useEffect(() => {
+    const saved = JSON.parse(localStorage.getItem('usernames') || '[]');
+    setUsernames(saved);
+  }, []);
+
+  // Initialize form default values
   useEffect(() => {
     form.setFieldsValue({
       login: import.meta.env.MODE === 'development' ? 'admin' : '',
@@ -33,12 +45,6 @@ const Login = () => {
           Authorization: `Bearer ${access_token}`,
         },
       });
-
-      // if (!response?.data?.access_token) {
-      //   localStorage.removeItem("authToken");
-      //   localStorage.removeItem("user");
-      // }
-
       if (window.electron) {
         await window.electron.user({ user: response.data, access_token });
       } else {
@@ -63,12 +69,7 @@ const Login = () => {
         </div>
 
         {message && (
-          <Alert
-            message={message}
-            type="error"
-            showIcon
-            className="mb-6"
-          />
+          <Alert message={message} type="error" showIcon className="mb-6" />
         )}
 
         <Form
@@ -77,18 +78,25 @@ const Login = () => {
           onFinish={handleSubmit}
           className="space-y-4"
         >
-          <Form.Item
-            name="login"
-            label="Nom d'utilisateur ou e-mail"
-            rules={[{ required: true, message: 'Veuillez entrer votre identifiant' }]}
-          >
-            <Input 
-              prefix={<UserOutlined className="text-gray-400" />}
-              placeholder="Entrez votre identifiant"
-              size="large"
-              className="rounded-lg"
-            />
-          </Form.Item>
+      <Form.Item
+        name="login"
+        label="Nom d'utilisateur ou e-mail"
+        rules={[{ required: true, message: 'Veuillez entrer votre identifiant' }]}
+      >
+        <AutoComplete
+          options={usernames.map(name => ({ value: name }))}
+          onChange={(val) => form.setFieldValue('login', val)}
+          value={form.getFieldValue('login')}
+          placeholder="Entrez votre identifiant"
+          className="w-full rounded-lg ps-12"
+        >
+          <Input
+            prefix={<UserOutlined className="text-gray-400" />}
+            size="large"
+            className="rounded-lg"
+          />
+        </AutoComplete>
+      </Form.Item>
 
           <Form.Item
             name="password"
@@ -116,6 +124,19 @@ const Login = () => {
             </Button>
           </Form.Item>
         </Form>
+
+        <Modal
+          title="Type de connexion"
+          open={isModalOpen}
+          onCancel={handleCancel}
+          footer={false}
+        >
+          <Connection />
+        </Modal>
+
+        <Button onClick={showModal}>
+          <Link color="green" size={16} />
+        </Button>
       </div>
     </div>
   );

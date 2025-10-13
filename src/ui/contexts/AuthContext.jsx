@@ -47,6 +47,14 @@ export const AuthProvider = ({ children }) => {
         return navigate('/');
       }
 
+
+      const saved = JSON.parse(localStorage.getItem('usernames') || '[]');
+      if (!saved.includes(userData.login)) {
+        const updated = [...saved, userData.login];
+        localStorage.setItem('usernames', JSON.stringify(updated));
+        // setUsernames(updated);
+      }
+
     } catch (error) {
       console.error('Login failed:', error.response ? error.response.data : error.message)
       setMessage("Nom d'utilisateur/e-mail ou mot de passe invalide.")
