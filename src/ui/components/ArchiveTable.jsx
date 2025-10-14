@@ -7,7 +7,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function ArchiveTable({ documents = [], documentType=1}) {
+function ArchiveTable({ documents = [], documentType = 1 }) {
   const navigate = useNavigate();
 
   const getExpeditionColor = (expedit) => {
@@ -98,7 +98,7 @@ function ArchiveTable({ documents = [], documentType=1}) {
 
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag
-                       color={data?.status?.color}
+                      color={data?.status?.color}
                       className='text-xs font-medium shadow-sm border'
                     >
                       {data?.status?.name || 'En attente'}
@@ -144,4 +144,4 @@ function ArchiveTable({ documents = [], documentType=1}) {
   )
 }
 
-export default ArchiveTable
+export default ArchiveTable;

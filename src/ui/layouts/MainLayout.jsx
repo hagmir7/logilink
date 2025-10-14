@@ -75,10 +75,13 @@ const sideMenu = () => {
           disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
           label: <Link to='/preparation/archive'>Archives</Link>,
         },
-        // {
-        //   key: 'submenu-13',
-        //   label: <Link to='/shargement'>Chargement</Link>,
-        // },
+
+         {
+          key: 'submenu-19',
+          icon: <Archive size={19} />,
+          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          label: <Link to='/user-archive'>Mon Archives</Link>,
+        },
       ],
     },
     {

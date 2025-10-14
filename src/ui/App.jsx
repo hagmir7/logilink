@@ -46,6 +46,7 @@ import UsersActions from './pages/UsersActions'
 import TransferStock from './components/TransferStock'
 import ImportStock from './components/ImportStock'
 import FindArticleEmplacement from './components/FindArticleEmplacement'
+import UserArchive from './pages/UserArchive'
 
 
 const NotFound = () => {
@@ -78,6 +79,7 @@ function App() {
           <Route path='/transfer-order' element={<TransferOrder />} />
           <Route path='/transfer-stock' element={<TransferStock />} />
           <Route path='/find-article' element={<FindArticleEmplacement />} />
+           <Route path='/user-archive' element={<UserArchive />} />
           
           <Route path='/users' element={<Users />} />
           <Route path='/users/actions' element={<UsersActions />} />

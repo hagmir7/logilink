@@ -97,19 +97,6 @@ const fetchData = async () => {
               </p>
             </div>
           </div>
-
-          {status ? (
-            <div
-              style={{ backgroundColor: status.color }}
-              className="flex items-center space-x-2 px-3 py-1 rounded-full border text-white"
-            >
-              {status.name}
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2 px-3 py-1 rounded-full border bg-gray-400 text-white">
-              Statut inconnu
-            </div>
-          )}
         </div>
       </div>
 
