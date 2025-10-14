@@ -1,12 +1,12 @@
 import React, { useEffect, useState, useCallback, useRef } from 'react'
-import { Link, useLocation, useParams } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select } from 'antd'
-import { Building2, Package, Hash, AlertCircle, Menu, ArrowDownFromLine, ArrowUpFromLine } from 'lucide-react'
-import { debounce } from 'lodash'
-import InputField from '../components/ui/InputField'
+import { Building2, Package, Hash, AlertCircle, ArrowDownFromLine, ArrowUpFromLine } from 'lucide-react'
+import { debounce } from 'lodash';
+import InputField from '../components/ui/InputField';
 
 export default function StockMovement() {
 

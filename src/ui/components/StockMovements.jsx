@@ -11,6 +11,7 @@ import {
   Loader2,
   RefreshCcw,
   Trash,
+  Upload,
 } from 'lucide-react'
 import {
   Badge,
@@ -210,7 +211,8 @@ function StockMovements({ company_id }) {
 
   const exportMovements = async () => {
     try {
-      let api_url = `stock/movements/${id}/export?depots=${selectedDepots}&user=${selectedUsers}`
+      const query = params.toString()
+      let api_url = `stock/movements/export?${query}`
       if (categoryFilter) {
         api_url += `&category=${categoryFilter}`
       }
@@ -346,7 +348,7 @@ function StockMovements({ company_id }) {
               size='middle'
               style={{ width: '100%' }}
             >
-              <Download size={17} />
+              <Upload size={17} />
               <span className='hidden sm:inline'>Export</span>
             </Button>
           </div>

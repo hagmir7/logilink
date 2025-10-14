@@ -3,6 +3,7 @@ import {
   ArrowRightLeft,
   ArrowUpFromLine,
   IterationCw,
+  LocationEdit,
   Package,
   PlaneLanding,
   Plus,
@@ -12,6 +13,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button, Modal } from 'antd';
 import { useAuth } from '../contexts/AuthContext';
+import FindArticleEmplacement from '../components/FindArticleEmplacement';
 
 export default function MobileBottomNav() {
   const navigate = useNavigate();
@@ -184,11 +186,24 @@ export default function MobileBottomNav() {
             style={{ fontSize: "1.5rem", height: 60 }}
             onClick={() => {
               navigate('/stock/return');
-              setIsModalOpen(false)
+              setIsModalOpen(false);
             }}
           >
             <IterationCw className="w-6 h-6" />
             Movement de Retour
+          </Button>
+
+          <Button
+            color="pink" variant="solid" size="large"
+            className="flex items-center justify-center gap-3 rounded-2xl shadow-md"
+            style={{ fontSize: "1.5rem", height: 60 }}
+            onClick={() => {
+              navigate('/find-article');
+              setIsModalOpen(false);
+            }}
+          >
+            <LocationEdit className="w-6 h-6" />
+            Rechercher l'article
           </Button>
         </div>
       </Modal>
