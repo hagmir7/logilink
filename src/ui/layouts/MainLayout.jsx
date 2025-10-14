@@ -22,6 +22,7 @@ import {
   Lock,
   Archive,
   ScrollText,
+  FileInput,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -78,9 +79,9 @@ const sideMenu = () => {
 
          {
           key: 'submenu-19',
-          icon: <Archive size={19} />,
-          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
-          label: <Link to='/user-archive'>Mon Archives</Link>,
+          icon: <FileInput size={19} />,
+          // disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          label: <Link to='/user-archive'>Mes documents</Link>,
         },
       ],
     },
