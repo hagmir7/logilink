@@ -44,6 +44,9 @@ export const AuthProvider = ({ children }) => {
       if (window.electron) {
         await window.electron.login(response.data);
       } else {
+        if(roles('admin')){
+          return navigate('/home')
+        }
         return navigate('/');
       }
 

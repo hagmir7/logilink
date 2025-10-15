@@ -30,10 +30,10 @@ function DocumentTable({ documents = []}) {
           resizable: true,
         })
       } else {
-        navigate(`/document/${id}`)
+        navigate(`/layout/document/${id}`)
       }
     } catch (error) {
-      console.error('Error navigating to article:', error)
+      console.error('Error navigating :', error)
     }
   }
 

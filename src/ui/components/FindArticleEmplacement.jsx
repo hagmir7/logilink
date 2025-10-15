@@ -1,4 +1,4 @@
-import { Empty, Input, Spin } from 'antd';
+import { Input, Spin } from 'antd';
 import React, { useEffect, useState, useRef, useCallback } from 'react';
 import { debounce } from 'lodash';
 import InputField from './ui/InputField';
@@ -15,7 +15,7 @@ export default function FindArticleEmplacement() {
   const articleInput = useRef();
   const is_electron = typeof window !== 'undefined' && !!window.electron;
 
-  // ✅ Structured exactly like fetchEmplacementData
+
   const fetchArticleData = useCallback(
     debounce(async (code) => {
       if (!code.trim()) return;
@@ -46,7 +46,6 @@ export default function FindArticleEmplacement() {
     setArticleError('');
     setArticleData(null);
 
-    // cancel previous debounce calls before triggering a new one
     fetchArticleData.cancel();
 
     if (cleaned.length >= 3) {

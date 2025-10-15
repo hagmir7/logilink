@@ -1,212 +1,258 @@
-import React, { useState } from 'react';
-import { Loader2, AlertCircle, CheckCircle, Eye, EyeOff, User, Mail, Phone, Lock } from 'lucide-react';
-import { api } from '../utils/api';
+import React, { useEffect, useState } from "react";
+import {
+    Loader2,
+    AlertCircle,
+    Eye,
+    EyeOff,
+    User,
+    Mail,
+    Phone,
+    Lock,
+    Building,
+} from "lucide-react";
+import {
+    Form,
+    Input,
+    Button,
+    Alert,
+    message as antMessage,
+    Row,
+    Col,
+    Select,
+} from "antd";
+import { api } from "../utils/api";
 
-const RegisterForm = () => {
-    const [formData, setFormData] = useState({
-        full_name: '',
-        name: '',
-        email: '',
-        phone: '',
-        password: '',
-        password_confirmation: '',
-    });
-
-    const [message, setMessage] = useState('');
-    const [isError, setIsError] = useState(false);
+export default function RegisterForm({ fetchData }) {
+    const [form] = Form.useForm();
+    const [loading, setLoading] = useState(false);
     const [errorsMessage, setErrorsMessage] = useState([]);
-    const [isLoading, setIsLoading] = useState(false);
-    const [showPassword, setShowPassword] = useState(false);
-    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const handleChange = (e) => {
-        setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-    };
+    const [companies, setCompanies] = useState([]);
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setErrorsMessage([]);
-        setIsLoading(true);
 
+    const fetchCompanies = async () => {
         try {
-            const response = await api.post('register', formData);
-            setIsError(false);
-            if (response.data.status === "error") {
-                setErrorsMessage(response.data.errors);
-            } else {
-                setMessage('Utilisateur enregistré avec succès !');
-                setFormData({
-                    full_name: '',
-                    name: '',
-                    email: '',
-                    phone: '',
-                    password: '',
-                    password_confirmation: '',
-                });
-            }
-        } catch (err) {
-            console.error(err);
-            setIsError(true);
-            setMessage("Échec de l'enregistrement");
-        } finally {
-            setIsLoading(false);
+            const response = await api.get('companies');
+            setCompanies(response.data.map(c => ({
+                label: c.name,
+                value: c.id
+            })))
+        } catch (error) {
+            console.error(error);
+            message.error(error?.response?.data?.message || "Une erreur s'est produite")
         }
+    }
 
-        setTimeout(() => {
-            setErrorsMessage([]);
-            if (!isError) setMessage('');
-        }, 5000);
+
+    useEffect(() => {
+        fetchCompanies()
+    }, [])
+
+    const handleSubmit = async (values) => {
+        setLoading(true);
+        setErrorsMessage([]);
+        try {
+            const response = await api.post("register", values);
+            antMessage.success("Utilisateur enregistré avec succès !");
+            form.resetFields();
+            fetchData()
+            if (response?.data?.user?.id) {
+                handleShow(response?.data?.user?.id);
+            }
+
+        } catch (err) {
+            antMessage.error("Échec de l'enregistrement");
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     };
+
+    const handleShow = async (id) => {
+        try {
+            const url = `profile/${id}`
+            if (window.electron && typeof window.electron.openShow === 'function') {
+                await window.electron.openShow({
+                    width: 1100,
+                    height: 750,
+                    url,
+                    resizable: true,
+                })
+            } else {
+                navigate(`layout/profile/${id}`)
+            }
+        } catch (error) {
+            console.error('Error navigating :', error)
+        }
+    }
 
     return (
-        <div className="w-full max-w-md mx-auto mt-3">
-
-            {message && (
-                <div className={`mb-4 p-4 rounded-lg flex items-center ${isError ? 'bg-red-50 text-red-700' : 'bg-green-50 text-green-700'}`}>
-                    {isError ?
-                        <AlertCircle className="w-5 h-5 mr-2" /> :
-                        <CheckCircle className="w-5 h-5 mr-2" />
-                    }
-                    <span>{message}</span>
-                </div>
-            )}
-
+        <div className="w-full max-w-2xl mx-auto mt-6">
             {errorsMessage.length > 0 && (
-                <div className="bg-red-50 text-red-700 p-4 rounded-lg mb-4">
-                    {errorsMessage.map((msg, index) => (
-                        <div key={index} className="flex items-center gap-2 mb-1">
-                            <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                            <span>{msg}</span>
+                <Alert
+                    type="error"
+                    message="Erreurs de validation"
+                    description={
+                        <div>
+                            {errorsMessage.map((msg, i) => (
+                                <div key={i} className="flex items-center gap-2 mb-1">
+                                    <AlertCircle className="w-4 h-4 flex-shrink-0 text-red-500" />
+                                    <span>{msg}</span>
+                                </div>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                    }
+                    showIcon
+                    className="mb-4"
+                />
             )}
 
-            <div className="space-y-4">
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                        type="text"
-                        name="full_name"
-                        placeholder="Nom complet"
-                        value={formData.full_name}
-                        onChange={handleChange}
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                        required
-                    />
-                </div>
-
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <User className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                        type="text"
-                        name="name"
-                        placeholder="Nom d'utilisateur"
-                        value={formData.name}
-                        onChange={handleChange}
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                        required
-                    />
-                </div>
-
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Mail className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                        type="email"
-                        name="email"
-                        placeholder="Adresse e-mail"
-                        value={formData.email}
-                        onChange={handleChange}
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                        required
-                    />
-                </div>
-
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Phone className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                        type="tel"
-                        name="phone"
-                        placeholder="Numéro de téléphone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                        required
-                    />
-                </div>
-
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                        type={showPassword ? "text" : "password"}
-                        name="password"
-                        placeholder="Mot de passe"
-                        value={formData.password}
-                        onChange={handleChange}
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                        required
-                    />
-                    <div
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                    >
-                        {showPassword ?
-                            <EyeOff className="h-5 w-5 text-gray-400" /> :
-                            <Eye className="h-5 w-5 text-gray-400" />
-                        }
-                    </div>
-                </div>
-
-                <div className="relative">
-                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                        <Lock className="h-5 w-5 text-gray-400" />
-                    </div>
-                    <input
-                        type={showConfirmPassword ? "text" : "password"}
-                        name="password_confirmation"
-                        placeholder="Confirmer le mot de passe"
-                        value={formData.password_confirmation}
-                        onChange={handleChange}
-                        className="pl-10 w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
-                        required
-                    />
-                    <div
-                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                        className="absolute inset-y-0 right-0 pr-3 flex items-center cursor-pointer"
-                    >
-                        {showConfirmPassword ?
-                            <EyeOff className="h-5 w-5 text-gray-400" /> :
-                            <Eye className="h-5 w-5 text-gray-400" />
-                        }
-                    </div>
-                </div>
-            </div>
-
-            <div
-                onClick={handleSubmit}
-                className="w-full bg-indigo-600 text-white py-3 rounded-lg hover:bg-indigo-700 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-opacity-50 flex items-center justify-center font-medium mt-6 cursor-pointer"
+            <Form
+                layout="vertical"
+                form={form}
+                onFinish={handleSubmit}
+                requiredMark={false}
             >
-                {isLoading ? (
-                    <>
-                        <Loader2 className="animate-spin mr-2 h-5 w-5" />
-                        Traitement en cours...
-                    </>
-                ) : (
-                    "S'inscrire"
-                )}
-            </div>
+                {/* 👇 Row 1 */}
+                <Row gutter={16}>
+                    <Col xs={24} md={12}>
+                        <Form.Item
+                            label="Nom complet"
+                            name="full_name"
+                            rules={[{ required: true, message: "Veuillez entrer le nom complet" }]}
+                        >
+                            <Input
+                                prefix={<User size={16} className="text-gray-400" />}
+                                placeholder="Nom complet"
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={12}>
+                        <Form.Item
+                            label="Nom d'utilisateur"
+                            name="name"
+                            rules={[
+                                { required: true, message: "Veuillez entrer un nom d'utilisateur" },
+                            ]}
+                        >
+                            <Input
+                                prefix={<User size={16} className="text-gray-400" />}
+                                placeholder="Nom d'utilisateur"
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* 👇 Row 2 */}
+                <Row gutter={16}>
+                    <Col xs={24} md={12}>
+                        <Form.Item
+                            label="Adresse e-mail"
+                            name="email"
+                            rules={[
+                                { required: true, message: "Veuillez entrer un e-mail" },
+                                { type: "email", message: "Adresse e-mail invalide" },
+                            ]}
+                        >
+                            <Input
+                                prefix={<Mail size={16} className="text-gray-400" />}
+                                placeholder="nom@exemple.com"
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={12}>
+                        <Form.Item
+                            label="Numéro de téléphone"
+                            name="phone"
+                            rules={[
+                                { required: false, message: "Veuillez entrer un numéro de téléphone" },
+                            ]}
+                        >
+                            <Input
+                                prefix={<Phone size={16} className="text-gray-400" />}
+                                placeholder="06 12 34 56 78"
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* 👇 Row 3 */}
+                <Row gutter={16}>
+                    <Col xs={24} md={12}>
+                        <Form.Item
+                            label="Mot de passe"
+                            name="password"
+                            rules={[
+                                { required: true, message: "Veuillez entrer un mot de passe" },
+                            ]}
+                        >
+                            <Input.Password
+                                prefix={<Lock size={16} className="text-gray-400" />}
+                                placeholder="Mot de passe"
+                                iconRender={(visible) =>
+                                    visible ? <EyeOff size={16} /> : <Eye size={16} />
+                                }
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={12}>
+                        <Form.Item
+                            label="Confirmer le mot de passe"
+                            name="password_confirmation"
+                            dependencies={["password"]}
+                            rules={[
+                                { required: true, message: "Veuillez confirmer le mot de passe" },
+                                ({ getFieldValue }) => ({
+                                    validator(_, value) {
+                                        if (!value || getFieldValue("password") === value) {
+                                            return Promise.resolve();
+                                        }
+                                        return Promise.reject(
+                                            new Error("Les mots de passe ne correspondent pas")
+                                        );
+                                    },
+                                }),
+                            ]}
+                        >
+                            <Input.Password
+                                prefix={<Lock size={16} className="text-gray-400" />}
+                                placeholder="Confirmer le mot de passe"
+                                iconRender={(visible) =>
+                                    visible ? <EyeOff size={16} /> : <Eye size={16} />
+                                }
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={12}>
+                        <Form.Item label="Société" name="company_id">
+                            <Select
+                                options={companies}
+
+                                placeholder="Sélectionnez une société"
+                                suffixIcon={<Building size={16} />}
+                            />
+                        </Form.Item>
+                    </Col>
+                </Row>
+
+                {/* 👇 Submit Button */}
+                <Form.Item className="mb-0">
+                    <Button
+                        type="primary"
+                        htmlType="submit"
+                        block
+                        size="large"
+                        loading={loading}
+                        icon={!loading && <Loader2 size={16} className="animate-spin-slow" />}
+                    >
+                        {loading ? "Traitement en cours..." : "S'inscrire"}
+                    </Button>
+                </Form.Item>
+            </Form>
         </div>
     );
-};
-
-export default RegisterForm;
+}

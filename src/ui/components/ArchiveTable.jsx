@@ -1,6 +1,6 @@
 import { Settings } from 'lucide-react'
 import { Tag } from 'antd'
-import { getExped, getStatus } from '../utils/config'
+import { getExped } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
 
 const formatDate = (date) => {

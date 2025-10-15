@@ -47,6 +47,7 @@ import TransferStock from './components/TransferStock'
 import ImportStock from './components/ImportStock'
 import FindArticleEmplacement from './components/FindArticleEmplacement'
 import UserArchive from './pages/UserArchive'
+import ViewUserArchive from './pages/ViewUserArchive'
 
 
 const NotFound = () => {
@@ -68,18 +69,22 @@ function App() {
 
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
+        <Route path='/user-archive/:id' element={<ViewUserArchive />} />
         
 
         <Route path='update-article-ref' element={<UpdateArticleRef />} />
         <Route path='duplicate-invoice' element={<InvoiceDuplicate />} />
         <Route path='import-movements' element={<ImportMovements />} />
         <Route path='import-stock' element={<ImportStock />} />
+         <Route path='profile/:id' element={<Profile />} />
         <Route element={<MainLayout />}>
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />
           <Route path='/transfer-stock' element={<TransferStock />} />
           <Route path='/find-article' element={<FindArticleEmplacement />} />
            <Route path='/user-archive' element={<UserArchive />} />
+           <Route path='/layout/user-archive/:id' element={<ViewUserArchive />} />
+           
           
           <Route path='/users' element={<Users />} />
           <Route path='/users/actions' element={<UsersActions />} />
@@ -88,7 +93,7 @@ function App() {
           <Route path='/roles' element={<Roles />} />
           <Route path='/roles/:id' element={<ViewRole />} />
           <Route path='*' element={<NotFound />} />
-          <Route path='/profile/:id' element={<Profile />} />
+          <Route path='layout/profile/:id' element={<Profile />} />
           <Route path='companies/stock' element={<CompanyStock />} />
           <Route path='documents' element={<Document />} />
           <Route path='preparation/:id' element={<Preparation />} />
