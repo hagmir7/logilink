@@ -78,12 +78,10 @@ function CompanyStock({ company_id }) {
         }
         url = `/articles/${id}`;
       }
-      // ✅ Otherwise → create mode
       else {
         url = '/articles/create';
       }
 
-      // ✅ Open inside Electron or in browser
       if (window.electron && typeof window.electron.openShow === 'function') {
         await window.electron.openShow({
           width: 900,
@@ -257,13 +255,19 @@ function CompanyStock({ company_id }) {
 
                    <td className='px-4 py-2'>
                     <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
-                      {article.stock - parseFloat(article.stock_prepare) }
+                      {article.stock }
                     </span>
                   </td>
 
                   <td className='px-4 py-2'>
                     <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
                       { parseFloat(article.stock) + parseFloat(article.stock_prepartion) }
+                    </span>
+                  </td>
+
+                    <td className='px-4 py-2'>
+                    <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
+                      {parseFloat(article.stock_prepartion)}
                     </span>
                   </td>
 
