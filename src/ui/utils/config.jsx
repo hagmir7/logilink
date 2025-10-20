@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 
 // Get document type from the DO Piece
 export function getDocumentType(DO_Piece) {
@@ -167,3 +168,19 @@ export const formatCurrency = (value) => {
   if (!value) return <Skeleton />
   return `${parseFloat(value).toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} MAD`
 }
+
+
+
+
+// config.jsx
+export const handleShow = async (navigate, path) => {
+  try {
+    if (window.electron && typeof window.electron.openShow === 'function') {
+      await window.electron.openShow({ url:path, width: 1400, height: 800 });
+    } else {
+      navigate(path); // ✅ Use relative path if inside /layout
+    }
+  } catch (error) {
+    console.error('Error navigating:', error);
+  }
+};

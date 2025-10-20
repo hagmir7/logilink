@@ -13,6 +13,7 @@ export const setMainWindow = (window) => {
 };
 
 export const createShowWindow = (data) => {
+    console.log(data)
     if (childWindow) return childWindow;
 
     childWindow = new BrowserWindow({

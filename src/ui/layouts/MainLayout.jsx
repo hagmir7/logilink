@@ -23,6 +23,7 @@ import {
   Archive,
   ScrollText,
   FileInput,
+  File,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -82,6 +83,15 @@ const sideMenu = () => {
           icon: <FileInput size={19} />,
           // disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
           label: <Link to='/user-archive'>Mes documents</Link>,
+        },
+
+        
+         {
+          key: 'submenu-20',
+          className: 'hidden',
+          icon: <File size={19} />,
+          // disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          label: <Link to='/sage'>Documents</Link>,
         },
       ],
     },
@@ -201,6 +211,9 @@ const MainLayout = () => {
 
     // Initialize on first render
     checkScreenSize()
+
+    console.log(location);
+    
 
     // Add event listener for window resize
     window.addEventListener('resize', checkScreenSize)

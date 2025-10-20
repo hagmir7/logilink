@@ -48,6 +48,8 @@ import ImportStock from './components/ImportStock'
 import FindArticleEmplacement from './components/FindArticleEmplacement'
 import UserArchive from './pages/UserArchive'
 import ViewUserArchive from './pages/ViewUserArchive'
+import Sage from './pages/Sage'
+import CreateDocument from './components/CreateDocument'
 
 
 const NotFound = () => {
@@ -59,6 +61,7 @@ function App() {
     <>
       <ScrollToTop />
       <Routes>
+         <Route path='/create-document' element={<CreateDocument />} />
         <Route path='/login' element={<Login />} />
         <Route path="articles/:id" element={<ViewArticle />} />
         <Route path="articles/create" element={<ViewArticle />} />
@@ -76,8 +79,11 @@ function App() {
         <Route path='duplicate-invoice' element={<InvoiceDuplicate />} />
         <Route path='import-movements' element={<ImportMovements />} />
         <Route path='import-stock' element={<ImportStock />} />
-         <Route path='profile/:id' element={<Profile />} />
+        <Route path='profile/:id' element={<Profile />} />
+
         <Route element={<MainLayout />}>
+          <Route path='/sage' element={<Sage />} />
+          <Route path='/layout/create-document' element={<CreateDocument />} />
           <Route path='/' element={<Document />} />
           <Route path='/transfer-order' element={<TransferOrder />} />
           <Route path='/transfer-stock' element={<TransferStock />} />
