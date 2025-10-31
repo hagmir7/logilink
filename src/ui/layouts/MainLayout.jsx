@@ -86,13 +86,13 @@ const sideMenu = () => {
         },
 
         
-         {
-          key: 'submenu-20',
-          className: 'hidden',
-          icon: <File size={19} />,
-          // disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
-          label: <Link to='/sage'>Documents</Link>,
-        },
+        //  {
+        //   key: 'submenu-20',
+        //   className: 'hidden',
+        //   icon: <File size={19} />,
+        //   // disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+        //   label: <Link to='/sage'>Documents</Link>,
+        // },
       ],
     },
     {
@@ -142,14 +142,9 @@ const sideMenu = () => {
     {
       key: 'menu-7',
       icon: <BaggageClaim size={20} />,
-      disabled: true,
-      label: <span className='text-base'>Achat</span>,
-      children: [
-        {
-          key: 'submenu-7',
-          label: 'Group',
-        },
-      ],
+      // disabled: true,
+      label: <Link to='/purchase'>Achat</Link>,
+  
     },
     {
       key: 'menu-8',

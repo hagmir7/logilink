@@ -77,3 +77,7 @@
 .no-wrap-table .ant-table-cell {
   white-space: nowrap;
 }
+
+.ant-form-item{
+  margin-bottom: 0;
+}

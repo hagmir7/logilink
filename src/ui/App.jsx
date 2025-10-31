@@ -50,6 +50,8 @@ import UserArchive from './pages/UserArchive'
 import ViewUserArchive from './pages/ViewUserArchive'
 import Sage from './pages/Sage'
 import CreateDocument from './components/CreateDocument'
+import Purchase from './pages/Purchase'
+import PurchaseForm from './pages/PurchaseForm'
 
 
 const NotFound = () => {
@@ -65,6 +67,7 @@ function App() {
         <Route path='/login' element={<Login />} />
         <Route path="articles/:id" element={<ViewArticle />} />
         <Route path="articles/create" element={<ViewArticle />} />
+        <Route path="purchase/create" element={<PurchaseForm />} />
 
         <Route path='/document/:id' element={<ViewDocument />} />
         <Route path='document/:piece/progress' element={<DocumentProgress />} />
@@ -88,8 +91,9 @@ function App() {
           <Route path='/transfer-order' element={<TransferOrder />} />
           <Route path='/transfer-stock' element={<TransferStock />} />
           <Route path='/find-article' element={<FindArticleEmplacement />} />
-           <Route path='/user-archive' element={<UserArchive />} />
-           <Route path='/layout/user-archive/:id' element={<ViewUserArchive />} />
+          <Route path='/user-archive' element={<UserArchive />} />
+          <Route path='/layout/user-archive/:id' element={<ViewUserArchive />} />
+          <Route path='/purchase' element={<Purchase />} />
            
           
           <Route path='/users' element={<Users />} />

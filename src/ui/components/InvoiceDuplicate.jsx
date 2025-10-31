@@ -11,6 +11,8 @@ export default function InvoiceDuplicate() {
 
     try {
       const response = await api.get(`duplicate/${values.piece}`);
+      console.log(response);
+      
       message.success(response.data.message)
       form.resetFields();
     } catch (err) {

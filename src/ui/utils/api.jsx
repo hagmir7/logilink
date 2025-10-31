@@ -8,9 +8,6 @@ const getAuthToken = () => {
   return '';
 };
 
-// let baseURL;
-
-
 let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api/';
 
 // if (import.meta.env.MODE === 'development') {

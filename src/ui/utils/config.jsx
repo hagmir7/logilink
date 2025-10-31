@@ -173,10 +173,10 @@ export const formatCurrency = (value) => {
 
 
 // config.jsx
-export const handleShow = async (navigate, path) => {
+export const handleShow = async (navigate, path, width=1400, height=800) => {
   try {
     if (window.electron && typeof window.electron.openShow === 'function') {
-      await window.electron.openShow({ url:path, width: 1400, height: 800 });
+      await window.electron.openShow({ url:path, width, height});
     } else {
       navigate(path); // ✅ Use relative path if inside /layout
     }
