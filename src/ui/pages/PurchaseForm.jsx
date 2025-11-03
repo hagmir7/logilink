@@ -1,69 +1,143 @@
-import React, { useState } from 'react';
-import { Form, Input, Button, Checkbox, Select, Switch, Modal, Upload } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { Form, Input, Button, Select, Modal, Upload, message,Tag } from 'antd';
 import { PlusOutlined, MinusCircleOutlined, PaperClipOutlined, UploadOutlined } from '@ant-design/icons';
 import 'antd/dist/reset.css';
+import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../utils/api';
+import { useAuth } from '../contexts/AuthContext';
+import AchatProductSearch from '../components/AchatProductSearch';
+
 
 const { Option } = Select;
 
-export default function PurchaseForm({services, users }) {
+export default function PurchaseForm() {
   const [form] = Form.useForm();
   const [isUrgent, setIsUrgent] = useState(false);
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState(null);
   const [lineFiles, setLineFiles] = useState({});
+  const [loading, setLoading] = useState(false);
+  const [initialData, setInitialData] = useState(null);
+  const [services, setServices] = useState([]);
+  const [users, setUsers] = useState([]);
+  const [currentUser, setcurrentuser] = useState();
+  const [currentService, setCurrentService] = useState();
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { roles } = useAuth();
+  const [searchModal, setSearchModal] = useState({});
 
-  const onFinish = (values) => {
-    // Combine form values with urgent status and files
-    const formData = {
-      ...values,
-      urgent: isUrgent ? 1 : 0,
-      // Add files to each line
-      lines: values.lines?.map((line, index) => ({
-        ...line,
-        files: lineFiles[index] || []
-      }))
-    };
+  // Fetch all data on mount
+  useEffect(() => {
+    fetchAllData();
+  }, [id]);
 
-    onSubmit(formData);
-    console.log(formData);
-    
+  const fetchAllData = async () => {
+    try {
+      setLoading(true);
+
+      // Fetch services and users (always needed)
+      const [servicesRes, usersRes] = await Promise.all([
+        api.get('services'),
+        api.get('users')
+      ]);
+
+      setServices(servicesRes.data || []);
+      setUsers(usersRes.data || []);
+
+      // If id exists, fetch the document for editing
+      if (id) {
+        const documentRes = await api.get(`purchase-documents/${id}`);
+        const docData = documentRes.data;
+        setcurrentuser(docData.user)
+        setCurrentService(docData.service)
+
+        setInitialData(docData);
+        initializeFormWithData(docData);
+      }
+
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      message.error(
+        error?.response?.data?.message ||
+        'Erreur lors du chargement des données'
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
+  const initializeFormWithData = (docData) => {
+    // Set urgent state
+    setIsUrgent(docData.urgent || false);
 
-  async function onSubmit(values) {
-    try {
-      const formData = new FormData();
-      formData.append('urgent', isUrgent ? 1 : 0);
-      formData.append('status', values.status);
-      formData.append('reference', values.reference);
-      formData.append('service_id', values.service_id);
-      formData.append('user_id', values.user_id);
-      formData.append('note', values.note || '');
+    // Prepare form values
+    const formValues = {
+      reference: docData.reference,
+      status: String(docData.status), 
+      service_id: docData.service_id,
+      user_id: docData.user_id,
+      note: docData.note,
+      lines: docData.lines?.map(line => ({
+        id: line.id,
+        code: line.code,
+        description: line.description,
+        quantity: line.quantity,
+        unit: line.unit,
+        estimated_price: line.estimated_price,
+      })) || []
+    };
 
-      // Loop through purchase lines
-      values.lines?.forEach((line, index) => {
-        formData.append(`lines[${index}][code]`, line.code);
-        formData.append(`lines[${index}][description]`, line.description);
-        formData.append(`lines[${index}][quantity]`, line.quantity);
-        formData.append(`lines[${index}][unit]`, line.unit);
-        formData.append(`lines[${index}][estimated_price]`, line.estimated_price || '');
+    form.setFieldsValue(formValues);
 
-        // Append uploaded files for each line
-        (lineFiles[index] || []).forEach((file, fileIndex) => {
-          formData.append(`lines[${index}][files][${fileIndex}]`, file.originFileObj);
-        });
+    if (users.length > 0) {
+      form.setFieldsValue({
+        user_id: docData.user_id || currentUser?.id,
+        reference: docData.reference,
+        status: String(docData.status),
+        service_id: docData.service_id,
+        note: docData.note,
+        lines: docData.lines?.map(line => ({
+          id: line.id,
+          code: line.code,
+          description: line.description,
+          quantity: line.quantity,
+          unit: line.unit,
+          estimated_price: line.estimated_price,
+        })) || []
       });
-
-      const response = await api.post('/purchase-documents', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' }
-      });
-
-      console.log(response.data);
-    } catch (error) {
-      console.error(error);
     }
-  }
+
+    // Set existing files for display
+    if (docData.lines) {
+      const existingFiles = {};
+      docData.lines.forEach((line, index) => {
+        if (line.files && line.files.length > 0) {
+          existingFiles[index] = line.files.map(file => ({
+            uid: file.id,
+            name: file.file_name || file.file_path.split('/').pop(),
+            status: 'done',
+            url: `/storage/${file.file_path}`,
+            existing: true, // Mark as existing file
+            fileId: file.id
+          }));
+        }
+      });
+      setLineFiles(existingFiles);
+    }
+  };
+
+  useEffect(() => {
+    if (users.length > 0 && currentUser) {
+      form.setFieldsValue({ user_id: currentUser.id });
+     
+    }
+
+    if(users.length > 0 && currentService){
+      form.setFieldsValue({ service_id: currentService.id });
+    }
+  }, [users, currentUser]);
+
 
 
   const openUploadModal = (index) => {
@@ -77,7 +151,9 @@ export default function PurchaseForm({services, users }) {
       name: file.name,
       status: file.status,
       url: file.url,
-      originFileObj: file.originFileObj
+      originFileObj: file.originFileObj,
+      existing: file.existing || false, // Mark if it's an existing file
+      fileId: file.fileId // Store file ID for deletion
     }));
 
     setLineFiles(prev => ({
@@ -90,15 +166,183 @@ export default function PurchaseForm({services, users }) {
     return lineFiles[index]?.length || 0;
   };
 
+  const onFinish = (values) => {
+    const formData = new FormData();
+
+    // Basic fields
+    formData.append('reference', values.reference);
+    formData.append('status', values.status || '0');
+    if (values.service_id) formData.append('service_id', values.service_id);
+    if (values.user_id) formData.append('user_id', values.user_id);
+    formData.append('note', values.note || '');
+    formData.append('urgent', isUrgent ? '1' : '0');
+
+    // Lines
+    if (values.lines && values.lines.length > 0) {
+      values.lines.forEach((line, index) => {
+        if (line.id) {
+          formData.append(`lines[${index}][id]`, line.id);
+        }
+
+        formData.append(`lines[${index}][code]`, line.code || '');
+        formData.append(`lines[${index}][description]`, line.description || '');
+        formData.append(`lines[${index}][quantity]`, line.quantity || '0');
+        formData.append(`lines[${index}][unit]`, line.unit || '');
+        formData.append(`lines[${index}][estimated_price]`, line.estimated_price || '0');
+
+        // Add files for this line
+        if (lineFiles[index] && lineFiles[index].length > 0) {
+          lineFiles[index].forEach((file) => {
+            if (file.originFileObj && !file.existing) {
+              formData.append(`lines[${index}][files][]`, file.originFileObj);
+            }
+          });
+        }
+      });
+    }
+
+    handleSubmit(formData);
+  };
+
+  const handleSubmit = async (formData) => {
+    try {
+      const hide = message.loading('Enregistrement en cours...', 0);
+
+      if (id) {
+        formData.append('_method', 'PUT'); // Laravel will treat as PUT
+      }
+
+      const url = id
+        ? `/purchase-documents/${id}`
+        : '/purchase-documents';
+
+      const response = await api.post(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      hide();
+      message.success(id ? 'Document mis à jour avec succès!' : 'Document créé avec succès!');
+
+      if (!id) {
+        navigate(`/purchase/${response.data.document.id}`);
+      }
+
+    } catch (error) {
+      console.error('Submit error:', error);
+      message.destroy();
+
+      if (error.response?.data?.errors) {
+        Object.values(error.response.data.errors).forEach(err => message.error(err[0]));
+      } else {
+        message.error(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
+      }
+    }
+  };
+
+  const statusOptions = [
+    { value: "1", label: "Brouillon", color: "bg-gray-400" },
+    { value: "2", label: "Envoyer", color: "bg-blue-400" },
+    { value: "3", label: "En Révision", color: "bg-yellow-400" },
+    { value: "4", label: "Approuvé", color: "bg-green-400" },
+    { value: "5", label: "Rejeté", color: "bg-red-400" },
+    { value: "6", label: "Commandé", color: "bg-purple-400" },
+    { value: "7", label: "Reçu", color: "bg-teal-400" },
+    { value: "8", label: "Annulé", color: "bg-gray-600" },
+  ];
+
+  const handleKeyDown = (event, lineIndex, field) => {
+    if (event.key === "F4") {
+      event.preventDefault();
+
+      // Get all lines from the form
+      const lines = form.getFieldValue("lines") || [];
+      const currentLine = lines[lineIndex];
+
+      if (!currentLine) {
+        console.warn("No line found at index:", lineIndex);
+        return;
+      }
+
+      let value = "";
+
+      if (field === 'code') {
+        value = currentLine.code || "";
+      } else if (field === 'description') {
+        value = currentLine.description || "";
+      }
+      
+      setSearchModal({ open: true, lineIndex, value });
+    }
+  };
+
+  const handleArticleSelect = (selectedArticles, lineIndex) => {
+    const lines = form.getFieldValue('lines') || [];
+
+    if (lineIndex === undefined || lineIndex < 0 || lineIndex >= lines.length) {
+      console.warn('Invalid line index:', lineIndex);
+      return;
+    }
+
+    if (selectedArticles.length === 1) {
+      // Single article: Update the current line
+      const article = selectedArticles[0];
+      const updatedLines = [...lines];
+      updatedLines[lineIndex] = {
+        ...updatedLines[lineIndex],
+        code: article.AR_Ref,
+        description: article.AR_Design,
+      };
+      form.setFieldsValue({ lines: updatedLines });
+      message.success('Article ajouté à la ligne');
+    } else if (selectedArticles.length > 1) {
+      // Multiple articles: Update first, create new lines for others
+      const updatedLines = [...lines];
+      
+      // Update the current line with the first article
+      updatedLines[lineIndex] = {
+        ...updatedLines[lineIndex],
+        code: selectedArticles[0].AR_Ref,
+        description: selectedArticles[0].AR_Design,
+      };
+
+      // Create new lines for remaining articles
+      const newLines = selectedArticles.slice(1).map(article => ({
+        code: article.AR_Ref,
+        description: article.AR_Design,
+        quantity: 1,
+        unit: '',
+        estimated_price: 0,
+      }));
+
+      // Insert new lines after the current line
+      updatedLines.splice(lineIndex + 1, 0, ...newLines);
+      
+      form.setFieldsValue({ lines: updatedLines });
+      message.success(`${selectedArticles.length} articles ajoutés`);
+    }
+  };
+
   return (
-    <div className="py-4 px-4 bg-gray-50 rounded-xl max-w-6xl mx-auto">
-      <h2 className="text-xl font-semibold mb-4">Document d'achat</h2>
+    <div className='bg-gray-100 pb-32'>
+      <div className="rounded-xl max-w-6xl mx-auto pt-2">
+      <h2 className="text-md mb-4 font-bold">
+      Document d'achat {"  "}
+        {initialData && <Tag color='#f50' style={{ fontSize: '14px' }} className='font-bold tracking-widest'>{initialData.code}</Tag>}
+      </h2>
+      <AchatProductSearch
+        searchModalOpen={searchModal.open}
+        lineId={searchModal.lineIndex}
+        inputValue={searchModal.value}
+        onCancel={() => setSearchModal({ open: false, lineIndex: null, value: "" })}
+        onSelect={handleArticleSelect}
+      />
+
 
       <Form
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{ urgent: false, status: '1' }}
+        initialValues={{ urgent: false, status: '0' }}
       >
         {/* Document Info */}
         <div className="shadow-sm p-5 rounded-lg bg-white border border-gray-100">
@@ -124,58 +368,16 @@ export default function PurchaseForm({services, users }) {
               rules={[{ required: true, message: 'Statut requis' }]}
               className="mb-0"
             >
-              <Select
-                placeholder="Sélectionner le statut"
-                className="w-full"
-              >
-                <Option value="1">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-gray-400"></span>
-                    Brouillon
-                  </span>
-                </Option>
-                <Option value="2">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-blue-400"></span>
-                    Soumis
-                  </span>
-                </Option>
-                <Option value="3">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-yellow-400"></span>
-                    En Révision
-                  </span>
-                </Option>
-                <Option value="4">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-green-400"></span>
-                    Approuvé
-                  </span>
-                </Option>
-                <Option value="5">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-red-400"></span>
-                    Rejeté
-                  </span>
-                </Option>
-                <Option value="6">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-purple-400"></span>
-                    Commandé
-                  </span>
-                </Option>
-                <Option value="7">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-teal-400"></span>
-                    Reçu
-                  </span>
-                </Option>
-                <Option value="8">
-                  <span className="flex items-center gap-2">
-                    <span className="w-2 h-2 rounded-full bg-gray-600"></span>
-                    Annulé
-                  </span>
-                </Option>
+              <Select placeholder="Sélectionner le statut" className="w-full" disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}>
+                
+                {statusOptions.map((option) => (
+                  <Select.Option key={option.value} value={option.value}>
+                    <span className="flex items-center gap-2">
+                      <span className={`w-2 h-2 rounded-full ${option.color}`}></span>
+                      {option.label}
+                    </span>
+                  </Select.Option>
+                ))}
               </Select>
             </Form.Item>
 
@@ -190,6 +392,7 @@ export default function PurchaseForm({services, users }) {
                 className="w-full"
                 showSearch
                 optionFilterProp="children"
+                disabled={!roles('supper_admin')}
                 filterOption={(input, option) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
                 }
@@ -209,19 +412,24 @@ export default function PurchaseForm({services, users }) {
               <Select
                 placeholder="Sélectionner un utilisateur"
                 className="w-full"
+                disabled={!roles('supper_admin')}
                 showSearch
                 optionFilterProp="children"
                 filterOption={(input, option) =>
                   option.children.toLowerCase().includes(input.toLowerCase())
                 }
               >
-                {users?.map((s) => (
-                  <Option key={s.id} value={s.id}>{s.name}</Option>
+                {users?.map((user) => (
+                  <Select.Option key={user.id} value={user.id}>
+                    {user.full_name}
+                  </Select.Option>
                 ))}
               </Select>
             </Form.Item>
 
-            {/* Note - spans 2 columns on larger screens */}
+
+
+            {/* Note */}
             <Form.Item
               name="note"
               label={<span className="font-semibold text-gray-700">Note / Commentaire</span>}
@@ -236,7 +444,8 @@ export default function PurchaseForm({services, users }) {
               />
             </Form.Item>
 
-            <div className='mt-7'>
+            {/* Urgent Button */}
+            <div className='mt-7.5'>
               <Button
                 type={isUrgent ? 'primary' : 'default'}
                 danger={isUrgent}
@@ -257,7 +466,7 @@ export default function PurchaseForm({services, users }) {
               <div className="space-y-1">
                 {/* Header */}
                 <div className="flex items-center justify-between ">
-                  <h3 className="text-lg font-bold text-gray-800">Lignes d'achat</h3>
+                  <h3 className="text-md mb-4 font-bold">Lignes de documents</h3>
                   {fields.length > 0 && (
                     <span className="text-sm text-gray-500 font-medium">
                       {fields.length} ligne{fields.length > 1 ? 's' : ''}
@@ -271,26 +480,34 @@ export default function PurchaseForm({services, users }) {
                     {fields.map((field, index) => (
                       <div
                         key={field.key}
-                        className="relative grid grid-cols-1 md:grid-cols-5 gap-3 p-3 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
+                        className="relative grid grid-cols-1 md:grid-cols-5 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
                       >
                         {/* Line Number Badge */}
-                        <div className="absolute -top-2 -left-2 w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
+                        {/* <div className="absolute -top-2 -left-2 w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
                           {index + 1}
-                        </div>
+                        </div> */}
 
+                        {/* Hidden ID field for updates */}
+                        <Form.Item
+                          {...field}
+                          name={[field.name, 'id']}
+                          hidden
+                        >
+                          <Input type="hidden" />
+                        </Form.Item>
+
+                        {/* Code (optional) */}
                         <Form.Item
                           {...field}
                           name={[field.name, 'code']}
-                          rules={[{ required: true, message: 'Requis' }]}
                           className="mb-0"
                         >
                           <Input
-                            placeholder="Code article"
+                            placeholder="Code (optionnel)"
                             className="w-full"
+                            onKeyDown={(e) => handleKeyDown(e, index, 'code')}
                           />
                         </Form.Item>
-
-
 
                         {/* Description */}
                         <Form.Item
@@ -302,6 +519,7 @@ export default function PurchaseForm({services, users }) {
                           <Input
                             placeholder="Description de l'article"
                             className="w-full"
+                            onKeyDown={(e) => handleKeyDown(e, index, 'description')}
                           />
                         </Form.Item>
 
@@ -320,6 +538,8 @@ export default function PurchaseForm({services, users }) {
                             className="w-full"
                           />
                         </Form.Item>
+
+
                         <Form.Item
                           {...field}
                           name={[field.name, 'estimated_price']}
@@ -335,10 +555,9 @@ export default function PurchaseForm({services, users }) {
                           />
                         </Form.Item>
 
+                        {/* Unit Action Buttons Container */}
 
-                        {/* Price & Action Buttons Container */}
                         <div className="flex gap-2 items-start">
-
 
                           {/* Unit */}
                           <Form.Item
@@ -351,8 +570,6 @@ export default function PurchaseForm({services, users }) {
                               className="w-full"
                             />
                           </Form.Item>
-
-
                           {/* Upload Files Button */}
                           <Button
                             type="default"
@@ -376,8 +593,11 @@ export default function PurchaseForm({services, users }) {
                             onClick={() => remove(field.name)}
                             className="flex-shrink-0"
                             title="Supprimer cette ligne"
+                            disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}
                           />
                         </div>
+
+
                       </div>
                     ))}
                   </div>
@@ -388,26 +608,30 @@ export default function PurchaseForm({services, users }) {
                 )}
 
                 {/* Add Button */}
-                <Form.Item className="mb-0">
-                  <Button
-                    type="dashed"
-                    onClick={() => add()}
-                    block
-                    icon={<PlusOutlined />}
-                    className="border-2 border-dashed hover:border-blue-400 hover:text-blue-500 transition-colors"
-                  >
-                    Ajouter une ligne d'achat
-                  </Button>
-                </Form.Item>
+                <div className='flex justify-center mt-3 w-full'>
+                  <Form.Item className="mb-0 w-1/4 ">
+                    <Button
+                      type="dashed"
+                      onClick={() => add()}
+                      block
+                      icon={<PlusOutlined />}
+                      disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}
+                      className="border-2 border-dashed hover:border-blue-400 hover:text-blue-500 transition-colors "
+                    >
+                      Ajouter une ligne
+                    </Button>
+                  </Form.Item>
+                </div>
               </div>
             )}
           </Form.List>
         </div>
 
-        <div className='mt-4'>
+        {/* Submit Button */}
+        <div className='mt-4 fixed right-0 bottom-0 py-3 z-40 bg-white w-full flex justify-end px-5 shadow-2xl border-t border-gray-200'>
           <Form.Item>
-            <Button type="primary" htmlType="submit">
-              Enregistrer
+            <Button type="primary" htmlType="submit" size="middle" disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}>
+              {initialData ? 'Mettre à jour' : 'Enregistrer'}
             </Button>
           </Form.Item>
         </div>
@@ -436,15 +660,21 @@ export default function PurchaseForm({services, users }) {
             beforeUpload={() => false}
             listType="text"
           >
-            <Button icon={<UploadOutlined />} block size="large" type="dashed">
+            <Button icon={<UploadOutlined />} disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')} block size="large" type="dashed">
               Cliquez ou glissez des fichiers ici
             </Button>
           </Upload>
           <p className="text-gray-500 text-sm mt-3">
             Vous pouvez joindre plusieurs fichiers (images, PDFs, documents, etc.)
           </p>
+          {lineFiles[currentLineIndex]?.some(f => f.existing) && (
+            <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-blue-700">
+              💡 Les fichiers existants sont affichés mais ne seront pas re-téléchargés
+            </div>
+          )}
         </div>
       </Modal>
+    </div>
     </div>
   );
 }

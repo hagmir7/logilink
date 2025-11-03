@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Layout, Menu, theme, Drawer } from 'antd'
+import { Layout, Menu, theme, Drawer, Badge } from 'antd'
 import {
   ArrowDownUp,
   BaggageClaim,
@@ -30,10 +30,28 @@ import DropMenu from '../components/DropMenu'
 import { useAuth } from '../contexts/AuthContext'
 import MobileBottomNav from './MobileButtomNav'
 import Tools from '../components/Tools'
+import { api } from '../utils/api'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
-  const { roles, permissions } = useAuth()
+  const { roles, permissions } = useAuth();
+  const [purchaseStatus, setPurchaseStatus] = useState(0);
+
+  const getPurchaseCount = async ()=> {
+    try {
+      const response = await api.get("status-count/2");
+      console.log(response);
+      
+      setPurchaseStatus(response.data)
+    } catch (error) {
+      
+    }
+  }
+
+
+  useEffect(()=>{
+    getPurchaseCount();
+  }, [])
 
   return [
     {
@@ -140,12 +158,18 @@ const sideMenu = () => {
 
     },
     {
-      key: 'menu-7',
-      icon: <BaggageClaim size={20} />,
-      // disabled: true,
-      label: <Link to='/purchase'>Achat</Link>,
-  
-    },
+        key: 'menu-7',
+        icon: <BaggageClaim size={20} />,
+        label: (
+          <div className="flex items-center justify-between w-full">
+            <Link to="/purchase" className="flex-1">
+              Achat
+            </Link>
+            {purchaseStatus && <Badge count={purchaseStatus} className="ml-2" />}
+            
+          </div>
+        ),
+      },
     {
       key: 'menu-8',
       icon: <Users size={20} />,
@@ -206,10 +230,7 @@ const MainLayout = () => {
 
     // Initialize on first render
     checkScreenSize()
-
-    console.log(location);
-    
-
+  
     // Add event listener for window resize
     window.addEventListener('resize', checkScreenSize)
 

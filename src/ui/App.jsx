@@ -68,6 +68,7 @@ function App() {
         <Route path="articles/:id" element={<ViewArticle />} />
         <Route path="articles/create" element={<ViewArticle />} />
         <Route path="purchase/create" element={<PurchaseForm />} />
+        <Route path="purchase/:id" element={<PurchaseForm />} />
 
         <Route path='/document/:id' element={<ViewDocument />} />
         <Route path='document/:piece/progress' element={<DocumentProgress />} />

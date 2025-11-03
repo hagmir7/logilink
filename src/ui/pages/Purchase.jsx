@@ -13,7 +13,7 @@ import {
 
 import { api } from "../utils/api";
 import Skeleton from "../components/ui/Skeleton";
-import { handleShow } from "../utils/config";
+import { formatDate, handleShow } from "../utils/config";
 import { useNavigate } from "react-router-dom";
 
 
@@ -69,35 +69,35 @@ export default function Purchase() {
 
     function getStatusLabel(status) {
         const statuses = {
-            0: {
+            1: {
                 label: "Brouillon",
                 color: "bg-gray-100 text-gray-800 border border-gray-300",
             },
-            1: {
-                label: "Soumis",
+            2: {
+                label: "Envoyer",
                 color: "bg-blue-100 text-blue-800 border border-blue-300",
             },
-            2: {
+            3: {
                 label: "En révision",
                 color: "bg-yellow-100 text-yellow-800 border border-yellow-300",
             },
-            3: {
+            4: {
                 label: "Approuvé",
                 color: "bg-green-100 text-green-800 border border-green-300",
             },
-            4: {
+            5: {
                 label: "Rejeté",
                 color: "bg-red-100 text-red-800 border border-red-300",
             },
-            5: {
+            6: {
                 label: "Commandé",
                 color: "bg-indigo-100 text-indigo-800 border border-indigo-300",
             },
-            6: {
+            7: {
                 label: "Reçu",
                 color: "bg-emerald-100 text-emerald-800 border border-emerald-300",
             },
-            7: {
+            8: {
                 label: "Annulé",
                 color: "bg-rose-100 text-rose-800 border border-rose-300",
             },
@@ -108,7 +108,7 @@ export default function Purchase() {
             return (
                 <span className="bg-gray-100 text-gray-800 px-2 py-1 rounded">__</span>
             );
-        return <span className={`${s.color} border px-2 py-1 rounded`}>{s.label}</span>;
+        return <span className={`${s.color} border px-1 py-0.5 rounded`}>{s.label}</span>;
     }
 
   const handleDelete = async (id) => {
@@ -136,6 +136,7 @@ export default function Purchase() {
   };
 
 
+
   return (
     <div>
       <div className="flex justify-between items-center pt-2 px-2">
@@ -160,14 +161,14 @@ export default function Purchase() {
             allowClear
             options={[
                 { label: "Tout", value: null },
-                { label: "Brouillon", value: 0 },
-                { label: "Soumis", value: 1 },
-                { label: "En révision", value: 2 },
-                { label: "Approuvé", value: 3 },
-                { label: "Rejeté", value: 4 },
-                { label: "Commandé", value: 5 },
-                { label: "Reçu", value: 6 },
-                { label: "Annulé", value: 7 },
+                { label: "Brouillon", value: 1 },
+                { label: "Envoyer", value: 2 },
+                { label: "En révision", value: 3 },
+                { label: "Approuvé", value: 4 },
+                { label: "Rejeté", value: 5 },
+                { label: "Commandé", value: 6 },
+                { label: "Reçu", value: 7 },
+                { label: "Annulé", value: 8 },
                 ]}
           />
 
@@ -175,7 +176,7 @@ export default function Purchase() {
             type="primary"
             onClick={() => {
               setSelectedPruchase(null);
-              handleShow(navigate, '/purchase/create', 1200, 700);
+              handleShow(navigate, '/purchase/create', 1200, 900);
             //   setOpen(true);
             }}
           >
@@ -210,12 +211,12 @@ export default function Purchase() {
         <table className="min-w-full text-sm border-t border-gray-300">
           <thead className="bg-gray-100">
             <tr>
-              <th className="px-3 py-2 text-left">Candidat</th>
               <th className="px-3 py-2 text-left">Code</th>
+              <th className="px-3 py-2 text-left">Référence</th>
+              <th className="px-3 py-2 text-left">Service</th>
               <th className="px-3 py-2 text-left">Responsable</th>
-              <th className="px-3 py-2 text-left">Date d’évaluation</th>
-              <th className="px-3 py-2 text-left">Date d’embauche</th>
               <th className="px-3 py-2 text-left">Statut</th>
+              <th className="px-3 py-2 text-left">Créé le</th>
             </tr>
           </thead>
 
@@ -226,27 +227,25 @@ export default function Purchase() {
               data.map((item, index) => (
                  <tr
                     key={index}
+                    onClick={()=> handleShow(navigate, `/purchase/${item.id}`, 1200, 800)}
                     className="border-t border-gray-300 hover:bg-gray-50 whitespace-normal"
                   >
-                    <td className="px-3 py-2 whitespace-nowrap">
-                      {item?.resume?.full_name}
-                    </td>
                     <td className="px-3 py-2 whitespace-nowrap">{item?.code}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {item?.responsible?.full_name || "__"}
+                      {item?.reference}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {item?.evaluation_date
-                        ? formatDate(item.evaluation_date)
-                        : "__"}
+                      {item?.service?.name}
                     </td>
+
                     <td className="px-3 py-2 whitespace-nowrap">
-                      {item?.hire_date
-                        ? formatDate(item.hire_date)
-                        : "__"}
+                      {item?.user?.full_name}
                     </td>
                     <td className="px-3 py-2 whitespace-nowrap">
                       {getStatusLabel(item?.status)}
+                    </td>
+                    <td className="px-3 py-2 whitespace-nowrap">
+                      {formatDate(item.created_at)}
                     </td>
                   </tr>
               ))
