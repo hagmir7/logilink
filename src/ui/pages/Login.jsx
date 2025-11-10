@@ -98,7 +98,8 @@ const Login = () => {
         </AutoComplete>
       </Form.Item>
 
-          <Form.Item
+          <div className='mt-4'>
+            <Form.Item
             name="password"
             label="Mot de passe"
             rules={[{ required: true, message: 'Veuillez entrer votre mot de passe' }]}
@@ -110,8 +111,10 @@ const Login = () => {
               className="rounded-lg"
             />
           </Form.Item>
+          </div>
 
-          <Form.Item className="mt-6">
+          <div className='mt-4'>
+            <Form.Item className="mt-6">
             <Button
               type="primary"
               htmlType="submit"
@@ -123,20 +126,24 @@ const Login = () => {
               {loading ? 'Connexion...' : 'Se connecter'}
             </Button>
           </Form.Item>
+          </div>
         </Form>
 
         <Modal
           title="Type de connexion"
           open={isModalOpen}
           onCancel={handleCancel}
+          classNames='mt-3'
           footer={false}
         >
           <Connection />
         </Modal>
 
-        <Button onClick={showModal}>
+        <div className='mt-6'>
+          <Button onClick={showModal}>
           <Link color="green" size={16} />
         </Button>
+        </div>
       </div>
     </div>
   );

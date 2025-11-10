@@ -143,7 +143,6 @@ function ViewReception() {
       fetchData(controller)
       setTransferSpin(false);
       message.success("Document transféré avec succès");
-      console.log(response);
 
     } catch (error) {
       setTransferSpin(false);
@@ -160,8 +159,6 @@ function ViewReception() {
       const controller = new AbortController()
       fetchData(controller)
     } catch (error) {
-      console.log(error);
-      
       message.error(error?.response?.data?.message)
       console.error(error);
     }

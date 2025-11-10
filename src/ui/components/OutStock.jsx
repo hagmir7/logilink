@@ -33,9 +33,6 @@ export default function OutStock() {
   const conditionInput = useRef()
   const emplacemenInput = useRef()
 
-    const location = useLocation();
-  console.log(location.pathname);
-
   useEffect(() => {
     if (!articleCode) {
       setArticleData(null)
@@ -210,8 +207,6 @@ export default function OutStock() {
 
 
       const {data} = await api.post(`stock/out`, payload)
-      console.log(data);
-      
       setQuantity('')
       setArticleCode('')
       setArticleData(null)

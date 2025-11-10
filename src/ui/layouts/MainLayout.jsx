@@ -40,8 +40,6 @@ const sideMenu = () => {
   const getPurchaseCount = async ()=> {
     try {
       const response = await api.get("status-count/2");
-      console.log(response);
-      
       setPurchaseStatus(response.data)
     } catch (error) {
       
@@ -165,8 +163,7 @@ const sideMenu = () => {
             <Link to="/purchase" className="flex-1">
               Achat
             </Link>
-            {purchaseStatus && <Badge count={purchaseStatus} className="ml-2" />}
-            
+            {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
           </div>
         ),
       },

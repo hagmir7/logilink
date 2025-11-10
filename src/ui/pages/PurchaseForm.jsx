@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { api } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import AchatProductSearch from '../components/AchatProductSearch';
+import TransferPurchaseDocument from '../components/TransferPurchaseDocument';
 
 
 const { Option } = Select;
@@ -628,12 +629,17 @@ export default function PurchaseForm() {
         </div>
 
         {/* Submit Button */}
-        <div className='mt-4 fixed right-0 bottom-0 py-3 z-40 bg-white w-full flex justify-end px-5 shadow-2xl border-t border-gray-200'>
+        <div className='mt-4 fixed right-0 bottom-0 py-3 z-40 bg-white w-full flex justify-end px-5 shadow-2xl border-t border-gray-200 gap-3'>
           <Form.Item>
             <Button type="primary" htmlType="submit" size="middle" disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}>
               {initialData ? 'Mettre à jour' : 'Enregistrer'}
             </Button>
           </Form.Item>
+
+            {
+              id && roles('admin') ? <TransferPurchaseDocument document={initialData} /> : ''
+            }
+          
         </div>
       </Form>
 

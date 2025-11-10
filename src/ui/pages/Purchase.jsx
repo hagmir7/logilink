@@ -15,6 +15,7 @@ import { api } from "../utils/api";
 import Skeleton from "../components/ui/Skeleton";
 import { formatDate, handleShow } from "../utils/config";
 import { useNavigate } from "react-router-dom";
+import TableSkeleton from "../components/ui/TableSkeleton";
 
 
 export default function Purchase() {
@@ -222,13 +223,14 @@ export default function Purchase() {
 
           <tbody>
             {loading ? (
-              <Skeleton rows={3} columns={6} />
+              <TableSkeleton rows={3} columns={6} />
+              
             ) : data.length > 0 ? (
               data.map((item, index) => (
                  <tr
                     key={index}
                     onClick={()=> handleShow(navigate, `/purchase/${item.id}`, 1200, 800)}
-                    className="border-t border-gray-300 hover:bg-gray-50 whitespace-normal"
+                    className="border-t border-gray-300 hover:bg-gray-50 whitespace-normal cursor-context-menu"
                   >
                     <td className="px-3 py-2 whitespace-nowrap">{item?.code}</td>
                     <td className="px-3 py-2 whitespace-nowrap">
