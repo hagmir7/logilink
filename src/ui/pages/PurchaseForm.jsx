@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Modal, Upload, message,Tag } from 'antd';
+import { Form, Input, Button, Select, Modal, Upload, message,Tag, Empty } from 'antd';
 import { PlusOutlined, MinusCircleOutlined, PaperClipOutlined, UploadOutlined } from '@ant-design/icons';
 import 'antd/dist/reset.css';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -7,6 +7,7 @@ import { api } from '../utils/api';
 import { useAuth } from '../contexts/AuthContext';
 import AchatProductSearch from '../components/AchatProductSearch';
 import TransferPurchaseDocument from '../components/TransferPurchaseDocument';
+import FormListSkeleton from '../components/ui/FormListSkeleton';
 
 
 const { Option } = Select;
@@ -17,7 +18,7 @@ export default function PurchaseForm() {
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState(null);
   const [lineFiles, setLineFiles] = useState({});
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [initialData, setInitialData] = useState(null);
   const [services, setServices] = useState([]);
   const [users, setUsers] = useState([]);
@@ -27,27 +28,33 @@ export default function PurchaseForm() {
   const navigate = useNavigate();
   const { roles } = useAuth();
   const [searchModal, setSearchModal] = useState({});
+  const [units, setUnits] = useState()
 
   // Fetch all data on mount
   useEffect(() => {
+    if(!id){
+      setLoading(false);
+    }
     fetchAllData();
+
   }, [id]);
 
   const fetchAllData = async () => {
     try {
-      setLoading(true);
-
+    
       // Fetch services and users (always needed)
-      const [servicesRes, usersRes] = await Promise.all([
+      const [servicesRes, usersRes, unitsRes] = await Promise.all([
         api.get('services'),
-        api.get('users')
+        api.get('users'),
+        api.get('units')
       ]);
 
       setServices(servicesRes.data || []);
       setUsers(usersRes.data || []);
+      setUnits(unitsRes.data || [])
 
-      // If id exists, fetch the document for editing
       if (id) {
+        setLoading(true);
         const documentRes = await api.get(`purchase-documents/${id}`);
         const docData = documentRes.data;
         setcurrentuser(docData.user)
@@ -75,7 +82,7 @@ export default function PurchaseForm() {
     // Prepare form values
     const formValues = {
       reference: docData.reference,
-      status: String(docData.status), 
+      status: docData.status ? String(docData.status) : 1, 
       service_id: docData.service_id,
       user_id: docData.user_id,
       note: docData.note,
@@ -95,7 +102,7 @@ export default function PurchaseForm() {
       form.setFieldsValue({
         user_id: docData.user_id || currentUser?.id,
         reference: docData.reference,
-        status: String(docData.status),
+        status: docData.status ? String(docData.status) : 1,
         service_id: docData.service_id,
         note: docData.note,
         lines: docData.lines?.map(line => ({
@@ -343,7 +350,7 @@ export default function PurchaseForm() {
         form={form}
         layout="vertical"
         onFinish={onFinish}
-        initialValues={{ urgent: false, status: '0' }}
+        initialValues={{ urgent: false, status: '1' }}
       >
         {/* Document Info */}
         <div className="shadow-sm p-5 rounded-lg bg-white border border-gray-100">
@@ -369,8 +376,13 @@ export default function PurchaseForm() {
               rules={[{ required: true, message: 'Statut requis' }]}
               className="mb-0"
             >
-              <Select placeholder="Sélectionner le statut" className="w-full" disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}>
-                
+              <Select
+                placeholder="Sélectionner le statut"
+                defaultActiveFirstOption={false}
+                value={initialData?.status ?? undefined}
+                className="w-full"
+                disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}
+              >
                 {statusOptions.map((option) => (
                   <Select.Option key={option.value} value={option.value}>
                     <span className="flex items-center gap-2">
@@ -380,6 +392,7 @@ export default function PurchaseForm() {
                   </Select.Option>
                 ))}
               </Select>
+
             </Form.Item>
 
             {/* Service */}
@@ -466,14 +479,14 @@ export default function PurchaseForm() {
             {(fields, { add, remove }) => (
               <div className="space-y-1">
                 {/* Header */}
-                <div className="flex items-center justify-between ">
+                {/* <div className="flex items-center justify-between ">
                   <h3 className="text-md mb-4 font-bold">Lignes de documents</h3>
                   {fields.length > 0 && (
                     <span className="text-sm text-gray-500 font-medium">
                       {fields.length} ligne{fields.length > 1 ? 's' : ''}
                     </span>
                   )}
-                </div>
+                </div> */}
 
                 {/* Purchase Lines */}
                 {fields.length > 0 ? (
@@ -481,7 +494,7 @@ export default function PurchaseForm() {
                     {fields.map((field, index) => (
                       <div
                         key={field.key}
-                        className="relative grid grid-cols-1 md:grid-cols-5 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
+                        className="relative grid grid-cols-1 md:grid-cols-6 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
                       >
                         {/* Line Number Badge */}
                         {/* <div className="absolute -top-2 -left-2 w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
@@ -515,7 +528,7 @@ export default function PurchaseForm() {
                           {...field}
                           name={[field.name, 'description']}
                           rules={[{ required: true, message: 'Requis' }]}
-                          className="mb-0"
+                          className="mb-0 col-span-2"
                         >
                           <Input
                             placeholder="Description de l'article"
@@ -525,20 +538,42 @@ export default function PurchaseForm() {
                         </Form.Item>
 
                         {/* Quantity */}
-                        <Form.Item
-                          {...field}
-                          name={[field.name, 'quantity']}
-                          rules={[{ required: true, message: 'Requis' }]}
-                          className="mb-0"
-                        >
-                          <Input
-                            type="number"
-                            placeholder="Qté"
-                            min="0"
-                            step="0.01"
-                            className="w-full"
-                          />
-                        </Form.Item>
+                        <div className="flex gap-2 items-start">
+
+                          <Form.Item
+                            {...field}
+                            name={[field.name, 'quantity']}
+                            rules={[{ required: true, message: 'Requis' }]}
+                            className="mb-0"
+                          >
+                            <Input
+                              type="number"
+                              placeholder="Qté"
+                              min="0"
+                              step="0.01"
+                              className="w-full"
+                            />
+
+                          </Form.Item>
+
+                          <Form.Item
+                            {...field}
+                            name={[field.name, 'unit']}
+                            className="mb-0"
+                          >
+                            <Select
+                              showSearch
+                              style={{ width: 90 }}
+                              placeholder="Unité"
+                              className="w-full"
+                              options={units.map(u => ({ label: u.U_Intitule, value: u.U_Intitule }))}
+                              optionFilterProp="label"
+                              filterOption={(input, option) =>
+                                (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                              }
+                            />
+                          </Form.Item>
+                        </div>
 
 
                         <Form.Item
@@ -558,19 +593,9 @@ export default function PurchaseForm() {
 
                         {/* Unit Action Buttons Container */}
 
-                        <div className="flex gap-2 items-start">
+                        <div className="flex gap-2 items-center justify-between">
 
-                          {/* Unit */}
-                          <Form.Item
-                            {...field}
-                            name={[field.name, 'unit']}
-                            className="mb-0"
-                          >
-                            <Input
-                              placeholder="Unité (kg, pcs...)"
-                              className="w-full"
-                            />
-                          </Form.Item>
+                         
                           {/* Upload Files Button */}
                           <Button
                             type="default"
@@ -602,10 +627,15 @@ export default function PurchaseForm() {
                       </div>
                     ))}
                   </div>
-                ) : (
-                  <div className="text-center py-8 text-gray-400">
-                    <p className="text-sm">Aucune ligne d'achat. Cliquez ci-dessous pour ajouter.</p>
+                ) : ( loading ? <FormListSkeleton rows={5} /> :
+                  <div className="flex flex-col items-center justify-center w-full h-full py-8 text-gray-400 text-center">
+                    <Empty
+                      image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
+                      // styles={{ height: 100 }}
+                      description="Aucune ligne d'achat. Cliquez ci-dessous pour ajouter."
+                    />
                   </div>
+
                 )}
 
                 {/* Add Button */}

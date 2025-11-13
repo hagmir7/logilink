@@ -27,7 +27,7 @@ const TransferPurchaseDocument = ({ document }) => {
         try {
             const response = await api.post('purchase-documents/transfer', {
                 ...values,
-                document_id: document?.id  // Add document ID
+                document_id: document?.id 
             });
             message.success('Document transféré avec succès!');
             setIsModalOpen(false);  // Close modal on success
