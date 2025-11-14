@@ -10,6 +10,8 @@ import SkeletonTable from '../components/ui/SkeletonTable';
 import EmptyTable from '../components/ui/EmptyTable';
 import { useAuth } from '../contexts/AuthContext';
 import PrintDocument from '../components/PrintDocument';
+import BackButton from '../components/ui/BackButton';
+import PreparationArticleCard from '../components/PreparationArticleCard';
 
 
 function PreparationList() {
@@ -47,15 +49,15 @@ function PreparationList() {
         doclignes: prev.doclignes.map((it) =>
           it.line.id === lineId
             ? {
-                ...it,
-                line: {
-                  ...it.line,
-                  status: {
-                    ...it.line.status,
-                    name: 'Préparé',
-                  },
+              ...it,
+              line: {
+                ...it.line,
+                status: {
+                  ...it.line.status,
+                  name: 'Préparé',
                 },
-              }
+              },
+            }
             : it
         ),
       }))
@@ -77,29 +79,30 @@ function PreparationList() {
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
-        <div className='flex items-center space-x-2'>
-          <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
+        <div className='flex items-center space-x-2 gap-3'>
+          {/* <BackButton /> */}
+          <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center p-0 m-0'>
             <span className='text-2xl'>
               {data.docentete.DO_Piece ? data.docentete.DO_Piece : 'Chargement...'}
             </span>
 
             {data?.docentete?.document && (
-              <Tag color={getStatus(statusId)?.color} style={{height: 25, fontSize: 15}}>
+              <Tag color={getStatus(statusId)?.color} style={{ height: 25, fontSize: 15 }}>
                 {getStatus(statusId)?.name}
               </Tag>
             )}
           </h1>
         </div>
         <div className='flex gap-4'>
-          <Button onClick={fetchData} style={{height: 60, fontSize: 25}} size='large'>
-          {loading ? (
-            <Loader2 className='animate-spin text-blue-500' size={25} />
-          ) : (
-            <RefreshCcw size={25} />
-          )}
-          <span className='hidden sm:inline'>Rafraîchir</span>
-        </Button>
-         <PrintDocument
+          <Button onClick={fetchData} style={{ height: 60, fontSize: 25 }} size='large'>
+            {loading ? (
+              <Loader2 className='animate-spin text-blue-500' size={25} />
+            ) : (
+              <RefreshCcw size={25} />
+            )}
+            <span className='hidden sm:inline'>Rafraîchir</span>
+          </Button>
+          <PrintDocument
             doclignes={data.doclignes}
             docentete={data.docentete}
             largeSize={true}
@@ -109,12 +112,12 @@ function PreparationList() {
 
       {/* Document Info */}
 
-      <div className='grid grid-cols-1 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl p-6 mb-8'>
+      <div className='grid grid-cols-2 md:grid-cols-2 gap-6 bg-white border border-gray-300 rounded-2xl p-6 mb-8'>
         <div className='flex flex-col space-y-1'>
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Client
           </span>
-          <span className='text-base font-semibold text-gray-800'>
+          <span className='text-xl font-semibold text-gray-800'>
             {data.docentete.DO_Tiers || <Skeleton />}
           </span>
         </div>
@@ -123,7 +126,7 @@ function PreparationList() {
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Référence
           </span>
-          <span className='text-base font-semibold text-gray-800'>
+          <span className='text-xl font-semibold text-gray-800'>
             {data.docentete.DO_Ref || <Skeleton />}
           </span>
         </div>
@@ -132,7 +135,7 @@ function PreparationList() {
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Expédition
           </span>
-          <span className='text-base font-semibold text-gray-800'>
+          <span className='text-xl font-semibold text-gray-800'>
             {getExped(data.docentete.DO_Expedit) || <Skeleton />}
           </span>
         </div>
@@ -141,7 +144,7 @@ function PreparationList() {
           <span className='text-sm text-gray-800 uppercase tracking-wide'>
             Type de document
           </span>
-          <span className='text-base font-semibold text-gray-800'>
+          <span className='text-xl font-semibold text-gray-800'>
             {(data.docentete.DO_Piece &&
               getDocumentType(data.docentete.DO_Piece)) || <Skeleton />}
           </span>
@@ -160,7 +163,7 @@ function PreparationList() {
             variant='solid'
             href={`#/preparation/${id}`}
             className='btn'
-            style={{height: 60, fontSize: 25}}
+            style={{ height: 60, fontSize: 25 }}
           >
             Preparation <ArrowRight size={25} />{' '}
           </Button>
@@ -188,9 +191,8 @@ function PreparationList() {
               currentItems.map((item, index) => (
                 <Tr
                   key={index}
-                  className={`${
-                    item.line.next_role_id == '4' ? 'opacity-40 disabled' : ''
-                  }`}
+                  className={`${item.line.next_role_id == '4' ? 'opacity-40 disabled' : ''
+                    }`}
                 >
                   <Td>
                     <Tag color={item.line.status.color}>
@@ -271,9 +273,9 @@ function PreparationList() {
 
                   <Td>
                     <Tag
-                      color={ item.DL_QteBL == Math.floor(item.DL_Qte)
-                          ? 'green-inverse'
-                          : 'red-inverse'
+                      color={item.DL_QteBL == Math.floor(item.DL_Qte)
+                        ? 'green-inverse'
+                        : 'red-inverse'
                       }
                     >
                       {Number(item.DL_QteBL || 0)}
@@ -292,25 +294,21 @@ function PreparationList() {
         className={`block md:hidden ${isElectron ? 'text-xl space-y-6' : ''}`}
       >
         {loading ? (
-          // Mobile loading skeleton
           <div className={`space-y-4 ${isElectron ? 'space-y-6' : ''}`}>
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className={`bg-white border-2 border-gray-200 rounded-md p-4 space-y-3 animate-pulse ${
-                  isElectron ? 'p-6 rounded-xl' : ''
-                }`}
+                className={`bg-white border-2 border-gray-200 rounded-md p-4 space-y-3 animate-pulse ${isElectron ? 'p-6 rounded-xl' : ''
+                  }`}
               >
                 <div className='flex justify-between'>
                   <div
-                    className={`bg-gray-200 rounded ${
-                      isElectron ? 'h-8 w-3/4' : 'h-5 w-2/3'
-                    }`}
+                    className={`bg-gray-200 rounded ${isElectron ? 'h-8 w-3/4' : 'h-5 w-2/3'
+                      }`}
                   ></div>
                   <div
-                    className={`bg-gray-200 rounded ${
-                      isElectron ? 'h-10 w-24' : 'h-6 w-16'
-                    }`}
+                    className={`bg-gray-200 rounded ${isElectron ? 'h-10 w-24' : 'h-6 w-16'
+                      }`}
                   ></div>
                 </div>
                 <div className='h-px bg-gray-200'></div>
@@ -318,9 +316,8 @@ function PreparationList() {
                   {[1, 2, 3, 4].map((x) => (
                     <div
                       key={x}
-                      className={`bg-gray-200 rounded ${
-                        isElectron ? 'h-6' : 'h-4'
-                      }`}
+                      className={`bg-gray-200 rounded ${isElectron ? 'h-6' : 'h-4'
+                        }`}
                     ></div>
                   ))}
                 </div>
@@ -329,167 +326,18 @@ function PreparationList() {
           </div>
         ) : data.doclignes?.length > 0 ? (
           currentItems.map((item, index) => (
-            <div
-              key={index}
-              className={`bg-white border border-gray-200 rounded-lg shadow-sm mb-4 ${
-                isElectron ? 'p-4 rounded-2xl' : 'p-4'
-              } ${item.line.next_role_id == '4' ? 'opacity-40 disabled' : ''}`}
-            >
-              <div className='flex justify-between items-center mb-4'>
-                <span
-                  className={`font-black text-gray-800 ${
-                    isElectron ? 'text-2xl' : 'text-lg'
-                  }`}
-                >
-                  {[item?.Nom, item.article?.Nom, item?.DL_Design].find(v => v && v !== "NULL") || "__"}
-                  {item?.article?.Description || null}
-                </span>
-                <Button
-                  // style={{display:'none'}}
-                  key={item.line.id}
-                  onClick={() => prepare(item.line.id)}
-                  style={
-                    isElectron
-                      ? {
-                          fontSize: '28px',
-                          height: '60px',
-                          padding: '0 24px',
-                          display: 'none',
-                        }
-                      : {}
-                  }
-                  color={item.line.status.color}
-                  disabled={loadingId === item.line.id}
-                >
-                  {loadingId === item.line.id ? (
-                    <>
-                      <Spin size='small' style={{ marginRight: 8 }} />{' '}
-                      Preparing...
-                    </>
-                  ) : (
-                    item.line?.status?.name
-                  )}
-                </Button>
-              </div>
-
-              <div className='flex justify-between items-center mb-4'>
-                <span
-                  className={`${
-                    isElectron ? 'text-lg' : 'text-sm'
-                  } text-gray-500`}
-                >
-                  Référence:{' '}
-                  <span className='font-medium text-gray-700'>
-                    {item.AR_Ref || '__'}
-                  </span>
-                </span>
-
-                <div className='flex gap-3'>
-                   <Tag
-                      color={ item.DL_QteBL == Math.floor(item.DL_Qte)
-                          ? 'green-inverse'
-                          : 'red-inverse'
-                      }
-                      style={
-                      isElectron
-                        ? { fontSize: '18px', padding: '6px 14px' }
-                        : {}
-                    }
-                    >
-                      {Number(item.DL_QteBL || 0)}
-                    </Tag>
-
-                  <Tag
-                    color={item.line.status.color}
-                    style={
-                      isElectron
-                        ? { fontSize: '18px', padding: '6px 14px' }
-                        : {}
-                    }
-                  >
-                    {item.line?.status?.name}
-                  </Tag>
-
-                  <Tag
-                    color='green-inverse'
-                    style={
-                      isElectron
-                        ? { fontSize: '18px', padding: '6px 14px' }
-                        : {}
-                    }
-                  >
-                    {Math.floor(item.DL_Qte || 0)}
-                  </Tag>
-                </div>
-              </div>
-
-              <div className='h-px bg-gray-200 my-4'></div>
-              <div
-                className={`grid grid-cols-2 ${
-                  isElectron ? 'gap-y-5 text-lg' : 'gap-y-3 text-sm'
-                }`}
-              >
-                <div>
-                  <span className='text-gray-500'>H: </span>
-                  <span className='font-bold text-gray-800'>
-                    {item.Hauteur > 0
-                      ? Math.floor(item.Hauteur)
-                      : Math.floor(item?.article?.Hauteur) || '__'}
-                  </span>
-                </div>
-                <div>
-                  <span className='text-gray-500'>L: </span>
-                  <span className='font-bold text-gray-800'>
-                    {item.Largeur > 0
-                      ? Math.floor(item.Largeur)
-                      : Math.floor(item?.article?.Largeur) || '__'}
-                  </span>
-                </div>
-                <div>
-                  <span className='text-gray-500'>P: </span>
-                  <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Profondeur : item.Profondeur
-                    ) || '__'}
-                  </span>
-                </div>
-                <div>
-                  <span className='text-gray-500'>Epaisseur: </span>
-                  <span className='font-bold text-gray-800'>
-                    {Math.floor(
-                      item.article ? item.article.Episseur : item.Episseur
-                    ) || '__'}
-                  </span>
-                </div>
-              </div>
-
-              <div className='h-px bg-gray-200 my-4'></div>
-              <div
-                className={`grid grid-cols-2 ${
-                  isElectron ? 'gap-y-5 text-lg' : 'gap-y-3 text-sm'
-                }`}
-              >
-                <div>
-                  <span className='text-gray-500'>Couleur: </span>
-                  <span className='font-bold text-gray-800'>
-                    {(item.article ? item.article.Couleur : item.Couleur) ||
-                      '__'}
-                  </span>
-                </div>
-                <div>
-                  <span className='text-gray-500'>Chant: </span>
-                  <span className='font-bold text-gray-800'>
-                    {(item.article ? item.article.Chant : item.Chant) || '__'}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <PreparationArticleCard
+              item={item}
+              index={index}
+              isElectron={isElectron}
+              loadingId={loadingId}
+              onPrepare={prepare}
+            />
           ))
         ) : (
           <div
-            className={`bg-white border-2 border-gray-200 rounded-md text-center ${
-              isElectron ? 'p-16 text-xl' : 'p-8'
-            }`}
+            className={`bg-white border-2 border-gray-200 rounded-md text-center ${isElectron ? 'p-16 text-xl' : 'p-8'
+              }`}
           >
             <Empty description='Aucun article trouvé' />
           </div>

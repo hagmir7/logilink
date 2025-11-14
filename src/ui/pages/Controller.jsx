@@ -455,19 +455,14 @@ function Controller() {
                <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
                 QTE Prp
               </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
-                QTE tran
-              </th>
-              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
-                Qte a Transfer
-              </th>
+  
             </Tr>
           </Thead>
           <tbody className='bg-white'>
             {loading ? (
               [...Array(4)].map((_, rowIndex) => (
                 <tr key={rowIndex}>
-                  {[...Array(13)].map((_, colIndex) => (
+                  {[...Array(11)].map((_, colIndex) => (
                     <td className='px-6 py-4' key={colIndex}>
                       <div className='h-4 bg-gray-200 rounded w-3/4 animate-pulse'></div>
                     </td>
@@ -558,9 +553,9 @@ function Controller() {
                     </td>
 
                     <td className='px-4 py-2'>
-                      <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                        {item?.line?.quantity_prepare ? Math.floor(item.DL_Qte) - item?.line?.quantity_prepare : Math.floor(item.DL_Qte)}
-                       {/* {Math.floor(item.DL_Qte)} */}
+                      <span className='inline-flex justify-center px-2 py-1 w-full gap-1 items-center rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
+                        <span>{Math.floor(item.EU_Qte || 0)} {" "}</span>
+                        <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
                       </span>
                     </td>
 
@@ -583,33 +578,6 @@ function Controller() {
                             : Math.floor(item.DL_QteBL)}
                         </span>
                       </td>
-
-                    <td className='px-4 py-2'>
-                      {/* {JSON.stringify(item.line.role_quantity.reduce())} */}
-                      <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                        {Math.floor(
-                          item.line.role_quantity
-                            ? item.line.role_quantity.reduce(
-                                (sum, role) => sum + Number(role.pivot?.quantity ?? 0),
-                                0
-                              )
-                            : 0
-                        )}
-
-                      </span>
-                    </td>
-
-                    <td className='px-4 py-2'>
-                      <InputNumber
-                        min={0.1}
-                        max={Math.floor(item.DL_Qte)}
-                        value={getSelectedQuantity(lineId)}
-                        onChange={(value) =>
-                          handleQuantityChange(lineId, value)
-                        }
-                        disabled={!isItemSelected(lineId)}
-                      />
-                    </td>
                   </tr>
                 )
               })

@@ -9,7 +9,7 @@ const { Option } = Select;
 const TransferPurchaseDocument = ({ document }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [company, setCompany] = useState(false);
-    const [suppliers, SetSuppliers] = useState([]);
+    const [suppliers, setSuppliers] = useState([]);
 
     const [form] = Form.useForm();
 
@@ -22,7 +22,7 @@ const TransferPurchaseDocument = ({ document }) => {
         setIsModalOpen(false);
     };
 
-    const onFinish = async (values) => {  // Add values parameter
+    const onFinish = async (values) => { 
         const hide = message.loading('Enregistrement en cours...', 0);
         try {
             const response = await api.post('purchase-documents/transfer', {
@@ -30,8 +30,8 @@ const TransferPurchaseDocument = ({ document }) => {
                 document_id: document?.id 
             });
             message.success('Document transféré avec succès!');
-            setIsModalOpen(false);  // Close modal on success
-            form.resetFields();  // Reset form
+            setIsModalOpen(false);
+            form.resetFields();
         } catch (error) {
             console.error('Submit error:', error);
             
@@ -41,7 +41,7 @@ const TransferPurchaseDocument = ({ document }) => {
                 message.error(error.response?.data?.message || 'Erreur lors de l\'enregistrement');
             }
         } finally {
-            hide();  // Always hide loading message
+            hide();
         }
     }
 
@@ -51,7 +51,7 @@ const TransferPurchaseDocument = ({ document }) => {
             if (company) params.append('company_db', company);
 
             const response = await api.get(`client/suppliers?${params.toString()}`);
-            SetSuppliers(
+            setSuppliers(
                 response.data.map(item => ({
                     label: item.CT_Num + " " + item.CT_Intitule,
                     value: item.CT_Num
@@ -66,6 +66,17 @@ const TransferPurchaseDocument = ({ document }) => {
     useEffect(() => {
         getCompts();
     }, [company]); 
+
+
+    const changeCompany = (value) => {
+        setCompany(value);
+
+        setSuppliers([]);
+
+        form.setFieldsValue({
+            supplier: null
+        });
+    };
 
 
     return (
@@ -95,13 +106,14 @@ const TransferPurchaseDocument = ({ document }) => {
                         ]}
                     >
                         <Select
-                            onChange={(value) => setCompany(value)}
+                            onChange={changeCompany}
                             placeholder="Sélectionnez la société"
                             className="w-full"
                         >
                             <Select.Option value="sqlsrv_inter">Intercocina</Select.Option>
-                            <Select.Option value="sqlsrv_serie">AstiDkora</Select.Option>
-                            <Select.Option value="sqlsrv_asti">Seriemoble</Select.Option>
+                            <Select.Option value="sqlsrv_asti">AstiDkora</Select.Option>
+                            <Select.Option value="sqlsrv_serie">Seriemoble</Select.Option>
+                            <Select.Option value="sqlsrv">Stile Mobili</Select.Option>
                         </Select>
                     </Form.Item>
 
@@ -147,7 +159,7 @@ const TransferPurchaseDocument = ({ document }) => {
                             filterOption={(input, option) =>
                                 option.label.toLowerCase().includes(input.toLowerCase())
                             }
-                            options={suppliers} // assuming suppliers is the state from SetSuppliers
+                            options={suppliers} // assuming suppliers is the state from setSuppliers
                         />
                     </Form.Item>
 

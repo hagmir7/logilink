@@ -114,11 +114,11 @@ function Document() {
     <div className='min-h-screen'>
       {/* Title */}
       <h2 className='text-lg font-semibold text-gray-800 mb-1 p-2 md:p-4'>
-        Gestion de la préparation
+        
       </h2>
 
       {/* Header */}
-      <div className='flex flex-wrap justify-between items-center gap-4 mb-4 px-2 md:px-4'>
+      <div className='flex flex-wrap justify-between items-center gap-4 mb-2 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
           <div className='hidden md:block'>
             <Search

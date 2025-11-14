@@ -462,7 +462,7 @@ function Commercial() {
 
                             <td className='px-4 py-2'>
                               <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                                {Math.floor(item.DL_Qte)}
+                                {Math.floor(item.EU_Qte)}
                               </span>
                             </td>
 

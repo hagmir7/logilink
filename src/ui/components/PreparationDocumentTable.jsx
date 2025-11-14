@@ -1,4 +1,4 @@
-import { Edit, Settings } from 'lucide-react'
+import { Edit, Printer, Settings } from 'lucide-react'
 import { Button, Tag } from 'antd'
 import Spinner from './ui/Spinner'
 
@@ -148,6 +148,8 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-2 items-center'>
                     <span>{formatDate(new Date(data?.docentete?.DO_DateLivr))}</span>
+                    {/* {data.has_user_printer} */}
+                    <span>{Number(data.has_user_printer) > 0 && <Printer />}</span>
                     <span className="text-md">
                      {parseInt(
                           data?.companies?.find(
@@ -213,17 +215,17 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
             {/* Details */}
             <div className='space-y-2 text-sm'>
               <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium text-base'>Référence:</span>
+                <span className='text-gray-500 font-medium text-xl'>Référence:</span>
                 <span className='font-semibold text-lg text-gray-900'>{data.ref}</span>
               </div>
               <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium text-base'>Date du document:</span>
+                <span className='text-gray-500 font-medium text-xl'>Date du document:</span>
                 <span className='font-semibold text-lg text-gray-900'>
                   {formatDate(new Date(data?.docentete?.DO_Date))}
                 </span>
               </div>
               <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium text-base'>Date prévue:</span>
+                <span className='text-gray-500 font-medium text-xl'>Date prévue:</span>
                 <span className='font-semibold text-gray-900 text-lg'>
                   {formatDate(new Date(data?.docentete?.DO_DateLivr))}
                 </span>

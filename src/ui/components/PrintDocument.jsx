@@ -135,6 +135,8 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
               vertical-align: top;
             }
 
+  
+
             th {
               background-color: #ccc; /* or use gray, #bbb, etc. */
               font-weight: bold;
@@ -329,11 +331,14 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
                         <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
                         <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
                         
-                        <td>{Math.floor(item.DL_Qte || 0)}</td>
+                        <td>
+                          <span>{Math.floor(item.EU_Qte || 0)} {" "}</span>
+                          <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
+                        </td>
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
                         {/* <td>{item.Poignee} {" "} {item?.Rotation}</td> */}
-                        <td>{item.Description}</td>
+                        <td>{item.Poignee} {item.Description }</td>
                         
                         <td>{item.Episseur > 0
                           ? Math.floor(item.Episseur)

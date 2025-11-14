@@ -38,7 +38,7 @@
     "html5-qrcode": "^2.3.8",
     "lodash": "^4.17.21",
     "lucide-react": "^0.503.0",
-    "quagga": "^0.12.1",
+    "quagga": "^0.6.16",
     "react": "^18.0.0",
     "react-barcode": "^1.6.1",
     "react-dom": "^18.0.0",
