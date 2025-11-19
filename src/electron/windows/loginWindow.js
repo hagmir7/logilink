@@ -11,7 +11,7 @@ export default function createLoginWindow() {
         width: 600,
         height: 600,
         frame: true,
-        icon: path.join(__dirname, '..', 'inter.ico'),
+        icon: path.join(__dirname, '..', 'inter.png'),
         // resizable: false,
         webPreferences: {
             preload: getPreloadPath(),

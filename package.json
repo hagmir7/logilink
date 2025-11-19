@@ -1,12 +1,15 @@
 {
   "name": "LOGILINK",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.6.1",
   "description": "Logilink App",
   "title": "LOGILINK PRO",
   "author": "Intercocina",
   "type": "module",
-  "repository": "https://github.com/hagmir7/logilink",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hagmir7/logilink.git"
+  },
   "homepage": "https://intercocina.com",
   "main": "src/electron/main.js",
   "scripts": {
@@ -21,7 +24,8 @@
     "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64",
     "start": "electron-forge start",
     "package": "electron-forge package",
-    "make": "electron-forge make"
+    "make": "electron-forge make",
+    "publish": "npm run build && electron-builder --win --x64 --publish always"
   },
   "dependencies": {
     "@ericblade/quagga2": "^1.8.4",
@@ -68,6 +72,20 @@
     "npm-run-all": "^4.1.5",
     "tailwindcss": "^4.1.11",
     "vite": "^6.2.0"
+  },
+  "build": {
+    "appId": "com.intercocina.logilink",
+    "productName": "LOGILINK",
+    "publish": {
+      "provider": "github",
+      "repo": "logilink",
+      "owner": "hagmir7"
+    },
+    "win": {
+      "target": "nsis",
+      "executableName": "LOGILINK",
+      "icon": "build/inter.png"
+    }
   },
   "config": {
     "forge": {

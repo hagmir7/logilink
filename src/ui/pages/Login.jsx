@@ -24,6 +24,18 @@ const Login = () => {
     setUsernames(saved);
   }, []);
 
+  const [appVersion, setAppVersion] = useState('');
+
+  useEffect(() => {
+    const fetchVersion = async () => {
+      if (window.electron?.version) {
+        const version = await window.electron.version();
+        setAppVersion(version);
+      }
+    };
+    fetchVersion();
+  }, []);
+
   // Initialize form default values
   useEffect(() => {
     form.setFieldsValue({
@@ -144,6 +156,7 @@ const Login = () => {
           <Link color="green" size={16} />
         </Button>
         </div>
+         <div className='text-center mt-5 text-gray-700'>v{appVersion}</div>
       </div>
     </div>
   );

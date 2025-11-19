@@ -3,6 +3,7 @@ import { Dropdown, Space, Avatar } from 'antd';
 import { ArrowRightCircle, Settings, User2 } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router'
+import { useEffect, useState } from 'react';
 
 const UserAvatar = () => (
   <Space direction='vertical'>
@@ -24,6 +25,19 @@ const DropMenu = () => {
         }
     }
 
+
+    const [appVersion, setAppVersion] = useState('');
+
+    useEffect(() => {
+        const fetchVersion = async () => {
+            if (window.electron?.version) {
+                const version = await window.electron.version();
+                setAppVersion(version);
+            }
+        };
+        fetchVersion();
+    }, []);
+
     const items = [
         {
             key: '1',
@@ -36,12 +50,11 @@ const DropMenu = () => {
         //     icon: <User2 />,
         //     extra: '⌘P',
         // },
-        // {
-        //     key: '3',
-        //     label: 'Paramètres',
-        //     icon: <Settings />,
-        //     extra: '⌘B',
-        // },
+        {
+            key: '3',
+            label: `V${appVersion}`,
+             disabled: true,
+        },
         {
             key: '4',
             label: 'Déconnexion',

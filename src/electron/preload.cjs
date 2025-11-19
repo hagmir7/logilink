@@ -10,6 +10,7 @@ contextBridge.exposeInMainWorld("electron", {
   getPrinters: () => ipcRenderer.invoke('get-printers'),
   printTickets: (printerName, tickets) => ipcRenderer.invoke('print-tickets', { printerName, tickets }),
   printPaletteTickets: (printerName, tickets) => ipcRenderer.invoke('print-palette-tickets', { printerName, tickets }),
+  version: () => ipcRenderer.invoke('get-app-version'),
 
   ipcRenderer: {
     send: (channel, data) => {

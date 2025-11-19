@@ -1,16 +1,24 @@
-import { app, BrowserWindow, ipcMain } from "electron";
-import path from "path";
+import { app, BrowserWindow, dialog, ipcMain } from "electron";
+import path, { join } from "path";
 import { getPreloadPath, isDev } from "./util.js";
 import createLoginWindow from "./windows/loginWindow.js";
 import { createShowWindow } from "./windows/showWindow.js";
 import pkg from 'electron-updater';
-const { autoUpdater } = pkg;
 
 import { fileURLToPath } from 'url';
+import bwipjs from 'bwip-js';
 
+
+
+
+
+const { autoUpdater } = pkg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
-import bwipjs from 'bwip-js';
+
+const interIcon = join(__dirname, '../build/inter.png')
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
 
 async function generateBarcodeBase64(data) {
     return new Promise((resolve, reject) => {
@@ -45,21 +53,12 @@ const createMainWindow = () => {
         width: 1300,
         // transparent: true,
         height: 800,
-        icon: path.join(__dirname, 'inter.ico'),
+        icon: path.join(__dirname, 'inter.png'),
         webPreferences: {
             preload: getPreloadPath(),
             nodeIntegration: true,
         },
     });
-
-   
-
-    // mainWindow.on('close', (event) => {
-    //     if (!app.isQuiting) {
-    //         event.preventDefault();
-    //         mainWindow.hide();
-    //     }
-    // });
 
 
     if (isDev()) {
@@ -68,6 +67,13 @@ const createMainWindow = () => {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
         mainWindow.setMenu(null)
     }
+
+    if(process.platform === 'win32'){
+        mainWindow.setIcon(interIcon)
+    }
+  
+
+    autoUpdater.checkForUpdatesAndNotify();
 
     return mainWindow;
 };
@@ -129,10 +135,6 @@ ipcMain.handle('user', async (event, data) => {
 
 app.on('ready', () => {
     loginWindow = createLoginWindow();
-
-    if (!isDev()) {
-        autoUpdater.checkForUpdatesAndNotify();
-    }
 });
 
 app.on('window-all-closed', () => {
@@ -146,19 +148,48 @@ app.on('activate', () => {
         loginWindow = createLoginWindow();
     }
 });
+// Update
+autoUpdater.on("update-available", (info) => {
+  dialog.showMessageBox({
+    type: "info",
+    title: "Mise à jour disponible",
+    message: `Une nouvelle mise à jour est disponible.\nVersion actuelle : ${app.getVersion()}`,
+    detail: `La version ${info.version} est en cours de téléchargement...`
+  });
 
-autoUpdater.on('update-available', () => {
-    mainWindow.webContents.send('update_available');
+  autoUpdater.downloadUpdate();
 });
 
-autoUpdater.on('update-downloaded', () => {
-    mainWindow.webContents.send('update_downloaded');
+autoUpdater.on("update-not-available", (info) => {
+  dialog.showMessageBox({
+    type: "info",
+    title: "Aucune mise à jour",
+    message: `Aucune mise à jour disponible.\nVersion actuelle : ${app.getVersion()}`
+  });
 });
 
-ipcMain.on('restart_app', () => {
-    autoUpdater.quitAndInstall();
+autoUpdater.on("update-downloaded", (info) => {
+  dialog.showMessageBox({
+    type: "info",
+    buttons: ["Redémarrer maintenant", "Plus tard"],
+    defaultId: 0,
+    cancelId: 1,
+    title: "Mise à jour prête",
+    message: `Mise à jour téléchargée`,
+    detail: `La version ${info.version} a été téléchargée.\nRedémarrez maintenant pour l'appliquer.`
+  }).then(result => {
+    if (result.response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
 });
 
+
+autoUpdater.on("error", (error) => {
+  dialog.showErrorBox("Update Error", error == null ? "unknown" : (error.stack || error.toString()));
+});
+
+//  End update
 ipcMain.on('openShow', async (event, preload) => {
     try {
         if (!showWindow || showWindow.isDestroyed()) {
@@ -210,12 +241,12 @@ ipcMain.on("print-content", (event, htmlContent) => {
 
   printWindow.webContents.on("did-finish-load", () => {
     const printOptions = {
-      silent: true,                   // ✅ Always print silently to the default printer
-      printBackground: true,          // Include CSS backgrounds
-      deviceName: '',                 // Leave empty for default printer
+      silent: true,                  
+      printBackground: true,
+      deviceName: '',
       color: true,
       margins: {
-        marginType: 'none',           // No margins
+        marginType: 'none',
         top: 0,
         bottom: 0,
         left: 0,
@@ -445,4 +476,9 @@ ipcMain.handle('download-file', async (event, url) => {
   if (win) {
     win.webContents.downloadURL(url);
   }
+});
+
+
+ipcMain.handle('get-app-version', () => {
+  return app.getVersion();
 });
