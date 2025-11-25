@@ -18,8 +18,11 @@ const DropMenu = () => {
     const handelLogout = async () => {
         localStorage.removeItem('authToken')
         localStorage.removeItem('user')
+
         if (window.electron) {
             await window.electron.logout();
+            console.log("Working");
+            
         } else {
             navigate('/login')
         }

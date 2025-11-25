@@ -9,9 +9,6 @@ import { fileURLToPath } from 'url';
 import bwipjs from 'bwip-js';
 
 
-
-
-
 const { autoUpdater } = pkg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -48,10 +45,10 @@ let mainWindow;
 let loginWindow;
 
 const createMainWindow = () => {
-    const mainWindow = new BrowserWindow({
+
+    mainWindow = new BrowserWindow({  
         title: "LOGILINK - INTERCOCINA",
         width: 1300,
-        // transparent: true,
         height: 800,
         icon: path.join(__dirname, 'inter.png'),
         webPreferences: {
@@ -94,6 +91,8 @@ ipcMain.handle('login', async (event, data) => {
         return null;
     }
 });
+
+
 
 ipcMain.handle('logout', async () => {
     try {

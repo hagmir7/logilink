@@ -1,10 +1,11 @@
 import { useEffect, useState } from 'react'
-import { Search, Plus, Edit, Loader2 } from 'lucide-react'
+import { Search, Plus, Edit, Loader2, Trash } from 'lucide-react'
 import CModal from '../components/ui/CModal'
 import { Link, useNavigate } from 'react-router-dom'
 import { api } from '../utils/api'
 import RegisterForm from '../components/RegisterForm'
 import { useAuth } from '../contexts/AuthContext'
+import { Button, message, Popconfirm } from 'antd'
 
 export default function Users() {
   const [users, setUsers] = useState([])
@@ -44,7 +45,7 @@ export default function Users() {
   }, [search, users])
 
   const handleShow = async (id) => {
-    if(!roles('admin')){
+    if (!roles('admin')) {
       return;
     }
     try {
@@ -61,6 +62,16 @@ export default function Users() {
       }
     } catch (error) {
       console.error('Error navigating :', error)
+    }
+  }
+
+  const deleteUser = async(user_id) => {
+    try {
+      const response = await api.delete(`user/${user_id}/destroy`)
+      message.success('Utilisateur supprimé avec succès');
+      getUsers()
+    } catch (error) {
+      message.error(error.response.data.message  || "Erreur de supprimer l'utilisateur")
     }
   }
 
@@ -126,8 +137,8 @@ export default function Users() {
           {filteredUsers.map((user) => (
             <tr
               key={user.id}
-              onClick={() => handleShow(user.id)}
-              className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600 cursor-pointer'
+
+              className='bg-white border-b dark:bg-gray-800 dark:border-gray-700 border-gray-200 hover:bg-gray-50 dark:hover:bg-gray-600'
             >
               <th
                 scope='row'
@@ -141,13 +152,34 @@ export default function Users() {
               <td className='px-6 py-4'>
                 {new Date(user.created_at).toLocaleDateString()}
               </td>
-              <td className='px-6 py-4'>
-                {permissions('edit:users') ? (
-                  <Link
-                    className='font-medium text-blue-600 dark:text-blue-500 hover:underline'
+              <td className='px-6 py-4 flex gap-4'>
+                {roles('admin') ? (
+                  <button
+                    onClick={() => handleShow(user.id)}
+                    className='font-medium text-blue-600 dark:text-blue-500 hover:underline cursor-pointer'
                   >
                     <Edit size={19} />
-                  </Link>
+                  </button>
+                ) : (
+                  ''
+                )}
+
+                {roles('admin') ? (
+                  <Popconfirm
+                    title="Supprimer l'utilisateur"
+                    description='Êtes-vous sûr de supprimer cet utilisateur ?'
+                    onConfirm={() => deleteUser(user.id)}
+                    okText='Supprimer'
+                    cancelText='Annuler'
+                  >
+                    <button
+                      danger
+                      className='font-medium text-red-600 dark:text-red-500 hover:underline cursor-pointer'
+                    >
+                      <Trash size={19} className='text-red-600' />
+                    </button>
+                  </Popconfirm>
+
                 ) : (
                   '__'
                 )}
