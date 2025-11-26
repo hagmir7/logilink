@@ -8,7 +8,7 @@ import { useAuth } from '../contexts/AuthContext'
 const Tools = () => {
     const [open, setOpen] = useState(false);
     const navigate = useNavigate();
-    const { roles } = useAuth()
+    const { roles = [] } = useAuth()
 
 
     const handleShow = async (path) => {

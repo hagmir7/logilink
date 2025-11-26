@@ -23,7 +23,7 @@ function Reception() {
   const [dateFilter, setDateFilter] = useState(null);
 
   const navigate = useNavigate();
-  const { roles } = useAuth();
+  const { roles = [] } = useAuth();
 
   // Build URL with filters
   const buildUrl = (pageNumber = 1, search = searchTerm) => {

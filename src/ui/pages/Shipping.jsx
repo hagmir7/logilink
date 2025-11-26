@@ -20,7 +20,7 @@ function Shipping() {
   const navigate = useNavigate()
   const [dateFilter, setDateFilter] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const { roles } = useAuth()
+  const { roles = [] } = useAuth()
 
   const fetchData = async () => {
     setLoading(true)

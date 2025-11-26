@@ -23,7 +23,7 @@ function Commercial() {
   const [selected, setSelected] = useState([])
   const [selectedCompany, setSelectedCompany] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
-  const { roles } = useAuth()
+  const { roles = [] } = useAuth()
 
   const fetchData = async () => {
     setLoading(true)

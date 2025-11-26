@@ -29,7 +29,7 @@ export default function InventoryList() {
   const [open, setOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [loading, setLoading] = useState(true)
-  const { roles } = useAuth();
+  const { roles = [] } = useAuth();
   const [inventory, setInventory] = useState({
     name: '',
     date: null,

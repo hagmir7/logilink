@@ -8,7 +8,7 @@ import PreparationList from './PreparationList'
 import Fabrication from './Fabrication'
 
 export default function ViewDocument() {
-  const { roles } = useAuth()
+  const { roles = [] } = useAuth()
   
   if (roles('commercial')) {
     return <Commercial />

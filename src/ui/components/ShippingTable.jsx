@@ -14,7 +14,7 @@ const formatDate = (date) => {
 
 function ShippingTable({ documents = [], onSelectOrder, loading }) {
 
-  const { roles, user } = useAuth();
+  const { roles = [], user } = useAuth();
   const [users, setUsers] = useState([]);
   const navigate = useNavigate()
 

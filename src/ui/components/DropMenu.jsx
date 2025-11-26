@@ -6,9 +6,9 @@ import { useNavigate } from 'react-router'
 import { useEffect, useState } from 'react';
 
 const UserAvatar = () => (
-  <Space direction='vertical'>
-    <Avatar icon={<UserOutlined />} size={40} />
-  </Space>
+    <Space direction='vertical'>
+        <Avatar icon={<UserOutlined />} size={40} />
+    </Space>
 )
 
 const DropMenu = () => {
@@ -22,7 +22,7 @@ const DropMenu = () => {
         if (window.electron) {
             await window.electron.logout();
             console.log("Working");
-            
+
         } else {
             navigate('/login')
         }
@@ -56,7 +56,8 @@ const DropMenu = () => {
         {
             key: '3',
             label: `V${appVersion}`,
-             disabled: true,
+            disabled: true,
+            hidden: !window.electron
         },
         {
             key: '4',

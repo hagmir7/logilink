@@ -26,7 +26,7 @@ export default function PurchaseForm() {
   const [currentService, setCurrentService] = useState();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { roles } = useAuth();
+  const { roles = [] } = useAuth();
   const [searchModal, setSearchModal] = useState({});
   const [units, setUnits] = useState()
 

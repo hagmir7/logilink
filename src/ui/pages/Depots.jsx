@@ -13,7 +13,7 @@ export default function Depots() {
 
   const [depots, setDepots] = useState([]);
   const [loading, setLoading] = useState(true);
-  const { roles } = useAuth();
+  const { roles = [] } = useAuth();
 
   useEffect(() => {
     fetchDepots()

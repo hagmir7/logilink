@@ -278,7 +278,7 @@ export default function InventoryMovement() {
           <div className='flex items-center gap-3'>
             <BackButton className='w-8 h-8' />
             <div className='w-px h-6 bg-gray-300' />
-            <h1 className='text-sm md:text-xl font-bold text-gray-900 truncate'>
+            <h1 className={`${window.electron ? "text-2xl" : 'text-md'} mt-3 my-2text-sm md:text-xl font-bold text-gray-900 truncate mb-0`}>
               Mouvement des stocks
             </h1>
           </div>

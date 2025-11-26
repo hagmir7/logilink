@@ -9,10 +9,13 @@ import DocumentTable from '../components/DocumentTable';
 import dayjs from 'dayjs';
 import PreparationDocumentTable from '../components/PreparationDocumentTable';
 
+
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 function Document() {
+
+
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
   const [documenType, setDocumentType] = useState(2);
@@ -24,7 +27,7 @@ function Document() {
   const [dateFilter, setDateFilter] = useState(null);
 
   const navigate = useNavigate();
-  const { roles } = useAuth();
+  const { roles = [] } = useAuth();
 
   // Build the API URL dynamically
   const buildUrl = (pageNumber = 1, search = searchTerm) => {

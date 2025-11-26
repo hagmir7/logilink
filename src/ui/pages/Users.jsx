@@ -12,7 +12,7 @@ export default function Users() {
   const [filteredUsers, setFilteredUsers] = useState([])
   const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState(true)
-  const { roles, permissions } = useAuth()
+  const { roles = [], permissions } = useAuth()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -49,7 +49,7 @@ export default function Users() {
       return;
     }
     try {
-      const url = `profile/${id}`
+      const url = `/profile/${id}`
       if (window.electron && typeof window.electron.openShow === 'function') {
         await window.electron.openShow({
           width: 1100,

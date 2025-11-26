@@ -35,7 +35,7 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [alert, setAlert] = useState(null);
   const { id } = useParams();
-  const { roles, permissions } = useAuth();
+  const { roles = [], permissions } = useAuth();
   const [companies, setCompanies] = useState([]);
 
 

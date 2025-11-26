@@ -60,7 +60,7 @@ export default function FindArticleEmplacement() {
 
   return (
     <div className="px-5">
-      <h2 className="text-lg font-semibold text-gray-700 my-2">Réf Article</h2>
+      <h2 className={`${window.electron ? "text-2xl" : 'text-md'} mt-3 font-semibold text-gray-700 my-2`}>Réf Article</h2>
 
       <div className="flex gap-2">
         <Input

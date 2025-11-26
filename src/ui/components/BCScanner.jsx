@@ -105,10 +105,10 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
       {/* Trigger Button */}
       <button
         onClick={handleStartScan}
-        className={`flex items-center justify-center gap-2 w-full max-w-md mx-auto px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-medium ` + btnClass}
+        className={`flex items-center justify-center gap-2 w-full max-w-md mx-auto px-4 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium text-white` + btnClass}
         type="button"
       >
-        <Scan className="w-5 h-5" />
+        <Scan className="w-5 h-5 text-white" />
       </button>
 
       {/* Modal Overlay */}
@@ -154,7 +154,7 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
                       </div>
                     ) : (
                       <div className="text-center text-gray-500">
-                        <Scan className="w-12 h-12 mx-auto mb-2" />
+                        <Scan className="w-12 h-12 mx-auto mb-2 text-white" />
                         <p>Initialisation de la caméra...</p>
                       </div>
                     )}
@@ -168,7 +168,7 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
                   onClick={stopScanner}
                   className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium"
                 >
-                  Annuler
+                  <span className='text-white'>Annuler</span>
                 </button>
                 {error && (
                   <button
@@ -176,7 +176,7 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
                     className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium"
                     disabled={isScanning}
                   >
-                    Réessayer
+                    <span className='text-white'>Réessayer</span>
                   </button>
                 )}
               </div>

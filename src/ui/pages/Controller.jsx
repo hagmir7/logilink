@@ -41,7 +41,7 @@ function Controller() {
   const [selectedRoles, setSelectedRoles] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
   const [documentCompany, setDocumentCompany] = useState({})
-  const { roles, user } = useAuth()
+  const { roles = [], user } = useAuth()
   const [open, setOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [status, setStatus] = useState({})

@@ -365,17 +365,17 @@ function InventoryMovements() {
             </Button>
           </div>
         </div>
-        <div className='flex lg:hidden w-full'>
+        <div className='flex lg:hidden w-full gap-2'>
           <Input
             placeholder='Emplacement, Article ref'
             value={emplacementSearch}
             size='large'
             allowClear={true}
             styles={{
-              input: {
+              input: window.electron ? {
                 fontSize: '25px',
                 height: '50px',
-              },
+              } : {},
             }}
             autoFocus={true}
             onChange={(e) =>
@@ -510,10 +510,10 @@ function InventoryMovements() {
                      </Link>
                   </p>
                 </div>
-                <div className='flex space-x-2'>
+                <div className='flex space-x-2 gap-2'>
                   <Button
                     type='primary'
-                    size='large'
+                    size={window.electron ? 'middle' : 'large'}
                     onClick={() => handleEditQuantity(movement)}
                   >
                     <Edit size={20} />
@@ -533,7 +533,7 @@ function InventoryMovements() {
                     <Button
                       color='danger'
                       variant='solid'
-                      size='large'
+                      size={window.electron ? 'middle' : 'large'}
                       className='bg-red-500 hover:bg-red-600 text-white'
                       onClick={() => setOpenConfirmId(movement.id)}
                     >

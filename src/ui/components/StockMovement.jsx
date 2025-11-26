@@ -292,7 +292,7 @@ export default function StockMovement() {
             <div className="w-px h-6 bg-gray-300" />
 
             <h1
-              className={`text-2xl font-bold truncate flex gap-3 items-center ${location.pathname.includes('return')
+              className={`${window.electron ? "text-2xl" : 'text-md'} font-bold truncate flex gap-3 items-center ${location.pathname.includes('return')
                   ? 'text-yellow-600'
                   : location.pathname === '/stock/in'
                     ? 'text-green-700'

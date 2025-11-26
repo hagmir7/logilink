@@ -23,7 +23,7 @@ function Validation() {
   const [searchSpinner, setSearchSpinner] = useState(false)
   const [currentSearch, setCurrentSearch] = useState('') // Track current search
   const navigate = useNavigate()
-  const { roles } = useAuth()
+  const { roles = [] } = useAuth()
 
   // Define the base URL
   const baseUrl = 'documents/validation-controller'

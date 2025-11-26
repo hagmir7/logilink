@@ -325,7 +325,7 @@ export default function TransferStock() {
                         </div>
                         <div className="w-px h-6 bg-gray-300" />
 
-                        <h1 className={`text-2xl font-bold truncate flex gap-3 items-center text-gray-600`}>
+                        <h1 className={`${window.electron ? "text-2xl" : 'text-md'} mb-0 font-bold truncate flex gap-3 items-center text-gray-600`}>
 
                             <>
                                 <span>Mouvement de transfer</span>

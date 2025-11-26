@@ -21,7 +21,7 @@ function PreparationArchive() {
     const [dateFilter, setDateFilter] = useState(null);
 
     const navigate = useNavigate();
-    const { roles } = useAuth();
+    const { roles = [] } = useAuth();
 
     const buildUrl = (pageNumber = 1, search = searchTerm) => {
         const queryParams = new URLSearchParams();

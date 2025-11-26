@@ -74,31 +74,35 @@ export default function TransferOrder() {
                     <div className='flex items-center gap-3'>
                         <BackButton className='w-8 h-8' />
                         <div className='w-px h-6 bg-gray-300' />
-                        <h1 className={`text-sm md:text-xl font-bold text-gray-900 truncate ${window.electron ? 'text-xl' : 'text-md'}`}>
+                        <h1 className={`${window.electron ? "text-2xl" : 'text-md'} font-bold text-gray-900 mb-0 pb-0 truncate ${window.electron ? 'text-xl' : 'text-md'}`}>
                             Transfert palette de commande
                         </h1>
                     </div>
                 </div>
             </div>
             {/* Entrée de référence palette */}
-            <div className="flex flex-col gap-2 px-5">
-                <label className={`text-gray-600 font-medium block mb-2 ${window.electron ? 'text-xl' : 'text-md'}`}>Référence Palette</label>
-                <Input
-                    placeholder="Saisir la référence palette"
-                    size="large"
-                    ref={paletteInput}
-                    value={paletteCode}
-                    autoFocus={true}
-                    onChange={(e) => changePalette(e.target.value)}
-                    allowClear
-                    className="rounded-lg"
-                    style={window.electron ? { fontSize: '30px', height: '60px' } : {}}
-                />
-                <InputField
+            <div className="flex gap-2 px-5 items-end">
+                <div className='w-full'>
+                    <label className={`text-gray-600 font-medium block mb-2 ${window.electron ? 'text-xl' : 'text-md'}`}>Référence Palette</label>
+                    <Input
+                        placeholder="Saisir la référence palette"
+                        size="large"
+                        ref={paletteInput}
+                        value={paletteCode}
+                        autoFocus={true}
+                        onChange={(e) => changePalette(e.target.value)}
+                        allowClear
+                        className="rounded-lg"
+                        style={window.electron ? { fontSize: '30px', height: '60px' } : {}}
+                    />
+                </div>
+       
+                 <InputField
                     value={paletteCode}
                     onChange={(e) => changePalette(e.target.value)}
                     onScan={(value) => changePalette(value)}
                 />
+     
             </div>
 
             {/* Sélection société */}

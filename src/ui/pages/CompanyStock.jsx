@@ -16,7 +16,7 @@ function CompanyStock({ company_id }) {
   const [pageSize, setPageSize] = useState(10)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('panneaux')
-  const { roles } = useAuth()
+  const { roles = [] } = useAuth()
 
   const [articles, setArticles] = useState({
     data: [],

@@ -23,7 +23,7 @@ const CreateEmplacement = () => {
   const [loading, setLoading] = useState(false)
   const [depots, setDepots] = useState([])
   const [loadingDepots, setLoadingDepots] = useState(false)
-  const { roles } = useAuth();
+  const { roles = [] } = useAuth();
 
   const getDepots = async () => {
     setLoadingDepots(true)

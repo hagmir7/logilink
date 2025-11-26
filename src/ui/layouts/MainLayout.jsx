@@ -32,7 +32,7 @@ import { api } from '../utils/api'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
-  const { roles, permissions } = useAuth();
+  const { roles = [], permissions } = useAuth();
   const [purchaseStatus, setPurchaseStatus] = useState(0);
 
   const getPurchaseCount = async ()=> {
@@ -63,48 +63,48 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          disabled: !roles('controleur') && !roles('commercial') && !roles('expedition'),
+          disabled: !roles(['controleur', 'commercial', 'expedition', 'admin']),
           icon: <CircleCheck size={19} />,
           label: <Link to='/validation'>Validation</Link>,
         },
         {
           key: 'submenu-21',
           icon: <AudioWaveform size={19} />,
-          disabled: !roles('commercial') && !roles('expedition'),
+          disabled: !roles(['commercial', 'expedition', 'admin']),
           label: <Link to='/progress'>Progrès</Link>,
         },
         {
           key: 'submenu-15',
           icon: <Truck size={19} />,
-          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
           label: <Link to='/shipping'>Expédition</Link>,
         },
         {
           key: 'submenu-16',
           icon: <ArrowRightLeft size={19} />,
-          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
           label: <Link to='/transfer-orders/list'>Transfert</Link>,
         },
         {
           key: 'submenu-17',
           icon: <Archive size={19} />,
-          disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
           label: <Link to='/preparation/archive'>Archives</Link>,
         },
 
-         {
-          key: 'submenu-19',
-          icon: <FileInput size={19} />,
-          // disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
-          label: <Link to='/user-archive'>Mes documents</Link>,
-        },
+        //  {
+        //   key: 'submenu-19',
+        //   icon: <FileInput size={19} />,
+        //   // disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
+        //   label: <Link to='/user-archive'>Mes documents</Link>,
+        // },
 
         
         //  {
         //   key: 'submenu-20',
         //   className: 'hidden',
         //   icon: <File size={19} />,
-        //   // disabled: !roles('controleur') && !roles('commercial') && !roles('chargement') && !roles('expedition'),
+        //   // disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
         //   label: <Link to='/sage'>Documents</Link>,
         // },
       ],
@@ -124,7 +124,6 @@ const sideMenu = () => {
 
           key: 'submenu-2',
           icon: <ClipboardCheck size={19} />,
-          // disabled: !roles('logistique') && !roles('admin'),
           label: <Link to='/inventories'>Inventaire</Link>,
         },
         {
@@ -149,13 +148,14 @@ const sideMenu = () => {
     {
       key: 'menu-6',
       icon: <FileDown size={20} />,
-      disabled: !roles('logistique') && !roles('admin'),
+      disabled:  !roles(['logistique', 'admin']),
       label: <Link to='/reception'>Reception</Link>,
 
     },
     {
         key: 'menu-7',
         icon: <BaggageClaim size={20} />,
+        disabled: !roles(['admin', 'chef_service']),
         label: (
           <div className="flex items-center justify-between w-full">
             <Link to="/purchase" className="flex-1">
@@ -281,7 +281,7 @@ const MainLayout = () => {
               <img
                 src='https://intercocina.com/public/logo.png'
                 alt='Intercocina logo'
-                className='max-h-full w-60'
+                className='w-40 md:w-60'
               />
             </Link>
           </div>

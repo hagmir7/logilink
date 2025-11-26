@@ -5,6 +5,11 @@
   user-select: none!important;
 } */
 
+
+h1{
+  margin-bottom: 0!important;
+}
+
 .frame{
   -webkit-app-region: drag;
 }
@@ -58,11 +63,11 @@
 }
 
 /* For dropdown options */
-.custom-select-dropdown .ant-select-item {
+/* .custom-select-dropdown .ant-select-item {
   font-size: 30px !important;
   padding: 12px 11px !important;
   min-height: 50px !important;
-}
+} */
 
 .anticon-close-circle svg {
   font-size: 25px!important;

@@ -23,7 +23,7 @@ function InventoryArticles() {
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const { roles } = useAuth()
+  const { roles = [] } = useAuth()
   const { id } = useParams();
 
   const [articles, setArticles] = useState({

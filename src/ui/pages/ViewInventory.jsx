@@ -11,7 +11,7 @@ import { useAuth } from '../contexts/AuthContext';
 const ViewInventory = () => {
     const [activeKey, setActiveKey] = useState('1');
     const { id } = useParams();
-    const { roles } = useAuth();
+    const { roles = [] } = useAuth();
 
     const items = [
         {
