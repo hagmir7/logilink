@@ -137,7 +137,7 @@ const ViewArticle = () => {
 
             rules={[
               { required: true, message: 'Le prix est obligatoire' },
-              { min: 0, message: 'Le prix doit être positif' }
+              // { min: 0, message: 'Le prix doit être positif' }
             ]}
           >
             <InputNumber
@@ -317,7 +317,7 @@ const ViewArticle = () => {
           style={{ marginBottom: 32 }}
         />
 
-        <div className='mt-8 flex justify-end space-x-3 px-4 pb-4'>
+        <div className='mt-8 gap-4 flex justify-end space-x-3 px-4 pb-4'>
           <Button
             onClick={() => form.resetFields()}
           >

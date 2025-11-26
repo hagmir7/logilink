@@ -1,21 +1,25 @@
 import { Button, message, Tag, Popconfirm } from 'antd'
-import { Edit, PlusCircle, Trash } from 'lucide-react'
+import { Edit, PlusCircle, RotateCcw, RotateCw, SpaceIcon, Trash } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
 import Spinner from '../components/ui/Spinner'
 import CreateEmplacement from '../components/CreateEmplacement'
+import { useAuth } from '../contexts/AuthContext'
 
 export default function ViewDepot() {
   const { id } = useParams()
   const [depot, setDepot] = useState({ emplacements: [] })
   const [loading, setLoading] = useState(true)
+  const {roles} = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const { data } = await api.get(`depots/${id}`)
       setDepot(data)
+      console.log(data);
+      
     } catch (error) {
       message.error(error?.response?.data?.message || 'Erreur lors du chargement')
       console.error(error)
@@ -46,7 +50,8 @@ export default function ViewDepot() {
         </h2>
         <div className='flex gap-2'>
           <CreateEmplacement onCreated={fetchData} />
-          <Button onClick={fetchData} loading={loading} className='items-center flex'>
+          <Button onClick={fetchData} icon={<RotateCw size={18} />} loading={loading} className='items-center flex'>
+            {/* <SpaceIcon /> */}
             Rafraîchir
           </Button>
         </div>
@@ -66,9 +71,12 @@ export default function ViewDepot() {
               <th className='px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
                 Entreprise
               </th>
-              <th className='px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
-                Action
-              </th>
+              {
+                roles('admin') && <th className='px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+                  Action
+                </th>
+              }
+              
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-200'>
@@ -86,18 +94,21 @@ export default function ViewDepot() {
                 <td className='px-6 py-2 whitespace-nowrap'>
                   {depot?.depot?.company?.name || '—'}
                 </td>
-                <td className='px-6 py-2 whitespace-nowrap flex gap-3'>
-                  <Popconfirm
-                    title='Supprimer cet emplacement ?'
-                    onConfirm={() => handleDelete(item.code)}
-                    okText='Oui'
-                    cancelText='Non'
-                  >
-                    <Button icon={<Trash size={15} />} danger />
-                  </Popconfirm>
+                {
+                  roles('admin') && (<td className='px-6 py-2 whitespace-nowrap flex gap-3'>
+                    <Popconfirm
+                      title='Supprimer cet emplacement ?'
+                      onConfirm={() => handleDelete(item.code)}
+                      okText='Oui'
+                      cancelText='Non'
+                    >
+                      <Button icon={<Trash size={15} />} danger />
+                    </Popconfirm>
 
-                  <Button icon={<Edit size={15} />} />
-                </td>
+                    <Button icon={<Edit size={15} />} />
+                  </td>)
+                }
+                
               </tr>
             ))}
           </tbody>

@@ -30,6 +30,7 @@ import Spinner from '../components/ui/Spinner'
 import { categories, locale, uppercaseFirst } from '../utils/config'
 import { Link, useParams } from 'react-router-dom'
 import InputField from '../components/ui/InputField'
+import { useAuth } from '../contexts/AuthContext'
 const { RangePicker } = DatePicker
 
 const options = [
@@ -92,7 +93,8 @@ function StockMovements({ company_id }) {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [emplacementSearch, setEmplacementSearch] = useState('')
   const [controlleBtnLoading, setControlleBtnLoading] = useState(false);
-  const [page, setPage] = useState(30)
+  const [page, setPage] = useState(30);
+  const {roles} = useAuth();
 
   const [movments, setMovments] = useState({
     data: [],
@@ -342,16 +344,19 @@ function StockMovements({ company_id }) {
             />
           </div>
 
-          <div className='hidden lg:block w-full'>
-            <Button
-              onClick={exportMovements}
-              size='middle'
-              style={{ width: '100%' }}
-            >
-              <Upload size={17} />
-              <span className='hidden sm:inline'>Export</span>
-            </Button>
-          </div>
+          {
+            roles('admin') && <div className='hidden lg:block w-full'>
+              <Button
+                onClick={exportMovements}
+                size='middle'
+                style={{ width: '100%' }}
+              >
+                <Upload size={17} />
+                <span className='hidden sm:inline'>Export</span>
+              </Button>
+            </div>
+          }
+       
 
           <div className='hidden lg:block w-full'>
             <Button onClick={fetchData} size='middle' style={{ width: '100%' }}>

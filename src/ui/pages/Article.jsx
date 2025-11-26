@@ -52,6 +52,11 @@ function Article() {
   }, [searchQuery])
 
   const handleShow = async (id) => {
+    if(!roles(['admin'])){
+      return;
+    }
+
+
     try {
       const url = `/articles/${id}`
       if (window.electron && typeof window.electron.openShow === 'function') {
@@ -70,7 +75,7 @@ function Article() {
   
 
   return (
-    <div className='w-full'>
+    <div className='w-full pt-3'>
       {/* Header */}
       <div className='flex flex-wrap justify-between items-center gap-4 mb-4 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
