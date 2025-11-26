@@ -3,7 +3,6 @@
   "private": true,
   "type": "module",
   "main": "src/electron/main.js",
-
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "dev:react": "vite",
@@ -13,46 +12,37 @@
     "build:electron": "electron-vite build",
     "make": "electron-builder"
   },
-
   "dependencies": {},
   "devDependencies": {},
-
   "build": {
     "appId": "com.intercocina.logilink",
     "productName": "LOGILINK",
     "copyright": "Copyright Intercocina",
-
     "directories": {
       "buildResources": "build",
       "output": "dist"
     },
-
     "files": [
       "!**/.vscode/*",
       "!electron.vite.config.{js,ts,mjs,cjs}",
       "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}",
       "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
     ],
-
     "asarUnpack": [
       "resources/**"
     ],
-
     "win": {
       "target": "nsis",
-       "icon": "build/inter.png",
+      "icon": "build/inter.png",
       "executableName": "LOGILINK"
     },
-
     "nsis": {
       "artifactName": "${name}-${version}-setup.${ext}",
       "shortcutName": "${productName}",
       "uninstallDisplayName": "${productName}",
       "createDesktopShortcut": "always"
     },
-
     "npmRebuild": false,
-
     "publish": [
       {
         "provider": "github",
@@ -60,7 +50,6 @@
         "owner": "hagmir7"
       }
     ],
-
     "electronDownload": {
       "mirror": "https://npmmirror.com/mirrors/electron/"
     }

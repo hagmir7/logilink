@@ -12,17 +12,15 @@ export default function createLoginWindow() {
         height: 600,
         frame: true,
         icon: path.join(__dirname, '..', 'inter.png'),
-        // resizable: false,
+        resizable: false,
         webPreferences: {
             preload: getPreloadPath(),
         }
     });
-
-    //  loginWindow.setMenu(null);
-
     if (isDev()) {
         loginWindow.loadURL('http://localhost:5123/#login');
     } else {
+        loginWindow.setMenu(null);
         loginWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'), {
             hash: '/login'
         });
@@ -31,9 +29,6 @@ export default function createLoginWindow() {
     loginWindow.on('maximize', () => {
         loginWindow.unmaximize();
     });
-
-
-
 
     return loginWindow;
 }

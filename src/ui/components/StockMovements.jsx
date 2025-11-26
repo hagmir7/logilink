@@ -4,8 +4,6 @@ import {
   ArrowRight,
   ArrowUp,
   ArrowUpDown,
-  CheckCircle,
-  Download,
   Edit,
   IterationCw,
   Loader2,

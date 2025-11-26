@@ -26,7 +26,6 @@ export default function MobileBottomNav() {
   const handleCancel = () => setIsModalOpen(false);
   const { roles } = useAuth();
 
-  // Sync activeTab with current location
   useEffect(() => {
     setActiveTab(location.pathname);
   }, [location.pathname]);

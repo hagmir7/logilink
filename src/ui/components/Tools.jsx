@@ -31,7 +31,8 @@ const Tools = () => {
 
 
     return (
-        <Flex vertical gap="middle" align="flex-start">
+        <div className='hidden lg:block'>
+            <Flex vertical gap="middle" align="flex-start" >
 
         {
             roles('admin') || roles('supper_admin') ?
@@ -109,6 +110,7 @@ const Tools = () => {
                 </Card>
             </Modal>
         </Flex>
+        </div>
     );
 };
 export default Tools;

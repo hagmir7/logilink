@@ -1,17 +1,17 @@
-import { Button, message, Tag, Popconfirm } from 'antd'
-import { Edit, PlusCircle, RotateCcw, RotateCw, SpaceIcon, Trash } from 'lucide-react'
-import React, { useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
-import { api } from '../utils/api'
-import Spinner from '../components/ui/Spinner'
-import CreateEmplacement from '../components/CreateEmplacement'
-import { useAuth } from '../contexts/AuthContext'
+import { Button, message, Tag, Popconfirm } from 'antd';
+import { Edit, RotateCw, Trash } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
+import { api } from '../utils/api';
+import Spinner from '../components/ui/Spinner';
+import CreateEmplacement from '../components/CreateEmplacement';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function ViewDepot() {
   const { id } = useParams()
   const [depot, setDepot] = useState({ emplacements: [] })
   const [loading, setLoading] = useState(true)
-  const {roles} = useAuth();
+  const { roles } = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
@@ -19,7 +19,7 @@ export default function ViewDepot() {
       const { data } = await api.get(`depots/${id}`)
       setDepot(data)
       console.log(data);
-      
+
     } catch (error) {
       message.error(error?.response?.data?.message || 'Erreur lors du chargement')
       console.error(error)
@@ -76,7 +76,7 @@ export default function ViewDepot() {
                   Action
                 </th>
               }
-              
+
             </tr>
           </thead>
           <tbody className='bg-white divide-y divide-gray-200'>
@@ -108,7 +108,7 @@ export default function ViewDepot() {
                     <Button icon={<Edit size={15} />} />
                   </td>)
                 }
-                
+
               </tr>
             ))}
           </tbody>
