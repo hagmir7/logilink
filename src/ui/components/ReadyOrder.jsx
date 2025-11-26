@@ -1,10 +1,10 @@
-import { Edit, Settings } from 'lucide-react'
+import { Settings } from 'lucide-react'
 import { Button, Tag } from 'antd'
 import Spinner from './ui/Spinner'
 
 import { getExped, getStatus } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext'
-import { data, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')

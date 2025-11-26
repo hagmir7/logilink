@@ -1,7 +1,6 @@
 import { Settings } from 'lucide-react'
-import { Badge, Skeleton, Tag, Tooltip } from 'antd'
+import { Tag, Tooltip } from 'antd'
 import { getExped } from '../utils/config'
-import Spinner from './ui/Spinner'
 import { useNavigate } from 'react-router-dom'
 
 const formatDate = (date) => {

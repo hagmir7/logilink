@@ -13,9 +13,13 @@ const { autoUpdater } = pkg;
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-const interIcon = join(__dirname, '../build/inter.png')
 autoUpdater.autoDownload = false;
 autoUpdater.autoInstallOnAppQuit = true;
+
+
+
+const interIcon = join(__dirname, '../build/inter.png')
+
 
 async function generateBarcodeBase64(data) {
     return new Promise((resolve, reject) => {
@@ -63,14 +67,14 @@ const createMainWindow = () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
         mainWindow.setMenu(null)
+        
     }
+
+    autoUpdater.checkForUpdatesAndNotify();
 
     if(process.platform === 'win32'){
         mainWindow.setIcon(interIcon)
     }
-  
-
-    autoUpdater.checkForUpdatesAndNotify();
 
     return mainWindow;
 };
@@ -147,6 +151,7 @@ app.on('activate', () => {
         loginWindow = createLoginWindow();
     }
 });
+
 // Update
 autoUpdater.on("update-available", (info) => {
   dialog.showMessageBox({

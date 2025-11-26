@@ -208,7 +208,7 @@ export default function Purchase() {
         </div>
       </div>
 
-      <div className="mt-4 overflow-auto bg-white rounded shadow-sm">
+      <div className="mt-4 overflow-auto bg-white border-gray-300 border-b">
         <table className="min-w-full text-sm border-t border-gray-300">
           <thead className="bg-gray-100">
             <tr>

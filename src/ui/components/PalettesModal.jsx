@@ -36,7 +36,7 @@ export const PalettesModal = ({
       </Button>
 
       <Modal
-        title={`Palettes du Document - ${document.piece || ''}`}
+        title={<div className='text-3xl mb-3'>Palettes du Document - {document.piece || ''}</div>}
         centered
         open={open}
         onOk={() => setOpen(false)}
@@ -55,7 +55,7 @@ export const PalettesModal = ({
         //   overflowY: 'auto',
         // }}
         footer={[
-          <Button key='close' onClick={() => setOpen(false)}>
+          <Button key='close' size='large' onClick={() => setOpen(false)} style={{fontSize: "25x"}}>
             Fermer
           </Button>,
         ]}
@@ -72,13 +72,13 @@ export const PalettesModal = ({
                 column={{ xs: 1, sm: 2 }}
                 className='bg-white rounded-md'
               >
-                <Descriptions.Item label='Pièce'>
-                  <span className='text-blue-600 font-semibold'>
+                <Descriptions.Item label='Pièce' style={{fontSize:'25px'}}>
+                  <span className='text-blue-600 font-semibold text-xl'>
                     {document.piece}
                   </span>
                 </Descriptions.Item>
-                <Descriptions.Item label='Client'>
-                  <span className='text-green-600 font-semibold'>
+                <Descriptions.Item label='Client' style={{fontSize:'25px'}}>
+                  <span className='text-green-600 font-semibold text-xl'>
                     {document.client_id}
                   </span>
                 </Descriptions.Item>
@@ -120,18 +120,19 @@ export const PalettesModal = ({
                     >
                       <div className='space-y-2'>
                         <div className='flex items-center justify-between'>
-                          <h4 className='text-lg font-semibold text-gray-700'>
+                          <h4 className=' font-bold text-gray-700 text-2xl'>
                             {palette.code}
                           </h4>
                           <Tag color='blue'>
-                            <span className='text-md font-semibold'>
-                              {palette.lines_count} Articles
+                            <span className='text-lg font-semibold'>
+                              <span className='text-2xl'>{palette.lines_count}</span> Articles
                             </span>
                           </Tag>
                         </div>
 
-                        <div className='flex flex-wrap gap-2 mt-2'>
+                        <div className='flex flex-wrap gap-2 mt-2 text-xl'>
                           <Tag
+                          style={{fontSize: '20px', padding: '8px'}}
                             color={
                               palette.type === 'Livraison' ? 'blue' : 'default'
                             }
@@ -140,6 +141,7 @@ export const PalettesModal = ({
                           </Tag>
                           <Tag
                             color={palette.controlled === '1' ? 'green' : 'red'}
+                            style={{fontSize: '20px', padding: '8px'}}
                           >
                             {palette.controlled === '1'
                               ? 'Contrôlé'

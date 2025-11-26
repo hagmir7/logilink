@@ -4,7 +4,7 @@ import Spinner from './ui/Spinner'
 
 import { getExped, getStatus } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext'
-import { data, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')

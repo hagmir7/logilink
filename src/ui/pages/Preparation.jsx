@@ -4,7 +4,6 @@ import {
   ArrowRightCircle,
   X,
   Loader2,
-  Search,
   Package,
   Plus,
   Minus,
@@ -216,55 +215,54 @@ export default function Preparation() {
 
 
 
+  const debouncedScanRef = useRef(null);
 
   const handleScan = async (value, all = false) => {
     setLine(value);
     if (!palette || value === '') return;
 
-    const payload = { line: value, document: id, palette: palette.code };
-    setLoading('scan', true);
-    setLineError('');
-
-
-    try {
-      const url = all ? ('palettes/scan' + '?all=true') : 'palettes/scan';
-
-      let { data } = await api.post(url, payload);
-      setDefaultOptins(data);
-
-      if (data.length === 0) {
-        message.warning("L’article pas valid ou déjà préparé")
-        return;
-      }
-
-      if (data.length === 1) {
-        const line = lineNameGenerator(data[0]);
-        setArticle(line.details);
-        
-      } else if (data.length > 1) {
-        const options = data.map(item => lineNameGenerator(item));
-        setModalOptions(options);
-        setIsModalOpen(true);
-      }
-
-      paletteCodeInput.current?.focus();
-    } catch (err) {
-      console.error('Error scanning:', err);
-      setArticle({
-        ref: '',
-        design: '',
-        profondeur: '',
-        epaisseur: '',
-        chant: '',
-        qte: 0,
-        color: '',
-        height: '',
-        width: '',
-      });
-      setLineError(err.response?.data?.message || 'Erreur lors du scan');
-    } finally {
-      setLoading('scan', false);
+    // Clear previous timeout
+    if (debouncedScanRef.current) {
+      clearTimeout(debouncedScanRef.current);
     }
+
+    // Set new timeout
+    debouncedScanRef.current = setTimeout(async () => {
+      const payload = { line: value, document: id, palette: palette.code };
+      setLoading('scan', true);
+      setLineError('');
+
+      try {
+        const url = all ? 'palettes/scan?all=true' : 'palettes/scan';
+        let { data } = await api.post(url, payload);
+        setDefaultOptins(data);
+
+        if (data.length === 0) {
+          message.warning("L'article pas valid ou déjà préparé");
+          return;
+        }
+
+        if (data.length === 1) {
+          const line = lineNameGenerator(data[0]);
+          setArticle(line.details);
+        } else if (data.length > 1) {
+          const options = data.map(item => lineNameGenerator(item));
+          setModalOptions(options);
+          setIsModalOpen(true);
+        }
+
+        paletteCodeInput.current?.focus();
+      } catch (err) {
+        console.error('Error scanning:', err);
+        setArticle({
+          ref: '', design: '', profondeur: '', epaisseur: '',
+          chant: '', qte: 0, color: '', height: '', width: '',
+        });
+        setLineError(err.response?.data?.message || 'Erreur lors du scan');
+      } finally {
+        setLoading('scan', false);
+      }
+    }, 600); // 500ms delay
   };
 
 
@@ -513,8 +511,9 @@ export default function Preparation() {
               }}
               autoFocus={true}
               ref={lineInput}
-              className={window.electron && 'h-[60px]'}
-              style={window.electron ? { fontSize: '30px' } : {}}
+
+              // className={window.electron && 'h-[600px]'}
+              style={{ fontSize: "30px", fontWeight: 600 }}
               placeholder='Article Code...'
               allowClear
               suffix={
@@ -546,7 +545,7 @@ export default function Preparation() {
               }}
               ref={paletteCodeInput}
               className={window.electron && 'h-[60px]'}
-              style={window.electron ? { fontSize: '30px' } : {}}
+              style={{ fontSize: "30px", fontWeight: 600 }}
               placeholder='Emplacement code...'
               allowClear
               suffix={
@@ -590,7 +589,7 @@ export default function Preparation() {
               disabled={loadingStates.createPalette}
               className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
             >
-              <ArrowLeftCircle className='w-6 h-6 sm:w-8 sm:h-8 text-gray-600' />
+              <ArrowLeftCircle className='w-10 h-10 sm:w-8 sm:h-2 text-gray-600' />
             </button>
 
             <div className='text-center flex-1 px-2'>
@@ -603,10 +602,10 @@ export default function Preparation() {
                 </div>
               ) : (
                 <>
-                  <h3 className='text-xl sm:text-2xl font-bold text-gray-900 truncate'>
+                  <h3 className='text-3xl font-bold text-gray-900 truncate'>
                     {palette ? currentPalette?.code : 'Aucune palette'}
                   </h3>
-                  <p className='text-lg text-gray-500'>
+                  <p className='text-3xl text-gray-500'>
                     {currentIndex + 1} sur {palettes.length}
                   </p>
                 </>
@@ -618,7 +617,7 @@ export default function Preparation() {
               disabled={loadingStates.createPalette}
               className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
             >
-              <ArrowRightCircle className='w-6 h-6 sm:w-8 sm:h-8 text-gray-600' />
+              <ArrowRightCircle className='w-10 h-10 sm:w-8 sm:h-2 text-gray-600' />
             </button>
           </div>
 
@@ -631,6 +630,7 @@ export default function Preparation() {
               <input
                 type='text'
                 value={article.design}
+                style={{ fontSize: "30px", fontWeight: 500 }}
                 readOnly
                 className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14 text-gray-900'
                 placeholder='Aucun article scanné'
@@ -645,6 +645,7 @@ export default function Preparation() {
                 <input
                   type='text'
                   value={article.profondeur}
+                  style={{ fontSize: "30px", fontWeight: 500 }}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
                   placeholder='-'
@@ -657,6 +658,7 @@ export default function Preparation() {
                 <input
                   type='text'
                   value={article?.chant}
+                  style={{ fontSize: "30px", fontWeight: 500 }}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
                   placeholder='-'
@@ -669,6 +671,7 @@ export default function Preparation() {
                 <input
                   type='text'
                   value={article.epaisseur}
+                  style={{ fontSize: "30px", fontWeight: 500 }}
                   readOnly
                   className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
                   placeholder='-'
@@ -683,6 +686,7 @@ export default function Preparation() {
               </label>
               <div className='flex items-center gap-2 sm:gap-3 w-full'>
                 <button
+                  style={{ fontSize: "30px", fontWeight: 500 }}
                   onClick={() =>
                     setArticle((prev) => ({
                       ...prev,
@@ -700,6 +704,7 @@ export default function Preparation() {
                   value={article.qte}
                   min={0}
                   ref={quantityInput}
+                  style={{ fontSize: "30px", fontWeight: 600 }}
                   onChange={(e) =>
                     setArticle((prev) => ({
                       ...prev,
@@ -716,6 +721,7 @@ export default function Preparation() {
                       qte: prev.qte + 1,
                     }))
                   }
+                  style={{ fontSize: "30px", fontWeight: 600 }}
                   className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1 text-2xl h-14'
                 >
                   <Plus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
@@ -729,14 +735,15 @@ export default function Preparation() {
         <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'>
           <button
             onClick={handleSubmit}
+            style={{ fontSize: "30px", fontWeight: 500 }}
             disabled={!palette || !article.id || loadingStates.submit}
-            className='px-4 py-3 sm:px-6 sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl'
+            className='px-4 py-3 sm:px-6 text-white sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl '
           >
             {loadingStates.submit ? (
-              <>
+              <span  className='text-white'>
                 <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />{' '}
                 Validation...
-              </>
+              </span>
             ) : (
               "Valider l'article"
             )}
@@ -744,6 +751,7 @@ export default function Preparation() {
           <button
             onClick={create}
             disabled={loadingStates.create}
+            style={{ fontSize: "25px", fontWeight: 500 }}
             className='px-4 py-3 sm:px-6 sm:py-4 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl'
           >
             {loadingStates.create || loadingCreate ? (
@@ -753,7 +761,7 @@ export default function Preparation() {
               </>
             ) : (
               <>
-                <Package className='w-4 h-4 sm:w-5 sm:h-5' />
+                <Package className='w-8 h-8 sm:w-5 sm:h-5' />
                 Nouvelle Palette
               </>
             )}
@@ -764,9 +772,9 @@ export default function Preparation() {
         <div className='space-y-4'>
           <div className='flex items-center gap-3'>
             <div className='p-2 bg-emerald-100 rounded-lg'>
-              <Package className='w-5 h-5 sm:w-6 sm:h-6 text-emerald-600' />
+              <Package className='w-6 h-6 sm:w-6 sm:h-6 text-emerald-600' />
             </div>
-            <h2 className='text-base sm:text-lg font-semibold text-gray-900'>
+            <h2 className='text-2xl font-semibold text-gray-900 mb-0 pb-0'>
               Articles ({lines.length})
             </h2>
           </div>
@@ -780,94 +788,113 @@ export default function Preparation() {
             </div>
           )}
 
-          <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3'>
-            {lines?.map((item, index) => {
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+        {lines?.map((item, index) => {
+          const lineHeight =
+            Math.floor(item.docligne?.Hauteur) ||
+            Math.floor(item.docligne?.article?.Hauteur) ||
+            false;
 
-              const lineHeight = Math.floor(item.docligne?.Hauteur) || Math.floor(item.docligne?.article?.Hauteur) || false
-              const lineWidth = Math.floor(item.docligne?.Largeur) || Math.floor(item.docligne?.article?.Largeur) || false
-              return (<div key={item.id || index} className='relative'>
-                <div className='absolute -top-2 -right-2 z-10'>
-                  <span className='px-3 py-1 bg-cyan-500 text-white text-lg font-medium rounded-full'>
-                    {item.ref}
-                  </span>
-                </div>
+          const lineWidth =
+            Math.floor(item.docligne?.Largeur) ||
+            Math.floor(item.docligne?.article?.Largeur) ||
+            false;
 
-                <div className='bg-white rounded-xl border border-gray-200 overflow-hidden hover:shadow-xl transition-shadow'>
-                  <div className='p-4 bg-gradient-to-r from-amber-50 to-orange-50'>
-                    <div className='flex justify-between items-start mb-3'>
-                      <div className='flex-1 pr-2'>
-                        <h3 className='text-xl font-bold text-gray-900 truncate whitespace-normal'>
-                          {uppercaseFirst(item?.docligne?.Nom || item?.docligne?.article?.Nom || item?.docligne?.article?.AR_Design || '__')}
-                          {" "}
-                          {item?.docligne?.Poignée}
-                          {" "}
-                          {item?.docligne?.Rotation}
-                          {" "}
-                          {item?.docligne?.Description}
-                        </h3>
+          return (
+            <div key={item.id || index} className="relative">
+              {/* Badge Reference */}
+              <div className="absolute -top-2 -right-2 z-20">
+                <span className="px-3 py-1 bg-cyan-600 text-white text-base font-semibold rounded-full shadow">
+                  {item.ref}
+                </span>
+              </div>
 
-                        <p className='text-xl text-gray-600 mt-1'>
-                          {Math.floor(lineHeight)} {(lineHeight && lineWidth) && " * "}
-                          {Math.floor(lineWidth)} mm
-                        </p>
-                        {(item.docligne?.Couleur || item.docligne?.article?.Couleur) ? (
-                          <span className="inline-block px-2 py-1 bg-gray-100 text-gray-700 rounded-full mt-2 text-lg">
-                            {item.docligne?.Couleur || item.docligne?.article?.Couleur}
-                          </span>
-                        ) : null}
+              {/* Card */}
+              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden">
+                <div className="p-5 bg-gradient-to-r from-amber-50 to-orange-50">
 
+                  {/* Title & Qty */}
+                  <div className="flex justify-between items-start mb-4">
+                    <div className="flex-1 pr-4">
+                      <h3 className="text-2xl font-semibold text-gray-900 leading-snug break-words">
+                        {uppercaseFirst(
+                          item?.docligne?.Nom ||
+                            item?.docligne?.article?.Nom ||
+                            item?.docligne?.article?.AR_Design ||
+                            "__"
+                        )}{" "}
+                        {item?.docligne?.Poignée} {item?.docligne?.Rotation}{" "}
+                        {item?.docligne?.Description}
+                      </h3>
 
+                      {/* Dimensions */}
+                      <p className="text-2xl text-gray-700 mt-2">
+                        {lineHeight ? `${lineHeight}` : "__"}
+                        {lineHeight && lineWidth ? " × " : ""}
+                        {lineWidth ? `${lineWidth}` : "__"} mm
+                      </p>
 
-                      </div>
-                      <div className='text-right'>
-                        <div className='text-xl font-bold text-gray-900'>
-                          {item.pivot?.quantity
-                            ? Math.floor(item.pivot.quantity)
-                            : 0}
-                        </div>
-                        <div className='text-xs text-gray-500'>Unités</div>
-                      </div>
+                      {/* Color */}
+                      {(item.docligne?.Couleur || item.docligne?.article?.Couleur) && (
+                        <span className="inline-block mt-2 px-3 py-1 bg-gray-200 rounded-full text-gray-700 text-base font-medium">
+                          {item.docligne?.Couleur ||
+                            item.docligne?.article?.Couleur}
+                        </span>
+                      )}
                     </div>
 
-                    <div className='flex justify-between items-center pt-4 border-t border-gray-200'>
-                      <div className='text-xl md:text-md text-gray-600 space-y-1 flex justify-between w-full mr-5'>
-                        <div>
-                          Ép:{' '}
-                          <strong>
-                            {
-                              Math.floor(
-                                item.docligne?.Episseur > 0
-                                  ? item.docligne.Episseur
-                                  : item.docligne?.article?.Episseur ?? '__'
-                              ) || '__'
-                            }
-                          </strong>
-                        </div>
-                        <div>
-                          Chant:{' '}
-                          <strong>
-                            {
-                              item.docligne?.Chant ??
-                              item.docligne?.article?.Chant
-                            }
-                          </strong>
-                        </div>
-
+                    {/* Quantity */}
+                    <div className="text-right">
+                      <div className="text-2xl font-bold text-gray-900">
+                        {item.pivot?.quantity
+                          ? Math.floor(item.pivot.quantity)
+                          : 0}
                       </div>
-
-                      <button
-                        onClick={() => remove(item.id, item.pivot.id)}
-                        disabled={loadingStates.remove}
-                        className='p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition-colors disabled:opacity-50 disabled:cursor-not-allowed'
-                      >
-                        <X className='w-4 h-4' />
-                      </button>
+                      <div className="text-sm text-gray-500">Unités</div>
                     </div>
                   </div>
+
+                  {/* Divider */}
+                  <div className="pt-4 mt-3 border-t border-gray-300 flex items-center justify-between">
+                    <div className="flex-1 flex justify-between text-lg text-gray-700 pr-4">
+
+                      {/* Thickness */}
+                      <div>
+                        Ép:{" "}
+                        <strong className="font-semibold text-gray-900">
+                          {Math.floor(
+                            item.docligne?.Episseur > 0
+                              ? item.docligne?.Episseur
+                              : item.docligne?.article?.Episseur ?? "__"
+                          ) || "__"}
+                        </strong>
+                      </div>
+
+                      {/* Chant */}
+                      <div>
+                        Chant:{" "}
+                        <strong className="font-semibold text-gray-900">
+                          {item.docligne?.Chant || item.docligne?.article?.Chant || "__"}
+                        </strong>
+                      </div>
+                    </div>
+
+                    {/* Remove Button */}
+                    <button
+                      onClick={() => remove(item.id, item.pivot.id)}
+                      disabled={loadingStates.remove}
+                      className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition disabled:opacity-50"
+                    >
+                      <X className="w-6 h-6 text-white" />
+                    </button>
+                  </div>
                 </div>
-              </div>)
-            })}
-          </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
 
           {lines?.length === 0 && !loadingStates.remove && (
             <div className='text-center py-12'>

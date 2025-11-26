@@ -1,6 +1,6 @@
 import { UserOutlined } from '@ant-design/icons';
 import { Dropdown, Space, Avatar } from 'antd';
-import { ArrowRightCircle, Settings, User2 } from 'lucide-react';
+import { ArrowRightCircle } from 'lucide-react';
 import { useAuth } from '../contexts/AuthContext';
 import { useNavigate } from 'react-router'
 import { useEffect, useState } from 'react';

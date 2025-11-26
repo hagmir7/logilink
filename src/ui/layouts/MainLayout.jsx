@@ -6,7 +6,6 @@ import {
   ClipboardCheck,
   Layers,
   Package,
-  Shield,
   ShoppingBag,
   UserCheck,
   Users,
@@ -23,7 +22,6 @@ import {
   Archive,
   ScrollText,
   FileInput,
-  File,
 } from 'lucide-react'
 import { Link, Outlet } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'

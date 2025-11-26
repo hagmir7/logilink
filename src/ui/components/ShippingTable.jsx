@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Settings } from 'lucide-react'
-import { Badge, Button, Empty, message, Select, Tag } from 'antd'
+import { Button, Empty, message, Select, Tag } from 'antd'
 import { getExped } from '../utils/config'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'

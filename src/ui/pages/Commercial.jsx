@@ -3,14 +3,11 @@ import {
   ArrowRight,
   Undo2,
   LoaderCircle,
-  PrinterCheck,
   Settings,
-  Edit2,
-  Wrench,
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { getExped, getDocumentType, uppercaseFirst, getStatus } from '../utils/config';
+import { getExped, uppercaseFirst } from '../utils/config';
 import { useParams } from 'react-router-dom';
 import { Button, Checkbox, Empty, message, Popconfirm, Select, Tag } from 'antd';
 import { useAuth } from '../contexts/AuthContext'

@@ -1,11 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Search, Plus, Edit, Loader2, Trash } from 'lucide-react'
 import CModal from '../components/ui/CModal'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { api } from '../utils/api'
 import RegisterForm from '../components/RegisterForm'
 import { useAuth } from '../contexts/AuthContext'
-import { Button, message, Popconfirm } from 'antd'
+import { message, Popconfirm } from 'antd'
 
 export default function Users() {
   const [users, setUsers] = useState([])
