@@ -367,18 +367,18 @@ function StockMovements({ company_id }) {
             </Button>
           </div>
         </div>
-        <div className='flex lg:hidden w-full'>
+        <div className='flex lg:hidden w-full gap-2'>
           <Input
             placeholder='Emplacement, Référence article'
            
             value={emplacementSearch}
             size='large'
             allowClear={true}
-            styles={{
-              input: {
+             styles={{
+              input: window.electron ? {
                 fontSize: '25px',
                 height: '50px',
-              },
+              } : {},
             }}
             autoFocus={true}
             onChange={(e) =>
@@ -532,10 +532,10 @@ function StockMovements({ company_id }) {
                     </Link>
                   </p>
                 </div>
-                <div className='flex space-x-2'>
+                <div className='flex gap-3'>
                   <Button
                     type='primary'
-                    size='small'
+                    size={window.electron ? 'large' : 'small'}
                     onClick={() => handleEditQuantity(movement)}
                   >
                     <Edit size={16} />
@@ -555,7 +555,7 @@ function StockMovements({ company_id }) {
                     <Button
                       color='danger'
                       variant='solid'
-                      size='small'
+                      size={window.electron ? 'large' : 'small'}
                       className='bg-red-500 hover:bg-red-600 text-white'
                       onClick={() => setOpenConfirmId(movement.id)}
                     >

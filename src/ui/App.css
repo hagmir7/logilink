@@ -63,11 +63,11 @@ h1{
 }
 
 /* For dropdown options */
-/* .custom-select-dropdown .ant-select-item {
+.custom-select-dropdown .ant-select-item {
   font-size: 30px !important;
   padding: 12px 11px !important;
   min-height: 50px !important;
-} */
+}
 
 .anticon-close-circle svg {
   font-size: 25px!important;
@@ -90,4 +90,33 @@ h1{
 .ant-empty-image{
   display: flex;
   justify-content: center;
+}
+
+
+/* ELECTRON MODE — Larger UI */
+.electron-mode input,
+.electron-mode button,
+.electron-mode label,
+.electron-mode span,
+.electron-mode p,
+.electron-mode h1,
+.electron-mode h2,
+.electron-mode h3 {
+  font-size: 22px !important;
+}
+
+.electron-mode input {
+  height: 60px !important;
+  padding: 10px 18px !important;
+}
+
+.electron-mode button {
+  height: 60px !important;
+  padding: 12px 20px !important;
+  font-weight: 600 !important;
+}
+
+.electron-mode svg {
+  width: 32px !important;
+  height: 32px !important;
 }

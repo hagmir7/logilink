@@ -72,6 +72,7 @@ export default function Chargement() {
         articles: data.lines_count,
         quantity: data.quantity,
       })
+      
     } catch (err) {
       message.error(err.response.data.message)
       console.error('Error scanning:', err)
@@ -86,6 +87,14 @@ export default function Chargement() {
       const { data } = await api.post(`palettes/confirm/${paletteCode}/${id}`);
       console.log(data);
       message.success("La palette est livrée")
+      setPaletteCode('')
+      setPalette({
+        document_piece: "",
+        code:"",
+        company: "",
+        articles: "",
+        quantity: "",
+      })
       loadPalettes()
     } catch (err) {
       message.error(err.response.data.message + id, 5)
@@ -99,7 +108,9 @@ export default function Chargement() {
   const resetPalette = async (code) =>{
     try {
       const response = await api.put(`palettes/reset/${code}`);
+      loadPalettes()
       message.success(response.data.message);
+
     } catch (error) {
       message.error(error.response.data.message + id, 5)
       console.error('Error confirming:', error.response.data.error)
@@ -109,7 +120,8 @@ export default function Chargement() {
 
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
+    <div className={`min-h-screen bg-gradient-to-br from-slate-50 pb-7 to-blue-50 ${window.electron ? 'electron-mode' : ''}`}>
+
       {/* Header */}
       <div className='bg-white border-b border-gray-200'>
         <div className='mx-auto px-4 py-3 sm:py-4'>
@@ -137,7 +149,8 @@ export default function Chargement() {
               type='text'
               value={paletteCode}
               onChange={(e) => setPaletteCode(e.target.value)}
-              className='w-full px-4 py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all text-sm sm:text-base'
+              style={window.electron ? {fontSize: "25px", marginBottom: '20px'} : {fontSize: '15px'}}
+              className={`${window.electron ? 'h-14' : 'h-10'} w-full px-4  text-2xl py-2 sm:py-3 border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all`}
               placeholder='Code-barres...'
               disabled={loadingStates.scan}
             />
@@ -148,14 +161,14 @@ export default function Chargement() {
             >
               {loadingStates.scan ? (
                 <>
-                  <Loader2 className='w-4 h-4 animate-spin' />
+                  <Loader2 className={`text-white animate-spin ${window.electron ? 'w-6 h-6' : 'w-4 h-4'}`} />
                   <span className='hidden sm:inline'>Scan...</span>
                 </>
               ) : (
                 <>
-                  <Search className='w-4 h-4' />
+                  <Search className={`text-white  ${window.electron ? 'w-6 h-6' : 'w-4 h-4'}`} />
                   <span className='hidden sm:inline'>Scanner</span>
-                  <span className='sm:hidden'>OK</span>
+                  <span className={`sm:hidden text-white ${window.electron && 'text-2xl'}`}>OK</span>
                 </>
               )}
             </button>
@@ -233,7 +246,7 @@ export default function Chargement() {
                 Validation...
               </>
             ) : (
-              "Valider la palette"
+              <span className='text-white'>Valider la palette</span>
             )}
           </button>
         </div>
@@ -263,7 +276,7 @@ export default function Chargement() {
               <div key={item.id || index} className='relative'>
                 {/* Status Badge - Mobile Optimized */}
                 <div className='absolute -top-2 -right-2 z-10'>
-                  <div className='px-2 py-1 bg-green-500 text-white text-xs font-medium rounded-full shadow-md flex items-center gap-1'>
+                  <div className={`${window.electron && 'text-2xl'} px-2 py-1 bg-green-500 text-white font-medium rounded-full shadow-md flex items-center gap-1`}>
                     <svg className='w-3 h-3' fill='currentColor' viewBox='0 0 20 20'>
                       <path fillRule='evenodd' d='M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z' clipRule='evenodd' />
                     </svg>
@@ -311,7 +324,7 @@ export default function Chargement() {
                               <path className='opacity-75' fill='currentColor' d='M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z'></path>
                             </svg>
                           ) : (
-                            <X className='w-4 h-4' />
+                            <X className='w-4 h-4 text-white' />
                           )}
                         </button>
                       </div>

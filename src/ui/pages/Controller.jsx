@@ -1,13 +1,8 @@
 import {
   RefreshCcw,
-  Clipboard,
   ArrowRight,
-  Hourglass,
-  CheckCircle,
   CircleCheckBig,
-  Clock4,
   ListTodo,
-  Printer,
   Settings,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
@@ -22,7 +17,6 @@ import {
   Tag,
   Popconfirm,
   Empty,
-  Input,
   InputNumber,
 } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
@@ -268,7 +262,7 @@ function Controller() {
         </div>
 
         <div className='flex gap-2'>
-          {(Number(documentCompany?.pivot?.status_id) === 8 ||
+          {roles('controller') && (Number(documentCompany?.pivot?.status_id) === 8 ||
             (Number(documentCompany?.pivot?.status_id) === 9 &&
               roles('controleur'))) && (
             <Button href={`#/document/palettes/${id}`} className='btn'>

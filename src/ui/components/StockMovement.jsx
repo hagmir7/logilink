@@ -528,7 +528,7 @@ export default function StockMovement() {
             size='large'
             className={`w-full ${is_electron ? 'custom-select h-[60px]' : ''}`}
             style={is_electron ? { fontSize: '30px' } : {}}
-            dropdownClassName={is_electron ? 'custom-select-dropdown' : ''}
+            popupClassName={is_electron ? 'custom-select-dropdown' : ''}
             value={company}
             onChange={setCompany}
             options={companies}

@@ -132,20 +132,19 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 }
               >
                 {roles('commercial') && (
-                  <td className='px-6 py-4 whitespace-nowrap'>
+                  <td className='px-6 py-2 whitespace-nowrap'>
                     <div className='text-sm font-bold text-gray-900'>
                       {item?.document?.piece_bl || item.DO_Piece || '__'}
                     </div>
                   </td>
                 )}
 
-                <td className='px-6 py-4 whitespace-nowrap'>
+                <td className='px-6 py-2 whitespace-nowrap'>
                   <div className='text-sm font-bold text-gray-900'>
                     {item?.document?.piece || '__'}
                   </div>
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap'>
-                {/* {item?.document?.status_id} */}
+                <td className='px-6 py-2 whitespace-nowrap'>
                   <Tag
                     color={item?.document?.status?.color}
                     className='text-xl'
@@ -154,45 +153,31 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   </Tag>
 
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap'>
+                <td className='px-6 py-2 whitespace-nowrap'>
                   <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getExpeditionColor(item.DO_Expedit)}`}>
                     {getExped(item.DO_Expedit)}
                   </span>
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap'>
+                <td className='px-6 py-2 whitespace-nowrap'>
                   <span className='text-sm text-gray-900 font-medium'>
                     {item.DO_Tiers}
                   </span>
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   {item.DO_Ref}
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   <Tag className='font-bold text-gray-900'>
                     <div className='font-extrabold text-md px-1 py-1'>
-                      {item?.document?.palettes_count}
+                      {item?.document?.palettes_count || 0}
                     </div>
                   </Tag>
                 </td>
 
-                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
+                <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   {formatDate(new Date(item?.DO_DateLivr))}
                 </td>
-                <td className='px-6 py-4 whitespace-nowrap text-sm text-gray-500'>
-          
-                 {roles('preparation') && (
-                    <Select
-                      disabled={item?.document?.status?.id !== 12 && item?.document?.status?.id !== 13}
-                      placeholder="Agent de chargement"
-                      value={item?.document?.delivered_by}
-                      style={{ width: 170 }}
-                      allowClear
-                      onChange={(value) => handleChange(value, item.document.id)}
-                      options={users}
-                    />
-                  )}
-
-
+                <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                   {roles('chargement') && (
                     <Link to={`/chargement/${item?.document?.piece_fa || item?.document?.piece_bl || item?.document?.piece}`}>
                       <Button>Chargement</Button>
@@ -206,7 +191,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
       </div>
 
       {/* Mobile Card View */}
-      <div className='lg:hidden'>
+      <div className='lg:hidden pb-12'>
         {documents.map((item, index) => {
           const pieceBL = item?.document?.piece_bl || item?.DO_Piece || 0
           const piecePL = item?.document?.piece || '__'
@@ -271,7 +256,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   <span className='text-gray-600 font-medium'>Palettes:</span>
                   <Tag className='font-bold text-gray-900'>
                     <div className='font-extrabold text-xl px-4 py-2'>
-                      {item?.document?.palettes_count}
+                      {item?.document?.palettes_count || 0}
                     </div>
                   </Tag>
                 </div>
@@ -296,13 +281,18 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   </div>
                 )}
 
-              {roles('chargement') && (
-                <Link to={`/chargement/${item?.document?.piece || item.DO_Piec}`}>
-                  <Button className='mt-4 w-full text-lg py-3 rounded-xl' style={{ fontSize: "30px", padding: "30px" }}>
+                {roles('chargement') && [12, 13].includes(Number(item.document?.status_id)) && (
+                <Link to={`/chargement/${item?.document?.piece ?? item?.DO_Piec}`}>
+                  <Button
+                    className="mt-4 w-full rounded-xl text-lg py-3"
+
+                    style={{ fontSize: "30px", padding: "30px", marginTop: '20px' }}
+                  >
                     🚚 Chargement
                   </Button>
                 </Link>
               )}
+
             </div>
           )
         })}

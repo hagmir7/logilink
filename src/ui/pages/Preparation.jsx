@@ -17,6 +17,7 @@ import { uppercaseFirst } from '../utils/config'
 import { Alert, Button, Input, message, Modal, Radio, Space } from 'antd'
 import { PalettesModal } from '../components/PalettesModal';
 import { CloseOutlined } from '@ant-design/icons';
+import { useAuth } from '../contexts/AuthContext'
 
 
 
@@ -262,13 +263,23 @@ export default function Preparation() {
       } finally {
         setLoading('scan', false);
       }
-    }, 600); // 500ms delay
+    }, 600);
   };
 
+  
 
+  const { roles } = useAuth();
 
   const handleSubmit = async () => {
     setLoading('submit', true)
+
+    if(roles(['magasinier']) && !scannedEmplacement){
+      setEmpalcementCodeError('Emplacement requis');
+      message.error('Emplacement requis')
+      setLoading('submit', false)
+      return;
+    }
+
     try {
       const { data } = await api.post('palettes/confirm', {
         quantity: article.qte,
@@ -278,7 +289,6 @@ export default function Preparation() {
       })
 
       createPalette()
-
 
       setArticle({
         ref: '',
@@ -418,7 +428,7 @@ export default function Preparation() {
 
 
   return (
-    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50'>
+    <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-10'>
       {/* Header */}
       <Modal
         title="Sélectionnez une option"
@@ -589,7 +599,7 @@ export default function Preparation() {
               disabled={loadingStates.createPalette}
               className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
             >
-              <ArrowLeftCircle className='w-10 h-10 sm:w-8 sm:h-2 text-gray-600' />
+              <ArrowLeftCircle className='w-10 h-10 text-gray-600' />
             </button>
 
             <div className='text-center flex-1 px-2'>
@@ -617,7 +627,7 @@ export default function Preparation() {
               disabled={loadingStates.createPalette}
               className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
             >
-              <ArrowRightCircle className='w-10 h-10 sm:w-8 sm:h-2 text-gray-600' />
+              <ArrowRightCircle className='w-10 h-10 text-gray-600' />
             </button>
           </div>
 
@@ -740,10 +750,10 @@ export default function Preparation() {
             className='px-4 py-3 sm:px-6 text-white sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl '
           >
             {loadingStates.submit ? (
-              <span  className='text-white'>
-                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />{' '}
-                Validation...
-              </span>
+              <div  className='text-white flex gap-2 items-center'>
+                <Loader2 className='w-8 h-8 sm:w-5 sm:h-5 animate-spin' />{' '}
+                <span>Validation...</span>
+              </div>
             ) : (
               "Valider l'article"
             )}

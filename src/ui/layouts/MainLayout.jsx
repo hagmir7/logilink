@@ -63,20 +63,20 @@ const sideMenu = () => {
 
         {
           key: 'submenu-10',
-          disabled: !roles(['controleur', 'commercial', 'expedition', 'admin']),
+          disabled: !roles(['controleur', 'commercial', 'expedition', 'admin', 'preparation']),
           icon: <CircleCheck size={19} />,
           label: <Link to='/validation'>Validation</Link>,
         },
         {
           key: 'submenu-21',
           icon: <AudioWaveform size={19} />,
-          disabled: !roles(['commercial', 'expedition', 'admin']),
+          hidden: !roles(['commercial', 'expedition', 'admin']),
           label: <Link to='/progress'>Progrès</Link>,
         },
         {
           key: 'submenu-15',
           icon: <Truck size={19} />,
-          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
+          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition', 'preparation']),
           label: <Link to='/shipping'>Expédition</Link>,
         },
         {

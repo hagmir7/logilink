@@ -142,7 +142,7 @@ function Validation() {
         </div>
       </div>
 
-      {roles('preparation') && (
+      {roles(['preparation', 'controleur']) && (
         <PreparationDocumentTable
           // loading={loading}
           documents={data.data}

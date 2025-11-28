@@ -340,11 +340,11 @@ function Commercial() {
                         <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200'>
                           Description
                         </th>
-                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
                           QTE CMD
                         </th>
 
-                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider'>
+                        <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
                           QTE PREP
                         </th>
                       </tr>

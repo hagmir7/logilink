@@ -10,7 +10,8 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
+function PreparationDocumentTable({ documents = [], loading }) {
+  const { roles } = useAuth();
 
   const { user } = useAuth();
 
@@ -18,11 +19,11 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
     return data?.companies?.find(item => item.id === Number(user.company_id))
   }
 
-  
+
 
   const navigate = useNavigate()
 
-  
+
 
   const getExpeditionColor = (expedit) => {
     const colorMap = {
@@ -50,7 +51,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
       console.error('Error navigating to article:', error)
     }
   }
-  
+
 
 
   return (
@@ -151,11 +152,11 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                     {/* {data.has_user_printer} */}
                     <span>{Number(data.has_user_printer) > 0 && <Printer />}</span>
                     <span className="text-md">
-                     {parseInt(
-                          data?.companies?.find(
-                            (company) => parseInt(company.id) === parseInt(user.company_id)
-                          )?.pivot?.updated ?? 0
-                        ) === 1 && <Edit className='text-red-600' size={17} />}
+                      {parseInt(
+                        data?.companies?.find(
+                          (company) => parseInt(company.id) === parseInt(user.company_id)
+                        )?.pivot?.updated ?? 0
+                      ) === 1 && <Edit className='text-red-600' size={17} />}
 
                     </span>
 
@@ -232,7 +233,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
               </div>
             </div>
             {
-              Number(data.status_id) === 8 || Number(data.status_id) === 9 ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
+              (Number(data.status_id) === 8 || Number(data.status_id) === 9) && roles('controleur') ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
                 color="cyan"
                 variant="solid"
                 onClick={() => navigate(`/document/palettes/${data?.piece}`)}
@@ -240,7 +241,7 @@ function PreparationDocumentTable({ documents = [], onSelectOrder, loading }) {
                 Controle
               </Button> : ''
             }
-            
+
           </div>
         ))}
       </div>
