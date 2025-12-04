@@ -147,7 +147,11 @@ export const PalettesModal = ({
                               ? 'Contrôlé'
                               : 'Non contrôlé'}
                           </Tag>
+
+                       
                         </div>
+
+
                       </div>
                     </div>
                   )

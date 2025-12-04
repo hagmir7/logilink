@@ -1,11 +1,9 @@
-import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
+import { Loader2, RefreshCcw } from 'lucide-react'
 import React, { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { useNavigate } from 'react-router-dom'
-import DocumentCard from '../components/ui/DocumentCard'
-import { Button, Select, Space, Input, Empty, message } from 'antd'
+import { Button, Input, message } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
-import Spinner from '../components/ui/Spinner'
 import PreparationDocumentTable from '../components/PreparationDocumentTable'
 import ReadyOrder from '../components/ReadyOrder'
 
@@ -21,11 +19,11 @@ function Validation() {
   const [page, setPage] = useState(1)
   const [moreSpinner, setMoreSpinner] = useState(false)
   const [searchSpinner, setSearchSpinner] = useState(false)
-  const [currentSearch, setCurrentSearch] = useState('') // Track current search
+  const [currentSearch, setCurrentSearch] = useState('')
   const navigate = useNavigate()
   const { roles = [] } = useAuth()
 
-  // Define the base URL
+
   const baseUrl = 'documents/validation-controller'
 
   const fetchData = async (searchTerm = '', pageNum = 1, append = false) => {
@@ -161,9 +159,10 @@ function Validation() {
       }
         
       {data.next_page_url && (
-        <div className='flex justify-center my-4'>
+        <div className='flex justify-center my-4 pb-12'>
           <Button
             onClick={loadMore}
+            size='large'
             type='primary'
             loading={moreSpinner}
             iconPosition='end'

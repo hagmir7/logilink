@@ -55,7 +55,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
 
 
   return (
-    <div className='w-full h-full flex flex-col bg-white'>
+    <div className='w-full h-full flex flex-col pb-12'>
       {/* Desktop Table View */}
       <div className='flex-1 overflow-hidden'>
         <div className='h-full overflow-auto hidden lg:block'>
@@ -176,7 +176,6 @@ function PreparationDocumentTable({ documents = [], loading }) {
             className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-150 bg-white shadow-sm mb-2 rounded-lg border'
 
           >
-            {/* Header with document number and status */}
             <div className='flex justify-between items-start mb-3'>
               <div className='flex items-center'>
                 <span className='text-lg font-bold text-gray-900'>
@@ -222,7 +221,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
               <div className='flex justify-between'>
                 <span className='text-gray-500 font-medium text-xl'>Date du document:</span>
                 <span className='font-semibold text-lg text-gray-900'>
-                  {formatDate(new Date(data?.docentete?.DO_Date))}
+                   {formatDate(new Date(data?.docentete?.DO_Date))}
                 </span>
               </div>
               <div className='flex justify-between'>

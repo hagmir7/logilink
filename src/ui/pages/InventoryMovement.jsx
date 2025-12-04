@@ -118,7 +118,7 @@ export default function InventoryMovement() {
       const { data } = await api.get('companies')
       const options = data.map((company) => ({
         label: company.name,
-        value: company.id, 
+        value: company.id,
       }))
       setCompanies(options)
     } catch (error) {
@@ -145,7 +145,7 @@ export default function InventoryMovement() {
 
     if (options.length === 1 && (type === 'Carton' || type === 'Palette')) {
       setCondition(options[0].value)
-    }else{
+    } else {
       setCondition(null)
     }
 
@@ -227,7 +227,7 @@ export default function InventoryMovement() {
     }
   }
 
-  
+
 
   const changeEmplacement = (value) => {
     const result = sanitizeInput(value)
@@ -236,7 +236,7 @@ export default function InventoryMovement() {
     setEmplacementError('')
     if (result.length >= 3) fetchEmplacementData(result)
   }
-  
+
 
 
   const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
@@ -252,7 +252,7 @@ export default function InventoryMovement() {
       fetchArticleData(cleaned)
     }
   }
-  
+
 
 
   const handleTypeChange = (e) => {
@@ -364,22 +364,22 @@ export default function InventoryMovement() {
 
         {articleData && (
           <div className='bg-gray-100 p-3 rounded-md mt-2'>
-            <div className='mb-2 font-bold text-lg'>
+            <div className={`mb-2 font-bold ${window.electron ? 'text-lg' : 'text-md'}`}>
               {uppercaseFirst(articleData.description)}
               {articleData.name && ` (${articleData.name})`}
             </div>
             <div className='grid grid-cols-2 gap-2 text-sm'>
               <div className='font-medium'>Couleur:</div>
-              <div className='font-bold text-lg'>{articleData.color}</div>
+              <div className={`font-bold ${window.electron ? 'text-lg' : 'text-md'}`}>{articleData.color}</div>
               <div className='font-medium'>Dimensions:</div>
-              <div className='font-bold text-lg'>
+              <div className={`font-bold ${window.electron ? 'text-lg' : 'text-md'}`}>
                 {articleData.height || 0} × {articleData.width} ×{' '}
                 {articleData.depth}
               </div>
               {articleData.thickness && (
                 <>
                   <div className='font-medium'>Épaisseur:</div>
-                  <div className='font-bold text-lg'>
+                  <div className={`font-bold ${window.electron ? 'text-lg' : 'text-md'}`}>
                     {articleData.thickness}
                   </div>
                 </>
@@ -413,7 +413,7 @@ export default function InventoryMovement() {
                 disabled={!articleData?.condition}
                 value='Carton'
                 style={is_electron && { fontSize: '25px', height: '50px', display: 'flex' }}
-  
+
                 className='w-1/3 text-center h-[30px] text-2xl items-center justify-center'
               >
                 Carton
@@ -530,8 +530,8 @@ export default function InventoryMovement() {
       <Modal
         title={
           <div className='flex items-center gap-2'>
-            <AlertCircle className='w-8 h-8 text-amber-600' />
-            <span className='text-2xl font-semibold'>
+            <AlertCircle className={`${window.electron ? 'w-8 h-8' : 'w-5 h-5'} text-amber-600`} />
+            <span className={`${window.electron ? 'text-2xl' : 'text-lg'} font-semibold`}>
               Confirmer le transfert
             </span>
           </div>
@@ -542,27 +542,28 @@ export default function InventoryMovement() {
         okText='Confirmer'
         cancelText='Annuler'
         okButtonProps={{
-          className:
-            'bg-blue-600 hover:bg-blue-700 px-8 py-4 h-auto min-h-[60px]',
-          style: { fontSize: '30px' },
+          className: window.electron
+            ? 'bg-blue-600 hover:bg-blue-700 px-8 py-4 h-auto min-h-[60px]'
+            : 'bg-blue-600 hover:bg-blue-700',
+          style: window.electron ? { fontSize: '30px' } : {},
         }}
         cancelButtonProps={{
-          className: 'px-8 py-4 h-auto min-h-[60px]',
-          style: { fontSize: '30px' },
+          className: window.electron ? 'px-8 py-4 h-auto min-h-[60px]' : '',
+          style: window.electron ? { fontSize: '30px' } : {},
         }}
-        className='[&_.ant-modal-content]:text-lg'
+        className={window.electron ? '[&_.ant-modal-content]:text-lg' : ''}
       >
-        <div className='py-4 space-y-4'>
-          <div className='bg-blue-50 border border-blue-200 rounded-xl p-6'>
+        <div className={`${window.electron ? 'py-4' : 'py-2'} space-y-4`}>
+          <div className={`bg-blue-50 border border-blue-200 rounded-xl ${window.electron ? 'p-6' : 'p-4'}`}>
             {/* Emplacement Summary */}
             <div className='flex items-start gap-4 mb-4'>
-              <Building2 className='w-7 h-7 text-blue-600 mt-1 flex-shrink-0' />
+              <Building2 className={`${window.electron ? 'w-7 h-7' : 'w-5 h-5'} text-blue-600 mt-1 flex-shrink-0`} />
               <div>
-                <div className='text-lg font-medium text-gray-700'>
+                <div className={`${window.electron ? 'text-lg' : 'text-sm'} font-medium text-gray-700`}>
                   Emplacement
                 </div>
-                <div className='font-bold text-xl'>{emplacementData?.code}</div>
-                <div className='text-lg'>
+                <div className={`font-bold ${window.electron ? 'text-xl' : 'text-base'}`}>{emplacementData?.code}</div>
+                <div className={window.electron ? 'text-lg' : 'text-sm'}>
                   Dépôt: {emplacementData?.depot?.code}
                 </div>
               </div>
@@ -570,26 +571,26 @@ export default function InventoryMovement() {
 
             {/* Article Summary */}
             <div className='flex items-start gap-4 mb-4'>
-              <Package className='w-7 h-7 text-green-600 mt-1 flex-shrink-0' />
+              <Package className={`${window.electron ? 'w-7 h-7' : 'w-5 h-5'} text-green-600 mt-1 flex-shrink-0`} />
               <div className='space-y-2'>
-                <div className='text-xl font-medium text-gray-700'>Article</div>
-                <div className='font-bold text-lg'>{articleData?.name}</div>
-                <div className='font-bold text-lg'>
+                <div className={`${window.electron ? 'text-xl' : 'text-base'} font-medium text-gray-700`}>Article</div>
+                <div className={`font-bold ${window.electron ? 'text-lg' : 'text-base'}`}>{articleData?.name}</div>
+                <div className={`font-bold ${window.electron ? 'text-lg' : 'text-base'}`}>
                   {uppercaseFirst(articleData?.description)}
                 </div>
-                <div className='text-lg'>
+                <div className={window.electron ? 'text-lg' : 'text-sm'}>
                   Réf: <strong>{articleData?.code}</strong>
                 </div>
-                <div className='text-lg'>
+                <div className={window.electron ? 'text-lg' : 'text-sm'}>
                   Dimensions: {articleData?.height} × {articleData?.width} ×{' '}
                   {articleData?.depth}
                 </div>
 
-                <div className='text-lg'>
+                <div className={window.electron ? 'text-lg' : 'text-sm'}>
                   Couleur: <strong>{articleData?.color || '__'}</strong>
                 </div>
 
-                <div className='text-lg'>
+                <div className={window.electron ? 'text-lg' : 'text-sm'}>
                   Fournisseur Ref:{' '}
                   <strong>
                     {articleData?.code_supplier ||
@@ -602,16 +603,16 @@ export default function InventoryMovement() {
 
             {/* Quantity Summary */}
             <div className='flex items-start gap-4'>
-              <Hash className='w-7 h-7 text-purple-600 mt-1 flex-shrink-0' />
+              <Hash className={`${window.electron ? 'w-7 h-7' : 'w-5 h-5'} text-purple-600 mt-1 flex-shrink-0`} />
               <div>
-                <div className='text-lg font-medium text-gray-700'>
+                <div className={`${window.electron ? 'text-lg' : 'text-sm'} font-medium text-gray-700`}>
                   Quantité
                 </div>
-                <div className='text-lg'>
+                <div className={window.electron ? 'text-lg font-bold' : 'text-md font-bold'}>
                   {quantity} {type && `(${type})`}
                   {condition && ` × ${condition} = `}
                   {condition && (
-                    <span className='font-bold text-green-600 text-xl'>
+                    <span className={`font-bold text-green-600 ${window.electron ? 'text-xl' : 'text-base'}`}>
                       {totalQuantity} {articleData?.unit}
                     </span>
                   )}
@@ -620,7 +621,7 @@ export default function InventoryMovement() {
             </div>
           </div>
 
-          <p className='text-gray-600 text-lg'>
+          <p className={`text-gray-600 ${window.electron ? 'text-lg' : 'text-sm'}`}>
             Veuillez vérifier les informations avant de confirmer le transfert.
           </p>
         </div>

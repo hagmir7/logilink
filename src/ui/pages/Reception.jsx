@@ -120,7 +120,7 @@ function Reception() {
   return (
     <div className="min-h-screen">
       {/* Title */}
-      <h2 className="text-lg font-semibold text-gray-800 mb-1 p-2 md:p-4">
+      <h2 className="text-lg font-semibold text-gray-800 mb-1 p-2 md:p-1">
         Gestion de la réception
       </h2>
 

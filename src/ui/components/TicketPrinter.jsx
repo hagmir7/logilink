@@ -5,11 +5,11 @@ import { useAuth } from '../contexts/AuthContext'
 
 const { Option } = Select;
 
-const TicketPrinter = ({ doclignes, docentete }) => {
+const TicketPrinter = ({ docentete, palettes = [], btnSize }) => {
     const [visible, setVisible] = useState(false);
     const [printers, setPrinters] = useState([]);
     const [selectedPrinter, setSelectedPrinter] = useState(null);
-    const {user, roles} = useAuth()
+    const {user} = useAuth()
 
     useEffect(() => {
         const fetchPrinters = async () => {
@@ -17,7 +17,7 @@ const TicketPrinter = ({ doclignes, docentete }) => {
                 const printersList = await window.electron.getPrinters();
                 setPrinters(printersList);
             } catch (error) {
-                message.error('Failed to load printers');
+                message.error('Échec du chargement des imprimantes');
             }
         };
         fetchPrinters();
@@ -26,33 +26,20 @@ const TicketPrinter = ({ doclignes, docentete }) => {
 
     const handlePrint = async () => {
         if (!selectedPrinter) {
-            message.warning('Please select a printer.');
+            message.warning('Veuillez sélectionner une imprimante.');
             return;
         }
         
-
         try {
-            const safeDoclignes = (doclignes || []).map(ticket => ({
-                ...ticket,
-                line: {
-                    ...ticket.line,
-                    quantity: Number(ticket.line?.quantity) || 0
-                }
-            }));
-
             await window.electron.printPaletteTickets(selectedPrinter, { 
-                doclignes: safeDoclignes, 
-                docentete : roles('admin') ? docentete?.document?.palettes : docentete?.document?.palettes?.filter(palette => palette?.company_id == user?.company_id)
+                docentete,
+                palettes: palettes.length > 0 ? palettes :  docentete?.document?.palettes?.filter(palette => palette?.company_id == user?.company_id)
             });
-
-            
-            
-
-            message.success('Printing started!');
+            message.success("L'impression a commencé !");
             setVisible(false);
         } catch (error) {
             console.error(error);
-            message.error('Printing failed.');
+            message.error("L'impression a échoué.");
         }
     };
 
@@ -60,7 +47,7 @@ const TicketPrinter = ({ doclignes, docentete }) => {
 
     return (
         <div>
-            <Button type="primary" onClick={() => setVisible(true)}>
+            <Button type="primary" onClick={() => setVisible(true)} size={btnSize}>
                 <ReceiptText />
                 Billets
             </Button>

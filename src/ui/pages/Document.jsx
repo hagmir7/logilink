@@ -18,7 +18,7 @@ function Document() {
 
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
-  const [documenType, setDocumentType] = useState(2);
+  const [documenType, setDocumentType] = useState(1);
   const [documenStatus, setDocumentStatus] = useState('');
   const [page, setPage] = useState(1);
   const [moreSpinner, setMoreSpinner] = useState(false);
@@ -116,7 +116,7 @@ function Document() {
   return (
     <div className='min-h-screen'>
       {/* Title */}
-      <h2 className='text-lg font-semibold text-gray-800 mb-1 p-2 md:p-4'>
+      <h2 className='text-lg font-semibold text-gray-800 mb-1 p-2 md:p-1'>
         
       </h2>
 

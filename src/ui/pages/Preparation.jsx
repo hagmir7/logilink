@@ -18,6 +18,7 @@ import { Alert, Button, Input, message, Modal, Radio, Space } from 'antd'
 import { PalettesModal } from '../components/PalettesModal';
 import { CloseOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext'
+import TicketPrinter from '../components/TicketPrinter'
 
 
 
@@ -493,6 +494,8 @@ export default function Preparation() {
                 selectPalette={selectPalette}
                 checkedPalette={palette}
               />
+
+                <TicketPrinter docentete={{DO_Piece: "New", DO_Tiers: "newsc"}} palettes={[{code: palette?.code}]} btnSize="large" />
             </div>
             
 

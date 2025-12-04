@@ -97,11 +97,7 @@ function Commercial() {
       } catch (error) {
         console.error(error);
         message.error(error.response.data.message || "Can't trnsfer the article");
-        
-      }
-      
-    
-      
+      }      
     } else {
       message.warning('Aucun article sélectionné')
     }

@@ -6,6 +6,7 @@ import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'
 import { api } from '../utils/api'
 import { Link, useNavigate } from 'react-router-dom'
+import TableSkeleton from './ui/TableSkeleton'
 
 
 const formatDate = (date) => {
@@ -186,6 +187,10 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 </td>
               </tr>
             ))}
+
+            {
+              loading && <TableSkeleton rows={8} columns={7} />
+            }
           </tbody>
         </table>
       </div>

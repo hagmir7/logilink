@@ -286,8 +286,12 @@ ipcMain.handle('get-printers', async (event) => {
 });
 
 
-ipcMain.handle('print-tickets', async (event, { printerName, tickets }) => {
-    for (const ticket of tickets.doclignes) {
+
+
+ipcMain.handle('print-palette-tickets', async (event, { printerName, data }) => {
+    console.log(data);
+    
+    for (const palette of data.palettes) {
         const ticketWindow = new BrowserWindow({
             show: false,
             webPreferences: {
@@ -296,9 +300,7 @@ ipcMain.handle('print-tickets', async (event, { printerName, tickets }) => {
             }
         });
 
-
-
-        const barcodeImage = await generateBarcodeBase64(ticket.line.id);
+        const barcodeImage = await generateBarcodeBase64(palette.code);
 
         const ticketHtml = `
          <html>
@@ -350,102 +352,8 @@ ipcMain.handle('print-tickets', async (event, { printerName, tickets }) => {
                     <div class="barcode">
                         <img src="${barcodeImage}" />
                     </div>
-                    <div class="line">${ticket.DO_Piece} = ${tickets.docentete.DO_Tiers}</div>
-                    <div class="line">${ticket.article.AR_Ref} (${parseFloat(ticket.line.quantity.toFixed(3))})</div>
-                </div>
-            </body>
-        </html>
-
-        `;
-
-        ticketWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(ticketHtml)}`);
-
-        await new Promise(resolve => {
-            ticketWindow.webContents.on('did-finish-load', () => {
-                ticketWindow.webContents.print({
-                    silent: true,
-                    deviceName: printerName,
-                    margins: { marginType: 'none' },
-                    pageSize: {
-                        width: 60000,
-                        height: 40000
-                    }
-                }, (success, errorType) => {
-                    if (!success) console.error('Print failed:', errorType);
-                    ticketWindow.close();
-                    resolve();
-                });
-            });
-        });
-    }
-});
-
-
-
-ipcMain.handle('print-palette-tickets', async (event, { printerName, tickets }) => {
-    for (const ticket of tickets?.docentete) {
-        const ticketWindow = new BrowserWindow({
-            show: false,
-            webPreferences: {
-                contextIsolation: true,
-                nodeIntegration: false
-            }
-        });
-
-        const barcodeImage = await generateBarcodeBase64(ticket.code);
-
-        const ticketHtml = `
-         <html>
-            <head>
-                <style>
-                    html, body {
-                        width: 6cm;
-                        height: 4cm;
-                        margin: 0;
-                        padding: 0;
-                        display: flex;
-                        justify-content: center;
-                        align-items: center;
-                        font-family: monospace, monospace;
-                        font-size: 16px;
-                        text-align: center;
-                        background: white;
-                        -webkit-print-color-adjust: exact;
-                    }
-                    .ticket {
-                        box-sizing: border-box;
-                    }
-            
-                    .line {
-                        margin: 8px 0;
-                        font-weight: 700;
-                        font-size: 14px;
-                        border-bottom: 1.5px solid #000;
-                        padding-bottom: 4px;
-                    }
-                    .footer {
-                        margin-top: 12px;
-                        font-weight: 900;
-                        font-size: 17px;
-                    }
-                    .barcode {
-                        padding: 0;
-                    }
-                    .barcode img {
-                        width: 100%;
-                        height: auto;
-                        max-height: 90px;
-                        object-fit: contain;
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="ticket">
-                    <div class="barcode">
-                        <img src="${barcodeImage}" />
-                    </div>
-                    <div class="line">${tickets.docentete.DO_Piece} = ${tickets.docentete.DO_Tiers}</div>
-                    <div class="line">${ticket.code}</div>
+                    <div class="line">${data.docentete.DO_Piece} = ${data.docentete.DO_Tiers}</div>
+                    <div class="line">${palette.code}</div>
                 </div>
             </body>
         </html>

@@ -7,7 +7,7 @@ export default function Logout() {
     <button
       onClick={logout}
       title='Déconnexion'
-      className='hover:bg-gray-300 flex items-center justify-center w-12 h-12 transition-transform rounded-full active:scale-95 hover:bg-primary/5 hover:dark:bg-primary-dark/5 outline-link cursor-pointer'
+      className='hover:bg-gray-300 flex items-center justify-center w-12 h-12 transition-transform rounded-full active:scale-95 hover:bg-primary/5 outline-link cursor-pointer'
       to='/register'
     >
       <ArrowRightCircle />

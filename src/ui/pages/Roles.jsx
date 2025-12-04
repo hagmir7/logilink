@@ -17,7 +17,7 @@ const TableRow = ({ data }) => (
     <td className='size-px whitespace-nowrap'>
       <Link to={`/roles/${data.name}`}>
         <div className='px-6 py-2 flex items-center gap-x-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+          <span className='text-sm text-gray-600'>
             #{data.id || '__'}
           </span>
         </div>
@@ -26,7 +26,7 @@ const TableRow = ({ data }) => (
     <td className='size-px whitespace-nowrap'>
       <Link to={`/roles/${data.name}`}>
         <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600 dark:text-neutral-400'>
+          <span className='text-sm text-gray-600'>
             {strClean(data.name) || '__'}
           </span>
         </div>
@@ -34,7 +34,7 @@ const TableRow = ({ data }) => (
     </td>
     <td className='size-px whitespace-nowrap'>
       <div className='px-6 py-2'>
-        <span className='text-sm text-gray-600 dark:text-neutral-400'>
+        <span className='text-sm text-gray-600'>
           {data.guard_name}
         </span>
       </div>
@@ -65,17 +65,17 @@ const Roles = () => {
     <div className='flex flex-col'>
       <div className='-m-1.5 overflow-x-auto'>
         <div className='p-1.5 min-w-full inline-block align-middle'>
-          <div className='bg-white overflow-hidden dark:bg-neutral-900'>
+          <div className='bg-white overflow-hidden'>
             {/* Header */}
-            <div className='px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 dark:border-neutral-700'>
-              <h2 className='text-xl font-semibold text-gray-800 dark:text-neutral-200'>
+            <div className='px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 '>
+              <h2 className='text-xl font-semibold text-gray-800'>
                 Roles
               </h2>
               <div className='inline-flex gap-x-2'>
                 <button
                   type='button'
                   onClick={getData}
-                  className='py-2 px-3 cursor-pointer inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:bg-neutral-700'
+                  className='py-2 px-3 cursor-pointer inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none'
                 >
                   <RefreshCcw size={17} />
                   Rafraîchir
@@ -91,8 +91,8 @@ const Roles = () => {
               </div>
             </div>
             {/* Table */}
-            <table className='min-w-full divide-y divide-gray-200 dark:divide-neutral-700'>
-              <thead className='bg-gray-50 dark:bg-neutral-900'>
+            <table className='min-w-full divide-y divide-gray-200'>
+              <thead className='bg-gray-50'>
                 <tr>
                   {labels.map((label) => {
                     return (
@@ -102,7 +102,7 @@ const Roles = () => {
                         className='px-6 py-3 text-start'
                       >
                         <div className='flex items-center gap-x-2'>
-                          <span className='text-xs font-semibold uppercase text-gray-800 dark:text-neutral-200'>
+                          <span className='text-xs font-semibold uppercase text-gray-800'>
                             {label}
                           </span>
                         </div>
@@ -111,7 +111,7 @@ const Roles = () => {
                   })}
                 </tr>
               </thead>
-              <tbody className='divide-y divide-gray-200 dark:divide-neutral-700'>
+              <tbody className='divide-y divide-gray-200'>
                 {data.map((item, index) => (
                   <TableRow key={index} data={item} />
                 ))}

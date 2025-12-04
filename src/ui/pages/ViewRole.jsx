@@ -125,7 +125,7 @@ function ViewRole() {
   if (loading) {
     return (
       <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900 dark:border-white"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
         <span className="sr-only">Loading...</span>
       </div>
     );
@@ -136,7 +136,7 @@ function ViewRole() {
     return (
       <div className="text-center py-12">
         <svg
-          className="mx-auto h-12 w-12 text-gray-400 dark:text-neutral-500"
+          className="mx-auto h-12 w-12 text-gray-400"
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -148,10 +148,10 @@ function ViewRole() {
             d="M9.172 16.172a4 4 0 015.656 0M9 10h.01M15 10h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
           />
         </svg>
-        <h3 className="mt-2 text-lg font-medium text-gray-800 dark:text-neutral-200">
+        <h3 className="mt-2 text-lg font-medium text-gray-800">
           Role not found
         </h3>
-        <p className="mt-1 text-sm text-gray-500 dark:text-neutral-400">
+        <p className="mt-1 text-sm text-gray-500">
           The requested role could not be loaded.
         </p>
       </div>
@@ -160,22 +160,22 @@ function ViewRole() {
 
   // ... rest of the component remains the same ...
   return (
-    <div className='bg-white border border-gray-200 overflow-hidden dark:bg-neutral-900 dark:border-neutral-800 transition-colors duration-200'>
+    <div className='bg-white border border-gray-200 overflow-hidden transition-colors duration-200'>
       {/* Header */}
-      <div className='px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-gray-200 dark:border-neutral-800'>
+      <div className='px-6 py-4 flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3 border-b border-gray-200'>
         <div>
-          <h2 className='text-xl font-semibold text-gray-800 dark:text-neutral-100 flex gap-3 items-center'>
+          <h2 className='text-xl font-semibold text-gray-800 flex gap-3 items-center'>
             <ShieldCheck size={23} />
             <span>{capitalizeFirst(role.role)} Permissions</span>
           </h2>
-          <p className='text-sm text-gray-500 dark:text-neutral-400 mt-1'>
+          <p className='text-sm text-gray-500 mt-1'>
             Manage access controls for this role
           </p>
         </div>
 
         <div className='flex-shrink-0 flex gap-2'>
           <button
-            className='py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-xs hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:pointer-events-none dark:bg-neutral-800 dark:border-neutral-700 dark:text-white dark:hover:bg-neutral-700 dark:focus:ring-blue-500/20 dark:focus:ring-offset-neutral-900 transition-colors'
+            className='py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-xs hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-70 disabled:pointer-events-none transition-colors'
             onClick={savePermissions}
             disabled={saving || loading}
             aria-label='Save permissions'
@@ -183,7 +183,7 @@ function ViewRole() {
             {saving ? (
               <>
                 <svg
-                  className='animate-spin h-4 w-4 text-gray-500 dark:text-neutral-300'
+                  className='animate-spin h-4 w-4 text-gray-500'
                   xmlns='http://www.w3.org/2000/svg'
                   fill='none'
                   viewBox='0 0 24 24'
@@ -235,8 +235,8 @@ function ViewRole() {
           <div
             className={`p-4 rounded-lg border ${
               saveMessage.type === 'success'
-                ? 'bg-green-50 border-green-200 text-green-800 dark:bg-green-900/30 dark:border-green-800 dark:text-green-200'
-                : 'bg-red-50 border-red-200 text-red-800 dark:bg-red-900/30 dark:border-red-800 dark:text-red-200'
+                ? 'bg-green-50 border-green-200 text-green-800'
+                : 'bg-red-50 border-red-200 text-red-800'
             }`}
           >
             <div className='flex items-center gap-2'>
@@ -271,17 +271,17 @@ function ViewRole() {
         )}
 
         {/* Role information */}
-        <div className='p-4 bg-gray-50 rounded-lg border border-gray-200 dark:bg-neutral-800/50 dark:border-neutral-700'>
+        <div className='p-4 bg-gray-50 rounded-lg border border-gray-200'>
           <div className='flex flex-wrap items-center gap-3'>
-            <span className='px-3 py-1.5 rounded-lg border border-gray-300 bg-white shadow-xs text-sm font-medium text-gray-700 dark:bg-neutral-800 dark:border-neutral-600 dark:text-neutral-200'>
+            <span className='px-3 py-1.5 rounded-lg border border-gray-300 bg-white shadow-xs text-sm font-medium text-gray-700'>
               {capitalizeFirst(role.role)}
             </span>
-            <div className='text-sm text-gray-500 dark:text-neutral-400'>
-              <span className='font-medium text-gray-700 dark:text-neutral-200'>
+            <div className='text-sm text-gray-500'>
+              <span className='font-medium text-gray-700'>
                 {selectedPermissions.length}
               </span>{' '}
               of{' '}
-              <span className='font-medium text-gray-700 dark:text-neutral-200'>
+              <span className='font-medium text-gray-700'>
                 {Object.values(groupedPermissions).flat().length}
               </span>{' '}
               permissions selected
@@ -293,17 +293,17 @@ function ViewRole() {
         <div className='space-y-8'>
           <div className='flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3'>
             <div>
-              <h3 className='text-lg font-medium text-gray-800 dark:text-neutral-100'>
+              <h3 className='text-lg font-medium text-gray-800'>
                 Permissions
               </h3>
-              <p className='text-sm text-gray-500 dark:text-neutral-400 mt-1'>
+              <p className='text-sm text-gray-500 mt-1'>
                 Toggle permissions to control access for this role
               </p>
             </div>
             {Object.keys(groupedPermissions).length > 0 && (
               <button
                 onClick={toggleAllPermissions}
-                className='text-sm text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 font-medium transition-colors'
+                className='text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors'
                 disabled={loading}
               >
                 {allPermissionsSelected ? 'Deselect all' : 'Select all'}
@@ -314,7 +314,7 @@ function ViewRole() {
           {Object.keys(groupedPermissions).length === 0 ? (
             <div className='text-center py-8'>
               <svg
-                className='mx-auto h-12 w-12 text-gray-400 dark:text-neutral-500'
+                className='mx-auto h-12 w-12 text-gray-400'
                 fill='none'
                 viewBox='0 0 24 24'
                 stroke='currentColor'
@@ -326,10 +326,10 @@ function ViewRole() {
                   d='M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z'
                 />
               </svg>
-              <h4 className='mt-2 text-sm font-medium text-gray-800 dark:text-neutral-200'>
+              <h4 className='mt-2 text-sm font-medium text-gray-800'>
                 No permissions available
               </h4>
-              <p className='mt-1 text-sm text-gray-500 dark:text-neutral-400'>
+              <p className='mt-1 text-sm text-gray-500'>
                 Contact your administrator to add permissions
               </p>
             </div>
@@ -337,10 +337,10 @@ function ViewRole() {
             Object.entries(groupedPermissions).map(([category, perms]) => (
               <section key={category} className='space-y-4'>
                 <div className='flex items-center justify-between'>
-                  <h4 className='text-md font-medium text-gray-700 dark:text-neutral-200'>
+                  <h4 className='text-md font-medium text-gray-700'>
                     {category}
                   </h4>
-                  <span className='text-xs text-gray-500 dark:text-neutral-400'>
+                  <span className='text-xs text-gray-500'>
                     {perms.filter((p) => isPermissionSelected(p.name)).length}/
                     {perms.length} selected
                   </span>
@@ -351,8 +351,8 @@ function ViewRole() {
                       key={permission.id}
                       className={`p-3 rounded-lg border cursor-pointer transition-colors ${
                         isPermissionSelected(permission.name)
-                          ? 'border-blue-200 bg-blue-50 dark:border-blue-900/50 dark:bg-blue-900/20'
-                          : 'border-gray-200 hover:border-gray-300 dark:border-neutral-700 dark:hover:border-neutral-600'
+                          ? 'border-blue-200 bg-blue-50'
+                          : 'border-gray-200 hover:border-gray-300'
                       }`}
                       onClick={() => togglePermission(permission.name)}
                       onKeyDown={(e) =>
@@ -367,7 +367,7 @@ function ViewRole() {
                           <input
                             type='checkbox'
                             id={`permission-${permission.id}`}
-                            className='h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer dark:bg-neutral-800 dark:border-neutral-600'
+                            className='h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded cursor-pointer'
                             checked={isPermissionSelected(permission.name)}
                             onChange={() => togglePermission(permission.name)}
                             aria-labelledby={`permission-label-${permission.id}`}
@@ -377,12 +377,12 @@ function ViewRole() {
                           <label
                             id={`permission-label-${permission.id}`}
                             htmlFor={`permission-${permission.id}`}
-                            className='block text-sm font-medium text-gray-700 dark:text-neutral-200 cursor-pointer'
+                            className='block text-sm font-medium text-gray-700 cursor-pointer'
                           >
                             {permission.name}
                           </label>
                           {permission.description && (
-                            <p className='mt-1 text-xs text-gray-500 dark:text-neutral-400'>
+                            <p className='mt-1 text-xs text-gray-500'>
                               {permission.description}
                             </p>
                           )}

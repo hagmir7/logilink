@@ -316,6 +316,7 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
                     <th>Couleur</th>
                     <th>Chant</th>
                     <th>Description</th>
+                    <th>Prof</th>
                     <th>ÉP</th>
                     <th>Réf</th>
                   </tr>
@@ -336,10 +337,11 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
                           <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
                         </td>
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
+                        
                         <td>{item.Chant || art.Chant || '__'}</td>
                         {/* <td>{item.Poignee} {" "} {item?.Rotation}</td> */}
                         <td>{item.Poignee} {item.Description }</td>
-                        
+                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur): Math.floor(art.Profonduer) || "__"}</td>
                         <td>{item.Episseur > 0
                           ? Math.floor(item.Episseur)
                           : Math.floor(item?.article?.Episseur) || '__'}</td>
