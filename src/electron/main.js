@@ -18,7 +18,7 @@ autoUpdater.autoInstallOnAppQuit = true;
 
 
 
-const interIcon = join(__dirname, '../build/inter.png')
+// const interIcon = join(__dirname, '../build/inter.png')
 
 
 async function generateBarcodeBase64(data) {
@@ -67,14 +67,15 @@ const createMainWindow = () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
         mainWindow.setMenu(null)
+        autoUpdater.checkForUpdatesAndNotify();
         
     }
 
-    autoUpdater.checkForUpdatesAndNotify();
+    
 
-    if(process.platform === 'win32'){
-        mainWindow.setIcon(interIcon)
-    }
+    // if(process.platform === 'win32'){
+    //     mainWindow.setIcon(interIcon)
+    // }
 
     return mainWindow;
 };
