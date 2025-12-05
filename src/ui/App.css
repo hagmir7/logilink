@@ -120,3 +120,13 @@ h1{
   width: 32px !important;
   height: 32px !important;
 }
+
+
+
+.find-article-cart > div > div {
+  padding: 6px !important;
+}
+
+.ant-collapse-content-box{
+  padding: 0!important;
+}

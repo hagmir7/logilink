@@ -19,6 +19,10 @@ export default function Connection() {
             value: 'http://localhost:8000/api/'
         },
         {
+            label: 'Développement online',
+            value: 'https://dev.intercocina.space/api/'
+        },
+        {
             label: 'Personnalisée',
             value: 'custom', // triggers input field
         },

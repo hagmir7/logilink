@@ -59,7 +59,7 @@ export default function FindArticleEmplacement() {
   }, []);
 
   return (
-    <div className="px-5">
+    <div className="px-2 md:px-5 pt-3">
       <h2 className={`${window.electron ? "text-2xl" : 'text-md'} mt-3 font-semibold text-gray-700 my-2`}>Réf Article</h2>
 
       <div className="flex gap-2">
@@ -86,7 +86,7 @@ export default function FindArticleEmplacement() {
 
       {articleData && (
         <div className="bg-gray-100 p-3 rounded-md mt-2">
-          <div className="mb-2 font-bold text-lg">
+          <div className={`mb-2 font-bold ${window.electron ? 'text-lg' : 'md'}`}>
             {uppercaseFirst(articleData.description)}
             {articleData.name && ` (${articleData.name})`}
           </div>
@@ -94,17 +94,17 @@ export default function FindArticleEmplacement() {
             {articleData.color && (
               <>
                 <div className="font-medium">Couleur:</div>
-                <div className="font-bold text-lg">{articleData.color}</div>
+                <div className={window.electron ? 'font-bold text-lg' : "text-base"}>{articleData.color}</div>
               </>
             )}
             <div className="font-medium">Dimensions:</div>
-            <div className="font-bold text-lg">
+            <div className={window.electron ? 'font-bold text-lg' : "text-base"}>
               {articleData.height || 0} × {articleData.width || 0} × {articleData.depth || 0}
             </div>
             {articleData.thickness > 0 && (
               <>
                 <div className="font-medium">Épaisseur:</div>
-                <div className="font-bold text-lg">{articleData.thickness}</div>
+                <div className={window.electron ? 'font-bold text-lg' : "text-base"}>{articleData.thickness}</div>
               </>
             )}
           </div>
@@ -117,7 +117,7 @@ export default function FindArticleEmplacement() {
         <div className="flex justify-center mt-5 w-full">
           <div className="text-center">
             <MapPin size={50} className="text-gray-400 mx-auto" />
-            <p className="text-xl text-center mt-3">Trouver l'emplacement de l'article</p>
+            <p className={`text-center mt-6 ${window.electron ? "text-xl": 'text-lg'}`}>Trouver l'emplacement de l'article</p>
           </div>
         </div>
       )}

@@ -450,9 +450,9 @@ function InventoryMovements() {
                     {formatDate(movement.created_at)}
                   </td>
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 space-x-2 flex gap-3'>
-                     {
-                    movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> :  <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
-                  }
+                    {
+                      movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> : <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
+                    }
 
                     <Button
                       type='primary'
@@ -461,6 +461,7 @@ function InventoryMovements() {
                     >
                       <Edit size={20} />
                     </Button>
+                    
                     
                     <Popconfirm
                       title='Supprimer'

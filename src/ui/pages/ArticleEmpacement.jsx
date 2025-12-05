@@ -34,18 +34,19 @@ const ArticleEmpacement = ({ code }) => {
   }, [code]);
 
   return (
-    <div className="p-4 space-y-4">
+    <div className="space-y-4 pt-2 find-article-cart">
       {data.map((emplacement, index) => (
         <Card
           key={emplacement.id}
-          style={index > 0 ? { marginTop: 14 } : {}}
+          style={index > 0 ? { marginTop: 14, padding:0 } : {}}
+          classNames={'p-0'}
           title={
             <div className="flex items-center justify-between">
               <span className="font-semibold text-lg text-gray-700">
                 {emplacement.code}
               </span>
               <span className="text-sm text-gray-500">
-                Dépôt: <span className="text-black">{emplacement?.depot?.code}</span>
+                <span className="text-black">{emplacement?.depot?.code}</span>
               </span>
             </div>
           }
@@ -58,10 +59,10 @@ const ArticleEmpacement = ({ code }) => {
                 header={
                   <div className="flex items-center justify-between">
                     <span>
-                      Palette: <Tag color="green">{palette.code}</Tag>
+                      <Tag color="green" style={window.electron ? {fontSize: '20px' }: {}} >{palette.code}</Tag>
                     </span>
-                    <span className="text-gray-500 text-sm">
-                      Type: {palette.type}
+                    <span className={`text-gray-500 ${window.electron ? 'text-lg' : 'text-sm'}`}>
+                      {palette.type}
                     </span>
                   </div>
                 }
@@ -71,6 +72,7 @@ const ArticleEmpacement = ({ code }) => {
                     size="small"
                     pagination={false}
                     rowKey="id"
+                  
                     columns={[
                       {
                         title: 'Code Article',
