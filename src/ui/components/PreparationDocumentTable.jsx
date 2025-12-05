@@ -232,7 +232,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
               </div>
             </div>
             {
-              (Number(data.status_id) === 8 || Number(data.status_id) === 9) && roles('controleur') ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
+              (Number(company(data).pivot.status_id) === 8 || Number(company(data).pivot.status_id) === 9) && roles('controleur') ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
                 color="cyan"
                 variant="solid"
                 onClick={() => navigate(`/document/palettes/${data?.piece}`)}

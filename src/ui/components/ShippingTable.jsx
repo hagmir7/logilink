@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Settings } from 'lucide-react'
-import { Button, Empty, message, Select, Tag } from 'antd'
+import { Badge, Button, Empty, message, Select, Tag } from 'antd'
 import { getExped } from '../utils/config'
 import { useAuth } from '../contexts/AuthContext'
 import Spinner from './ui/Spinner'
@@ -221,9 +221,9 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                     </span>
                   )}
                 </div>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold border ${getStatusBadgeColor(item?.document?.status?.color)}`}>
+                <Tag color={item?.document?.status?.color} style={window.electron ? {fontSize: 25, padding: 5} : {}}>
                   {item?.document?.status?.name || 'En attente'}
-                </span>
+                </Tag>
               </div>
 
               {/* Expedition and Client badges */}
@@ -260,31 +260,12 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                 <div className='flex justify-between items-center text-xl'>
                   <span className='text-gray-600 font-medium'>Palettes:</span>
                   <Tag className='font-bold text-gray-900'>
-                    <div className='font-extrabold text-xl px-4 py-2'>
+                    <div className={window.electron ? 'font-extrabold text-xl px-2 py-1' : ''}>
                       {item?.document?.palettes_count || 0}
                     </div>
                   </Tag>
                 </div>
               </div>
-
-              {/* Agent de chargement selection for mobile */}
-              {['11', '12', '13'].includes(
-                item?.document?.companies?.find(
-                  (company) => company.id == user.company_id
-                )?.pivot.status_id
-              ) &&
-                roles('preparation') && (
-                  <div className='mt-4'>
-                    <Select
-                      placeholder='Agent de chargement'
-                      value={item?.document?.delivered_by || item?.user_id}
-                      style={{ width: '100%' }}
-                      allowClear
-                      onChange={(value) => handleChange(value, item.document.id)}
-                      options={users}
-                    />
-                  </div>
-                )}
 
                 {roles('chargement') && [12, 13].includes(Number(item.document?.status_id)) && (
                 <Link to={`/chargement/${item?.document?.piece ?? item?.DO_Piec}`}>

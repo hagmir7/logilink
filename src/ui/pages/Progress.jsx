@@ -79,7 +79,7 @@ const Progress = () => {
               Suivie des Commandes {search}
             </h2>
           </div>
-          <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 py-4 px-3 md:px-4 border-b border-gray-200'>
+          <div className='flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4 pb-3 px-3 md:px-4 border-b border-gray-200'>
             {/* Search input - full width on mobile */}
             <div className='flex-1 min-w-0'>
               <Search

@@ -262,9 +262,7 @@ function Controller() {
         </div>
 
         <div className='flex gap-2'>
-          {roles('controller') && (Number(documentCompany?.pivot?.status_id) === 8 ||
-            (Number(documentCompany?.pivot?.status_id) === 9 &&
-              roles('controleur'))) && (
+          {roles('controleur') && (Number(documentCompany?.pivot?.status_id) === 8 || (Number(documentCompany?.pivot?.status_id) === 9 )) && (
             <Button href={`#/document/palettes/${id}`} className='btn'>
               <ListTodo /> Contrôler
             </Button>

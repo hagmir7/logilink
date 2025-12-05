@@ -172,15 +172,11 @@ function ReadyOrder({ documents = [], onSelectOrder, loading }) {
                 )}
               </div>
               <Tag
-                color={company(data)?.pivot?.status_id
-                  ? getStatus(Number(company(data).pivot.status_id)).color
-                  : 'gray'}
-                className='text-xs font-medium shadow-sm p-4 border m-0'
-                style={{ margin: 0, fontSize: "20px", padding: "4px" }}
+                color={data.status_id ? getStatus(Number(data.status_id)).color : 'gray'}
+                style={window.electron ? {fontSize:25, padding:5} : {}}
+                className='text-xl font-medium'
               >
-                {company(data)?.pivot?.status_id
-                  ? getStatus(Number(company(data).pivot.status_id)).name
-                  : 'En attente'}
+                {data.status_id ? getStatus(Number(data.status_id)).name : 'En attente'}
               </Tag>
             </div>
 
@@ -217,7 +213,8 @@ function ReadyOrder({ documents = [], onSelectOrder, loading }) {
             </div>
         
              {
-              Number(data.status_id) === 8 || Number(data.status_id) === 9 ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
+              Number(data.status_id) === 8 || Number(data.status_id) === 9 ? 
+              <Button style={window.electron ? { fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }: {}}
                 color="cyan"
                 variant="solid"
                 onClick={() => navigate(`/document/palettes/${data?.piece}`)}

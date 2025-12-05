@@ -295,7 +295,7 @@ function CompanyStock({ company_id }) {
 
                 {/* Loading State */}
                 {loading && (
-                  <TableSkeleton rows={roles(['admin', 'commercial']) ? 10 : 8} columns={7} />
+                  <TableSkeleton rows={roles(['admin', 'commercial']) ? 8 : 10} columns={7} />
                 )}
               </tbody>
             </table>

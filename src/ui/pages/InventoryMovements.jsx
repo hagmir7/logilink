@@ -82,9 +82,10 @@ function InventoryMovements() {
   const [users, setUsers] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState([]);
   const [emplacementSearch, setEmplacementSearch] = useState([])
-  const [controlleBtnLoading, setControlleBtnLoading] = useState(false);
-    const [page, setPage] = useState(30)
- 
+  const [controlleBtnLoading, setControlleBtnLoading] = useState(null);
+
+  const [page, setPage] = useState(30)
+
 
   const [movments, setMovments] = useState({
     data: [],
@@ -133,7 +134,7 @@ function InventoryMovements() {
     selectedDepots,
     selectedUsers,
     emplacementSearch,
-   page
+    page
   ])
 
   const handleOk = async (movementId) => {
@@ -171,7 +172,7 @@ function InventoryMovements() {
     setIsEditModalOpen(false)
     setSelectedMovement(null)
     setNewQuantity('')
-     setNewEmplacement('')
+    setNewEmplacement('')
   }
 
   const handleUpdateQuantity = async () => {
@@ -183,7 +184,7 @@ function InventoryMovements() {
       await api.put(`inventory-movement/update/${selectedMovement.id}`, {
         quantity: newQuantity,
         emplacement: newEmplacement,
-        code_article : selectedMovement.code_article
+        code_article: selectedMovement.code_article
       })
       message.success('Quantité mise à jour avec succès')
       handleCancelEdit()
@@ -254,10 +255,10 @@ function InventoryMovements() {
   const sanitizeInput = (value) => value.replace(/[\[\]]/g, '')
 
 
-  const controllMovement = async (movement_id)=>{
-    setControlleBtnLoading(true)
-     try {
-     await api.get(`inventory/movements/controlle/${movement_id}`)
+  const controllMovement = async (movement_id) => {
+    setControlleBtnLoading(movement_id)
+    try {
+      await api.get(`inventory/movements/controlle/${movement_id}`)
       message.success("Mouvement contrôlé avec succès")
       setControlleBtnLoading(false)
       fetchData()
@@ -265,7 +266,7 @@ function InventoryMovements() {
       console.error(error)
       message.error(error.response?.data?.message || 'Failed to load depots')
       setControlleBtnLoading(false)
-    
+
     }
   }
 
@@ -449,9 +450,10 @@ function InventoryMovements() {
                   <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500'>
                     {formatDate(movement.created_at)}
                   </td>
-                  <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 space-x-2 flex gap-3'>
+                  <td className='px-6 py-2 whitespace-nowrap text-sm text-gray-500 space-x-2 flex gap-3 items-center'>
                     {
-                      movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> : <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
+                      movement.controlled_by ? <CheckCircle size={20} className='text-green-700' />
+                        : <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading === movement.id} size={window.electron ? 'large' : 'small'}>Contrôlé</Button>
                     }
 
                     <Button
@@ -461,8 +463,8 @@ function InventoryMovements() {
                     >
                       <Edit size={20} />
                     </Button>
-                    
-                    
+
+
                     <Popconfirm
                       title='Supprimer'
                       description='Etes-vous sûr de vouloir Supprimer'
@@ -506,9 +508,9 @@ function InventoryMovements() {
                     Référence
                   </span>
                   <p className='text-sm font-bold text-gray-900'>
-                     <Link to={`/articles/${movement.code_article}`}>
-                        {movement.code_article}
-                     </Link>
+                    <Link to={`/articles/${movement.code_article}`}>
+                      {movement.code_article}
+                    </Link>
                   </p>
                 </div>
                 <div className='flex space-x-2 gap-2'>
@@ -550,8 +552,8 @@ function InventoryMovements() {
                   Désignation
                 </span>
                 <p className='text-sm text-gray-900 font-medium'>
-                 <Link to={`/articles/${movement.code_article}`}>
-                  {uppercaseFirst(movement.designation)}
+                  <Link to={`/articles/${movement.code_article}`}>
+                    {uppercaseFirst(movement.designation)}
                   </Link>
                 </p>
               </div>
@@ -593,18 +595,18 @@ function InventoryMovements() {
               </div>
 
               {/* Date at bottom */}
-              <div className='mt-3 pt-3 border-t border-gray-100 flex justify-between'>
+              <div className='mt-3 pt-3 border-t border-gray-100 flex justify-between items-center'>
                 <div>
                   <span className='text-xs font-semibold text-gray-500 uppercase'>
-                  Date
-                </span>
-                <p className='text-sm text-gray-700'>
-                  {formatDate(movement.created_at)}
-                </p>
+                    Date
+                  </span>
+                  <p className='text-sm text-gray-700'>
+                    {formatDate(movement.created_at)}
+                  </p>
                 </div>
                 <div>
                   {
-                    movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> :  <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading} size='large'>Contrôlé</Button>
+                    movement.controlled_by ? <CheckCircle size={20} className='text-green-700' /> : <Button onClick={() => controllMovement(movement.id)} loading={controlleBtnLoading === movement.id} size={window.electron ? 'large' : 'small'}>Contrôlé</Button>
                   }
                 </div>
               </div>
@@ -614,7 +616,7 @@ function InventoryMovements() {
 
         <div className='m-5'>
           <Select
-            onChange={(value)=> setPage(value)}
+            onChange={(value) => setPage(value)}
             className='min-w-3/8'
             defaultValue={page}
             style={window.electron && { height: '35px', fontSize: '24px' }}
@@ -669,7 +671,7 @@ function InventoryMovements() {
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
                   Référence
                 </label>
-                <Input value={selectedMovement.code_article} onChange={(e) => setSelectedMovement({...selectedMovement, code_article: e.target.value})} />
+                <Input value={selectedMovement.code_article} onChange={(e) => setSelectedMovement({ ...selectedMovement, code_article: e.target.value })} />
               </div>
 
               <div>

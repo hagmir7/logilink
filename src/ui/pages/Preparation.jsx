@@ -132,6 +132,12 @@ export default function Preparation() {
     }
   }
 
+  const [docenteteData, setDocenteteData] = useState(null);
+
+useEffect(() => {
+    api.get(`documents/${id}`).then(res => setDocenteteData(res.data));
+}, [id]);
+
 
   const goPrevious = () => {
     const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
@@ -269,12 +275,12 @@ export default function Preparation() {
 
   
 
-  const { roles } = useAuth();
+  const { roles, user } = useAuth();
 
   const handleSubmit = async () => {
     setLoading('submit', true)
 
-    if(roles(['magasinier']) && !scannedEmplacement){
+    if((roles(['magasinier']) && !scannedEmplacement) && 1 === Number(user.company_id)){
       setEmpalcementCodeError('Emplacement requis');
       message.error('Emplacement requis')
       setLoading('submit', false)
@@ -484,9 +490,9 @@ export default function Preparation() {
             </div>
 
             <div className='flex gap-3'>
-            <Button color="cyan" variant="solid" size='large' onClick={() => handleScan(1, true)}>
+              <Button color="cyan" variant="solid" size='large' onClick={() => handleScan(1, true)}>
                 <List />
-            </Button>
+              </Button>
 
               <PalettesModal
                 countPalettes={palettes.length}
@@ -494,8 +500,7 @@ export default function Preparation() {
                 selectPalette={selectPalette}
                 checkedPalette={palette}
               />
-
-                <TicketPrinter docentete={{DO_Piece: "New", DO_Tiers: "newsc"}} palettes={[{code: palette?.code}]} btnSize="large" />
+              <TicketPrinter docentete={{ DO_Piece: id, DO_Tiers: docenteteData?.document.client_id }} palettes={[{ code: palette?.code }]} btnSize="large" />
             </div>
             
 
