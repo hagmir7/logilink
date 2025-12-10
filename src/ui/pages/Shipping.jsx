@@ -10,7 +10,7 @@ const { Search } = Input
 const { RangePicker } = DatePicker
 
 function Shipping() {
- 
+
   const [documents, setDocuments] = useState([])
   const [loading, setLoading] = useState(false)
   const [documenStatus, setDocumentStatus] = useState('')
@@ -27,7 +27,7 @@ function Shipping() {
     try {
       const response = await api.get(`documents/livraison?status=${documenStatus}&search=${searchQuery}`);
       setDocuments(response.data)
-      
+
       setLoading(false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -49,18 +49,18 @@ function Shipping() {
     setMoreSpinner(true)
     setPage(page + 1)
 
-     const response = await api.get(`documents/livraison?page=${page}`)
-      setDocuments(prev => ({
-        ...prev,
-        data: response.data.data,
-        next_page_url: response.data.next_page_url,
-        total: response.data.total
-      }))
-      setMoreSpinner(false)
-    
+    const response = await api.get(`documents/livraison?page=${page}`)
+    setDocuments(prev => ({
+      ...prev,
+      data: response.data.data,
+      next_page_url: response.data.next_page_url,
+      total: response.data.total
+    }))
+    setMoreSpinner(false)
+
     try {
-      
-     
+
+
     } catch (err) {
       console.error('Failed to fetch data:', err)
       setMoreSpinner(false)
@@ -85,45 +85,67 @@ function Shipping() {
     setDateFilter(dates)
   }
 
-  
+
 
   return (
     <div className='min-h-screen'>
       {/* Header */}
-      <div className='flex flex-wrap justify-between items-center gap-4 mb-4 p-3'>
-        <h2 className='text-xl font-semibold text-gray-800'>
+      <div
+        className={`
+    flex flex-wrap items-center justify-between gap-3 mb-4
+    ${window.electron ? 'p-5 text-2xl' : 'p-2 text-xl'}
+  `}
+      >
+
+        {/* Title full width on mobile, inline on desktop */}
+        <h2 className="font-semibold text-gray-800 w-full sm:w-auto mb-0 pb-0" style={{marginBottom: '0'}}>
           Gestion de Livraison
         </h2>
-        <div className='flex items-center gap-4'>
+
+        {/* Search ALWAYS full width on mobile */}
+        <div className="w-full sm:max-w-xs">
           <Search
-            placeholder='Recherch'
+            placeholder="Rechercher"
             loading={searchSpinner}
-            size='large'
+            size={window.electron ? "large" : ""}
+            className="w-full"
             onChange={(e) => setSearchQuery(e.target.value)}
           />
+        </div>
+
+        {/* Right actions — full width stacked on mobile */}
+        <div className="flex gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
 
           <Select
-            defaultValue=''
-            className='min-w-[220px] block md:hidden'
-            size='large'
+            defaultValue=""
+            size={window.electron ? "large" : ""}
+            className="min-w-[200px] w-full sm:w-auto"
             onChange={(value) => setDocumentStatus(value)}
             options={[
-              { value: '', label: 'Tout' },
-              { value: '11', label: 'Validé' },
-              { value: '12', label: 'Livraison' },
+              { value: "", label: "Tout" },
+              { value: "11", label: "Validé" },
+              { value: "12", label: "Livraison" },
             ]}
           />
 
-          <Button onClick={fetchData} size='large'>
+          <Button
+            size={window.electron ? "large" : ""}
+            className="w-full sm:w-auto"
+            onClick={fetchData}
+          >
             {loading ? (
-              <Loader2 className='animate-spin text-blue-500' size={17} />
+              <Loader2 className="animate-spin text-blue-500" size={17} />
             ) : (
               <RefreshCcw size={17} />
             )}
-            <span className='hidden sm:inline'>Rafraîchir</span>
+            <span className="hidden sm:inline ml-1">Rafraîchir</span>
           </Button>
+
         </div>
       </div>
+
+
+
       <ShippingTable
         loading={loading}
         documents={documents}

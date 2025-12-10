@@ -90,10 +90,10 @@ function Validation() {
     setSearchSpinner(true)
     const searchValue = e.target.value
     setCurrentSearch(searchValue)
-    setPage(1) // Reset to first page
+    setPage(1)
     
     try {
-      await fetchData(searchValue, 1, false) // append = false
+      await fetchData(searchValue, 1, false)
       setSearchSpinner(false)
     } catch (err) {
       console.error('Failed to search:', err)

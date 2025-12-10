@@ -72,14 +72,16 @@ export default function Chargement() {
         articles: data.lines_count,
         quantity: data.quantity,
       })
-      
+
+      setPaletteCode(value)   // <<< VERY IMPORTANT
     } catch (err) {
-      message.error(err.response.data.message)
+      message.error(err.response?.data?.message)
       console.error('Error scanning:', err)
     } finally {
       setLoading('scan', false)
     }
   }
+
 
   const handleSubmit = async () => {
     setLoading('submit', true)

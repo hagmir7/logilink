@@ -114,12 +114,7 @@ function Document() {
   };
 
   return (
-    <div className='min-h-screen'>
-      {/* Title */}
-      <h2 className='text-lg font-semibold text-gray-800 mb-1 p-2 md:p-1'>
-        
-      </h2>
-
+    <div className='min-h-screen pt-3'>
       {/* Header */}
       <div className='flex flex-wrap justify-between items-center gap-4 mb-2 px-2 md:px-4'>
         <div className='flex items-center gap-4'>

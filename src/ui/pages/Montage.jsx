@@ -21,16 +21,26 @@ function Montage() {
     try {
       const response = await api.get(`docentetes/${id}`)
       setData(response.data)
-      setLoading(false)
     } catch (err) {
-      setLoading(false)
+      message.error(err?.response?.data?.message)
       console.error('Failed to fetch data:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
   useEffect(() => {
-    fetchData()
+    if (!id) return
+
+    fetchData() // first load
+
+    const interval = setInterval(() => {
+      fetchData();
+    }, 30000)
+
+    return () => clearInterval(interval)
   }, [id])
+
 
   const handleSelect = (id) => {
     setSelected((prev) =>

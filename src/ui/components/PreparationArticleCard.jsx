@@ -1,175 +1,136 @@
-import React from 'react';
-import { Button, Tag, Spin } from 'antd';
+import React from "react";
+import { Button, Tag, Spin } from "antd";
 
-const PreparationArticleCard = ({ 
-  item, 
-  index, 
-  isElectron = false, 
-  loadingId = null, 
-  onPrepare 
+const PreparationArticleCard = ({
+  item,
+  index,
+  isElectron = false,
+  loadingId = null,
+  onPrepare
 }) => {
-  const isDisabled = item.line.next_role_id == '4';
+  const isDisabled = item.line.next_role_id == "4";
   const isLoading = loadingId === item.line.id;
-  
-  const getProductName = () => {
-    return [item?.Nom, item.article?.Nom, item?.DL_Design]
-      .find(v => v && v !== "NULL") || "Non spécifié";
-  };
 
-  const getQuantityTagColor = () => {
-    return item.DL_QteBL == Math.floor(item.DL_Qte) ? 'green' : 'red';
-  };
+  const getProductName = () =>
+    [item?.Nom, item.article?.Nom, item?.DL_Design].find(v => v && v !== "NULL") ||
+    "Non spécifié";
 
-  const getDimension = (field) => {
-    if (item[field] > 0) return Math.floor(item[field]);
-    if (item?.article?.[field]) return Math.floor(item.article[field]);
-    return 'N/A';
-  };
+  const getQuantityTagColor = () =>
+    item.DL_QtePL == Math.floor(item.DL_Qte) ? "green" : "red";
 
-  const getSpecification = (field) => {
-    return (item.article ? item.article[field] : item[field]) || 'N/A';
+  const getDimension = field =>
+    item[field] > 0
+      ? Math.floor(item[field])
+      : item?.article?.[field]
+      ? Math.floor(item.article[field])
+      : "N/A";
+
+  // 🔥 Only difference
+  const titleText = isElectron ? "text-2xl" : "text-lg"; // smaller only
+  const baseFont = isElectron ? "text-base" : "text-sm"; // general size
+  const tagStyle = {
+    fontSize: isElectron ? "18px" : "14px",
+    padding: isElectron ? "8px 16px" : "5px 10px",
+    fontWeight: 600
   };
 
   return (
     <div
       key={index}
-      className={`bg-white border border-gray-300 rounded-md shadow-md hover:shadow-lg transition-shadow duration-200 mb-6 ${
-        isElectron ? 'p-6 rounded-xl' : 'p-5'
-      } ${isDisabled ? 'opacity-50 pointer-events-none' : ''}`}
+      className={`bg-white border border-gray-300 rounded-lg shadow-sm  transition-shadow duration-200 mb-4 
+      ${isElectron ? "p-6 rounded-xl" : "p-2"} 
+      ${isDisabled ? "opacity-50 pointer-events-none" : ""}`}
     >
-      {/* Header Section */}
-      <div className='flex justify-between items-start mb-3'>
-        <div className='flex-1 pr-4'>
-          <h3
-            className={`font-semibold text-gray-900 leading-tight ${
-              isElectron ? 'text-2xl mb-2' : 'text-xl mb-1'
-            }`}
-          >
-            {getProductName()} {item?.Description && (item.Description )} {item?.Poignee}
-          </h3>
+      {/* Header */}
+      <div className="flex justify-between items-start mb-3">
+        <h3 className={`${titleText} font-semibold text-gray-900 leading-tight`}>
+          {getProductName()} {item?.Description} {item?.Poignee}
+        </h3>
 
-        </div>
-        <Button
+        {/* <Button
           key={item.line.id}
           onClick={() => onPrepare(item.line.id)}
           style={
             isElectron
-              ? {
-                  fontSize: '20px',
-                  height: '56px',
-                  padding: '0 28px',
-                  display: 'none',
-                  borderRadius: '8px',
-                }
-              : { borderRadius: '6px' }
+              ? { fontSize: "18px", height: "52px", borderRadius: "8px" }
+              : { fontSize: "14px", height: "40px" }
           }
-          color={item.line.status.color}
           disabled={isLoading}
+          color={item.line.status.color}
         >
           {isLoading ? (
             <>
-              <Spin size='small' style={{ marginRight: 8 }} />
-              Préparation...
+              <Spin size="small" style={{ marginRight: 8 }} /> Préparation...
             </>
           ) : (
             item.line?.status?.name
           )}
-        </Button>
+        </Button> */}
       </div>
 
-      {/* Reference and Status Section */}
-      <div className='flex justify-between items-center mb-2 pb-2 border-b border-gray-200'>
-        <div className='flex flex-col gap-1'>
-          <span className={`${isElectron ? 'text-sm' : 'text-xs'} text-gray-500 uppercase tracking-wide font-medium`}>
+      {/* Reference */}
+      <div className="flex justify-between items-center mb-2 pb-2 border-b border-gray-200">
+        <div className="flex flex-col gap-1">
+          <span className={`${baseFont} text-gray-500 uppercase tracking-wide font-medium`}>
             Référence
           </span>
-          <span className={`${isElectron ? 'text-lg' : 'text-base'} font-semibold text-gray-900`}>
-            {item.AR_Ref || 'N/A'}
+          <span className={`${isElectron ? "text-lg" : "text-sm"} font-semibold text-gray-900`}>
+            {item.AR_Ref || "N/A"}
           </span>
         </div>
 
-        <div className='flex gap-2'>
-          <Tag
-            color={getQuantityTagColor()}
-            style={
-              isElectron
-                ? { fontSize: '20px', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }
-                : { fontSize: '14px', padding: '6px 12px', borderRadius: '6px', fontWeight: '500' }
-            }
-          >
-            {Number(item.DL_QteBL || 0)}
+        <div className="flex gap-2">
+          <Tag color={getQuantityTagColor()} style={tagStyle}>
+            {Math.floor(item.DL_QtePL)}
           </Tag>
-
-          <Tag
-            color={item.line.status.color}
-            style={
-              isElectron
-                ? { fontSize: '20px', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }
-                : { fontSize: '14px', padding: '6px 12px', borderRadius: '6px', fontWeight: '500' }
-            }
-          >
+          <Tag color={item.line.status.color} style={tagStyle}>
             {item.line?.status?.name}
           </Tag>
-
-          <Tag
-            color='blue'
-            style={
-              isElectron
-                ? { fontSize: '20px', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }
-                : { fontSize: '14px', padding: '6px 12px', borderRadius: '6px', fontWeight: '500' }
-            }
-          >
-            <span>{Math.floor(item.EU_Qte || 0)} {" "}</span>
-            <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
-            {/* Qté: {Math.floor(item.DL_Qte || 0)} */}
+          <Tag color="blue" style={tagStyle}>
+            {Math.floor(item.EU_Qte || 0)}
+            <small>
+              {item.EU_Qte !== item.DL_Qte ? ` (${Math.floor(item.DL_Qte)}m)` : ""}
+            </small>
           </Tag>
         </div>
       </div>
 
-      {/* Dimensions Section */}
-      <div className='mb-5'>
-        <div
-          className={`grid grid-cols-4 ${
-            isElectron ? 'gap-2 text-base' : 'gap-3 text-sm'
-          }`}
-        >
-          <div className='bg-gray-50 rounded-md p-2 border border-gray-100'>
-            <div className='text-gray-500 text-md font-medium mb-1'>Hauteur</div>
-            <div className='font-bold text-gray-900 text-lg'>{getDimension('Hauteur')}</div>
+      {/* Dimensions */}
+      <div className={`grid grid-cols-4 gap-3 ${baseFont}`}>
+        <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
+          <div className="text-gray-500 font-medium mb-1">Hauteur</div>
+          <div className="font-bold text-gray-900">{getDimension("Hauteur")}</div>
+        </div>
+        <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
+          <div className="text-gray-500 font-medium mb-1">Largeur</div>
+          <div className="font-bold text-gray-900">{getDimension("Largeur")}</div>
+        </div>
+        <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
+          <div className="text-gray-500 font-medium mb-1">Profondeur</div>
+          <div className="font-bold text-gray-900">
+            {item.Profondeur ? Math.floor(item.Profondeur) : Math.floor(item.article?.Profonduer) || "N/A"}
           </div>
-          <div className='bg-gray-50 rounded-md p-2 border border-gray-100'>
-            <div className='text-gray-500 text-md font-medium mb-1'>Largeur</div>
-            <div className='font-bold text-gray-900 text-lg'>{getDimension('Largeur')}</div>
-          </div>
-          <div className='bg-gray-50 rounded-md p-2 border border-gray-100'>
-            <div className='text-gray-500 text-md font-medium mb-1'>Profondeur</div>
-            <div className='font-bold text-gray-900 text-lg'>
-              {Math.floor(item.article ? item.article.Profondeur : item.Profondeur) || 'N/A'}
-            </div>
-          </div>
-          <div className='bg-gray-50 rounded-md p-2 border border-gray-100'>
-            <div className='text-gray-500 text-md font-medium mb-1'>Épaisseur</div>
-            <div className='font-bold text-gray-900 text-lg'>
-              {Math.floor(item.article ? item.article.Episseur : item.Episseur) || 'N/A'}
-            </div>
+        </div>
+        <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
+          <div className="text-gray-500 font-medium mb-1">Épaisseur</div>
+          <div className="font-bold text-gray-900">
+            {item.Episseur ? Math.floor(item.Episseur) : Math.floor(item.article?.Episseur) || "N/A"}
           </div>
         </div>
       </div>
 
-      {/* Specifications Section */}
-      <div>
-        <div
-          className={`grid grid-cols-2 ${
-            isElectron ? 'gap-2 text-base' : 'gap-3 text-sm'
-          }`}
-        >
-          <div className='bg-gray-50 rounded-md p-2 border border-gray-100'>
-            <div className='text-gray-500 text-md font-medium mb-1'>Couleur</div>
-            <div className='font-bold text-gray-900 text-lg'>{getSpecification('Couleur')}</div>
+      {/* Specifications */}
+      <div className={`grid grid-cols-2 gap-3 mt-4 ${baseFont}`}>
+        <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
+          <div className="text-gray-500 font-medium mb-1">Couleur</div>
+          <div className="font-bold text-gray-900">
+            {item.article?.Couleur || item.Couleur || "N/A"}
           </div>
-          <div className='bg-gray-50 rounded-md p-2 border border-gray-100'>
-            <div className='text-gray-500 text-md font-medium mb-1'>Chant</div>
-            <div className='font-bold text-gray-900 text-lg'>{getSpecification('Chant')}</div>
+        </div>
+        <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
+          <div className="text-gray-500 font-medium mb-1">Chant</div>
+          <div className="font-bold text-gray-900">
+            {item.article?.Chant || item.Chant || "N/A"}
           </div>
         </div>
       </div>
@@ -178,7 +139,3 @@ const PreparationArticleCard = ({
 };
 
 export default PreparationArticleCard;
-
-// Usage Example:
-// import ProductCard from './ProductCard';
-//

@@ -72,9 +72,15 @@ function Controller() {
   }
 
   useEffect(() => {
-    if (user?.company_id) {
+    if (!user?.company_id) return
+
+    fetchData()
+
+    const interval = setInterval(() => {
       fetchData()
-    }
+    }, 50000)
+
+    return () => clearInterval(interval) // cleanup on unmount or when id/user changes
   }, [id, user])
 
   const currentItems = data?.doclignes || []
@@ -232,6 +238,7 @@ function Controller() {
   //   c => +c.id === +user.company_id
   // );
   // setStatus(company ? getStatus(company.pivot.status_id) : null);
+
 
 
 
@@ -556,8 +563,8 @@ function Controller() {
                           className={`inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold border
                             ${
                               (item?.line?.quantity_prepare
-                                ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
-                                : Math.floor(item.DL_QteBL)) <
+                                ? Math.floor(item.DL_QtePL) - item.line.quantity_prepare
+                                : Math.floor(item.DL_QtePL)) <
                               (item?.line?.quantity_prepare
                                 ? Math.floor(item.DL_Qte) - item.line.quantity_prepare
                                 : Math.floor(item.DL_Qte))
@@ -566,8 +573,8 @@ function Controller() {
                             }`}
                         >
                           {item?.line?.quantity_prepare
-                            ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
-                            : Math.floor(item.DL_QteBL)}
+                            ? Math.floor(item.DL_QtePL) - item.line.quantity_prepare
+                            : Math.floor(item.DL_QtePL)}
                         </span>
                       </td>
                   </tr>

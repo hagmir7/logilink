@@ -192,7 +192,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
                   ? getStatus(Number(company(data).pivot.status_id)).color
                   : 'gray'}
                 className='text-xs font-medium shadow-sm p-4 border m-0'
-                style={{ margin: 0, fontSize: "20px", padding: "4px" }}
+                style={window.electron ? { margin: 0, fontSize: "20px", padding: "4px" }: {}}
               >
                 {company(data)?.pivot?.status_id
                   ? getStatus(Number(company(data).pivot.status_id)).name
@@ -216,25 +216,27 @@ function PreparationDocumentTable({ documents = [], loading }) {
             <div className='space-y-2 text-sm'>
               <div className='flex justify-between'>
                 <span className='text-gray-500 font-medium text-xl'>Référence:</span>
-                <span className='font-semibold text-lg text-gray-900'>{data.ref}</span>
+                <span className={window.electron ? 'font-semibold text-lg text-gray-900': 'font-semibold text-sm text-gray-900'}>{data.ref}</span>
               </div>
               <div className='flex justify-between'>
                 <span className='text-gray-500 font-medium text-xl'>Date du document:</span>
-                <span className='font-semibold text-lg text-gray-900'>
+                <span className={window.electron ? 'font-semibold text-lg text-gray-900': 'font-semibold text-sm text-gray-900'}>
                    {formatDate(new Date(data?.docentete?.DO_Date))}
                 </span>
               </div>
               <div className='flex justify-between'>
                 <span className='text-gray-500 font-medium text-xl'>Date prévue:</span>
-                <span className='font-semibold text-gray-900 text-lg'>
+                <span className={window.electron ? 'font-semibold text-lg text-gray-900': 'font-semibold text-sm text-gray-900'}>
                   {formatDate(new Date(data?.docentete?.DO_DateLivr))}
                 </span>
               </div>
             </div>
             {
-              (Number(company(data).pivot.status_id) === 8 || Number(company(data).pivot.status_id) === 9) && roles('controleur') ? <Button style={{ fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' }}
+              (Number(company(data).pivot.status_id) === 8 || Number(company(data).pivot.status_id) === 9) && roles('controleur') ?
+               <Button style={window.electron ? { fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' } : {marginTop: '12px'}}
                 color="cyan"
                 variant="solid"
+                className='w-full'
                 onClick={() => navigate(`/document/palettes/${data?.piece}`)}
               >
                 Controle

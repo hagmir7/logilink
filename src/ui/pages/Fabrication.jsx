@@ -18,22 +18,31 @@ function Fabrication() {
   const [complationSpin, setComplationSpin] = useState(false)
   const currentItems = data?.doclignes || []
 
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const response = await api.get(`docentetes/${id}`)
-      setData(response.data)
-      setLoading(false)
-     
-    } catch (err) {
-      setLoading(false)
-      message.error(err?.response?.data?.message);
-      console.error('Failed to fetch data:', err)
-    }
+const fetchData = async () => {
+  setLoading(true)
+  try {
+    const response = await api.get(`docentetes/${id}`)
+    setData(response.data)
+  } catch (err) {
+    message.error(err?.response?.data?.message)
+    console.error('Failed to fetch data:', err)
+  } finally {
+    setLoading(false)
   }
-  useEffect(() => {
+}
+
+useEffect(() => {
+  if (!id) return
+
+  fetchData()
+
+  const interval = setInterval(() => {
     fetchData()
-  }, [id])
+  }, 40000)
+
+  return () => clearInterval(interval) 
+}, [id])
+
 
   const handleSelect = (id) => {
     setSelected((prev) =>

@@ -30,17 +30,25 @@ function Commercial() {
     try {
       const response = await api.get(`docentetes/${id}`)
       setData(response.data)
-      setLoading(false)
-      
     } catch (err) {
-      setLoading(false)
       console.error('Failed to fetch data:', err)
+    } finally {
+      setLoading(false)
     }
   }
 
   useEffect(() => {
+    if (!id) return
+
     fetchData()
-  }, [id])
+
+    const interval = setInterval(() => {
+      fetchData() 
+    }, 40000)
+
+    return () => clearInterval(interval) 
+  }, [id]) 
+
 
   const currentItems = data?.doclignes || []
 
@@ -461,7 +469,7 @@ function Commercial() {
 
                             <td className='px-4 py-2'>
                               <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200'>
-                                {Math.floor(item.DL_QteBL)}
+                                {Math.floor(item.DL_QtePL)}
                               </span>
                             </td>
                           </tr>

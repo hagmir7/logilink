@@ -18,6 +18,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
   const { roles = [], user } = useAuth();
   const [users, setUsers] = useState([]);
   const navigate = useNavigate()
+  const isElectron = window.electron;
 
   const fetchData = async () => {
     try {
@@ -204,85 +205,88 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
           return (
             <div
               key={index}
-              className='border-b border-gray-300 p-6 hover:bg-gray-100 cursor-pointer transition-all duration-200'
+              className='border-b border-gray-300 p-2 hover:bg-gray-100 cursor-pointer transition-all duration-200'
             >
-              {/* Header with document number and status */}
+
+              {/* Header */}
               <div
                 className='flex justify-between items-start mb-4'
                 onClick={() => onSelectOrder(piecePL)}
               >
                 <div className='flex items-center'>
-                  <span className='text-2xl font-extrabold text-gray-900'>
+                  <span className={`${isElectron ? "text-4xl" : "text-xl"} font-extrabold text-gray-900`}>
                     {roles('commercial') ? pieceBL : piecePL}
                   </span>
+
                   {(item.DO_Reliquat === "1") && (
-                    <span className='ml-3 p-2 bg-gray-200 text-gray-700 rounded'>
-                      <Settings size={18} />
+                    <span className={`ml-3 p-2 bg-gray-200 text-gray-700 rounded ${isElectron && "scale-125"}`}>
+                      <Settings size={isElectron ? 26 : 18} />
                     </span>
                   )}
                 </div>
-                <Tag color={item?.document?.status?.color} style={window.electron ? {fontSize: 25, padding: 5} : {}}>
+
+                <Tag
+                  color={item?.document?.status?.color}
+                  style={isElectron ? { fontSize: 25, padding: 6 } : {}}
+                >
                   {item?.document?.status?.name || 'En attente'}
                 </Tag>
               </div>
 
-              {/* Expedition and Client badges */}
+              {/* Badges */}
               <div className='flex flex-wrap gap-3 mb-4'>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold ${getExpeditionColor(item.DO_Expedit)}`}
-                >
+                <span className={`inline-flex items-center px-3 py-1 rounded-full font-semibold
+            ${isElectron ? "text-lg" : "text-xs"} ${getExpeditionColor(item.DO_Expedit)}`}>
                   {getExped(item.DO_Expedit)}
                 </span>
-                <span className='inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold bg-blue-200 text-blue-900'>
+
+                <span className={`inline-flex items-center px-3 py-1 rounded-full bg-blue-200 text-blue-900
+            ${isElectron ? "text-lg" : "text-xs"}`}>
                   {item.DO_Tiers}
                 </span>
               </div>
 
               {/* Details */}
-              <div className='space-y-3 text-base'>
-                <div className='flex justify-between text-xl'>
+              <div className={`${isElectron ? "text-2xl" : "text-base"} space-y-3`}>
+                <div className='flex justify-between'>
                   <span className='text-gray-600 font-medium'>Référence:</span>
+                  <span className='font-semibold text-gray-900'>{item.DO_Ref}</span>
+                </div>
+
+                <div className='flex justify-between'>
+                  <span className='text-gray-600 font-medium'>Date prévue:</span>
                   <span className='font-semibold text-gray-900'>
-                    {item.DO_Ref}
+                    {formatDate(new Date(item?.DO_DateLivr))}
                   </span>
                 </div>
 
-                <div className='flex justify-between text-xl'>
-                  <span className='text-gray-600 font-medium'>
-                    Date prévue:
-                  </span>
-                  <span className='font-semibold text-gray-900'>
-                    {formatDate(
-                      new Date(item?.DO_DateLivr)
-                    )}
-                  </span>
-                </div>
-
-                <div className='flex justify-between items-center text-xl'>
+                <div className='flex justify-between items-center'>
                   <span className='text-gray-600 font-medium'>Palettes:</span>
                   <Tag className='font-bold text-gray-900'>
-                    <div className={window.electron ? 'font-extrabold text-xl px-2 py-1' : ''}>
+                    <div className={`${isElectron ? "text-2xl px-2 py-1" : ""}`}>
                       {item?.document?.palettes_count || 0}
                     </div>
                   </Tag>
                 </div>
               </div>
 
-                {roles('chargement') && [12, 13].includes(Number(item.document?.status_id)) && (
+             <div className='mt-2'>
+               {roles('chargement') && [12, 13].includes(Number(item.document?.status_id)) && (
                 <Link to={`/chargement/${item?.document?.piece ?? item?.DO_Piec}`}>
                   <Button
-                    className="mt-4 w-full rounded-xl text-lg py-3"
-
-                    style={{ fontSize: "30px", padding: "30px", marginTop: '20px' }}
-                  >
+                    size={isElectron ? 'large' : ''}
+                    style={isElectron ? {fontSize: '25px', padding: '25px'} : {}}
+                    className={`mt-4 w-full rounded-xl py-3 ${isElectron ? "text-3xl py-4" : "text-lg"}`}>
                     🚚 Chargement
                   </Button>
                 </Link>
               )}
-
+             </div>
             </div>
           )
         })}
       </div>
+
 
       {loading ? (
         <Spinner />

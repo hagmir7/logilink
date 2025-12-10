@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import { Loader2, RefreshCcw, Eye, PlusCircle, Package } from 'lucide-react'
 import { Button, Empty, Input, Select, Pagination } from 'antd'
 import { api } from '../utils/api'
-import Spinner from '../components/ui/Spinner'
 import { useAuth } from '../contexts/AuthContext'
 import { categories, uppercaseFirst } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
@@ -120,9 +119,9 @@ function CompanyStock({ company_id }) {
           </div>
 
           {/* Controls */}
-          <div className="grid gap-4 md:grid-cols-2 md:items-end">
+          <div className="grid gap-4 md:grid-cols-3 md:items-end">
             {/* Left Side Inputs */}
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-3 col-span-2 items-center">
               <Search
                 placeholder="Rechercher un article..."
                 allowClear
@@ -166,7 +165,7 @@ function CompanyStock({ company_id }) {
 
             {/* Right Side Admin Actions */}
             {roles("admin") && (
-              <div className="flex gap-3 justify-start md:justify-end">
+              <div className="flex gap-3 col-span-1 justify-start md:justify-end">
                 <ImportArticle />
                 <Button
                   type="primary"
@@ -295,7 +294,7 @@ function CompanyStock({ company_id }) {
 
                 {/* Loading State */}
                 {loading && (
-                  <TableSkeleton rows={roles(['admin', 'commercial']) ? 8 : 10} columns={7} />
+                  <TableSkeleton rows={roles(['admin', 'commercial']) ? 8 : 10} columns={8} />
                 )}
               </tbody>
             </table>
