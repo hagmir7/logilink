@@ -204,9 +204,9 @@ useEffect(() => {
                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                    Largeur
                  </th>
-                 {/* <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                    Profondeur
-                 </th> */}
+                 </th>
                    <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                    Couleur
                  </th>
@@ -281,9 +281,9 @@ useEffect(() => {
                          ? Math.floor(item.Largeur)
                          : Math.floor(item?.article?.Largeur) || '__'}
                      </td>
-                     {/* <td className='px-2 text-sm border-r border-gray-100'>
+                     <td className='px-2 text-sm border-r border-gray-100'>
                        {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
-                     </td> */}
+                     </td>
    
                      <td className='px-2 text-sm border-r border-gray-100'>
                        {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}

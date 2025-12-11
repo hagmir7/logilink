@@ -1,10 +1,10 @@
 import { Button, message } from 'antd';
 import { Printer } from 'lucide-react';
 import { getExped, getDocumentType } from '../utils/config';
-import { useAuth } from '../contexts/AuthContext';
 import { api } from '../utils/api';
 
-export default function PrintDocument({ docentete, doclignes, largeSize }) {
+export default function PrintDocument({ docentete, doclignes, selectedRows = [], largeSize }) {
+
   const handlePrint = () => {
     const content = document.getElementById("print-section").innerHTML;
     const styledHtml = `
@@ -21,8 +21,8 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
               line-height: 1.4;
             }
             @page {
-                margin: 25; /* remove page margins */
-                size: A4;  /* force paper size */
+                margin: 25;
+                size: A4;
               }
 
             @media print {
@@ -68,48 +68,15 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
               justify-content: space-between;
               padding-bottom: 10px;
             }
-            
-            th {
-              // background-color: gray;
-            }
-
-            .company-section {
-              flex: 1;
-            }
-
-            .company-name {
-              font-size: 16px;
-              font-weight: bold;
-              margin-bottom: 2px;
-            }
-
-            .company-tagline {
-              font-size: 11px;
-              margin-bottom: 2px;
-            }
-
-            .logo-section {
-              flex: 0 0 auto;
-              margin: 0 15px;
-            }
-
-            .logo-section img {
-              height: 90px;
-            }
-
-            .client-section {
-              flex: 1;
-              text-align: right;
-            }
-
-            .info-row {
-              font-size: 11px;
-              margin-bottom: 2px;
-            }
-
-            .info-label {
-              font-weight: bold;
-            }
+            th {}
+            .company-section { flex: 1; }
+            .company-name { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+            .company-tagline { font-size: 11px; margin-bottom: 2px; }
+            .logo-section { flex: 0 0 auto; margin: 0 15px; }
+            .logo-section img { height: 90px; }
+            .client-section { flex: 1; text-align: right; }
+            .info-row { font-size: 11px; margin-bottom: 2px; }
+            .info-label { font-weight: bold; }
 
             .system-info {
               border: 1px solid #000;
@@ -135,16 +102,10 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
               vertical-align: top;
             }
 
-  
-
             th {
-              background-color: #ccc; /* or use gray, #bbb, etc. */
+              background-color: #ccc;
               font-weight: bold;
               font-size: 11px;
-            }
-
-            tbody tr:nth-child(even) {
-              // background-color: gray;
             }
 
             .footer {
@@ -206,13 +167,12 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
     printEvent();
   };
 
-    const printEvent = async () => {
+  const printEvent = async () => {
     try {
       await api.get(`documents/print/${docentete.document.id}`)
       message.success('Document imprimé avec succès')
     } catch (error) {
       console.error(error);
-      // message.error(error?.response?.data?.message || "Errur d'imprimer le document");
     }
   }
 
@@ -222,7 +182,7 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
     return `${inputDate.getFullYear()}/${String(inputDate.getMonth() + 1).padStart(2, '0')}/${String(inputDate.getDate()).padStart(2, '0')}`;
   };
 
-  const chunkLines = (lines, size = 40) => {
+  const chunkLines = (lines, size = 30) => {
     const chunks = [];
     for (let i = 0; i < lines.length; i += size) {
       chunks.push(lines.slice(i, i + size));
@@ -230,6 +190,8 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
     return chunks;
   };
 
+  /** NEW: decide what to print */
+  const printingLines = selectedRows.length > 0 ? selectedRows : doclignes;
 
   return (
     <div>
@@ -243,68 +205,38 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
         Imprimer
       </Button>
 
-      <div id='print-section'
-       style={{ display: 'none' }}
-       >
+      <div id='print-section' style={{ display: 'none' }}>
         <div className='document-content'>
           <div className='document-header'>
             <div className='company-section'>
               <div className='company-name'>STILE MOBILI</div>
-              <div className='company-tagline'>
-                Fabricant de meubles de cuisine
-              </div>
+              <div className='company-tagline'>Fabricant de meubles de cuisine</div>
               <div>4ᵉ Tranche Zone Industrielle</div>
               <div style={{ marginTop: '2px' }}>
-                <strong>Pièce: {docentete?.DO_Piece || '__'}</strong>
-                <br />
+                <strong>Pièce: {docentete?.DO_Piece || '__'}</strong><br />
                 <span>{docentete?.DO_Ref || '__'}</span>
               </div>
             </div>
 
             <div className='logo-section'>
-              <img
-                src='https://intercocina.com/storage/StileMobili-01.png'
-                alt='StileMobili'
-              />
+              <img src='https://intercocina.com/storage/StileMobili-01.png' alt='StileMobili' />
             </div>
 
             <div className='client-section'>
-              <div className='info-row'>
-                <span className='info-label'>Client:</span>{' '}
-                {docentete?.DO_Tiers || '__'}
-              </div>
-              <div className='info-row'>
-                <span className='info-label'>Date:</span>{' '}
-                {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}
-              </div>
-              <div className='info-row'>
-                <span className='info-label'>Livraison:</span>{' '}
-                {docentete?.DO_DateLivr
-                  ? dateFormat(docentete?.DO_DateLivr)
-                  : '__'}
-              </div>
-              <div className='info-row'>
-                <span className='info-label'>Expédition:</span>{' '}
-                {getExped(docentete?.DO_Expedit)}
-              </div>
-              <div className='info-row'>
-                <span className='info-label'>Type:</span>{' '}
-                {docentete?.DO_Piece
-                  ? getDocumentType(docentete.DO_Piece)
-                  : '__'}
-              </div>
+              <div className='info-row'><span className='info-label'>Client:</span> {docentete?.DO_Tiers || '__'}</div>
+              <div className='info-row'><span className='info-label'>Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
+              <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
+              <div className='info-row'><span className='info-label'>Expédition:</span> {getExped(docentete?.DO_Expedit)}</div>
+              <div className='info-row'><span className='info-label'>Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}</div>
             </div>
           </div>
 
           <div className='system-info'>
             <div>STILE MOBILI - LOGILINK PRO version 2.00</div>
-            <div>
-              Date de tirage {new Date().toISOString().split('T')[0]} à{' '}
-              {new Date().toLocaleTimeString('fr-FR')}
-            </div>
+            <div>Date de tirage {new Date().toISOString().split('T')[0]} à {new Date().toLocaleTimeString('fr-FR')}</div>
           </div>
 
-          {chunkLines(doclignes, 30).map((pageLines, pageIndex) => (
+          {chunkLines(printingLines, 30).map((pageLines, pageIndex) => (
             <div key={pageIndex} className='page-break'>
               <table>
                 <thead>
@@ -323,28 +255,25 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
                 </thead>
                 <tbody>
                   {pageLines.map((item, index) => {
-                    const art = item.article || {}
+                    const art = item.article || {};
                     return (
                       <tr key={index}>
-                        <td>{item.Hauteur > 0
-                      ? Math.floor(item.Hauteur)
-                      : Math.floor(item.article?.Hauteur) || '__'}</td>
+                        <td>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) || '__'}</td>
                         <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
                         <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
-                        
+
                         <td>
-                          <span>{Math.floor(item.EU_Qte || 0)} {" "}</span>
+                          <span>{Math.floor(item.EU_Qte || 0)} </span>
                           <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
                         </td>
+
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
-                        
                         <td>{item.Chant || art.Chant || '__'}</td>
-                        {/* <td>{item.Poignee} {" "} {item?.Rotation}</td> */}
-                        <td>{item.Poignee} {item.Description }</td>
-                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur): Math.floor(art.Profonduer) || "__"}</td>
-                        <td>{item.Episseur > 0
-                          ? Math.floor(item.Episseur)
-                          : Math.floor(item?.article?.Episseur) || '__'}</td>
+
+                        <td>{item.Poignee} {item.Description}</td>
+                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>
+
+                        <td>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(item?.article?.Episseur) || '__'}</td>
                         <td>{item.AR_Ref || '__'}</td>
                       </tr>
                     )
@@ -352,7 +281,7 @@ export default function PrintDocument({ docentete, doclignes, largeSize }) {
                 </tbody>
               </table>
 
-              {pageIndex === chunkLines(doclignes, 30).length - 1 && (
+              {pageIndex === chunkLines(printingLines, 30).length - 1 && (
                 <div className='signature-footer'>
                   <div className='signature-section'>
                     <div className='signature-header'>Date & Heure</div>

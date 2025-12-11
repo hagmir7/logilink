@@ -40,6 +40,12 @@ function Controller() {
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [status, setStatus] = useState({})
 
+  const selectedRowsFull = Object.values(selected)
+  .map(sel => data.doclignes.find(line =>
+    line.id === sel.line_id || line.line?.id === sel.line_id
+  ))
+  .filter(Boolean);
+
   const fetchData = async () => {
     setLoading(true)
 
@@ -283,12 +289,14 @@ function Controller() {
             )}
             Rafraîchir
           </Button>
-
           <PrintDocument
-            doclignes={data.doclignes}
             docentete={data.docentete}
+            doclignes={
+              Object.keys(selected).length > 0
+                ? selectedRowsFull
+                : data.doclignes
+            }
           />
-
           <TicketPrinter
             doclignes={data.doclignes}
             docentete={data.docentete}
@@ -440,6 +448,9 @@ function Controller() {
                 Largeur
               </th>
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                Prof
+              </th>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 Epaisseur
               </th>
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
@@ -536,6 +547,9 @@ function Controller() {
                       {item.Largeur > 0
                         ? Math.floor(item.Largeur)
                         : Math.floor(item?.article?.Largeur) || '__'}
+                    </td>
+                    <td className='px-2 text-sm border-r border-gray-100'>
+                      {Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(item?.article?.Profonduer) || "__"}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100'>
