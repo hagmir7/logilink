@@ -1,51 +1,9 @@
-import { Printer, ReceiptText } from 'lucide-react';
+import { Button, message } from 'antd';
+import { Printer } from 'lucide-react';
 import { getExped, getDocumentType } from '../utils/config';
 import { api } from '../utils/api';
-import React, { useState, useEffect } from 'react';
-import { Button, Modal, Select, message } from 'antd';
-import { useAuth } from '../contexts/AuthContext'
 
-const { Option } = Select;
-
-
-export default function PrintDocument({ docentete, doclignes, selectedRows = [], largeSize }) {
-
-  const [visible, setVisible] = useState(false);
-  const [printers, setPrinters] = useState([]);
-  const [selectedPrinter, setSelectedPrinter] = useState(null);
-  const { user, roles } = useAuth()
-
-  useEffect(() => {
-    const fetchPrinters = async () => {
-      try {
-        const printersList = await window.electron.getPrinters();
-        setPrinters(printersList);
-      } catch (error) {
-        message.error('Échec du chargement des imprimantes');
-      }
-    };
-    fetchPrinters();
-  }, []);
-
-  const handlePrintPdf = async () => {
-    if (!selectedPrinter) {
-      message.warning('Veuillez sélectionner une imprimante.');
-      return;
-    }
-
-    try {
-      await window.electron.printPaletteTickets(selectedPrinter, {
-        docentete,
-        palettes: palettes.length > 0 ? palettes : docentete?.document?.palettes?.filter(palette => palette?.company_id == user?.company_id)
-      });
-      message.success("L'impression a commencé !");
-      setVisible(false);
-    } catch (error) {
-      console.error(error);
-      message.error("L'impression a échoué.");
-    }
-  };
-
+export default function PrintDocumentTest({ docentete, doclignes, selectedRows = [], largeSize }) {
 
   const handlePrint = () => {
     const content = document.getElementById("print-section").innerHTML;
@@ -54,7 +12,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
         <head>
           <style>
             body {
-              font-family: 'Arial', sans-serif;
+              font-family: Arial, Helvetica, sans-serif;
               margin: 0;
               padding: 25px;
               color: #000;
@@ -110,9 +68,8 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               justify-content: space-between;
               padding-bottom: 10px;
             }
-            th {}
             .company-section { flex: 1; }
-            .company-name { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+            .company-name { font-size: 14px; font-weight: bold; margin-bottom: 3px; }
             .company-tagline { font-size: 11px; margin-bottom: 2px; }
             .logo-section { flex: 0 0 auto; margin: 0 15px; }
             .logo-section img { height: 90px; }
@@ -130,25 +87,44 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             }
 
             table {
-              width: 100%;
+              font-family: Arial, Helvetica, sans-serif;
               border-collapse: collapse;
+              width: 100%;
               margin-top: 15px;
               font-size: 11px;
-              color: #000;
             }
 
-            th, td {
-              border: 1px solid #333;
-              padding: 3px 8px;
-              text-align: left;
+            td {
+              padding: 8px;
+              text-align: center;
               vertical-align: top;
+              
             }
 
-            th {
-              background-color: #ccc;
-              font-weight: bold;
-              font-size: 11px;
+        
+
+            tr:nth-child(even) {
+              background-color: #f2f2f2;
             }
+
+            .with-bg{
+                background-color: #f2f2f2;
+            }
+
+
+                th {
+                padding: 12px 0;
+                text-align: center;
+                border-bottom: 0.3px solid gray;
+                color: black;
+                font-weight: bold;
+                font-size: 12px;
+                }
+
+                .ref {
+                border-right: 0.3px solid gray;
+                }
+
 
             .footer {
               margin-top: 30px;
@@ -205,10 +181,8 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
         </body>
       </html>
     `;
-    window.electron.ipcRenderer.send("print-content", {htmlContent: styledHtml, printer:selectedPrinter});
-    if(!roles('commercial')){
-      printEvent();
-    }
+    window.electron.ipcRenderer.send("print-content", styledHtml);
+    printEvent();
   };
 
   const printEvent = async () => {
@@ -239,67 +213,23 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
 
   return (
     <div>
-
-      {roles(['commercial', 'admin']) ? (
-        <>
-          <Button
-            type="primary"
-            onClick={() => setVisible(true)}
-            size={largeSize}
-            color="cyan"
-            variant="solid"
-            icon={<Printer size={largeSize ? 40 : 16} />}
-          >
-            Imprimer
-          </Button>
-
-          <Modal
-            title="Sélectionner l'imprimante"
-            open={visible}
-            onOk={handlePrint}
-            onCancel={() => setVisible(false)}
-            okText="Imprimer"
-            cancelText="Annuler"
-          >
-            <Select
-              style={{ width: "100%" }}
-              placeholder="Sélectionnez une imprimante"
-              onChange={value => setSelectedPrinter(value)}
-            >
-              {printers.map((printer, index) => (
-                <Option key={index} value={printer.name}>
-                  {printer.name}
-                </Option>
-              ))}
-            </Select>
-          </Modal>
-        </>
-      ) : (
-        <Button
-          onClick={handlePrint}
-          style={largeSize ? { height: 60, fontSize: 25 } : {}}
-          color="cyan"
-          variant="solid"
-          icon={<Printer size={largeSize ? 40 : 16} />}
-        >
-          Imprimer
-        </Button>
-      )}
-
-
-      
+      <Button
+        onClick={handlePrint}
+        style={largeSize ? {height: 60, fontSize: 25} : {}}
+        color='cyan'
+        variant='solid'
+        icon={<Printer size={ largeSize ? 40 : 16} />}
+      >
+        Imprimer test
+      </Button>
 
       <div id='print-section' style={{ display: 'none' }}>
         <div className='document-content'>
           <div className='document-header'>
             <div className='company-section'>
-              <div className='company-name'>STILE MOBILI</div>
-              <div className='company-tagline'>Fabricant de meubles de cuisine</div>
-              <div>4ᵉ Tranche Zone Industrielle</div>
-              <div style={{ marginTop: '2px' }}>
-                <strong>Pièce: {docentete?.DO_Piece || '__'}</strong><br />
-                <span>{docentete?.DO_Ref || '__'}</span>
-              </div>
+              <div className='company-name'>N° CLIENT: {docentete?.DO_Tiers || ''}</div>
+              <div className='company-name with-bg'>N° DOC: {docentete?.DO_Piece || ''}</div>
+              <div className='company-name'>REF: {docentete?.DO_Ref || ''}</div>
             </div>
 
             <div className='logo-section'>
@@ -307,11 +237,9 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             </div>
 
             <div className='client-section'>
-              <div className='info-row'><span className='info-label'>Client:</span> {docentete?.DO_Tiers || '__'}</div>
-              <div className='info-row'><span className='info-label'>Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
-              <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
-              <div className='info-row'><span className='info-label'>Expédition:</span> {getExped(docentete?.DO_Expedit)}</div>
-              <div className='info-row'><span className='info-label'>Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}</div>
+             <div className='company-name'><span style={{textAlign: 'left'}}>DATE DOC: </span>     {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
+              <div className='company-name with-bg'>DATE LIVRE:   {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
+              <div className='company-name'>EXPEDITION : {getExped(docentete?.DO_Expedit)}</div>
             </div>
           </div>
 
@@ -325,16 +253,16 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               <table>
                 <thead>
                   <tr>
+                    <th className='ref'>REF</th>
+                    <th>QTE</th>
+                    <th>PIECE</th>
                     <th>H</th>
-                    <th>Pièce</th>
                     <th>L</th>
-                    <th>Qté</th>
-                    <th>Couleur</th>
-                    <th>Chant</th>
-                    <th>Description</th>
-                    <th>Prof</th>
-                    <th>ÉP</th>
-                    <th>Réf</th>
+                    <th>P</th>
+                    <th>E</th>
+                    <th>COL</th>
+                    <th>C</th>
+                    <th>DESCRIPTION</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -342,23 +270,22 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                     const art = item.article || {};
                     return (
                       <tr key={index}>
-                        <td>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) || '__'}</td>
-                        <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
-                        <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
-
+                        <td className='ref'>{item.AR_Ref || '__'}</td>
                         <td>
                           <span>{Math.floor(item.EU_Qte || 0)} </span>
                           <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
                         </td>
+                        <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
 
+                        <td>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) || '__'}</td>
+                        <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
+                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>
+                        <td>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(item?.article?.Episseur) || '__'}</td>
+
+                        
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
-
                         <td>{item.Poignee} {item.Description}</td>
-                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>
-
-                        <td>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(item?.article?.Episseur) || '__'}</td>
-                        <td>{item.AR_Ref || '__'}</td>
                       </tr>
                     )
                   })}

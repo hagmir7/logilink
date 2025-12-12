@@ -144,7 +144,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data.created_at))}
+                    {formatDate(new Date(data?.docentete?.DO_Date))}
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-2 items-center'>
@@ -197,7 +197,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
                 {company(data)?.pivot?.status_id
                   ? getStatus(Number(company(data).pivot.status_id)).name
                   : 'En attente'}
-              </Tag>
+              </Tag> 
             </div>
 
             {/* Expedition and Client badges */}
@@ -222,6 +222,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
                 <span className='text-gray-500 font-medium text-xl'>Date du document:</span>
                 <span className={window.electron ? 'font-semibold text-lg text-gray-900': 'font-semibold text-sm text-gray-900'}>
                    {formatDate(new Date(data?.docentete?.DO_Date))}
+              
                 </span>
               </div>
               <div className='flex justify-between'>
@@ -232,7 +233,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
               </div>
             </div>
             {
-              (Number(company(data).pivot.status_id) === 8 || Number(company(data).pivot.status_id) === 9) && roles('controleur') ?
+              (Number(company(data)?.pivot.status_id) === 8 || Number(company(data)?.pivot?.status_id) === 9) && roles('controleur') ?
                <Button style={window.electron ? { fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' } : {marginTop: '12px'}}
                 color="cyan"
                 variant="solid"

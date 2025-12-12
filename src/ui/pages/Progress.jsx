@@ -21,10 +21,10 @@ const Progress = () => {
     }, [search, dateFilter])
 
     const getDocuments = async () => {
-      
-      
       setLoading(true)
-      const { data } = await api.get(`documents?search=${search}&dates=${dateFilter || ''}`)
+      console.log(dateFilter);
+      
+      const { data } = await api.get(`documents?search=${search}&dates=${dateFilter}`)
       setDocuments(data)
  
       
@@ -74,7 +74,7 @@ const Progress = () => {
       <div className=''>
         {/* Orders Table */}
         <div>
-          <div className='px-6 py-4'>
+          <div className='px-6 py-2'>
             <h2 className='text-xl font-semibold text-gray-900'>
               Suivie des Commandes {search}
             </h2>
@@ -95,9 +95,13 @@ const Progress = () => {
               <RangePicker
                 size='large'
                 locale={locale}
-                onChange={(dates, dateStrings) => {
-                  setDateFilter(dateStrings)
-                }}
+                  onChange={(dates, dateStrings) => {
+                    if (dateStrings && dateStrings.length === 2) {
+                      setDateFilter(`${dateStrings[0]},${dateStrings[1]}`)
+                    } else {
+                      setDateFilter('')
+                    }
+                  }}
                 className='h-10 w-full'
                 placeholder={['Date début', 'Date fin']}
               />

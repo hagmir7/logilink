@@ -66,7 +66,7 @@ const createMainWindow = () => {
         mainWindow.loadURL('http://localhost:5123');
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
-        mainWindow.setMenu(null)
+        // mainWindow.setMenu(null)
         autoUpdater.checkForUpdatesAndNotify();
         
     }
@@ -233,7 +233,7 @@ ipcMain.on('print', () => {
 
 
 
-ipcMain.on("print-content", (event, htmlContent) => {
+ipcMain.on("print-content", (event, data) => {
   const printWindow = new BrowserWindow({
     show: false,
     webPreferences: {
@@ -242,13 +242,13 @@ ipcMain.on("print-content", (event, htmlContent) => {
   });
 
   // Load HTML content
-  printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(htmlContent)}`);
+  printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(data.htmlContent)}`);
 
   printWindow.webContents.on("did-finish-load", () => {
     const printOptions = {
       silent: true,                  
       printBackground: true,
-      deviceName: '',
+      deviceName: data?.printer || '',
       color: true,
       margins: {
         marginType: 'none',

@@ -9,6 +9,7 @@ import { RefreshCcw, ArrowRight } from 'lucide-react'
 import SkeletonTable from '../components/ui/SkeletonTable'
 import EmptyTable from '../components/ui/EmptyTable';
 import PrintDocument from '../components/PrintDocument'
+import PrintDocumentTest from '../components/PrintDocumentTest'
 
 function Fabrication() {
   const { id } = useParams()
@@ -17,6 +18,12 @@ function Fabrication() {
   const [selected, setSelected] = useState([])
   const [complationSpin, setComplationSpin] = useState(false)
   const currentItems = data?.doclignes || []
+
+  const selectedRowsFull = Object.values(selected)
+    .map(sel => data.doclignes.find(line =>
+      line.id === sel.line_id || line.line?.id === sel.line_id
+    ))
+    .filter(Boolean);
 
 const fetchData = async () => {
   setLoading(true)
@@ -38,7 +45,7 @@ useEffect(() => {
 
   const interval = setInterval(() => {
     fetchData()
-  }, 40000)
+  }, 1110000)
 
   return () => clearInterval(interval) 
 }, [id])
@@ -87,7 +94,7 @@ useEffect(() => {
       fetchData()
     } catch (error) {
       console.error(error)
-      message.error(error?.response?.data?.message);
+      message.error(error?.response?.data?.message || 'server error ⚠️');
       setComplationSpin(false)
     }
   }
@@ -121,7 +128,23 @@ useEffect(() => {
             )}
             Rafraîchir
           </Button>
-          <PrintDocument doclignes={data.doclignes} docentete={data.docentete} />
+          <PrintDocument
+            docentete={data.docentete}
+            doclignes={
+              Object.keys(selected).length > 0
+                ? selectedRowsFull
+                : data.doclignes
+            }
+          />
+
+          {/* <PrintDocumentTest
+            docentete={data.docentete}
+            doclignes={
+              Object.keys(selected).length > 0
+                ? selectedRowsFull
+                : data.doclignes
+            }
+          /> */}
         </div>
       </div>
 
