@@ -130,3 +130,22 @@ h1{
 .ant-collapse-content-box{
   padding: 0!important;
 }
+
+
+.electron-modal .ant-table {
+  font-size: 16px !important;
+}
+
+.electron-modal .ant-table-thead > tr > th {
+  font-size: 16px !important;
+  font-weight: 600;
+}
+
+.electron-modal .ant-table-tbody > tr > td {
+  font-size: 16px !important;
+  padding: 12px 16px !important;
+}
+
+.electron-modal .ant-pagination {
+  font-size: 15px !important;
+}

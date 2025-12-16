@@ -99,10 +99,6 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               table {
                 margin-bottom: 20px;
               }
-
-              .footer {
-                display: none;
-              }
             }
 
             .document-header {
@@ -199,9 +195,6 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
         </head>
         <body>
           ${content}
-          <div class="footer">
-            STILE MOBILI - Document imprimé le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')} - Page 1
-          </div>
         </body>
       </html>
     `;
@@ -226,7 +219,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
     return `${inputDate.getFullYear()}/${String(inputDate.getMonth() + 1).padStart(2, '0')}/${String(inputDate.getDate()).padStart(2, '0')}`;
   };
 
-  const chunkLines = (lines, size = 30) => {
+  const chunkLines = (lines, size = 40) => {
     const chunks = [];
     for (let i = 0; i < lines.length; i += size) {
       chunks.push(lines.slice(i, i + size));
@@ -311,7 +304,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               <div className='info-row'><span className='info-label'>Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
               <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
               <div className='info-row'><span className='info-label'>Expédition:</span> {getExped(docentete?.DO_Expedit)}</div>
-              <div className='info-row'><span className='info-label'>Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}</div>
+              <div className='info-row'><span className='info-label'>Page:</span> 1 sur {chunkLines(printingLines, 40).length}</div>
             </div>
           </div>
 
@@ -320,8 +313,41 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             <div>Date de tirage {new Date().toISOString().split('T')[0]} à {new Date().toLocaleTimeString('fr-FR')}</div>
           </div>
 
-          {chunkLines(printingLines, 30).map((pageLines, pageIndex) => (
+          {chunkLines(printingLines, 40).map((pageLines, pageIndex) => (
             <div key={pageIndex} className='page-break'>
+              {pageIndex > 0 && (
+                <>
+                  <div className='document-header'>
+                    <div className='company-section'>
+                      <div className='company-name'>STILE MOBILI</div>
+                      <div className='company-tagline'>Fabricant de meubles de cuisine</div>
+                      <div>4ᵉ Tranche Zone Industrielle</div>
+                      <div style={{ marginTop: '2px' }}>
+                        <strong>Pièce: {docentete?.DO_Piece || '__'}</strong><br />
+                        <span>{docentete?.DO_Ref || '__'}</span>
+                      </div>
+                    </div>
+
+                    <div className='logo-section'>
+                      <img src='https://intercocina.com/storage/StileMobili-01.png' alt='StileMobili' />
+                    </div>
+
+                    <div className='client-section'>
+                      <div className='info-row'><span className='info-label'>Client:</span> {docentete?.DO_Tiers || '__'}</div>
+                      <div className='info-row'><span className='info-label'>Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
+                      <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
+                      <div className='info-row'><span className='info-label'>Expédition:</span> {getExped(docentete?.DO_Expedit)}</div>
+                      <div className='info-row'><span className='info-label'>Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}</div>
+                      <div className='info-row'><span className='info-label'>Page:</span> {pageIndex + 1} sur {chunkLines(printingLines, 40).length}</div>
+                    </div>
+                  </div>
+
+                  <div className='system-info'>
+                    <div>STILE MOBILI - LOGILINK PRO version 2.00</div>
+                    <div>Date de tirage {new Date().toISOString().split('T')[0]} à {new Date().toLocaleTimeString('fr-FR')}</div>
+                  </div>
+                </>
+              )}
               <table>
                 <thead>
                   <tr>
@@ -329,10 +355,11 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                     <th>Pièce</th>
                     <th>L</th>
                     <th>Qté</th>
+                    <th>Prof</th>
                     <th>Couleur</th>
                     <th>Chant</th>
                     <th>Description</th>
-                    <th>Prof</th>
+                    
                     <th>ÉP</th>
                     <th>Réf</th>
                   </tr>
@@ -351,11 +378,13 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                           <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
                         </td>
 
+                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>
+
+
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
 
                         <td>{item.Poignee} {item.Description}</td>
-                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>
 
                         <td>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(item?.article?.Episseur) || '__'}</td>
                         <td>{item.AR_Ref || '__'}</td>
@@ -365,7 +394,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                 </tbody>
               </table>
 
-              {pageIndex === chunkLines(printingLines, 30).length - 1 && (
+              {pageIndex === chunkLines(printingLines, 40).length - 1 && (
                 <div className='signature-footer'>
                   <div className='signature-section'>
                     <div className='signature-header'>Date & Heure</div>

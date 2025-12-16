@@ -138,7 +138,7 @@ function ReadyOrder({ documents = [], onSelectOrder, loading }) {
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data.created_at))}
+                    {formatDate(new Date(data?.docentete?.DO_Date))}
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-2 items-center'>

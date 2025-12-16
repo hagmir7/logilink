@@ -4,9 +4,10 @@ import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select } from 'antd'
-import { Building2, Package, Hash, AlertCircle, ArrowDownFromLine, ArrowUpFromLine } from 'lucide-react'
+import { Building2, Package, Hash, AlertCircle, ArrowDownFromLine, ArrowUpFromLine, List } from 'lucide-react'
 import { debounce } from 'lodash';
 import InputField from '../components/ui/InputField';
+import EmplacementArticles from './EmplacementArticles'
 
 export default function StockMovement() {
 
@@ -27,6 +28,7 @@ export default function StockMovement() {
   const [totalQuantity, setTotalQuantity] = useState(0)
   const [companies, setCompanies] = useState([])
   const [company, setCompany] = useState(null);
+  const [open, setOpen] = useState(false)
 
 
   const location = useLocation();
@@ -292,7 +294,7 @@ export default function StockMovement() {
             <div className="w-px h-6 bg-gray-300" />
 
             <h1
-              className={`${window.electron ? "text-2xl" : 'text-md'} font-bold truncate flex gap-3 items-center ${location.pathname.includes('return')
+              className={`${window.electron ? "text-2xl" : 'text-md'} font-bold truncate flex justify-around gap-3 items-center ${location.pathname.includes('return')
                   ? 'text-yellow-600'
                   : location.pathname === '/stock/in'
                     ? 'text-green-700'
@@ -316,6 +318,28 @@ export default function StockMovement() {
                 </>
               )}
             </h1>
+
+            {
+              emplacementCode && <>
+                <Button 
+                  size={window.electron ? 'large' : 'small'} 
+                  onClick={() => setOpen(true)}
+                  style={window.electron ? {float: 'right'} : {}}
+                >
+                  <List />
+                </Button>
+
+                <EmplacementArticles
+                  emplacement_code={emplacementCode}
+                  open={open}
+                  onClose={() => setOpen(false)}
+                  onArticleSelect={(articleCode) => {
+                    setArticleCode(articleCode);
+                    fetchArticleData(articleCode);
+                  }}
+                />
+              </>
+            }
           </div>
         </div>
 

@@ -6,10 +6,8 @@ import { Button, Checkbox, DatePicker, Empty, message, Tag } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { RefreshCcw, ArrowRight } from 'lucide-react'
-import SkeletonTable from '../components/ui/SkeletonTable'
-import EmptyTable from '../components/ui/EmptyTable';
 import PrintDocument from '../components/PrintDocument'
-import PrintDocumentTest from '../components/PrintDocumentTest'
+
 
 function Fabrication() {
   const { id } = useParams()
@@ -19,47 +17,46 @@ function Fabrication() {
   const [complationSpin, setComplationSpin] = useState(false)
   const currentItems = data?.doclignes || []
 
-  const selectedRowsFull = Object.values(selected)
-    .map(sel => data.doclignes.find(line =>
-      line.id === sel.line_id || line.line?.id === sel.line_id
-    ))
-    .filter(Boolean);
+  // Fixed: Better filtering logic for selected rows
+  const selectedRowsFull = data.doclignes.filter(line => 
+    selected.includes(line.line?.id)
+  );
 
-const fetchData = async () => {
-  setLoading(true)
-  try {
-    const response = await api.get(`docentetes/${id}`)
-    setData(response.data)
-  } catch (err) {
-    message.error(err?.response?.data?.message)
-    console.error('Failed to fetch data:', err)
-  } finally {
-    setLoading(false)
+  const fetchData = async () => {
+    setLoading(true)
+    try {
+      const response = await api.get(`docentetes/${id}`)
+      setData(response.data)
+    } catch (err) {
+      message.error(err?.response?.data?.message)
+      console.error('Failed to fetch data:', err)
+    } finally {
+      setLoading(false)
+    }
   }
-}
 
-useEffect(() => {
-  if (!id) return
+  useEffect(() => {
+    if (!id) return
 
-  fetchData()
-
-  const interval = setInterval(() => {
     fetchData()
-  }, 1110000)
 
-  return () => clearInterval(interval) 
-}, [id])
+    const interval = setInterval(() => {
+      fetchData()
+    }, 1110000)
+
+    return () => clearInterval(interval) 
+  }, [id])
 
 
-  const handleSelect = (id) => {
+  const handleSelect = (lineId) => {
     setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+      prev.includes(lineId) ? prev.filter((item) => item !== lineId) : [...prev, lineId]
     )
   }
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelected(data.doclignes.map((item) => item.line.id))
+      setSelected(data.doclignes.map((item) => item.line?.id).filter(Boolean))
     } else {
       setSelected([])
     }
@@ -67,19 +64,19 @@ useEffect(() => {
 
   const onDateChange = async (date, dateString) => {
     if (selected.length === 0) return
-    const data = {
+    const requestData = {
       complation_date: date,
       lines: selected,
     }
-    setSelected([]);
+    
     try {
-      await api.post('docentetes/start', data)
+      await api.post('docentetes/start', requestData)
       message.success("Date modifiée avec succès")
+      setSelected([]); // Clear after successful request
       fetchData();
     } catch (error) {
       message.error(error?.response?.data?.message);
       console.error(error)
-      setComplationSpin(false)
     }
   }
 
@@ -90,11 +87,12 @@ useEffect(() => {
     try {
       await api.post('docentetes/complation', {lines: selected})
       message.success("Fabrication terminée avec succès", 6);
-      setComplationSpin(false)
+      setSelected([]); // Clear selection after success
       fetchData()
     } catch (error) {
       console.error(error)
       message.error(error?.response?.data?.message || 'server error ⚠️');
+    } finally {
       setComplationSpin(false)
     }
   }
@@ -131,25 +129,15 @@ useEffect(() => {
           <PrintDocument
             docentete={data.docentete}
             doclignes={
-              Object.keys(selected).length > 0
+              selected.length > 0
                 ? selectedRowsFull
                 : data.doclignes
             }
           />
-
-          {/* <PrintDocumentTest
-            docentete={data.docentete}
-            doclignes={
-              Object.keys(selected).length > 0
-                ? selectedRowsFull
-                : data.doclignes
-            }
-          /> */}
         </div>
       </div>
 
       {/* Document Info */}
-     {/* Document Info */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         {[
           {
@@ -191,7 +179,6 @@ useEffect(() => {
             lang='fr'
             className='border-2'
             placeholder='Date de livraison'
-            // dateFormat='dd/MM/yyyy'
           />
         </div>
         <div className='flex gap-3'>
