@@ -577,8 +577,8 @@ function Controller() {
                           className={`inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold border
                             ${
                               (item?.line?.quantity_prepare
-                                ? Math.floor(item.DL_QtePL) - item.line.quantity_prepare
-                                : Math.floor(item.DL_QtePL)) <
+                                ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
+                                : Math.floor(item.DL_QteBL)) <
                               (item?.line?.quantity_prepare
                                 ? Math.floor(item.DL_Qte) - item.line.quantity_prepare
                                 : Math.floor(item.DL_Qte))
@@ -587,8 +587,8 @@ function Controller() {
                             }`}
                         >
                           {item?.line?.quantity_prepare
-                            ? Math.floor(item.DL_QtePL) - item.line.quantity_prepare
-                            : Math.floor(item.DL_QtePL)}
+                            ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
+                            : Math.floor(item.DL_QteBL)}
                         </span>
                       </td>
                   </tr>

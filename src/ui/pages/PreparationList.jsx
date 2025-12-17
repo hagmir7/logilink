@@ -289,12 +289,12 @@ function PreparationList() {
 
                   <Td>
                     <Tag
-                      color={item.DL_QtePL == Math.floor(item.DL_Qte)
+                      color={item.DL_QteBL == Math.floor(item.DL_Qte)
                         ? 'green-inverse'
                         : 'red-inverse'
                       }
                     >
-                      {Number(item.DL_QtePL || 0)}
+                      {Number(item.DL_QteBL || 0)}
                     </Tag>
                   </Td>
                 </Tr>

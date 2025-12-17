@@ -154,9 +154,11 @@ function StockMovements({ company_id }) {
   const handleOk = async (movementId) => {
     setConfirmLoading(true)
     try {
-      await api.delete(`stock/movements/delete/${movementId}`)
+      const response = await api.delete(`stock/movements/delete/${movementId}`)
       fetchData()
+      message.success(response.data.message)
     } catch (err) {
+      message.error(err.response.data.message || "Errur de supermier")
       console.error('Delete failed:', err)
     } finally {
       setConfirmLoading(false)

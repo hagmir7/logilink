@@ -27,7 +27,7 @@ function DocumentCard({ data, onSelectOrder, loading }) {
       >
         <div
           className='bg-white rounded-lg shadow-md p-4 mb-4 cursor-pointer border border-gray-100 hover:border-blue-200 hover:shadow-lg transition-all'
-          onClick={() => onSelectOrder(data.piece)}
+          onClick={() => onSelectOrder(data.docentete.DO_Piece)}
         >
           <div className='flex justify-between items-center mb-2'>
             <div className='flex items-center'>

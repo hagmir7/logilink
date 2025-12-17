@@ -108,7 +108,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             }
             th {}
             .company-section { flex: 1; }
-            .company-name { font-size: 16px; font-weight: bold; margin-bottom: 2px; }
+            .document-info { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
             .company-tagline { font-size: 11px; margin-bottom: 2px; }
             .logo-section { flex: 0 0 auto; margin: 0 15px; }
             .logo-section img { height: 90px; }
@@ -284,15 +284,12 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
 
       <div id='print-section' style={{ display: 'none' }}>
         <div className='document-content'>
+          {/* Header */}
           <div className='document-header'>
             <div className='company-section'>
-              <div className='company-name'>STILE MOBILI</div>
-              <div className='company-tagline'>Fabricant de meubles de cuisine</div>
-              <div>4ᵉ Tranche Zone Industrielle</div>
-              <div style={{ marginTop: '2px' }}>
-                <strong>Pièce: {docentete?.DO_Piece || '__'}</strong><br />
-                <span>{docentete?.DO_Ref || '__'}</span>
-              </div>
+              <div className='document-info'>N° CLIENT : {docentete?.DO_Tiers || ''}</div>
+              <div className='document-info bg'>N° DOC  : {docentete?.DO_Piece || ''}</div>
+              <div className='document-info'>REF : {docentete?.DO_Ref || '__'}</div>
             </div>
 
             <div className='logo-section'>
@@ -300,11 +297,12 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             </div>
 
             <div className='client-section'>
-              <div className='info-row'><span className='info-label'>Client:</span> {docentete?.DO_Tiers || '__'}</div>
-              <div className='info-row'><span className='info-label'>Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
-              <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
-              <div className='info-row'><span className='info-label'>Expédition:</span> {getExped(docentete?.DO_Expedit)}</div>
-              <div className='info-row'><span className='info-label'>Page:</span> 1 sur {chunkLines(printingLines, 40).length}</div>
+              <div className='document-info'>DATE DOC : {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
+              <div className='document-info bg'>DATE LIVRE  : {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
+              <div className='document-info'>EXPEDITION : {getExped(docentete?.DO_Expedit)}</div>
+              {
+                chunkLines(printingLines, 40)?.length > 1 && (<div className='info-row'><span className='info-label'>Page:</span> 1 sur {chunkLines(printingLines, 40).length}</div>)
+              }
             </div>
           </div>
 
@@ -319,7 +317,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                 <>
                   <div className='document-header'>
                     <div className='company-section'>
-                      <div className='company-name'>STILE MOBILI</div>
+                      <div className='document-info'>STILE MOBILI</div>
                       <div className='company-tagline'>Fabricant de meubles de cuisine</div>
                       <div>4ᵉ Tranche Zone Industrielle</div>
                       <div style={{ marginTop: '2px' }}>
@@ -359,7 +357,6 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                     <th>Couleur</th>
                     <th>Chant</th>
                     <th>Description</th>
-                    
                     <th>ÉP</th>
                     <th>Réf</th>
                   </tr>
@@ -372,22 +369,16 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                         <td>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) || '__'}</td>
                         <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
                         <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
-
                         <td>
                           <span>{Math.floor(item.EU_Qte || 0)} </span>
                           <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
                         </td>
-
                         <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>
-
-
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
-
-                        <td>{item.Poignee} {item.Description}</td>
-
+                        <td>{item.Description}</td>
                         <td>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(item?.article?.Episseur) || '__'}</td>
-                        <td>{item.AR_Ref || '__'}</td>
+                        <td>{item?.stock?.code_supplier || item.AR_Ref || '__'}</td>
                       </tr>
                     )
                   })}

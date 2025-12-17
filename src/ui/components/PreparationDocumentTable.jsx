@@ -98,7 +98,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
                     duration-150 
                     ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                   `}
-                  onClick={() => handleShow(data.piece)}
+                  onClick={() => handleShow(data.docentete.DO_Piece)}
                 >
                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <div className='flex items-center'>

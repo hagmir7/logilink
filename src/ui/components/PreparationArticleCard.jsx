@@ -16,7 +16,7 @@ const PreparationArticleCard = ({
     "Non spécifié";
 
   const getQuantityTagColor = () =>
-    item.DL_QtePL == Math.floor(item.DL_Qte) ? "green" : "red";
+    item.DL_QteBL == Math.floor(item.DL_Qte) ? "green" : "red";
 
   const getDimension = field =>
     item[field] > 0
@@ -81,7 +81,7 @@ const PreparationArticleCard = ({
 
         <div className="flex gap-2">
           <Tag color={getQuantityTagColor()} style={tagStyle}>
-            {Math.floor(item.DL_QtePL)}
+            {Math.floor(item.DL_QteBL)}
           </Tag>
           <Tag color={item.line.status.color} style={tagStyle}>
             {item.line?.status?.name}
