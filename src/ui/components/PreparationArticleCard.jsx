@@ -16,7 +16,7 @@ const PreparationArticleCard = ({
     "Non spécifié";
 
   const getQuantityTagColor = () =>
-    item.DL_QteBL == Math.floor(item.DL_Qte) ? "green" : "red";
+    item.DL_QteBL == Math.floor(item.EU_Qte) ? "green" : "red";
 
   const getDimension = field =>
     item[field] > 0
@@ -89,7 +89,7 @@ const PreparationArticleCard = ({
           <Tag color="blue" style={tagStyle}>
             {Math.floor(item.EU_Qte || 0)}
             <small>
-              {item.EU_Qte !== item.DL_Qte ? ` (${Math.floor(item.DL_Qte)}m)` : ""}
+              {item.EU_Qte !== item.EU_Qte ? ` (${Math.floor(item.EU_Qte)}m)` : ""}
             </small>
           </Tag>
         </div>

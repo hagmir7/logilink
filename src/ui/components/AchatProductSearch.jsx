@@ -13,7 +13,7 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
   const fetchResults = async (query = '') => {
     try {
       setLoading(true);
-      const res = await api.get(`articles/search?q=${query}`);
+      const res = await api.get(`articles/stock/search?q=${query}`);
       setResults(res.data.data || []); // Laravel paginate returns data in "data"
     } catch (error) {
       console.error('Erreur de recherche:', error);
@@ -54,7 +54,7 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
 
   // Handle checkbox selection
   const rowSelection = {
-    selectedRowKeys: selectedArticles.map(a => a.AR_Ref),
+    selectedRowKeys: selectedArticles.map(a => a.code),
     onChange: (selectedRowKeys, selectedRows) => {
       setSelectedArticles(selectedRows);
     },
@@ -79,15 +79,15 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
   const columns = [
     {
       title: 'Référence',
-      dataIndex: 'AR_Ref',
-      key: 'AR_Ref',
+      dataIndex: 'code',
+      key: 'code',
       className: 'font-semibold text-gray-700',
       width: '30%',
     },
     {
       title: 'Désignation',
-      dataIndex: 'AR_Design',
-      key: 'AR_Design',
+      dataIndex: 'description',
+      key: 'description',
       width: '70%',
     },
   ];
@@ -143,7 +143,7 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
               dataSource={results}
               columns={columns}
               pagination={false}
-              rowKey="AR_Ref"
+              rowKey="code"
               size="small"
               rowSelection={rowSelection}
               className="rounded-lg overflow-hidden"

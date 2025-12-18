@@ -29,6 +29,7 @@ export default function PurchaseForm() {
   const { roles = [] } = useAuth();
   const [searchModal, setSearchModal] = useState({});
   const [units, setUnits] = useState()
+  let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api/';
 
   // Fetch all data on mount
   useEffect(() => {
@@ -125,8 +126,8 @@ export default function PurchaseForm() {
             uid: file.id,
             name: file.file_name || file.file_path.split('/').pop(),
             status: 'done',
-            url: `/storage/${file.file_path}`,
-            existing: true, // Mark as existing file
+            url: `${baseURL.replace('/api/', '')}/storage/${file.file_path}`,
+            existing: true, 
             fileId: file.id
           }));
         }
@@ -297,8 +298,8 @@ export default function PurchaseForm() {
       const updatedLines = [...lines];
       updatedLines[lineIndex] = {
         ...updatedLines[lineIndex],
-        code: article.AR_Ref,
-        description: article.AR_Design,
+        code: article.code,
+        description: article.description,
       };
       form.setFieldsValue({ lines: updatedLines });
       message.success('Article ajouté à la ligne');
@@ -309,14 +310,14 @@ export default function PurchaseForm() {
       // Update the current line with the first article
       updatedLines[lineIndex] = {
         ...updatedLines[lineIndex],
-        code: selectedArticles[0].AR_Ref,
-        description: selectedArticles[0].AR_Design,
+        code: selectedArticles[0].code,
+        description: selectedArticles[0].description,
       };
 
       // Create new lines for remaining articles
       const newLines = selectedArticles.slice(1).map(article => ({
-        code: article.AR_Ref,
-        description: article.AR_Design,
+        code: article.code,
+        description: article.description,
         quantity: 1,
         unit: '',
         estimated_price: 0,
@@ -370,30 +371,62 @@ export default function PurchaseForm() {
               </Form.Item>
 
               {/* Status */}
+
               <Form.Item
                 name="status"
                 label={<span className="font-semibold text-gray-700">Statut</span>}
                 rules={[{ required: true, message: 'Statut requis' }]}
-                style={{marginBottom: 0}}
+                style={{ marginBottom: 0 }}
               >
                 <Select
                   placeholder="Sélectionner le statut"
                   defaultActiveFirstOption={false}
-                  value={initialData?.status ?? undefined}
                   className="w-full"
-                  disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}
+                  disabled={(Number(initialData?.status) > 2) && roles(['chef_service'])}
                 >
-                  {statusOptions.map((option) => (
-                    <Select.Option key={option.value} value={option.value}>
-                      <span className="flex items-center gap-2">
-                        <span className={`w-2 h-2 rounded-full ${option.color}`}></span>
-                        {option.label}
-                      </span>
-                    </Select.Option>
-                  ))}
-                </Select>
+                  {statusOptions
+                    .filter(option => {
+                      const currentValue = String(initialData?.status)
 
+                      // Always keep current value (even if > 2)
+                      if (String(option.value) === currentValue) {
+                        return true
+                      }
+
+                      // chef_service → only 1 & 2 selectable
+                      if (roles(['chef_service'])) {
+                        return ['1', '2'].includes(String(option.value))
+                      }
+
+                      return true
+                    })
+                    .map(option => {
+                      const isCurrent =
+                        String(option.value) === String(initialData?.status)
+
+                      const isDisabled =
+                        roles(['chef_service']) &&
+                        Number(option.value) > 2 &&
+                        !isCurrent
+
+                      return (
+                        <Select.Option
+                          key={String(option.value)}
+                          value={String(option.value)}
+                          disabled={isDisabled}
+                        >
+                          <span className="flex items-center gap-2">
+                            <span className={`w-2 h-2 rounded-full ${option.color}`}></span>
+                            {option.label}
+                          </span>
+                        </Select.Option>
+                      )
+                    })}
+                </Select>
               </Form.Item>
+
+
+
 
               {/* Service */}
               <Form.Item
@@ -714,6 +747,8 @@ export default function PurchaseForm() {
                 Cliquez ou glissez des fichiers ici
               </Button>
             </Upload>
+
+
             <p className="text-gray-500 text-sm mt-3">
               Vous pouvez joindre plusieurs fichiers (images, PDFs, documents, etc.)
             </p>

@@ -118,7 +118,7 @@ function Document() {
       {/* Header */}
       <div className='flex flex-wrap justify-between items-center gap-4 mb-2 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
-          <div className='hidden md:block'>
+          <div className=''>
             <Search
               placeholder='Recherch'
               loading={searchSpinner}

@@ -160,7 +160,7 @@ export const DocumentProgress = () => {
 
                       <td className='px-2 py-1 text-sm'>
                         <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                          {parseFloat(item.docligne.DL_Qte)}
+                          {parseFloat(item.docligne.EU_Qte)}
                         </span>
                       </td>
                     </tr>

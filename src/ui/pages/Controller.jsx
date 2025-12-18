@@ -102,7 +102,7 @@ function Controller() {
        
         newSelected[lineId] = {
           line_id: lineId,
-          quantity: Math.floor(item.DL_Qte), 
+          quantity: Math.floor(item.EU_Qte), 
         }
       }
 
@@ -580,8 +580,8 @@ function Controller() {
                                 ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
                                 : Math.floor(item.DL_QteBL)) <
                               (item?.line?.quantity_prepare
-                                ? Math.floor(item.DL_Qte) - item.line.quantity_prepare
-                                : Math.floor(item.DL_Qte))
+                                ? Math.floor(item.EU_Qte) - item.line.quantity_prepare
+                                : Math.floor(item.EU_Qte))
                                 ? 'bg-red-50 text-red-700 border-red-200'
                                 : 'bg-green-50 text-green-700 border-green-200'
                             }`}
@@ -669,7 +669,7 @@ function Controller() {
                   </div>
                   <div className='flex items-center space-x-3'>
                     <span className='px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800'>
-                      {Math.floor(item.DL_Qte)}
+                      {Math.floor(item.EU_Qte)}
                     </span>
                   </div>
                 </div>
@@ -681,7 +681,7 @@ function Controller() {
                     </label>
                     <InputNumber
                       min={0.1}
-                      max={Math.floor(item.DL_Qte)}
+                      max={Math.floor(item.EU_Qte)}
                       value={getSelectedQuantity(lineId)}
                       onChange={(value) => handleQuantityChange(lineId, value)}
                       style={{ width: '100%' }}

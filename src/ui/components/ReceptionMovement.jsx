@@ -373,7 +373,7 @@ export default function ReceptionMovement() {
                         <Radio.Button
                           key={option.AR_Ref}
                           value={option.AR_Ref}
-                          disabled={option.DL_Qte === option.DL_QteBL}
+                          disabled={option.EU_Qte === option.DL_QteBL}
                           style={{
                             width: "100%",
                             padding: "16px 20px",

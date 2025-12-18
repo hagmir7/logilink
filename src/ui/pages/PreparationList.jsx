@@ -283,13 +283,13 @@ function PreparationList() {
 
                   <Td>
                     <Tag color='green-inverse'>
-                      {Math.floor(item.DL_Qte)}
+                      {Math.floor(item.EU_Qte)}
                     </Tag>
                   </Td>
 
                   <Td>
                     <Tag
-                      color={item.DL_QteBL == Math.floor(item.DL_Qte)
+                      color={item.DL_QteBL == Math.floor(item.EU_Qte)
                         ? 'green-inverse'
                         : 'red-inverse'
                       }
