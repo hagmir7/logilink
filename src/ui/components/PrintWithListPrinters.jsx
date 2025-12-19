@@ -17,7 +17,7 @@ const PrintWithListPrinters = ({ docentete, palettes = [], btnSize }) => {
                 const printersList = await window.electron.getPrinters();
                 setPrinters(printersList);
             } catch (error) {
-                message.error('Échec du chargement des imprimantes');
+                message.warning('Échec du chargement des imprimantes');
             }
         };
         fetchPrinters();

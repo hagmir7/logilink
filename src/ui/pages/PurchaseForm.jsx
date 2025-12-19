@@ -82,9 +82,9 @@ export default function PurchaseForm() {
 
     // Prepare form values
     const formValues = {
-      reference: docData.reference,
-      status: docData.status ? String(docData.status) : 1,
       service_id: docData.service_id,
+      reference: docData.reference,
+      status: docData.status ? String(docData.status) : '1',
       user_id: docData.user_id,
       note: docData.note,
       lines: docData.lines?.map(line => ({
@@ -126,9 +126,9 @@ export default function PurchaseForm() {
             uid: file.id,
             name: file.file_name || file.file_path.split('/').pop(),
             status: 'done',
-            url: `${baseURL.replace('/api/', '')}/storage/${file.file_path}`,
-            existing: true, 
-            fileId: file.id
+            existing: true,
+            fileId: file.id, // For force download via ID
+            url: `${baseURL}/download-file/${file.id}` // optional, can be used for preview
           }));
         }
       });
@@ -161,8 +161,8 @@ export default function PurchaseForm() {
       status: file.status,
       url: file.url,
       originFileObj: file.originFileObj,
-      existing: file.existing || false, // Mark if it's an existing file
-      fileId: file.fileId // Store file ID for deletion
+      existing: file.existing || false,
+      fileId: file.fileId
     }));
 
     setLineFiles(prev => ({
@@ -175,43 +175,47 @@ export default function PurchaseForm() {
     return lineFiles[index]?.length || 0;
   };
 
-  const onFinish = (values) => {
-    const formData = new FormData();
+const onFinish = (values) => {
+  const formData = new FormData();
 
-    // Basic fields
-    formData.append('reference', values.reference);
-    formData.append('status', values.status || '0');
-    if (values.service_id) formData.append('service_id', values.service_id);
-    if (values.user_id) formData.append('user_id', values.user_id);
-    formData.append('note', values.note || '');
-    formData.append('urgent', isUrgent ? '1' : '0');
+  // Basic fields
+  formData.append('reference', values.reference);
+  // Make sure status is being sent correctly
+  formData.append('status', values.status ? String(values.status) : '1');
+  if (values.service_id) formData.append('service_id', values.service_id);
+  if (values.user_id) formData.append('user_id', values.user_id);
+  formData.append('note', values.note || '');
+  formData.append('urgent', isUrgent ? '1' : '0');
 
-    // Lines
-    if (values.lines && values.lines.length > 0) {
-      values.lines.forEach((line, index) => {
-        if (line.id) {
-          formData.append(`lines[${index}][id]`, line.id);
-        }
+  // Debug: Log the status being sent
+  console.log('Status being sent:', values.status);
 
-        formData.append(`lines[${index}][code]`, line.code || '');
-        formData.append(`lines[${index}][description]`, line.description || '');
-        formData.append(`lines[${index}][quantity]`, line.quantity || '0');
-        formData.append(`lines[${index}][unit]`, line.unit || '');
-        formData.append(`lines[${index}][estimated_price]`, line.estimated_price || '0');
+  // Lines
+  if (values.lines && values.lines.length > 0) {
+    values.lines.forEach((line, index) => {
+      if (line.id) {
+        formData.append(`lines[${index}][id]`, line.id);
+      }
 
-        // Add files for this line
-        if (lineFiles[index] && lineFiles[index].length > 0) {
-          lineFiles[index].forEach((file) => {
-            if (file.originFileObj && !file.existing) {
-              formData.append(`lines[${index}][files][]`, file.originFileObj);
-            }
-          });
-        }
-      });
-    }
+      formData.append(`lines[${index}][code]`, line.code || '');
+      formData.append(`lines[${index}][description]`, line.description || '');
+      formData.append(`lines[${index}][quantity]`, line.quantity || '0');
+      formData.append(`lines[${index}][unit]`, line.unit || '');
+      formData.append(`lines[${index}][estimated_price]`, line.estimated_price || '0');
 
-    handleSubmit(formData);
-  };
+      // Add files for this line
+      if (lineFiles[index] && lineFiles[index].length > 0) {
+        lineFiles[index].forEach((file) => {
+          if (file.originFileObj && !file.existing) {
+            formData.append(`lines[${index}][files][]`, file.originFileObj);
+          }
+        });
+      }
+    });
+  }
+
+  handleSubmit(formData);
+};
 
   const handleSubmit = async (formData) => {
     try {
@@ -256,7 +260,7 @@ export default function PurchaseForm() {
     { value: "5", label: "Rejeté", color: "bg-red-400" },
     { value: "6", label: "Commandé", color: "bg-purple-400" },
     { value: "7", label: "Reçu", color: "bg-teal-400" },
-    { value: "8", label: "Annulé", color: "bg-gray-600" },
+    { value: "8", label: "Reçu non conforme", color: "bg-gray-600" },
   ];
 
   const handleKeyDown = (event, lineIndex, field) => {
@@ -331,6 +335,35 @@ export default function PurchaseForm() {
     }
   };
 
+  const forceDownload = async (fileId, filename) => {
+    try {
+      const response = await api.get(
+        `download/purchase-file/${fileId}`,
+        { responseType: 'blob' }
+      );
+
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+
+      document.body.appendChild(link);
+      link.click();
+
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (error) {
+      console.error(error);
+      message.error('Téléchargement échoué');
+    }
+  };
+
+
+
+
+
   return (
     <div className='bg-gray-100 pb-32'>
       <div className="rounded-xl max-w-6xl mx-auto pt-2">
@@ -361,7 +394,7 @@ export default function PurchaseForm() {
                 name="reference"
                 label={<span className="font-semibold text-gray-700">Référence</span>}
                 rules={[{ required: true, message: 'Référence requise' }]}
-                style={{marginBottom: 0}}
+                style={{ marginBottom: 0 }}
               >
                 <Input
                   placeholder="Ex: BON-2025-001"
@@ -432,7 +465,7 @@ export default function PurchaseForm() {
               <Form.Item
                 name="service_id"
                 label={<span className="font-semibold text-gray-700">Service / Département</span>}
-                style={{marginBottom: 0}}
+                style={{ marginBottom: 0 }}
               >
                 <Select
                   placeholder="Sélectionner un service"
@@ -454,7 +487,7 @@ export default function PurchaseForm() {
               <Form.Item
                 name="user_id"
                 label={<span className="font-semibold text-gray-700">Utilisateur</span>}
-                style={{marginBottom: 0}}
+                style={{ marginBottom: 0 }}
               >
                 <Select
                   placeholder="Sélectionner un utilisateur"
@@ -481,7 +514,7 @@ export default function PurchaseForm() {
                 name="note"
                 label={<span className="font-semibold text-gray-700">Note / Commentaire</span>}
                 className="mb-0"
-                style={{marginBottom: 0}}
+                style={{ marginBottom: 0 }}
               >
                 <Input.TextArea
                   rows={1}
@@ -540,7 +573,7 @@ export default function PurchaseForm() {
                             {...field}
                             name={[field.name, 'id']}
                             hidden
-                            style={{marginBottom: 0}}
+                            style={{ marginBottom: 0 }}
                           >
                             <Input type="hidden" />
                           </Form.Item>
@@ -550,7 +583,7 @@ export default function PurchaseForm() {
                             {...field}
                             name={[field.name, 'code']}
                             className="mb-0"
-                            style={{marginBottom: 0}}
+                            style={{ marginBottom: 0 }}
                           >
                             <Input
                               placeholder="Code (optionnel)"
@@ -565,7 +598,7 @@ export default function PurchaseForm() {
                             name={[field.name, 'description']}
                             rules={[{ required: true, message: 'Requis' }]}
                             className="mb-0 col-span-2"
-                            style={{marginBottom: 0}}
+                            style={{ marginBottom: 0 }}
                           >
                             <Input
                               placeholder="Description de l'article"
@@ -581,7 +614,7 @@ export default function PurchaseForm() {
                               {...field}
                               name={[field.name, 'quantity']}
                               rules={[{ required: true, message: 'Requis' }]}
-                              style={{marginBottom: 0}}
+                              style={{ marginBottom: 0 }}
                             >
                               <Input
                                 type="number"
@@ -602,7 +635,7 @@ export default function PurchaseForm() {
                               {...field}
                               name={[field.name, 'unit']}
                               className="mb-0 w-full"
-                              style={{marginBottom: 0}}
+                              style={{ marginBottom: 0 }}
                             >
                               <Select
                                 showSearch
@@ -742,7 +775,27 @@ export default function PurchaseForm() {
               onChange={handleUploadChange}
               beforeUpload={() => false}
               listType="text"
+              onDownload={(file) => {
+                if (!file.fileId) return message.error('Fichier introuvable');
+                forceDownload(file.fileId, file.name);
+              }}
+              showUploadList={{
+                showDownloadIcon: true,
+                showPreviewIcon: false,
+              }}
+              itemRender={(originNode, file) => {
+                if (file.existing) {
+                  return (
+                    <div className="flex items-center justify-between">
+                      {originNode}
+                      {/* remove icon hidden */}
+                    </div>
+                  );
+                }
+                return originNode;
+              }}
             >
+
               <Button icon={<UploadOutlined />} disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')} block size="large" type="dashed">
                 Cliquez ou glissez des fichiers ici
               </Button>
@@ -752,11 +805,6 @@ export default function PurchaseForm() {
             <p className="text-gray-500 text-sm mt-3">
               Vous pouvez joindre plusieurs fichiers (images, PDFs, documents, etc.)
             </p>
-            {lineFiles[currentLineIndex]?.some(f => f.existing) && (
-              <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-blue-700">
-                💡 Les fichiers existants sont affichés mais ne seront pas re-téléchargés
-              </div>
-            )}
           </div>
         </Modal>
       </div>

@@ -542,7 +542,7 @@ function Commercial() {
                         )}
                       </div>
                       <Tag color='success' className='ml-2 font-semibold'>
-                        {Math.floor(item.DL_Qte || 0)}
+                        {Math.floor(item.EU_Qte || 0)}
                       </Tag>
                     </div>
 
