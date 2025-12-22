@@ -1,4 +1,4 @@
-import { Printer, ReceiptText } from 'lucide-react';
+import { Printer } from 'lucide-react';
 import { getExped, getDocumentType } from '../utils/config';
 import { api } from '../utils/api';
 import React, { useState, useEffect } from 'react';
@@ -27,24 +27,6 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
     fetchPrinters();
   }, []);
 
-  const handlePrintPdf = async () => {
-    if (!selectedPrinter) {
-      message.warning('Veuillez sélectionner une imprimante.');
-      return;
-    }
-
-    try {
-      await window.electron.printPaletteTickets(selectedPrinter, {
-        docentete,
-        palettes: palettes.length > 0 ? palettes : docentete?.document?.palettes?.filter(palette => palette?.company_id == user?.company_id)
-      });
-      message.success("L'impression a commencé !");
-      setVisible(false);
-    } catch (error) {
-      console.error(error);
-      message.error("L'impression a échoué.");
-    }
-  };
 
 
   const handlePrint = () => {

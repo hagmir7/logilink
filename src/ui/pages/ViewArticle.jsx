@@ -39,12 +39,8 @@ const ViewArticle = () => {
       setLoading(true)
       const url = id !== 'null' ? `articles/update/${id}` : `articles/store`
 
-      // Clean payload
-      const payload = {
-        ...values,
-        category_id: values.category
-      }
-      delete payload.category
+      // Send payload directly - backend expects 'category' not 'category_id'
+      const payload = { ...values }
 
       if (id !== 'null') {
         await api.put(url, payload)
@@ -258,7 +254,7 @@ const ViewArticle = () => {
           <Form.Item
             name='stock_min'
             label='Stock minimum'
-            initialValue={0}
+            initialValue={1}
             rules={[
               {
                 min: 0,
