@@ -310,7 +310,7 @@ function Fabrication() {
                      </td>
                      <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                        <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                         {Math.floor(item.DL_Qte)}
+                         {Math.floor(item.EU_Qte)}
                        </span>
                      </td>
                    </Tr>

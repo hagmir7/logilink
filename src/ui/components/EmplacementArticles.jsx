@@ -30,7 +30,7 @@ export default function EmplacementArticles({
 
   const columns = [
     { title: 'Code', dataIndex: 'code', key: 'code' },
-    { title: 'Article', dataIndex: 'name', key: 'name' },
+    { title: 'Article', dataIndex: 'description', key: 'description' },
     { title: 'Couleur', dataIndex: 'color', key: 'color' },
     {
       title: 'Quantité',
@@ -46,7 +46,7 @@ export default function EmplacementArticles({
       palette.articles.map(article => ({
         key: `${palette.id}-${article.id}`,
         code: article.code,
-        name: article.name || article.description,
+        description: article.description || article.description,
         color: article.color,
         quantity: Number(article.pivot?.quantity || 0),
       }))
@@ -64,7 +64,7 @@ export default function EmplacementArticles({
     >
       <div
         style={{
-          fontSize: isElectron ? 16 : 13, // 🔥 global font
+          fontSize: isElectron ? 16 : 13,
         }}
       >
         {loading ? (

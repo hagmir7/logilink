@@ -169,7 +169,7 @@ export default function Purchase() {
                 { label: "Rejeté", value: 5 },
                 { label: "Commandé", value: 6 },
                 { label: "Reçu", value: 7 },
-                { label: "Annulé", value: 8 },
+                { label: "Reçu non conforme", value: 8 },
                 ]}
           />
 

@@ -32,6 +32,7 @@ export const AuthProvider = ({ children }) => {
       const rolesData = rolesResponse.data;
       localStorage.setItem("roles", JSON.stringify(rolesData));
       getUser()
+  
 
       if (window.electron) {
         await window.electron.login(response.data);
@@ -43,6 +44,8 @@ export const AuthProvider = ({ children }) => {
       }
 
     } catch (error) {
+      console.log(error);
+      
       setMessage("Nom d'utilisateur/e-mail ou mot de passe invalide.");
     } finally {
       setLoading(false);

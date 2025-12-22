@@ -66,7 +66,7 @@ const createMainWindow = () => {
         mainWindow.loadURL('http://localhost:5123');
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
-        // mainWindow.setMenu(null)
+        mainWindow.setMenu(null)
         autoUpdater.checkForUpdatesAndNotify();
         
     }

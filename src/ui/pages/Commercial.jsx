@@ -8,13 +8,14 @@ import {
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getExped, uppercaseFirst } from '../utils/config';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Checkbox, Empty, message, Popconfirm, Select, Tag } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import PrintDocument from '../components/PrintDocument';
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal';
 import ResetPrinter from '../components/ResetPrinter';
+import PrintDocumentTest from '../components/PrintDocumentTest';
 
 function Commercial() {
   const { id } = useParams()
@@ -24,11 +25,12 @@ function Commercial() {
   const [selectedCompany, setSelectedCompany] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
   const { roles = [] } = useAuth()
+  const navigate = useNavigate()
 
-  const fetchData = async () => {
+  const fetchData = async (piece=null) => {
     setLoading(true)
     try {
-      const response = await api.get(`docentetes/${id}`)
+      const response = await api.get(`docentetes/${piece || id}`)
       setData(response.data)
     } catch (err) {
       console.error('Failed to fetch data:', err)
@@ -98,10 +100,14 @@ function Commercial() {
           company: selectedCompany,
           lines: selected,
         }
-        await api.post('docentetes/transfer', data)
+        const response = await api.post('docentetes/transfer', data)
+        if(response?.data?.piece){
+          navigate(`/document/${response?.data?.piece}`)
+        }
         setSelectedCompany(null)
         setSelected([])
-        fetchData()
+        message.success("Articles transférés avec succès")
+        fetchData(response?.data?.piece)
       } catch (error) {
         console.error(error);
         message.error(error.response.data.message || "Can't trnsfer the article");
@@ -179,6 +185,11 @@ function Commercial() {
                 doclignes={data.doclignes}
                 docentete={data.docentete}
               />
+
+              {/* <PrintDocumentTest
+                doclignes={data.doclignes}
+                docentete={data.docentete}
+              /> */}
               {data?.docentete?.document && (
                 <DocumentPalettesModal
                   countPalettes={data.docentete.document.palettes?.length ?? 0}
@@ -469,7 +480,7 @@ function Commercial() {
 
                             <td className='px-4 py-2'>
                               <span className='inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold bg-yellow-50 text-yellow-700 border border-yellow-200'>
-                                {Math.floor(item.DL_QtePL)}
+                                {Math.floor(item.DL_QteBL)}
                               </span>
                             </td>
                           </tr>
@@ -531,7 +542,7 @@ function Commercial() {
                         )}
                       </div>
                       <Tag color='success' className='ml-2 font-semibold'>
-                        {Math.floor(item.DL_Qte || 0)}
+                        {Math.floor(item.EU_Qte || 0)}
                       </Tag>
                     </div>
 
