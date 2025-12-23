@@ -23,17 +23,19 @@ import {
   ScrollText,
   FileInput,
 } from 'lucide-react'
-import { Link, Outlet } from 'react-router-dom'
+import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
 import { useAuth } from '../contexts/AuthContext'
 import MobileBottomNav from './MobileButtomNav'
 import Tools from '../components/Tools'
 import { api } from '../utils/api'
+import { handleShow } from '../utils/config'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
   const { roles = [], permissions } = useAuth();
   const [purchaseStatus, setPurchaseStatus] = useState(0);
+  const navigate = useNavigate()
 
   const getPurchaseCount = async ()=> {
     try {
@@ -134,7 +136,8 @@ const sideMenu = () => {
         {
           key: 'submenu-3',
           icon: <Warehouse size={19} />,
-          label: <Link to='/depots'>Depots</Link>,
+          onClick: ()=> handleShow(navigate, '/depots', 1000,800),
+          label: "Depots",
         },
 
         //  {

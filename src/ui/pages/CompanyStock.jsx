@@ -13,7 +13,7 @@ const { Search } = Input
 function CompanyStock({ company_id }) {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(100)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('panneaux')
   const [selectedCompany, setSelectedCompany] = useState('')
@@ -23,22 +23,22 @@ function CompanyStock({ company_id }) {
     data: [],
     total: 0,
     current_page: 1,
-    per_page: 10,
+    per_page: 100,
     last_page: 1
   })
 
   const navigate = useNavigate()
 
-  const fetchData = async (currentPage = 1, search = searchQuery, category = selectedCategory) => {
+  const fetchData = async (currentPage = 1, search = searchQuery, category = selectedCategory, size = pageSize, company = selectedCompany) => {
     setLoading(true)
     try {
       const response = await api.get(`articles`, {
         params: {
           page: currentPage,
-          per_page: pageSize,
+          per_page: size,
           search: search,
           category: category,
-          company: selectedCompany
+          company: company
         }
       })
       setArticles({
@@ -55,24 +55,30 @@ function CompanyStock({ company_id }) {
     }
   }
 
+  // Fetch data when page changes
+  useEffect(() => {
+    fetchData(page, searchQuery, selectedCategory, pageSize, selectedCompany)
+  }, [page])
+
+  // Reset to page 1 and fetch when filters change
   useEffect(() => {
     setPage(1)
-    fetchData(1, searchQuery, selectedCategory)
-  }, [searchQuery, selectedCategory, pageSize, selectedCompany])
+    fetchData(1, searchQuery, selectedCategory, pageSize, selectedCompany)
+  }, [searchQuery, selectedCategory, selectedCompany, pageSize])
 
   const handlePageChange = (newPage, newPageSize) => {
-    setPage(newPage)
     if (newPageSize !== pageSize) {
       setPageSize(newPageSize)
+      setPage(1) // Reset to page 1 when changing page size
+    } else {
+      setPage(newPage)
     }
-    fetchData(newPage, searchQuery, selectedCategory)
   }
 
   const handleShow = async (id = null) => {
     if(!roles(['admin', 'supper_admin'])){
       return;
     }
-
 
     try {
       let url;
@@ -191,7 +197,7 @@ function CompanyStock({ company_id }) {
         </div>
 
         {/* Table Card */}
-        <div className='bg-white md:rounded-lg md:shadow-sm border border-gray-200 overflow-hidden'>
+        <div className='bg-white md:rounded-lg border border-gray-200 overflow-hidden'>
           <div className='overflow-x-auto'>
             <table className='w-full overflow-x-auto'>
               <thead>
@@ -291,10 +297,9 @@ function CompanyStock({ company_id }) {
                   </tr>
                 ))}
 
-
                 {/* Loading State */}
                 {loading && (
-                  <TableSkeleton rows={roles(['admin', 'commercial']) ? 8 : 10} columns={8} />
+                  <TableSkeleton rows={roles(['admin', 'commercial']) ? 8 : 10} columns={roles(['admin', 'commercial']) ? 5 : 7} />
                 )}
               </tbody>
             </table>
@@ -314,8 +319,6 @@ function CompanyStock({ company_id }) {
               />
             </div>
           )}
-
-       
 
           {/* Pagination */}
           {!loading && articles.data.length > 0 && (

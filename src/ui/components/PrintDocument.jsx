@@ -111,12 +111,15 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               width: 100%;
               border-collapse: collapse;
               margin-top: 15px;
-              font-size: 11px;
+              font-size: 12px;
               color: #000;
+               border-top: 1px solid #333;
+               border-left: 1px solid #333;
+                border-right: 1px solid #333;
             }
 
             th, td {
-              border: 1px solid #333;
+              border-bottom: 1px solid #333;
               padding: 3px 8px;
               text-align: left;
               vertical-align: top;
@@ -211,6 +214,13 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
 
   /** NEW: decide what to print */
   const printingLines = selectedRows.length > 0 ? selectedRows : doclignes;
+
+  // Check if any item has Description or Prof values
+  const hasDescription = printingLines.some(item => item.Description);
+  const hasProf = printingLines.some(item => {
+    const art = item.article || {};
+    return (item.Profondeur && item.Profondeur > 0) || (art.Profonduer && art.Profonduer > 0);
+  });
 
   return (
     <div>
@@ -315,7 +325,8 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                     <div className='client-section'>
                       <div className='info-row'><span className='info-label'>Client:</span> {docentete?.DO_Tiers || '__'}</div>
                       <div className='info-row'><span className='info-label'>Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
-                      <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
+                      {/* <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div> */}
+                        <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr}</div>
                       <div className='info-row'><span className='info-label'>Expédition:</span> {getExped(docentete?.DO_Expedit)}</div>
                       <div className='info-row'><span className='info-label'>Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}</div>
                       <div className='info-row'><span className='info-label'>Page:</span> {pageIndex + 1} sur {chunkLines(printingLines, 40).length}</div>
@@ -331,14 +342,14 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               <table>
                 <thead>
                   <tr>
-                    <th>H</th>
                     <th>Pièce</th>
+                    <th>H</th>
                     <th>L</th>
+                    {hasProf && <th>Prof</th>}
                     <th>Qté</th>
-                    <th>Prof</th>
                     <th>Couleur</th>
                     <th>Chant</th>
-                    <th>Description</th>
+                    {hasDescription && <th>Description</th>}
                     <th>ÉP</th>
                     <th>Réf</th>
                   </tr>
@@ -348,17 +359,17 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                     const art = item.article || {};
                     return (
                       <tr key={index}>
-                        <td>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) || '__'}</td>
                         <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
+                        <td>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) || '__'}</td>
                         <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
+                        {hasProf && <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>}
                         <td>
                           <span>{Math.floor(item.EU_Qte || 0)} </span>
                           <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
                         </td>
-                        <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>
                         <td>{item.Couleur ? item.Couleur : art.Couleur}</td>
                         <td>{item.Chant || art.Chant || '__'}</td>
-                        <td>{item.Description}</td>
+                        {hasDescription && <td>{item.Description}</td>}
                         <td>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(item?.article?.Episseur) || '__'}</td>
                         <td>{item?.stock?.code_supplier || item.AR_Ref || '__'}</td>
                       </tr>

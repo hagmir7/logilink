@@ -108,11 +108,7 @@ export default function Profile() {
       antMessage.success("Profil mis à jour avec succès !");
       setAlert(null);
     } catch (err) {
-      setAlert({
-        type: "error",
-        message: "Échec de la mise à jour",
-        description: err.message || "Une erreur s'est produite",
-      });
+      message.error(err.response.data.message)
     } finally {
       setLoading(false);
     }
@@ -128,8 +124,9 @@ export default function Profile() {
   }
 
   return (
-    <div className="max-w-5xl mx-auto">
-      <Card className="mb-6">
+    <div className="bg-gray-100 py-2">
+      <div className="max-w-5xl mx-auto ">
+      <Card className="mb-6 p-2 " classNames={'p-0'}>
         <Title level={4}>Profil de {userData.full_name || "l'utilisateur"}</Title>
         <Text type="secondary">
           Gérer l'informations personnelles et préférences
@@ -264,6 +261,7 @@ export default function Profile() {
           </div>
         </Form>
       </Card>
+    </div>
     </div>
   );
 }

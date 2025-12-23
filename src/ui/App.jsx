@@ -85,6 +85,8 @@ function App() {
         <Route path='import-stock' element={<ImportStock />} />
         <Route path='profile/:id' element={<Profile />} />
 
+        <Route path='depots' element={<Depots />} />
+
         <Route element={<MainLayout />}>
           <Route path='/sage' element={<Sage />} />
           <Route path='/layout/create-document' element={<CreateDocument />} />
@@ -131,7 +133,7 @@ function App() {
           <Route path='inventories' element={<InventroyList />} />
           <Route path='inventories/in/:id' element={<InventoryMovement />} />
           <Route path='inventories/:id' element={<ViewInventory />} />
-          <Route path='depots' element={<Depots />} />
+          <Route path='layout/depots' element={<Depots />} />
           <Route path='depots/view/:id' element={<DepotEmplacement />} />
           <Route path='stock' element={<Stock />} />
           <Route path='depots/:id' element={<ViewDepot />} />

@@ -154,6 +154,7 @@ export const getCompany = ($id) => {
 
 
 export const categories = [
+  { value: 'tout', label: 'Tout' },
   { value: 'panneaux', label: 'Panneaux' },
   { value: 'caissons', label: 'Caissons' },
   { value: 'facades', label: 'Façades' },
@@ -161,10 +162,15 @@ export const categories = [
   { value: 'chant', label: 'Chant' },
   { value: 'parquet', label: 'Parquet' },
   { value: 'accessoires', label: 'Accessoires' },
+  { value: 'semi-fini', label: 'Semi fini'},
   { value: 'plan-de-travail', label: 'Plan de travail' },
   { value: 'acc-de-montage', label: 'Acc de montage' },
   { value: 'emballage-colle', label: 'Emballage & Colle' },
   { value: 'peinture-et-consommable', label: 'Peinture et consommable' },
+  { value: 'vetements', label: 'Vêtements'},
+  { value: 'matiere-premiere', label: 'Matière première'},
+  { value: 'verre', label: 'Verre'},
+  { value: 'piece-rechange', label: 'Piece de Rechange'}
 ];
 
 
@@ -182,7 +188,7 @@ export const handleShow = async (navigate, path, width=1400, height=800) => {
     if (window.electron && typeof window.electron.openShow === 'function') {
       await window.electron.openShow({ url:path, width, height});
     } else {
-      navigate(path); // ✅ Use relative path if inside /layout
+      navigate('layout' + path); // ✅ Use relative path if inside /layout
     }
   } catch (error) {
     console.error('Error navigating:', error);

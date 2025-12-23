@@ -77,7 +77,7 @@ export default function Users() {
 
   return (
     <div className='relative overflow-x-auto'>
-      <div className='flex flex-col sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between p-4 bg-gray-200'>
+      <div className='flex flex-col sm:flex-row flex-wrap space-y-4 sm:space-y-0 items-center justify-between p-2 bg-gray-200'>
         {/* Add User Modal */}
         <div className='relative'>
           <div className='flex'>
@@ -111,7 +111,7 @@ export default function Users() {
 
       {/* Table */}
       <table className='w-full text-sm text-left text-gray-500 '>
-        <thead className='text-xs text-gray-700 uppercase bg-gray-50'>
+        <thead className='text-xs text-gray-700 uppercase bg-gray-50 border-b border-gray-300'>
           <tr>
             <th scope='col' className='px-6 py-3 font-bold whitespace-nowrap'>
               Nom et prénom
@@ -142,17 +142,17 @@ export default function Users() {
             >
               <th
                 scope='row'
-                className='px-6 py-4 font-medium text-gray-900 whitespace-nowrap'
+                className='px-6 py-2 font-medium text-gray-900 whitespace-nowrap'
               >
                 {user.full_name}
               </th>
-              <td className='px-6 py-4'>{user.name}</td>
-              <td className='px-6 py-4'>{user.email}</td>
-              <td className='px-6 py-4'>{user.phone || '__'}</td>
-              <td className='px-6 py-4'>
+              <td className='px-6 py-2'>{user.name}</td>
+              <td className='px-6 py-2'>{user.email}</td>
+              <td className='px-6 py-2'>{user.phone || '__'}</td>
+              <td className='px-6 py-2'>
                 {new Date(user.created_at).toLocaleDateString()}
               </td>
-              <td className='px-6 py-4 flex gap-4'>
+              <td className='px-6 py-2 flex gap-4'>
                 {roles('admin') ? (
                   <button
                     onClick={() => handleShow(user.id)}

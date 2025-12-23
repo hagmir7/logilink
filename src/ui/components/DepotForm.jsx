@@ -3,7 +3,7 @@ import { Button, Input, message, Modal, Select } from 'antd'
 import { PlusCircle } from 'lucide-react'
 import { api } from '../utils/api'
 
-const DepotForm = () => {
+const DepotForm = ({onSuccess}) => {
   const [opentModal, setOpenModal] = useState(false)
   const [depot, setDepot] = useState({
     code: '',
@@ -16,6 +16,7 @@ const DepotForm = () => {
         code: depot.code,
         company_id: depot.company_id,
       })
+      onSuccess()
       message.success('Dépôt créé avec succès')
     } catch (error) {
       message.error(error.response.data.message)

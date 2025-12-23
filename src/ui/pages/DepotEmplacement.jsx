@@ -222,7 +222,7 @@ const DepotEmplacement = () => {
         <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100">
             {/* Header */}
             <div className="bg-white border-b border-gray-200">
-                <div className="px-4 sm:px-6 lg:px-8 py-6">
+                <div className="px-2 sm:px-4 lg:px-6 py-2">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
                             <div className="bg-blue-600 p-2 rounded-lg">
@@ -263,8 +263,8 @@ const DepotEmplacement = () => {
             </div>
 
             {/* Controls */}
-            <div className="px-4 sm:px-6 lg:px-8 py-6">
-                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="px-1 sm:px-2 lg:px-4 py-2">
+                <div className="bg-white rounded-xl shadow-xs border border-gray-200 p-6 mb-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 2xl:grid-cols-5">
                         {/* Recherche */}
                         <div className="relative">

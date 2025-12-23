@@ -319,7 +319,7 @@ function ViewReception() {
                           color='green'
                           style={{ fontSize: '15px', padding: '0 16px' }}
                         >
-                          {Math.floor(item.EU_Qte)}
+                          {Math.floor(item.DL_Qte)}
                         </Tag>
                       </td>
                       <td className='px-2 py-1'>

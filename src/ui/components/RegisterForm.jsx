@@ -61,8 +61,7 @@ export default function RegisterForm({ fetchData }) {
             }
 
         } catch (err) {
-            antMessage.error("Échec de l'enregistrement");
-            console.error(err);
+            antMessage.error(err?.response?.data?.message || "Échec de l'enregistrement");
         } finally {
             setLoading(false);
         }

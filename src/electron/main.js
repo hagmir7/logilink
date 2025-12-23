@@ -165,13 +165,13 @@ autoUpdater.on("update-available", (info) => {
   autoUpdater.downloadUpdate();
 });
 
-autoUpdater.on("update-not-available", (info) => {
-  dialog.showMessageBox({
-    type: "info",
-    title: "Aucune mise à jour",
-    message: `Aucune mise à jour disponible.\nVersion actuelle : ${app.getVersion()}`
-  });
-});
+// autoUpdater.on("update-not-available", (info) => {
+//   dialog.showMessageBox({
+//     type: "info",
+//     title: "Aucune mise à jour",
+//     message: `Aucune mise à jour disponible.\nVersion actuelle : ${app.getVersion()}`
+//   });
+// });
 
 autoUpdater.on("update-downloaded", (info) => {
   dialog.showMessageBox({
@@ -197,19 +197,22 @@ autoUpdater.on("error", (error) => {
 //  End update
 ipcMain.on('openShow', async (event, preload) => {
     try {
-        if (!showWindow || showWindow.isDestroyed()) {
-            showWindow = createShowWindow(preload);
-        } else {
-            showWindow.show();
+        if (showWindow && !showWindow.isDestroyed()) {
+            await new Promise((resolve) => {
+                showWindow.once('closed', resolve);
+                showWindow.close();
+            });
         }
 
-        return { success: true };
+        showWindow = createShowWindow(preload);
+        showWindow.show();
+
+        event.reply('openShow-response', { success: true });
     } catch (error) {
-        console.error('Logout error:', error);
-        return { success: false, error: error.message };
+        console.error('openShow error:', error);
+        event.reply('openShow-response', { success: false, error: error.message });
     }
 });
-
 
 
 let printWindow;
