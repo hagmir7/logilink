@@ -5,6 +5,7 @@ import { message, Select } from 'antd';
 import { api } from '../utils/api';
 import Spinner from '../components/ui/Spinner';
 import EmplacementModal from '../components/ui/EmplacementModal';
+import BackButton from '../components/ui/BackButton';
 
 const DepotEmplacement = () => {
     const [emplacements, setemplacements] = useState([])
@@ -225,8 +226,9 @@ const DepotEmplacement = () => {
                 <div className="px-2 sm:px-4 lg:px-6 py-2">
                     <div className="flex items-center justify-between">
                         <div className="flex items-center space-x-3">
-                            <div className="bg-blue-600 p-2 rounded-lg">
-                                <Package className="w-6 h-6 text-white" />
+                            <div className="rounded-lg">
+                                {/* <Package className="w-6 h-6 text-white" /> */}
+                                <BackButton />
                             </div>
                             <div>
                                 <h1 className="text-lg font-bold text-gray-900">Depot Management</h1>

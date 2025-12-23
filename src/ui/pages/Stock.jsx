@@ -33,16 +33,6 @@ const Stock = () => {
         key: '3',
         children: <StockMovements company_id={id} />,
       },
-      {
-        label: (
-          <span className='flex items-center gap-2'>
-            <Warehouse size={16} />
-            Depots
-          </span>
-        ),
-        key: '4',
-        children: <Depots company_id={id} />,
-      },
     ]
 
     const handleTabChange = (key) => {

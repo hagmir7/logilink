@@ -63,12 +63,12 @@ function App() {
     <>
       <ScrollToTop />
       <Routes>
-         <Route path='/create-document' element={<CreateDocument />} />
+        <Route path='/create-document' element={<CreateDocument />} />
         <Route path='/login' element={<Login />} />
-        <Route path="articles/:id" element={<ViewArticle />} />
-        <Route path="articles/create" element={<ViewArticle />} />
-        <Route path="purchase/create" element={<PurchaseForm />} />
-        <Route path="purchase/:id" element={<PurchaseForm />} />
+        <Route path='articles/:id' element={<ViewArticle />} />
+        <Route path='articles/create' element={<ViewArticle />} />
+        <Route path='purchase/create' element={<PurchaseForm />} />
+        <Route path='purchase/:id' element={<PurchaseForm />} />
 
         <Route path='/document/:id' element={<ViewDocument />} />
         <Route path='document/:piece/progress' element={<DocumentProgress />} />
@@ -77,15 +77,16 @@ function App() {
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
         <Route path='/user-archive/:id' element={<ViewUserArchive />} />
-        
 
         <Route path='update-article-ref' element={<UpdateArticleRef />} />
         <Route path='duplicate-invoice' element={<InvoiceDuplicate />} />
         <Route path='import-movements' element={<ImportMovements />} />
         <Route path='import-stock' element={<ImportStock />} />
         <Route path='profile/:id' element={<Profile />} />
+        <Route path='depots/view/:id' element={<DepotEmplacement />} />
 
         <Route path='depots' element={<Depots />} />
+        <Route path='depots/:id' element={<ViewDepot />} />
 
         <Route element={<MainLayout />}>
           <Route path='/sage' element={<Sage />} />
@@ -95,10 +96,12 @@ function App() {
           <Route path='/transfer-stock' element={<TransferStock />} />
           <Route path='/find-article' element={<FindArticleEmplacement />} />
           <Route path='/user-archive' element={<UserArchive />} />
-          <Route path='/layout/user-archive/:id' element={<ViewUserArchive />} />
+          <Route
+            path='/layout/user-archive/:id'
+            element={<ViewUserArchive />}
+          />
           <Route path='/purchase' element={<Purchase />} />
-           
-          
+
           <Route path='/users' element={<Users />} />
           <Route path='/users/actions' element={<UsersActions />} />
           <Route path='update-password' element={<UpdatePassword />} />
@@ -116,13 +119,18 @@ function App() {
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
           <Route path='preparation/archive' element={<PreparationArchive />} />
-          
 
           <Route path='stock/out' element={<StockMovement />} />
           <Route path='stock/in' element={<StockMovement />} />
           <Route path='stock/return' element={<StockMovement />} />
-          <Route path='reception-movement-list' element={<ReceptionMovementList />} />
-          <Route path='reception-movement/:id/:company_db' element={<ReceptionMovement />} />
+          <Route
+            path='reception-movement-list'
+            element={<ReceptionMovementList />}
+          />
+          <Route
+            path='reception-movement/:id/:company_db'
+            element={<ReceptionMovement />}
+          />
 
           <Route path='transfer-orders/list' element={<TransferOrdersList />} />
 
@@ -134,9 +142,9 @@ function App() {
           <Route path='inventories/in/:id' element={<InventoryMovement />} />
           <Route path='inventories/:id' element={<ViewInventory />} />
           <Route path='layout/depots' element={<Depots />} />
-          <Route path='depots/view/:id' element={<DepotEmplacement />} />
+          <Route path='layout/depots/view/:id' element={<DepotEmplacement />} />
           <Route path='stock' element={<Stock />} />
-          <Route path='depots/:id' element={<ViewDepot />} />
+          <Route path='layout/depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
           <Route path='reception' element={<Reception />} />
         </Route>
