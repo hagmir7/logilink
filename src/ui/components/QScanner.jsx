@@ -21,7 +21,7 @@ const QScanner = ({ onScan }) => {
               console.log("RAW SCAN RESULT:", result)
               console.log("PARSED VALUE:", value)
 
-              if (value && onScan) onScan(value) // <<< Prevent empty sending
+              if (value && onScan) onScan(value) 
               setShowScanner(false)
             }}
           />

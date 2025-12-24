@@ -76,7 +76,7 @@ export default function ViewDepot() {
             // size='small'
             // className='max-w-md'
           />
-          <CreateEmplacement onCreated={fetchData} />
+          <CreateEmplacement onCreated={fetchData} depot_code={depot?.depot?.code} />
           <Button
             onClick={fetchData}
             icon={<RotateCw size={18} />}
@@ -89,24 +89,24 @@ export default function ViewDepot() {
       </div>
 
       {/* Search Bar */}
-      <div className='p-2 md:p-4 bg-gray-50'></div>
+      <div className='p-1 bg-gray-50'></div>
 
       {/* Table */}
       <div className='overflow-x-auto'>
         <table className='w-full'>
-          <thead className='bg-gray-50 border-b border-gray-200'>
+          <thead className='bg-gray-50 border-y border-gray-200'>
             <tr>
-              <th className='px-6 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-2 text-left text-sm font-black text-gray-500 uppercase tracking-wider'>
                 Code
               </th>
-              <th className='px-6 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-2 text-left text-sm font-black text-gray-500 uppercase tracking-wider'>
                 Dépôt
               </th>
-              <th className='px-6 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-2 text-left text-sm font-black text-gray-500 uppercase tracking-wider'>
                 Entreprise
               </th>
               {roles('admin') && (
-                <th className='px-6 py-2 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+                <th className='px-6 py-2 text-left text-sm font-black text-gray-500 uppercase tracking-wider'>
                   Action
                 </th>
               )}
@@ -127,7 +127,7 @@ export default function ViewDepot() {
                 <td className='px-6 py-2 whitespace-nowrap'>
                   {depot?.depot?.company?.name || '—'}
                 </td>
-                {roles('admin') && (
+                {(roles('admin') || (roles('production') && depot?.depot?.code.toUpperCase() === 'FABRICA')) && (
                   <td className='px-6 py-2 whitespace-nowrap flex gap-3'>
                     <Popconfirm
                       title='Supprimer cet emplacement ?'
@@ -138,9 +138,10 @@ export default function ViewDepot() {
                       <Button icon={<Trash size={15} />} danger />
                     </Popconfirm>
 
-                    <Button icon={<Edit size={15} />} />
+                    {/* <Button icon={<Edit size={15} />} /> */}
                   </td>
                 )}
+
               </tr>
             ))}
           </tbody>

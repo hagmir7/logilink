@@ -4,6 +4,8 @@ import { api } from '../utils/api';
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Select, message } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
+import { Watermark } from 'antd';
+import Barcode from 'react-barcode';
 
 const { Option } = Select;
 
@@ -88,6 +90,22 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               justify-content: space-between;
               padding-bottom: 10px;
             }
+            
+            .barcode-container {
+              text-align: center;
+              margin: 15px 0;
+              padding: 10px;
+              background: white;
+            }
+
+                        
+            .barcode-container {
+              text-align: center;
+              margin: 15px 0;
+              padding: 10px;
+              background: white;
+            }
+
             th {}
             .company-section { flex: 1; }
             .document-info { font-size: 14px; font-weight: bold; margin-bottom: 4px; }
@@ -204,7 +222,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
     return `${inputDate.getFullYear()}/${String(inputDate.getMonth() + 1).padStart(2, '0')}/${String(inputDate.getDate()).padStart(2, '0')}`;
   };
 
-  const chunkLines = (lines, size = 40) => {
+  const chunkLines = (lines, size = 30) => {
     const chunks = [];
     for (let i = 0; i < lines.length; i += size) {
       chunks.push(lines.slice(i, i + size));
@@ -233,7 +251,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             size={largeSize}
             color="cyan"
             variant="solid"
-            icon={<Printer size={largeSize ? 40 : 16} />}
+            icon={<Printer size={largeSize ? 30 : 16} />}
           >
             Imprimer
           </Button>
@@ -265,16 +283,14 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
           style={largeSize ? { height: 60, fontSize: 25 } : {}}
           color="cyan"
           variant="solid"
-          icon={<Printer size={largeSize ? 40 : 16} />}
+          icon={<Printer size={largeSize ? 30 : 16} />}
         >
           Imprimer
         </Button>
       )}
 
-
-      
-
       <div id='print-section' style={{ display: 'none' }}>
+        <Watermark content={['STILE MOBILI']}>
         <div className='document-content'>
           {/* Header */}
           <div className='document-header'>
@@ -293,8 +309,20 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               <div className='document-info bg'>DATE LIVRE  : {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
               <div className='document-info'>EXPEDITION : {getExped(docentete?.DO_Expedit)}</div>
               {
-                chunkLines(printingLines, 40)?.length > 1 && (<div className='info-row'><span className='info-label'>Page:</span> 1 sur {chunkLines(printingLines, 40).length}</div>)
+                chunkLines(printingLines, 30)?.length > 1 && (<div className='info-row'><span className='info-label'>Page:</span> 1 sur {chunkLines(printingLines, 30).length}</div>)
               }
+              {/* Barcode inside client section */}
+              {docentete?.DO_Piece && (
+                <div>
+                  <Barcode 
+                    value={docentete.DO_Piece} 
+                    width={1}
+                    height={30}
+                    fontSize={10}
+                    displayValue={false}
+                  />
+                </div>
+              )}
             </div>
           </div>
 
@@ -303,19 +331,15 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             <div>Date de tirage {new Date().toISOString().split('T')[0]} à {new Date().toLocaleTimeString('fr-FR')}</div>
           </div>
 
-          {chunkLines(printingLines, 40).map((pageLines, pageIndex) => (
+          {chunkLines(printingLines, 30).map((pageLines, pageIndex) => (
             <div key={pageIndex} className='page-break'>
               {pageIndex > 0 && (
                 <>
                   <div className='document-header'>
                     <div className='company-section'>
-                      <div className='document-info'>STILE MOBILI</div>
-                      <div className='company-tagline'>Fabricant de meubles de cuisine</div>
-                      <div>4ᵉ Tranche Zone Industrielle</div>
-                      <div style={{ marginTop: '2px' }}>
-                        <strong>Pièce: {docentete?.DO_Piece || '__'}</strong><br />
-                        <span>{docentete?.DO_Ref || '__'}</span>
-                      </div>
+                      <div className='document-info'>N° CLIENT : {docentete?.DO_Tiers || ''}</div>
+                      <div className='document-info bg'>N° DOC  : {docentete?.DO_Piece || ''}</div>
+                      <div className='document-info'>REF : {docentete?.DO_Ref || '__'}</div>
                     </div>
 
                     <div className='logo-section'>
@@ -323,13 +347,24 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                     </div>
 
                     <div className='client-section'>
-                      <div className='info-row'><span className='info-label'>Client:</span> {docentete?.DO_Tiers || '__'}</div>
-                      <div className='info-row'><span className='info-label'>Date:</span> {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
-                      {/* <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div> */}
-                        <div className='info-row'><span className='info-label'>Livraison:</span> {docentete?.DO_DateLivr}</div>
-                      <div className='info-row'><span className='info-label'>Expédition:</span> {getExped(docentete?.DO_Expedit)}</div>
-                      <div className='info-row'><span className='info-label'>Type:</span> {docentete?.DO_Piece ? getDocumentType(docentete.DO_Piece) : '__'}</div>
-                      <div className='info-row'><span className='info-label'>Page:</span> {pageIndex + 1} sur {chunkLines(printingLines, 40).length}</div>
+                      <div className='document-info'>DATE DOC : {docentete?.DO_Date ? dateFormat(docentete.DO_Date) : '__'}</div>
+                      <div className='document-info bg'>DATE LIVRE  : {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
+                      <div className='document-info'>EXPEDITION : {getExped(docentete?.DO_Expedit)}</div>
+                      {
+                        chunkLines(printingLines, 30)?.length > 1 && (<div className='info-row'><span className='info-label'>Page:</span> 1 sur {chunkLines(printingLines, 30).length}</div>)
+                      }
+                      {/* Barcode inside client section */}
+                      {docentete?.DO_Piece && (
+                        <div>
+                          <Barcode 
+                            value={docentete.DO_Piece} 
+                            width={1}
+                            height={30}
+                            fontSize={10}
+                            displayValue={false}
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
 
@@ -378,7 +413,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                 </tbody>
               </table>
 
-              {pageIndex === chunkLines(printingLines, 40).length - 1 && (
+              {pageIndex === chunkLines(printingLines, 30).length - 1 && (
                 <div className='signature-footer'>
                   <div className='signature-section'>
                     <div className='signature-header'>Date & Heure</div>
@@ -393,6 +428,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             </div>
           ))}
         </div>
+        </Watermark>
       </div>
     </div>
   )

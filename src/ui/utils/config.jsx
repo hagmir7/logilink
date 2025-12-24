@@ -40,9 +40,10 @@ export function getExped(exp) {
     11: 'C YASSIN',
     12: 'GHAZALA',
     13: 'GISNAD',
+    10: 'STILEMOBILI',
   }
 
-  return expedMap[exp] || ''
+  return expedMap[exp] || 'N/A'
 }
 
 

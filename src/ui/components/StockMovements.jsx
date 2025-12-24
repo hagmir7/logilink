@@ -304,22 +304,33 @@ function StockMovements({ company_id }) {
 
           <div className='hidden lg:block w-full'>
             <Select
-              mode='multiple'
+              mode="multiple"
               style={{ width: '100%' }}
-              placeholder='Filtre par dépôt'
+              placeholder="Filtre par dépôt"
               onChange={(value) => setSelectedDepots(value)}
-              options={depots}
+              options={depots} // depots = [{ label: 'Depot 1', value: '1' }, ...]
+              showSearch
+              optionLabelProp="label"
+              filterOption={(input, option) =>
+                option.label.toLowerCase().includes(input.toLowerCase())
+              }
             />
+
           </div>
 
           <div className='hidden lg:block w-full'>
             <Select
-              mode='multiple'
-              style={{ width: '100%' }}
-              placeholder='Filtre par utilisateur'
-              onChange={(value) => setSelectedUsers(value)}
-              options={users}
-            />
+            mode="multiple"
+            style={{ width: '100%' }}
+            placeholder="Filtre par utilisateur"
+            onChange={(value) => setSelectedUsers(value)}
+            options={users}
+            showSearch
+            optionLabelProp="label"
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+          />
           </div>
 
           <div className='hidden lg:block w-full'>
@@ -336,12 +347,17 @@ function StockMovements({ company_id }) {
 
           <div className='hidden lg:block w-full'>
             <Select
-              placeholder='Catégorie'
-              size='middle'
-              onChange={(value) => setCategoryFilter(value)}
-              style={{ width: '100%' }}
-              options={categories}
-            />
+            placeholder="Catégorie"
+            size="middle"
+            onChange={(value) => setCategoryFilter(value)}
+            style={{ width: '100%' }}
+            options={categories}
+            showSearch
+            optionLabelProp="label"
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+          />
           </div>
 
           {
@@ -401,30 +417,30 @@ function StockMovements({ company_id }) {
         {/* Desktop Table View */}
         <div className='hidden md:block overflow-x-auto'>
           <table className='w-full'>
-            <thead className='bg-gray-50 border-b border-gray-200'>
+            <thead className='bg-gray-50 border-y border-gray-200'>
               <tr>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Référence
                 </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Désignation
                 </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Type
                 </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Emplacement
                 </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Quantité
                 </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Personnel
                 </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Date
                 </th>
-                <th className='px-6 py-4 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
+                <th className='px-6 py-2 text-left text-[13px] font-semibold text-gray-500 uppercase whitespace-nowrap'>
                   Actions
                 </th>
               </tr>

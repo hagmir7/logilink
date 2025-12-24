@@ -48,7 +48,7 @@ export default function MobileBottomNav() {
       label: 'Sortie',
       path: '/stock/out',
       icon: <ArrowUpFromLine className={window.electron ? 'h-8 w-8 mb-1' : 'h-4 w-4 mb-1'} />,
-      disabled: !roles(['admin', 'preparation', 'preparation_cuisine', 'preparation_trailer', 'magasinier', 'controleur']),
+      disabled: !roles(['admin', 'preparation', 'preparation_cuisine', 'preparation_trailer', 'magasinier', 'controleur', 'production_operateur']),
 
       color: 'blue',
     },
@@ -57,7 +57,7 @@ export default function MobileBottomNav() {
       label: 'Entrée',
       path: '/stock/in',
       icon: <ArrowDownFromLine className={window.electron ? 'h-8 w-8 mb-1' : 'h-4 w-4 mb-1'} />,
-      disabled: !roles(['admin', 'preparation', 'preparation_cuisine', 'preparation_trailer', 'magasinier', 'controleur']),
+      disabled: !roles(['admin', 'preparation', 'preparation_cuisine', 'preparation_trailer', 'magasinier', 'controleur', 'production_operateur']),
 
       color: 'blue',
     },
@@ -168,7 +168,7 @@ export default function MobileBottomNav() {
             </Button>
           )}
 
-          {roles(['admin', 'magasinier', 'preparation', 'preparation_cuisine', 'preparation_trailer', 'controleur']) && (
+          {roles(['admin', 'magasinier', 'preparation', 'preparation_cuisine', 'preparation_trailer', 'controleur', 'production_operateur']) && (
             <Button
               type="default"
               size="large"

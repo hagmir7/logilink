@@ -17,7 +17,7 @@ import { useAuth } from '../contexts/AuthContext'
 
 const { Option } = Select
 
-const CreateEmplacement = () => {
+const CreateEmplacement = ({depot_code}) => {
   const [form] = Form.useForm()
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [loading, setLoading] = useState(false)
@@ -79,12 +79,14 @@ const CreateEmplacement = () => {
   const handleSubmit = (values) => {
     createEmplacement(values)
   }
+  console.log(depot_code);
+  
 
   return (
     <div>
 
       {
-        roles('admin') ? <div>
+       (roles('admin') || (roles('production') && depot_code === 'FABRICA')) ? <div>
           <Button
             type='primary'
             icon={<PlusOutlined />}
