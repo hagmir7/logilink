@@ -29,15 +29,42 @@ export default function EmplacementArticles({
   }, [open, emplacement_code])
 
   const columns = [
-    { title: 'Code', dataIndex: 'code', key: 'code' },
-    { title: 'Article', dataIndex: 'description', key: 'description' },
-    { title: 'Couleur', dataIndex: 'color', key: 'color' },
     {
-      title: 'Quantité',
+      title: 'Code',
+      dataIndex: 'code',
+      key: 'code',
+      width: isElectron ? 150 : 100,
+      ellipsis: true,
+      render: text => (
+        <Text strong style={{ whiteSpace: 'nowrap' }}>
+          {text}
+        </Text>
+      ),
+    },
+    {
+      title: 'Article',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: {
+        showTitle: true,
+      },
+      render: text => (
+        <span style={{ whiteSpace: 'nowrap' }} title={text}>
+          {text}
+        </span>
+      ),
+    },
+    {
+      title: 'Qté',
       dataIndex: 'quantity',
       key: 'quantity',
       align: 'right',
-      render: q => <Text strong>{q}</Text>,
+      width: isElectron ? 100 : 70,
+      render: q => (
+        <Text strong style={{ whiteSpace: 'nowrap' }}>
+          {q}
+        </Text>
+      ),
     },
   ]
 
@@ -47,7 +74,6 @@ export default function EmplacementArticles({
         key: `${palette.id}-${article.id}`,
         code: article.code,
         description: article.description || article.description,
-        color: article.color,
         quantity: Number(article.pivot?.quantity || 0),
       }))
     ) || []
@@ -55,16 +81,18 @@ export default function EmplacementArticles({
   return (
     <Modal
       title={`Articles - Emplacement ${emplacement_code}`}
-        open={open}
-        onCancel={onClose}
-        footer={null}
-        width={isElectron ? '95%' : 900}
-        className={isElectron ? 'electron-modal' : ''}
-        destroyOnClose
+      open={open}
+      onCancel={onClose}
+      footer={null}
+      width={isElectron ? '95%' : '95%'}
+      style={{ maxWidth: isElectron ? undefined : 900 }}
+      className={isElectron ? 'electron-modal' : ''}
+      destroyOnClose
     >
       <div
         style={{
-          fontSize: isElectron ? 16 : 13,
+          fontSize: isElectron ? 16 : 14,
+          overflowX: 'auto',
         }}
       >
         {loading ? (
@@ -78,19 +106,53 @@ export default function EmplacementArticles({
             className="border border-gray-200"
             columns={columns}
             dataSource={tableData}
-            pagination={0}
+            pagination={false}
             size={isElectron ? 'middle' : 'small'}
-            scroll={isElectron ? { y: '70vh' } : undefined}
+            scroll={{
+              x: 'max-content',
+              y: isElectron ? '70vh' : '60vh',
+            }}
             onRow={record => ({
-                onClick: () => {
-                onArticleSelect?.(record.code) // 🔥 send article code
-                onClose?.()                     // optional: close modal
-                },
-                style: { cursor: 'pointer' },
+              onClick: () => {
+                onArticleSelect?.(record.code)
+                onClose?.()
+              },
+              style: { cursor: 'pointer' },
             })}
+            sticky
           />
         )}
       </div>
+
+      <style jsx global>{`
+        .ant-table-cell {
+          white-space: nowrap !important;
+        }
+        
+        @media (max-width: 768px) {
+          .ant-modal-header {
+            padding: 12px 16px;
+          }
+          
+          .ant-modal-body {
+            padding: 12px;
+          }
+          
+          .ant-modal-title {
+            font-size: 14px;
+          }
+          
+          .ant-table-thead > tr > th {
+            padding: 6px 4px !important;
+            font-size: 12px;
+          }
+          
+          .ant-table-tbody > tr > td {
+            padding: 4px 2px !important;
+            font-size: 13px;
+          }
+        }
+      `}</style>
     </Modal>
   )
 }

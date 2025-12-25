@@ -1,5 +1,5 @@
 import { Button, message, Tag, Popconfirm, Input } from 'antd'
-import { Edit, RotateCw, Trash, Search as SearchIcon } from 'lucide-react'
+import { Edit, RotateCw, Trash, Search as SearchIcon, Package } from 'lucide-react'
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
@@ -7,6 +7,7 @@ import Spinner from '../components/ui/Spinner'
 import CreateEmplacement from '../components/CreateEmplacement'
 import { useAuth } from '../contexts/AuthContext'
 import BackButton from '../components/ui/BackButton'
+import EmplacementArticles from '../components/EmplacementArticles'
 const { Search } = Input
 
 export default function ViewDepot() {
@@ -15,6 +16,8 @@ export default function ViewDepot() {
   const [loading, setLoading] = useState(true)
   const [searchText, setSearchText] = useState('')
   const { roles } = useAuth()
+  const [open, setOpen] = useState(false)
+  const [emplacement, setEmplacement] = useState(null)
 
   const fetchData = async () => {
     setLoading(true)
@@ -73,8 +76,6 @@ export default function ViewDepot() {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             allowClear
-            // size='small'
-            // className='max-w-md'
           />
           <CreateEmplacement onCreated={fetchData} depot_code={depot?.depot?.code} />
           <Button
@@ -125,10 +126,18 @@ export default function ViewDepot() {
                   <Tag>{depot?.depot?.code}</Tag>
                 </td>
                 <td className='px-6 py-2 whitespace-nowrap'>
-                  {depot?.depot?.company?.name || '—'}
+                  {depot?.company?.name || '—'}
+
                 </td>
-                {(roles('admin') || (roles('production') && depot?.depot?.code.toUpperCase() === 'FABRICA')) && (
-                  <td className='px-6 py-2 whitespace-nowrap flex gap-3'>
+
+
+                <td className='px-6 py-2 whitespace-nowrap flex gap-3'>
+                  <Button icon={<Package size={15} />} onClick={() => {
+                    setOpen(true)
+                    setEmplacement(item.code)
+                  }}>
+                  </Button>
+                  {(roles('admin') || (roles('production') && depot?.depot?.code.toUpperCase() === 'FABRICA')) && (
                     <Popconfirm
                       title='Supprimer cet emplacement ?'
                       onConfirm={() => handleDelete(item.code)}
@@ -137,16 +146,20 @@ export default function ViewDepot() {
                     >
                       <Button icon={<Trash size={15} />} danger />
                     </Popconfirm>
-
-                    {/* <Button icon={<Edit size={15} />} /> */}
-                  </td>
-                )}
+                  )}
+                </td>
 
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      <EmplacementArticles
+        emplacement_code={emplacement}
+        open={open}
+        onClose={() => setOpen(false)}
+      />
 
       {/* States */}
       {loading && <Spinner />}
