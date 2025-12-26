@@ -279,13 +279,13 @@ function CompanyStock({ company_id }) {
 
                     <td className='px-4 py-2 text-center'>
                       <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200'>
-                        {article.stock}
+                        {Math.floor(article.stock * 100) / 100}
                       </span>
                     </td>
 
                     <td className='px-4 py-2 text-center'>
                       <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
-                        {parseFloat(article.stock) + parseFloat(article.stock_prepartion)}
+                        {Math.floor((parseFloat(article.stock) + parseFloat(article.stock_prepartion)) * 100) / 100}
                       </span>
                     </td>
 

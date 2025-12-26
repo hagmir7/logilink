@@ -7,11 +7,12 @@ import {
   ArrowDown,
   CircleDollarSign
 } from 'lucide-react';
-import { Button, DatePicker, Select } from 'antd';
+import { Button, DatePicker, message, Popconfirm, Select } from 'antd';
 import { categories, locale } from '../utils/config';
 import { api } from '../utils/api';
 import { useParams } from 'react-router-dom';
 import InvenotryExport from './InvenotryExport';
+import { useAuth } from '../contexts/AuthContext';
 
 
 const { RangePicker } = DatePicker;
@@ -27,6 +28,7 @@ const InventoryOverview = () => {
   });
 
   const { id } = useParams();
+  const { roles } = useAuth();
 
   const fetchData = async () => {
     try {
@@ -81,6 +83,19 @@ const InventoryOverview = () => {
   ];
 
 
+  const resetStock = async () => {
+    if (!roles('supper_admin')) {
+      return;
+    }
+    try {
+      const response = await api.get(`inventory/${id}/init`);
+      message.success("Réinitialisation avec success")
+    } catch (error) {
+      message.error(error.response.data.message);
+    }
+  }
+
+
 
 
   return (
@@ -93,9 +108,23 @@ const InventoryOverview = () => {
             <p className="text-gray-600 mt-1">Bon retour ! Voici ce qui se passe.</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
-            <Button className="w-full sm:w-auto" size="large" >
-              Réinitialisation le Stock 
-            </Button>
+            {
+          roles('supper_admin') && (
+            <Popconfirm
+              title="Réinitialisation du Stock"
+              description="Êtes-vous sûr de vouloir réinitialiser le stock ? Cette action est irréversible."
+              onConfirm={resetStock}
+              okText="Oui"
+              cancelText="Non"
+              okButtonProps={{ danger: true }}
+            >
+              <Button className="w-full sm:w-auto" size="large" danger>
+                Réinitialisation le Stock
+              </Button>
+            </Popconfirm>
+          )
+        }
+            
             <InvenotryExport inventory_id={id} />
             <Select
               defaultValue="panneaux"

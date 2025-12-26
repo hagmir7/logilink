@@ -62,8 +62,12 @@ function Document() {
       window.electron?.notifyPrintReady?.();
     };
     fetchAndNotify();
+
     const intervalId = setInterval(fetchAndNotify, 40000);
     return () => clearInterval(intervalId);
+
+   
+    
   }, [documenType, documenStatus, dateFilter]);
 
   const loadMore = async () => {
@@ -118,7 +122,7 @@ function Document() {
       {/* Header */}
       <div className='flex flex-wrap justify-between items-center gap-4 mb-2 px-2 md:px-4'>
         <div className='flex items-center gap-4'>
-          <div className=''>
+          <div className={roles('commercial') && 'hidden md:block'}>
             <Search
               placeholder='Recherch'
               loading={searchSpinner}
@@ -207,8 +211,8 @@ function Document() {
           </Button>
         </div>
       )}
-
-      {data.data.length === 0 && !loading && (
+  
+      {(data.data.length === 0 && !loading) && (
         <Empty className='mt-10' description='Aucun document à afficher' />
       )}
     </div>
