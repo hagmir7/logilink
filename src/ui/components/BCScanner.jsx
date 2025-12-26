@@ -1,180 +1,279 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { Scan, X, AlertCircle } from 'lucide-react';
-
-import { Html5Qrcode } from 'html5-qrcode';
+import React, { useState, useRef, useEffect, useCallback } from 'react'
+import { Scan, X, AlertCircle, Camera } from 'lucide-react'
+import { Html5Qrcode } from 'html5-qrcode'
 
 const BCScanner = ({ onScan, onError, btnClass }) => {
-  const [showScanner, setShowScanner] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [error, setError] = useState('');
-  const scannerRef = useRef(null);
-  const html5QrCodeRef = useRef(null);
+  const [showScanner, setShowScanner] = useState(false)
+  const [isScanning, setIsScanning] = useState(false)
+  const [error, setError] = useState('')
+  const [cameras, setCameras] = useState([])
+  const [selectedCamera, setSelectedCamera] = useState(null)
+  const [showCameraSelect, setShowCameraSelect] = useState(false)
+  const scannerRef = useRef(null)
+  const html5QrCodeRef = useRef(null)
 
   const stopScanner = useCallback(async () => {
-    setIsScanning(false);
     if (html5QrCodeRef.current && isScanning) {
       try {
-        await html5QrCodeRef.current.stop();
-        html5QrCodeRef.current.clear();
-        setIsScanning(false);
-        setShowScanner(false);
-        setError('');
+        await html5QrCodeRef.current.stop()
+        html5QrCodeRef.current.clear()
+        html5QrCodeRef.current = null
       } catch (err) {
-        console.error('Failed to stop scanner:', err);
-        setError('Erreur lors de l\'arrêt du scanner');
-        if (onError) onError(err);
+        console.error('Failed to stop scanner:', err)
+        if (onError) onError(err)
       }
-    } else {
-      setShowScanner(false);
-      setIsScanning(false);
-      setError('');
     }
-  }, [isScanning, onError]);
+    setIsScanning(false)
+    setShowScanner(false)
+    setError('')
+    setShowCameraSelect(false)
+  }, [isScanning, onError])
 
-  const startScanner = useCallback(async () => {
-    if (!scannerRef.current) return;
-
+  const loadCameras = useCallback(async () => {
     try {
-      setError('');
-      const cameras = await Html5Qrcode.getCameras();
-      
-      if (!cameras || cameras.length === 0) {
-        throw new Error('Aucune caméra trouvée');
+      const availableCameras = await Html5Qrcode.getCameras()
+
+      if (!availableCameras || availableCameras.length === 0) {
+        throw new Error('Aucune caméra trouvée')
       }
 
+      setCameras(availableCameras)
 
-      const cameraId = cameras.length === 1 ? cameras[0].id : cameras[1].id;
-      setIsScanning(true);
-      
-      // Initialize scanner if not already exists
-      if (!html5QrCodeRef.current) {
-        html5QrCodeRef.current = new Html5Qrcode(scannerRef.current.id);
-      }
-
-      // Start scanning
-      await html5QrCodeRef.current.start(
-        cameraId,
-        {
-          fps: 10,
-          qrbox: { width: 250, height: 250 }
-        },
-        (decodedText) => {
-          stopScanner();
-          if (onScan) onScan(decodedText);
-        },
-        (errorMessage) => {
-          console.warn('Scan error:', errorMessage);
+      // If user has previously selected a camera, use it
+      if (selectedCamera) {
+        const cameraExists = availableCameras.find(
+          (cam) => cam.id === selectedCamera
+        )
+        if (cameraExists) {
+          return selectedCamera
         }
-      );
+      }
+
+      // Default camera selection
+      const defaultCamera =
+        availableCameras.length === 1
+          ? availableCameras[0].id
+          : availableCameras[1].id
+
+      setSelectedCamera(defaultCamera)
+      return defaultCamera
     } catch (err) {
-      console.error('Camera initialization failed:', err);
-      setError('Impossible d\'accéder à la caméra. Vérifiez les permissions.');
-      setIsScanning(false);
-      if (onError) onError(err);
+      console.error('Failed to load cameras:', err)
+      throw err
     }
-  }, [onScan, onError, stopScanner]);
+  }, [selectedCamera])
+
+  const startScanner = useCallback(
+    async (cameraId) => {
+      if (!scannerRef.current) return
+
+      try {
+        setError('')
+        setIsScanning(true)
+
+        // Initialize scanner if not already exists
+        if (!html5QrCodeRef.current) {
+          html5QrCodeRef.current = new Html5Qrcode(scannerRef.current.id)
+        }
+
+        // Start scanning
+        await html5QrCodeRef.current.start(
+          cameraId,
+          {
+            fps: 10,
+            qrbox: { width: 250, height: 250 },
+          },
+          (decodedText) => {
+            stopScanner()
+            if (onScan) onScan(decodedText)
+          },
+          (errorMessage) => {
+            console.warn('Scan error:', errorMessage)
+          }
+        )
+      } catch (err) {
+        console.error('Camera initialization failed:', err)
+        setError("Impossible d'accéder à la caméra. Vérifiez les permissions.")
+        setIsScanning(false)
+        if (onError) onError(err)
+      }
+    },
+    [onScan, onError, stopScanner]
+  )
+
+  const handleCameraChange = async (cameraId) => {
+    setSelectedCamera(cameraId)
+    setShowCameraSelect(false)
+
+    // Stop current scanner if running
+    if (html5QrCodeRef.current && isScanning) {
+      try {
+        await html5QrCodeRef.current.stop()
+        html5QrCodeRef.current.clear()
+        html5QrCodeRef.current = null
+      } catch (err) {
+        console.error('Failed to stop scanner:', err)
+      }
+    }
+
+    // Start with new camera
+    await startScanner(cameraId)
+  }
 
   useEffect(() => {
     if (showScanner && !isScanning) {
-      startScanner();
+      loadCameras()
+        .then((cameraId) => {
+          if (cameraId) {
+            startScanner(cameraId)
+          }
+        })
+        .catch((err) => {
+          setError(
+            "Impossible d'accéder à la caméra. Vérifiez les permissions."
+          )
+          if (onError) onError(err)
+        })
     }
-  }, [showScanner, isScanning, startScanner]);
+  }, [showScanner, isScanning, startScanner])
 
   useEffect(() => {
     return () => {
       if (html5QrCodeRef.current && isScanning) {
-        html5QrCodeRef.current.stop().catch(console.error);
+        html5QrCodeRef.current.stop().catch(console.error)
       }
-    };
-  }, [isScanning]);
+    }
+  }, [isScanning])
 
   const handleStartScan = () => {
-    setShowScanner(true);
-    setError('');
-  };
+    setShowScanner(true)
+    setError('')
+  }
 
   const handleModalClick = (e) => {
     // Close modal if clicking on backdrop
     if (e.target === e.currentTarget) {
-      stopScanner();
+      stopScanner()
     }
-  };
+  }
 
   return (
-    <div className="w-full">
+    <div className='w-full'>
       {/* Trigger Button */}
       <button
         onClick={handleStartScan}
-        className={`flex items-center justify-center gap-2 w-full max-w-md mx-auto px-4 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium text-white` + btnClass}
-        type="button"
+        className={`flex items-center justify-center gap-2 w-full max-w-md mx-auto px-4 py-3 bg-blue-500 rounded-lg hover:bg-blue-600 transition-colors font-medium text-white ${
+          btnClass || ''
+        }`}
+        type='button'
       >
-        <Scan className="w-5 h-5 text-white" />
+        <Scan className='w-5 h-5 text-white' />
       </button>
 
       {/* Modal Overlay */}
       {showScanner && (
-        <div 
-          className="fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4"
+        <div
+          className='fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4'
           onClick={handleModalClick}
         >
-          <div className="bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto">
+          <div className='bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto'>
             {/* Modal Header */}
-            <div className="flex justify-between items-center p-4 border-b border-gray-200">
-              <h3 className="text-lg font-semibold text-gray-800">Scanner QR/Code-barres</h3>
-              <button
-                onClick={stopScanner}
-                className="p-1 hover:bg-gray-100 rounded-full transition-colors"
-                disabled={!isScanning}
-              >
-                <X className="w-5 h-5 text-gray-600" />
-              </button>
+            <div className='flex justify-between items-center p-4 border-b border-gray-200'>
+              <h3 className='text-lg font-semibold text-gray-800'>
+                Scanner QR/Code-barres
+              </h3>
+              <div className='flex items-center gap-1'>
+                {/* Camera Selection Button */}
+                {cameras.length > 1 && !error && (
+                  <button
+                    onClick={() => setShowCameraSelect(!showCameraSelect)}
+                    className='p-1 hover:bg-gray-100 rounded-full transition-colors'
+                    title='Changer de caméra'
+                    type='button'
+                  >
+                    <Camera className='w-5 h-5 text-gray-600' />
+                  </button>
+                )}
+                <button
+                  onClick={stopScanner}
+                  className='p-1 hover:bg-gray-100 rounded-full transition-colors'
+                  disabled={!isScanning}
+                  type='button'
+                >
+                  <X className='w-5 h-5 text-gray-600' />
+                </button>
+              </div>
             </div>
-            
+
             {/* Modal Content */}
-            <div className="p-4">
+            <div className='p-4'>
+              {/* Camera Selection Dropdown */}
+              {showCameraSelect && cameras.length > 1 && (
+                <div className='mb-4 p-3 bg-blue-50 border border-blue-200 rounded-md'>
+                  <label className='block text-sm font-medium text-gray-700 mb-2'>
+                    Sélectionner une caméra:
+                  </label>
+                  <select
+                    value={selectedCamera || ''}
+                    onChange={(e) => handleCameraChange(e.target.value)}
+                    className='w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700'
+                  >
+                    {cameras.map((camera, index) => (
+                      <option key={camera.id} value={camera.id}>
+                        {camera.label || `Caméra ${index + 1}`}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
               {error ? (
-                <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2">
-                  <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
-                  <span className="text-red-700 text-sm">{error}</span>
+                <div className='mb-4 p-3 bg-red-50 border border-red-200 rounded-md flex items-center gap-2'>
+                  <AlertCircle className='w-5 h-5 text-red-500 flex-shrink-0' />
+                  <span className='text-red-700 text-sm'>{error}</span>
                 </div>
               ) : (
-                <div className="mb-4">
-                  <div 
-                    id="barcode-scanner" 
-                    ref={scannerRef} 
-                    className="w-full border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 h-64 flex items-center justify-center"
+                <div className='mb-4'>
+                  <div
+                    id='barcode-scanner'
+                    ref={scannerRef}
+                    className='w-full border-2 border-dashed border-gray-300 rounded-lg bg-gray-50 h-64 flex items-center justify-center'
                   >
                     {isScanning ? (
-                      <div className="text-center">
-                        <div className="animate-pulse">
-                          <Scan className="w-12 h-12 text-blue-500 mx-auto mb-2" />
+                      <div className='text-center'>
+                        <div className='animate-pulse'>
+                          <Scan className='w-12 h-12 text-blue-500 mx-auto mb-2' />
                         </div>
-                        <p className="text-gray-600">Recherche de codes...</p>
-                        <p className="text-sm text-gray-500 mt-1">Pointez votre caméra vers un code QR ou code-barres</p>
+                        <p className='text-gray-600'>Recherche de codes...</p>
+                        <p className='text-sm text-gray-500 mt-1'>
+                          Pointez votre caméra vers un code QR ou code-barres
+                        </p>
                       </div>
                     ) : (
-                      <div className="text-center text-gray-500">
-                        <Scan className="w-12 h-12 mx-auto mb-2 text-white" />
+                      <div className='text-center text-gray-500'>
+                        <Scan className='w-12 h-12 mx-auto mb-2 text-gray-400' />
                         <p>Initialisation de la caméra...</p>
                       </div>
                     )}
                   </div>
                 </div>
               )}
-              
+
               {/* Modal Footer */}
-              <div className="flex gap-2">
+              <div className='flex gap-2'>
                 <button
                   onClick={stopScanner}
-                  className="flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium"
+                  className='flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium'
+                  type='button'
                 >
                   <span className='text-white'>Annuler</span>
                 </button>
                 {error && (
                   <button
-                    onClick={startScanner}
-                    className="flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium"
+                    onClick={handleStartScan}
+                    className='flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium'
                     disabled={isScanning}
+                    type='button'
                   >
                     <span className='text-white'>Réessayer</span>
                   </button>
@@ -185,7 +284,7 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
         </div>
       )}
     </div>
-  );
-};
+  )
+}
 
-export default BCScanner;
+export default BCScanner
