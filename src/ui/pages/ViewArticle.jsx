@@ -190,12 +190,6 @@ const ViewArticle = () => {
                   {dim.label} <span className='text-gray-500'>(mm)</span>
                 </span>
               }
-              rules={[
-                {
-                  min: 0,
-                  message: 'La valeur doit être positive'
-                }
-              ]}
             >
               <InputNumber
                 style={{ width: "100%" }}
