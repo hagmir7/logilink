@@ -115,7 +115,7 @@ export default function InventoryList() {
   return (
     <div className='min-h-screen bg-gray-50'>
       {/* Header */}
-      <div className='mb-2'>
+      <div className='mb-0'>
         <div className='flex justify-between items-centerp-2 p-4'>
           <div className=''>
             {/* Title */}

@@ -113,8 +113,8 @@ function CompanyStock({ company_id }) {
     <div className='w-full h-full bg-gray-50 p-0 md:px-2'>
       <div className='max-w-[1600px] mx-auto'>
         {/* Header Section */}
-        <div className="mb-4 bg-white md:rounded-lg md:shadow-sm border border-gray-200 py-2 px-3">
-          <div className="flex items-center gap-3 mb-4">
+        <div className="mb-3 bg-white md:rounded-lg md:shadow-sm border border-gray-200 py-2 px-3">
+          <div className="flex items-center gap-3 mb-0">
             <div className="p-1 bg-blue-50 rounded-lg">
               <Package className="text-blue-600" size={24} />
             </div>
