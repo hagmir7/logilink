@@ -8,23 +8,27 @@ import CreateEmplacement from '../components/CreateEmplacement'
 import { useAuth } from '../contexts/AuthContext'
 import BackButton from '../components/ui/BackButton'
 import EmplacementArticles from '../components/EmplacementArticles'
+import EmplacementModal from '../components/ui/EmplacementModal'
 const { Search } = Input
 
-export default function ViewDepot() {
-  const { id } = useParams()
+export default function InventoryDepotEmplacmentList() {
+  const { id, inventory_id } = useParams()
   const [depot, setDepot] = useState({ emplacements: [] })
   const [loading, setLoading] = useState(true)
   const [searchText, setSearchText] = useState('')
   const { roles } = useAuth()
   const [open, setOpen] = useState(false)
-  const [emplacement, setEmplacement] = useState(null)
+  const [emplacement, setEmplacement] = useState(null);
+  const [selectedEmplacement, setSelectedEmplacement] = useState(null);
+    const handleOk = () => {
+        setIsModalOpen(false);
+    };
 
   const fetchData = async () => {
     setLoading(true)
     try {
       const { data } = await api.get(`depots/${id}`)
       setDepot(data)
-      console.log(data)
     } catch (error) {
       message.error(
         error?.response?.data?.message || 'Erreur lors du chargement'
@@ -116,6 +120,7 @@ export default function ViewDepot() {
           <tbody className='bg-white divide-y divide-gray-200'>
             {filteredEmplacements.map((item) => (
               <tr
+              onClick={() => setSelectedEmplacement(item.code)}
                 key={item.id}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
               >
@@ -159,6 +164,14 @@ export default function ViewDepot() {
         emplacement_code={emplacement}
         open={open}
         onClose={() => setOpen(false)}
+      />
+
+      <EmplacementModal
+        selectedEmplacement={selectedEmplacement}
+        setSelectedEmplacement={setSelectedEmplacement}
+        handleOk={handleOk}
+        parseEmplacement={setSelectedEmplacement}
+        inventory_id={inventory_id}
       />
 
       {/* States */}

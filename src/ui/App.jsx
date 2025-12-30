@@ -52,6 +52,7 @@ import Sage from './pages/Sage'
 import CreateDocument from './components/CreateDocument'
 import Purchase from './pages/Purchase'
 import PurchaseForm from './pages/PurchaseForm'
+import InventoryDepotEmplacmentList from './pages/InventoryDepotEmplacmentList'
 
 
 const NotFound = () => {
@@ -87,6 +88,11 @@ function App() {
 
         <Route path='depots' element={<Depots />} />
         <Route path='depots/:id' element={<ViewDepot />} />
+
+        <Route
+          path='inventory/:inventory_id/depot/:id/emplacements'
+          element={<InventoryDepotEmplacmentList />}
+        />
 
         <Route element={<MainLayout />}>
           <Route path='/sage' element={<Sage />} />

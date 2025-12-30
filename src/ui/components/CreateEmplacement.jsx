@@ -79,8 +79,6 @@ const CreateEmplacement = ({depot_code}) => {
   const handleSubmit = (values) => {
     createEmplacement(values)
   }
-  console.log(depot_code);
-  
 
   return (
     <div>

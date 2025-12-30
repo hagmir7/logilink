@@ -1,5 +1,5 @@
 // EmplacementModal.jsx
-import { Collapse, message, Modal, Space, Skeleton, Popconfirm, Button } from 'antd'
+import { Collapse, message, Modal, Space, Skeleton, Popconfirm } from 'antd'
 import { api } from '../../utils/api'
 import { useEffect, useState, useMemo, useCallback } from 'react'
 import PaletteArticleCard from './PaletteArticleCard'
@@ -13,9 +13,7 @@ const EmplacementModal = ({
   inventory_id
 }) => {
   const [emplacement, setEmplacement] = useState(null)
-  const [palettes, setPalettes] = useState([]);
-
-  
+  const [palettes, setPalettes] = useState([])
   const [loading, setLoading] = useState(false)
 
   const emplacementData = useMemo(
@@ -28,28 +26,24 @@ const EmplacementModal = ({
 
     setLoading(true)
     try {
-      let url;
-      if(inventory_id){
-        url = `emplacement/${selectedEmplacement}/inventory/${inventory_id}`;
-      }else{
-        url = `emplacement/${selectedEmplacement}`
-      }
+      const url = inventory_id
+        ? `emplacement/${selectedEmplacement}/inventory/${inventory_id}`
+        : `emplacement/${selectedEmplacement}`
+
       const response = await api.get(url)
       setEmplacement(response.data)
-      setPalettes(response?.data?.palettes)
-
+      setPalettes(response?.data?.palettes || [])
     } catch (error) {
       message.error(error?.response?.data?.message || 'Erreur lors du chargement')
-      console.error(error);
+      console.error(error)
     } finally {
       setLoading(false)
     }
-  }, [selectedEmplacement])
+  }, [selectedEmplacement, inventory_id])
 
   useEffect(() => {
     if (selectedEmplacement) {
       setEmplacement(null)
-      setLoading(true)
       getEmplacement()
     } else {
       setEmplacement(null)
@@ -61,137 +55,145 @@ const EmplacementModal = ({
     setSelectedEmplacement(null)
   }, [setSelectedEmplacement])
 
-
-  const handleDelete = async (palette_code)=>{
+  const handleDelete = async (palette_code) => {
     try {
       await api.delete(`palettes/${palette_code}`)
-       setPalettes(palettes.filter(palette => palette.code !== palette_code));
-      message.success("Palette supprimée avec succès.")
+      setPalettes(prev => prev.filter(p => p.code !== palette_code))
+      message.success('Palette supprimée avec succès.')
     } catch (error) {
-      message.error(error.response.data.message)
+      message.error(error?.response?.data?.message || 'Erreur')
     }
-
   }
 
   const LoadingSkeleton = () => (
-    <div className='space-y-4'>
-      <div className='bg-gray-50 rounded-lg p-4 border border-gray-300 mt-7'>
-        <div className='grid grid-cols-2 md:grid-cols-4 gap-4'>
-          <Skeleton.Input active size='small' />
-          <Skeleton.Input active size='small' />
-          <Skeleton.Input active size='small' />
-          <Skeleton.Input active size='small' />
+    <div className="space-y-6">
+      <div className="bg-white rounded-xl p-2 border border-gray-200 shadow-xs">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <Skeleton.Input active size="small" />
+          <Skeleton.Input active size="small" />
+          <Skeleton.Input active size="small" />
+          <Skeleton.Input active size="small" />
         </div>
       </div>
-      <div className='space-y-2'>
-        <Skeleton active paragraph={{ rows: 2 }} />
-        <Skeleton active paragraph={{ rows: 1 }} />
-      </div>
+      <Skeleton active paragraph={{ rows: 3 }} />
     </div>
   )
 
   return (
     <Modal
       title={`Emplacement ${selectedEmplacement}`}
-      closable={{ 'aria-label': 'Custom Close Button' }}
       open={!!selectedEmplacement}
       onOk={handleCancel}
-      width={{
-        xs: '90%',
-        sm: '80%',
-        md: '70%',
-        lg: '60%',
-        xl: '50%',
-        xxl: '40%',
-      }}
       onCancel={handleCancel}
+      centered
       destroyOnClose={false}
       maskClosable={false}
+      width={{
+        xs: '95%',
+        sm: '85%',
+        md: '80%',
+        lg: '70%',
+        xl: '65%',
+        xxl: '60%',
+      }}
+      bodyStyle={{
+        maxHeight: '90vh',
+        overflowY: 'auto',
+      }}
     >
-      <div style={{ minHeight: '200px' }}>
-        {' '}
-        {selectedEmplacement && (
-          <>
-            {loading ? (
+      {selectedEmplacement && (
+        <>
+          {loading ? (
+            <div className="min-h-[300px] w-full">
               <LoadingSkeleton />
-            ) : (
-              <div className='space-y-4'>
-                <div className='bg-gray-50 rounded-lg p-4 border border-gray-300 mt-7'>
-                  {emplacementData && (
-                    <div className='grid grid-cols-2 md:grid-cols-4 gap-4 text-sm'>
-                      <div>
-                        <span className='text-gray-500'>Depot:</span>
-                        <span className='ml-2 font-medium'>
-                          {emplacement?.depot?.code || '-'}
-                        </span>
+            </div>
+          ) : (
+            <div className="space-y-5">
+              {/* Emplacement Info */}
+                {
+                  emplacementData?.rowNumber && (<div className="bg-white rounded-xl p-2 border border-gray-200 shadow-xs">
+                    {emplacementData && (
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Depot</span>
+                          <div className="font-medium">
+                            {emplacement?.depot?.code || '-'}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Rangée</span>
+                          <div className="font-medium">
+                            {emplacementData.rowNumber || '-'}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Étage</span>
+                          <div className="font-medium">
+                            {emplacementData.floorLetter || '-'}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Colonne</span>
+                          <div className="font-medium">
+                            {emplacementData.columnNumber || '-'}
+                          </div>
+                        </div>
                       </div>
-                      <div>
-                        <span className='text-gray-500'>Rangée:</span>
-                        <span className='ml-2 font-medium'>
-                          {emplacementData.rowNumber || '-'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className='text-gray-500'>Étage:</span>
-                        <span className='ml-2 font-medium'>
-                          {emplacementData.floorLetter || '-'}
-                        </span>
-                      </div>
-                      <div>
-                        <span className='text-gray-500'>Colonne:</span>
-                        <span className='ml-2 font-medium'>
-                          {emplacementData.columnNumber || '-'}
-                        </span>
-                      </div>
-                    </div>
-                  )}
-                </div>
+                    )}
+                  </div>)
+                }
+              
 
-                {/* Palettes Section */}
-                <Space direction='vertical' className='w-full p-0'>
-                  {palettes?.length > 0 ? (
-                    palettes.map((palette, paletteIndex) => (
+              {/* Palettes Section */}
+              <div className="max-h-[70vh] overflow-y-auto pr-2">
+                <Space direction="vertical" className="w-full">
+                  {palettes.length > 0 ? (
+                    palettes.map((palette, index) => (
                       <Collapse
-                        key={palette.code || paletteIndex}
-                        defaultActiveKey={
-                          paletteIndex === 0 ? [palette.code] : []
-                        }
-                        ghost={false}
+                        key={palette.code || index}
+                        defaultActiveKey={index === 0 ? [palette.code] : []}
+                        className="rounded-lg border border-gray-200 hover:border-gray-300 transition"
                         items={[
                           {
                             key: palette.code,
                             label: (
-                              <div className='flex justify-between'>
-                                <div>
-                                  <span className='font-semibold text-gray-900'>
+                              <div className="flex justify-between items-center w-full">
+                                <span className="font-semibold text-gray-900">
                                   {palette.code}
                                 </span>
-                                </div>
-                                
-                                <div className='flex gap-3'>
-                                  <span className='text-sm text-gray-500 bg-gray-100 px-2 border border-gray-300 py-1 rounded-full'>
-                                  {inventory_id ? palette.inventory_articles?.length :  palette.articles?.length || 0} articles
-                                </span>
-                                 <Popconfirm
-                                    title="Êtes-vous sûr de vouloir supprimer ?"
+
+                                <div className="flex items-center gap-3">
+                                  <span className="text-xs bg-gray-100 px-3 py-1 rounded-full border">
+                                    {(inventory_id
+                                      ? palette.inventory_articles?.length
+                                      : palette.articles?.length) || 0}{' '}
+                                    articles
+                                  </span>
+
+                                  <Popconfirm
+                                    title="Supprimer cette palette ?"
                                     okText="Oui"
                                     cancelText="Non"
-                                    onConfirm={()=> handleDelete(palette.code)}
+                                    onConfirm={() => handleDelete(palette.code)}
                                   >
-                                    <button className='text-sm text-red-500 bg-red-100 px-2 border border-red-300 py-1 rounded-full cursor-pointer'  >
-                                      <Trash size={15} />
+                                    <button className="text-red-600 bg-red-100 border border-red-200 p-1.5 rounded-full hover:bg-red-200 transition">
+                                      <Trash size={14} />
                                     </button>
                                   </Popconfirm>
-
                                 </div>
                               </div>
                             ),
                             children:
-                              (inventory_id ? palette.inventory_articles?.length :  palette.articles?.length) > 0 ? (
-                                <PaletteArticleCard palette={palette} inventory_id={inventory_id} />
+                              (inventory_id
+                                ? palette.inventory_articles?.length
+                                : palette.articles?.length) > 0 ? (
+                                <PaletteArticleCard
+                                  palette={palette}
+                                  inventory_id={inventory_id}
+                                />
                               ) : (
-                                <div className='text-center py-8 text-gray-500'>
-                                  <div className='text-4xl mb-2'>📦</div>
+                                <div className="text-center py-10 text-gray-500">
+                                  <div className="text-4xl mb-2">📦</div>
                                   <p>Aucun article dans cette palette</p>
                                 </div>
                               ),
@@ -200,33 +202,30 @@ const EmplacementModal = ({
                       />
                     ))
                   ) : (
-                    <div className='text-center py-12 text-gray-500'>
-                      <div className='text-6xl mb-4'>🎨</div>
-                      <h3 className='text-lg font-medium text-gray-900 mb-2'>
+                    <div className="text-center py-16 text-gray-500">
+                      <div className="text-6xl mb-4">🎨</div>
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">
                         Aucune palette trouvée
                       </h3>
-                      <p>
-                        Il n'y a pas de palettes configurées pour cet
-                        emplacement.
-                      </p>
+                      <p>Aucune palette configurée pour cet emplacement.</p>
                     </div>
                   )}
                 </Space>
-
-                {/* Status section */}
-                {emplacement?.status && (
-                  <div className='flex items-center justify-center'>
-                    <span className='inline-block px-4 py-2 rounded-full text-sm font-medium bg-blue-100 text-blue-800'>
-                      {emplacement.status.charAt(0).toUpperCase() +
-                        emplacement.status.slice(1)}
-                    </span>
-                  </div>
-                )}
               </div>
-            )}
-          </>
-        )}
-      </div>
+
+              {/* Status */}
+              {emplacement?.status && (
+                <div className="sticky bottom-0 bg-white pt-3 border-t flex justify-center">
+                  <span className="px-4 py-1.5 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                    {emplacement.status.charAt(0).toUpperCase() +
+                      emplacement.status.slice(1)}
+                  </span>
+                </div>
+              )}
+            </div>
+          )}
+        </>
+      )}
     </Modal>
   )
 }

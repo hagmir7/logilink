@@ -13,21 +13,24 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
   const html5QrCodeRef = useRef(null)
 
   const stopScanner = useCallback(async () => {
-    if (html5QrCodeRef.current && isScanning) {
+    if (html5QrCodeRef.current) {
       try {
         await html5QrCodeRef.current.stop()
-        html5QrCodeRef.current.clear()
-        html5QrCodeRef.current = null
       } catch (err) {
         console.error('Failed to stop scanner:', err)
-        if (onError) onError(err)
       }
+      try {
+        html5QrCodeRef.current.clear()
+      } catch (err) {
+        console.error('Failed to clear scanner:', err)
+      }
+      html5QrCodeRef.current = null
     }
     setIsScanning(false)
     setShowScanner(false)
     setError('')
     setShowCameraSelect(false)
-  }, [isScanning, onError])
+  }, [])
 
   const loadCameras = useCallback(async () => {
     try {
@@ -88,7 +91,7 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
             if (onScan) onScan(decodedText)
           },
           (errorMessage) => {
-            console.warn('Scan error:', errorMessage)
+            // Normal scanning errors, ignore
           }
         )
       } catch (err) {
@@ -106,7 +109,7 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
     setShowCameraSelect(false)
 
     // Stop current scanner if running
-    if (html5QrCodeRef.current && isScanning) {
+    if (html5QrCodeRef.current) {
       try {
         await html5QrCodeRef.current.stop()
         html5QrCodeRef.current.clear()
@@ -116,34 +119,44 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
       }
     }
 
+    setIsScanning(false)
+
     // Start with new camera
     await startScanner(cameraId)
   }
 
   useEffect(() => {
-    if (showScanner && !isScanning) {
+    let mounted = true
+
+    if (showScanner && !isScanning && !html5QrCodeRef.current) {
       loadCameras()
         .then((cameraId) => {
-          if (cameraId) {
+          if (cameraId && mounted) {
             startScanner(cameraId)
           }
         })
         .catch((err) => {
-          setError(
-            "Impossible d'accéder à la caméra. Vérifiez les permissions."
-          )
-          if (onError) onError(err)
+          if (mounted) {
+            setError(
+              "Impossible d'accéder à la caméra. Vérifiez les permissions."
+            )
+            if (onError) onError(err)
+          }
         })
     }
-  }, [showScanner, isScanning, startScanner])
+
+    return () => {
+      mounted = false
+    }
+  }, [showScanner, isScanning, loadCameras, startScanner, onError])
 
   useEffect(() => {
     return () => {
-      if (html5QrCodeRef.current && isScanning) {
+      if (html5QrCodeRef.current) {
         html5QrCodeRef.current.stop().catch(console.error)
       }
     }
-  }, [isScanning])
+  }, [])
 
   const handleStartScan = () => {
     setShowScanner(true)
@@ -173,7 +186,7 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
       {/* Modal Overlay */}
       {showScanner && (
         <div
-          className='fixed inset-0 bg-opacity-50 flex items-center justify-center z-50 p-4'
+          className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4'
           onClick={handleModalClick}
         >
           <div className='bg-white rounded-lg shadow-2xl w-full max-w-md mx-auto'>
@@ -197,7 +210,6 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
                 <button
                   onClick={stopScanner}
                   className='p-1 hover:bg-gray-100 rounded-full transition-colors'
-                  disabled={!isScanning}
                   type='button'
                 >
                   <X className='w-5 h-5 text-gray-600' />
@@ -266,16 +278,15 @@ const BCScanner = ({ onScan, onError, btnClass }) => {
                   className='flex-1 px-4 py-2 bg-gray-500 text-white rounded-md hover:bg-gray-600 transition-colors text-sm font-medium'
                   type='button'
                 >
-                  <span className='text-white'>Annuler</span>
+                  Annuler
                 </button>
                 {error && (
                   <button
                     onClick={handleStartScan}
                     className='flex-1 px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors text-sm font-medium'
-                    disabled={isScanning}
                     type='button'
                   >
-                    <span className='text-white'>Réessayer</span>
+                    Réessayer
                   </button>
                 )}
               </div>

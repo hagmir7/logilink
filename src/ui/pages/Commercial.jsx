@@ -265,7 +265,7 @@ function Commercial() {
               />
 
               {data.docentete.document &&
-                Number(data.docentete.document.status_id) < 8 && (
+                (Number(data.docentete.document.status_id) < 8 || roles('supper_admin')) && (
                   <Popconfirm
                     title='Réinitialiser la commande'
                     description='Êtes-vous sûr de vouloir réinitialiser cette tâche ?'

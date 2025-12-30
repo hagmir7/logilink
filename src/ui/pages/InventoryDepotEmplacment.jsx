@@ -39,18 +39,18 @@ const InventoryDepotEmplacment = () => {
     }
 
     const parseEmplacement = (code) => {
-    if (!code || typeof code !== 'string') return null;
+        if (!code || typeof code !== 'string') return null;
 
-    const parts = code.split('-');
-    const floorMatch = parts[1]?.match(/(\d+)([A-Z])(\d+)/);
-    if (!floorMatch) return null;
+        const parts = code.split('-');
+        const floorMatch = parts[1]?.match(/(\d+)([A-Z])(\d+)/);
+        if (!floorMatch) return null;
 
-    const rowNumber = parseInt(floorMatch[1]);
-    const floorLetter = floorMatch[2];
-    const columnNumber = parseInt(floorMatch[3]);
-    const emplacementNumber = parts[2];
+        const rowNumber = parseInt(floorMatch[1]);
+        const floorLetter = floorMatch[2];
+        const columnNumber = parseInt(floorMatch[3]);
+        const emplacementNumber = parts[2];
 
-    return { code, rowNumber, floorLetter, columnNumber, emplacementNumber };
+        return { code, rowNumber, floorLetter, columnNumber, emplacementNumber };
     };
 
 

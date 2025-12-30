@@ -43,18 +43,18 @@ export default function InventoryDepots({inventory_id}) {
     <div className='w-full '>
       <div className='overflow-x-auto'>
         <table className='w-full'>
-          <thead className='bg-gray-50 border-b border-gray-200'>
+          <thead className='bg-gray-50 border-y border-gray-200'>
             <tr>
-              <th className='px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-1.5 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
                 Depot Code
               </th>
-              <th className='px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-1.5 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
                 Emplacments
               </th>
-              <th className='px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-1.5 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
                 Entreprise
               </th>
-              <th className='px-6 py-4 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
+              <th className='px-6 py-1.5 text-left text-sm font-medium text-gray-500 uppercase tracking-wider'>
                 Action
               </th>
             </tr>
@@ -65,7 +65,7 @@ export default function InventoryDepots({inventory_id}) {
                 key={index}
                 className='hover:bg-gray-50 cursor-pointer transition-colors duration-200'
               >
-                <td className='px-6 py-2 whitespace-nowrap'>
+                <td className='px-6 py-1.5 whitespace-nowrap'>
                   <Link to={`/inventory/${inventory_id}/depot/${data.id}`}>
                     <div className='flex items-center'>
                       <span className='text-sm font-bold text-gray-900'>
@@ -74,22 +74,22 @@ export default function InventoryDepots({inventory_id}) {
                     </div>
                   </Link>
                 </td>
-                <td className='px-6 py-2 whitespace-nowrap'>
-                  <Link to={`/inventory/${inventory_id}/depot/${data.id}`}>
+                <td className='px-6 py-1.5 whitespace-nowrap'>
+                  <Link to={`/inventory/${inventory_id}/depot/${data.id}/emplacements`}>
                     <Tag className='text-xl'>
                       {data?.emplacements_count || 'En attente'}
                     </Tag>
                   </Link>
                 </td>
 
-                <td className='px-6 py-2 whitespace-nowrap'>
+                <td className='px-6 py-1.5 whitespace-nowrap'>
                   <Link to={`/inventory/${inventory_id}/depot/${data.id}`}>
                     <span className='inline-flex items-center px-2.5 py-0.5 rounded-full text-sm font-medium'>
                       {data.company.name}
                     </span>
                   </Link>
                 </td>
-                <td className='px-6 py-2 whitespace-nowrap flex gap-3'>
+                <td className='px-6 py-1.5 whitespace-nowrap flex gap-3'>
                   <Popconfirm
                     title={`Supprimer le dépôt ${data.code}`}
                     description='Êtes-vous sûr de vouloir supprimer'

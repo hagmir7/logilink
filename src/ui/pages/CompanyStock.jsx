@@ -110,16 +110,16 @@ function CompanyStock({ company_id }) {
   };
 
   return (
-    <div className='w-full h-full bg-gray-50 p-0 md:p-4'>
+    <div className='w-full h-full bg-gray-50 p-0 md:px-2'>
       <div className='max-w-[1600px] mx-auto'>
         {/* Header Section */}
-        <div className="mb-6 bg-white md:rounded-lg md:shadow-sm border border-gray-200 p-4">
+        <div className="mb-4 bg-white md:rounded-lg md:shadow-sm border border-gray-200 py-2 px-3">
           <div className="flex items-center gap-3 mb-4">
-            <div className="p-2 bg-blue-50 rounded-lg">
+            <div className="p-1 bg-blue-50 rounded-lg">
               <Package className="text-blue-600" size={24} />
             </div>
             <div>
-              <h1 className="text-xl font-semibold text-gray-900">Gestion des Articles</h1>
+              <h1 className="text-lg font-semibold text-gray-900">Gestion des Articles</h1>
               <p className="text-sm text-gray-500">Gérez et consultez votre stock</p>
             </div>
           </div>
@@ -206,30 +206,30 @@ function CompanyStock({ company_id }) {
                     Référence
                   </th>
 
-                  <th className='px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                  <th className='px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Désignation
                   </th>
 
                   {!roles(['commercial', 'admin']) && (
                     <>
-                      <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Couleur
                       </th>
-                      <th className="px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
+                      <th className="px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
                         Dimensions
                       </th>
                     </>
                   )}
 
-                  <th className='px-4 py-2 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Disponible
                   </th>
 
-                  <th className='px-4 py-2 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Physique
                   </th>
 
-                  <th className='px-4 py-2 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Préparation
                   </th>
                 </tr>
@@ -241,7 +241,7 @@ function CompanyStock({ company_id }) {
                      onClick={() => handleShow(article.code)}
                     className='hover:bg-blue-50/50 transition-all duration-200 cursor-pointer group'
                   >
-                    <td className='px-4 py-2'>
+                    <td className='px-4 py-1'>
                       <div className='flex items-center gap-2'>
                         <div className='w-1 h-8 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity'></div>
                         <span className='text-sm font-mono font-bold text-gray-900'>
@@ -250,7 +250,7 @@ function CompanyStock({ company_id }) {
                       </div>
                     </td>
 
-                    <td className='px-4 py-2'>
+                    <td className='px-4 py-1'>
                       <div className='text-sm text-gray-900 font-medium max-w-md'>
                         {roles(['commercial', 'admin'])
                           ? uppercaseFirst(article.description)
@@ -261,7 +261,7 @@ function CompanyStock({ company_id }) {
 
                     {!roles(['commercial', 'admin']) && (
                       <>
-                        <td className='px-4 py-2'>
+                        <td className='px-4 py-1'>
                           <div className='text-sm text-gray-700'>
                             {article.color || (
                               <span className='text-gray-400 italic'>Non spécifié</span>
@@ -269,7 +269,7 @@ function CompanyStock({ company_id }) {
                           </div>
                         </td>
 
-                        <td className='px-4 py-2'>
+                        <td className='px-4 py-1'>
                           <div className='text-sm text-gray-700 font-mono bg-gray-50 px-3 py-1 rounded inline-block'>
                             {article.height || '—'} × {article.width || '—'}
                           </div>
@@ -277,19 +277,19 @@ function CompanyStock({ company_id }) {
                       </>
                     )}
 
-                    <td className='px-4 py-2 text-center'>
+                    <td className='px-4 py-1 text-center'>
                       <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200'>
                         {Math.floor(article.stock * 100) / 100}
                       </span>
                     </td>
 
-                    <td className='px-4 py-2 text-center'>
+                    <td className='px-4 py-1 text-center'>
                       <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
                         {Math.floor((parseFloat(article.stock) + parseFloat(article.stock_prepartion)) * 100) / 100}
                       </span>
                     </td>
 
-                    <td className='px-4 py-2 text-center'>
+                    <td className='px-4 py-1 text-center'>
                       <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
                         {parseFloat(article.stock_prepartion)}
                       </span>
@@ -322,7 +322,7 @@ function CompanyStock({ company_id }) {
 
           {/* Pagination */}
           {!loading && articles.data.length > 0 && (
-            <div className='px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4'>
+            <div className='px-4 py-1 bg-gradient-to-r from-gray-50 to-gray-100 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4'>
               <Pagination
                 current={page}
                 total={articles.total}
