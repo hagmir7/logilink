@@ -104,7 +104,7 @@ function PreparationArchive() {
     return (
         <div className='min-h-screen'>
             {/* Title */}
-            <h2 className='text-lg font-semibold text-gray-800 mb-1 p-2 md:p-1'>
+            <h2 className='text-lg font-semibold text-gray-800 mb-1 p-2 md:p-1 px-3'>
                 Historique de PL et BL
             </h2>
 

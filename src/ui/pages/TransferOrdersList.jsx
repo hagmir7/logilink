@@ -83,10 +83,10 @@ const TransferOrdersList = () => {
       render: (palette) => (
         <div className='flex flex-col'>
           <span className='font-medium text-gray-900'>
-            {palette.document?.piece || 'N/A'}
+            {palette?.document?.piece || 'N/A'}
           </span>
           <span className='text-xs text-gray-500'>
-            Palette : {palette.code}
+            Palette : {palette?.code}
           </span>
         </div>
       ),
@@ -288,32 +288,32 @@ const TransferOrdersList = () => {
             >
               <Descriptions column={2} size='small'>
                 <Descriptions.Item label='Référence Palette'>
-                  <Tag color='blue'>{selectedTransfer.palette.code}</Tag>
+                  <Tag color='blue'>{selectedTransfer.palette?.code}</Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label='Type'>
-                  <Tag color='green'>{selectedTransfer.palette.type}</Tag>
+                  <Tag color='green'>{selectedTransfer.palette?.type}</Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label='Contrôlé'>
                   <Tag
                     color={
-                      selectedTransfer.palette.controlled === '1'
+                      selectedTransfer.palette?.controlled === '1'
                         ? 'green'
                         : 'red'
                     }
                   >
-                    {selectedTransfer.palette.controlled === '1'
+                    {selectedTransfer.palette?.controlled === '1'
                       ? 'Oui'
                       : 'Non'}
                   </Tag>
                 </Descriptions.Item>
                 <Descriptions.Item label='Poids'>
-                  {selectedTransfer.palette.weight || 'Non spécifié'}
+                  {selectedTransfer.palette?.weight || 'Non spécifié'}
                 </Descriptions.Item>
                 <Descriptions.Item label='Document'>
-                  {selectedTransfer.palette.document.piece}
+                  {selectedTransfer.palette?.document.piece}
                 </Descriptions.Item>
                 <Descriptions.Item label='Entreprise de Preparation'>
-                  {getCompany(selectedTransfer.palette.first_company_id)}
+                  {getCompany(selectedTransfer.palette?.first_company_id)}
                 </Descriptions.Item>
               </Descriptions>
             </Card>

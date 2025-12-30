@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
 import {
   Box,
-  BanknoteArrowDown,
-  BanknoteArrowUp,
-  ArrowUp,
   ArrowDown,
-  CircleDollarSign
+  CircleDollarSign,
+  ClockAlert,
+  SquareX,
+  Space
 } from 'lucide-react';
 import { Button, DatePicker, message, Popconfirm, Select } from 'antd';
 import { categories, locale } from '../utils/config';
@@ -46,41 +46,42 @@ const InventoryOverview = () => {
   const stats = [
     {
       title: 'Stock total',
-      value: parseFloat(data.quantity.toFixed(3)),
-      icon: Box,
-      color: 'bg-green-300'
-    },
-    {
-      title: 'Valeur du stock',
-      value: parseFloat(data.value.toFixed(3)),
-      icon: CircleDollarSign,
-      color: 'bg-blue-300'
-    },
-    {
-      title: 'Total des entrées',
       value: parseFloat(data.quantity_in.toFixed(3)),
+      icon: Box,
+      color: 'bg-green-300',
+    },
+    {
+      title: 'Total entrées',
+      value: parseFloat(data?.movements_in?.toFixed(3)),
       icon: ArrowDown,
-      color: 'bg-purple-300'
+      color: 'bg-purple-300',
     },
     {
-      title: 'Valeur des entrées',
-      value: parseFloat(data.value_in.toFixed(3)),
-      icon: BanknoteArrowDown,
-      color: 'bg-orange-300'
+      title: 'Entrées non contrôlé',
+      value: parseFloat(data?.movements_in_none_controlled?.toFixed(3)),
+      icon: ClockAlert,
+      color: 'bg-red-300',
+    },
+
+    {
+      title: 'Articles non traité',
+      value: parseFloat(data?.articles_non_used?.toFixed(3)),
+      icon: SquareX,
+      color: 'bg-orange-300',
     },
     {
-      title: 'Total des sorties',
-      value: parseFloat(data.quantity_out.toFixed(3)),
-      icon: ArrowUp,
-      color: 'bg-red-300'
+      title: "Valeur d'entrées",
+      value: parseFloat(data?.value_in?.toFixed(3)),
+      icon: CircleDollarSign,
+      color: 'bg-green-300',
     },
     {
-      title: 'Valeur des sorties',
+      title: 'Emplacements libres',
       value: parseFloat(data.value_out.toFixed(3)),
-      icon: BanknoteArrowUp,
-      color: 'bg-emerald-300'
-    }
-  ];
+      icon: Space,
+      color: 'bg-blue-300',
+    },
+  ]
 
 
   const resetStock = async () => {
