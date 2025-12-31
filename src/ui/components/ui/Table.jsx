@@ -2,7 +2,7 @@ import React from 'react'
 
 export function Table({ children, className = '' }) {
   return (
-    <div className='overflow-hidden rounded-lg border border-gray-300/80'>
+    <div className='overflow-hidden rounded-lg border border-gray-500/80'>
       <div className='overflow-x-auto w-full'>
         <table
           className={`min-w-full divide-y divide-gray-200/60 ${className}`}
@@ -91,7 +91,7 @@ export function Td({ children, className = '', align = 'left' }) {
 export function TableCaption({ children, className = '' }) {
   return (
     <caption
-      className={`px-6 py-3 text-left text-sm text-gray-600 bg-gray-50/50 border-b border-gray-200/60 ${className}`}
+      className={`px-6 py-3 text-left text-sm text-gray-600 bg-gray-50/50 border-b border-gray-400 ${className}`}
     >
       {children}
     </caption>
@@ -100,7 +100,7 @@ export function TableCaption({ children, className = '' }) {
 
 export function TableFooter({ children, className = '' }) {
   return (
-    <tfoot className={`bg-gray-50/80 border-t border-gray-200/60 ${className}`}>
+    <tfoot className={`bg-gray-50/80 border-t border-gray-400/60 ${className}`}>
       {children}
     </tfoot>
   )

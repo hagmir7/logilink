@@ -678,7 +678,7 @@ function InventoryMovements() {
                 <label className='block text-sm font-medium text-gray-700 mb-1'>
                   Référence
                 </label>
-                <Input value={selectedMovement.code_article} onChange={(e) => setSelectedMovement({ ...selectedMovement, code_article: e.target.value })} />
+                <Input value={selectedMovement.code_article} disabled readOnly onChange={(e) => setSelectedMovement({ ...selectedMovement, code_article: e.target.value })} />
               </div>
 
               <div>

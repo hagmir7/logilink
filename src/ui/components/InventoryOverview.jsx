@@ -24,7 +24,11 @@ const InventoryOverview = () => {
     value_in: 0,
     value_out: 0,
     quantity: 0,
-    value: 0
+    value: 0,
+    movements_in_none_controlled: 0,
+    articles_non_used:0,
+    
+
   });
 
   const { id } = useParams();

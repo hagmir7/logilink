@@ -157,7 +157,7 @@ function Fabrication() {
             value: data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece),
           },
         ].map(({ label, value }, idx) => (
-          <div key={idx} className="bg-white border border-gray-200 rounded-lg p-2 shadow-sm">
+          <div key={idx} className="bg-white border border-gray-400 rounded-lg p-2 shadow-sm">
             <div className="flex flex-col gap-2">
               <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
                 {label}
@@ -195,7 +195,7 @@ function Fabrication() {
                data.doclignes?.length > 0 ? 
                 <Thead>
                <Tr>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    <Checkbox
                      onChange={handleSelectAll}
                      checked={
@@ -205,30 +205,30 @@ function Fabrication() {
                    ></Checkbox>
                  </th>
    
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Piece </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Ref Article </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Date Livraison</th>
-                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Piece </th>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Ref Article </th>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Date Livraison</th>
+                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    Hauteur
                  </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    Largeur
                  </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    Profondeur
                  </th>
-                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    Couleur
                  </th>
    
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    Chant
                  </th>
    
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    Epaisseur
                  </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>Quantité</th>
+                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>Quantité</th>
                </Tr>
              </Thead> : null
              }
