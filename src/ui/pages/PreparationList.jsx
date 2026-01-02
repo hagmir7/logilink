@@ -37,6 +37,17 @@ function PreparationList() {
     fetchData()
   }, [id])
 
+
+
+  const stockConfirm = async () => {
+    try {
+      const response = await api.get(`/palettes/stock/confirm/${id}`);
+      message.success("operation success");
+    } catch (error) {
+
+    }
+  }
+
   const currentItems = data?.doclignes || []
 
   const prepare = async (lineId) => {
@@ -171,10 +182,25 @@ function PreparationList() {
         </h2>
 
         <div className='flex gap-3'>
-          <Button
+          {/* <Button
             color='green'
             variant='solid'
             href={`#/preparation/${id}`}
+            className='btn'
+            style={{
+              height: isElectron ? 60 : 30,
+              fontSize: isElectron ? 25 : 14,
+            }}
+          >
+            Preparation <ArrowRight size={isElectron ? 25 : 16} />
+          </Button> */}
+        </div>
+
+         <div className='flex gap-3'>
+          <Button
+            onClick={stockConfirm}
+            color='green'
+            variant='solid'
             className='btn'
             style={{
               height: isElectron ? 60 : 30,
