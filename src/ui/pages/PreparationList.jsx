@@ -20,6 +20,8 @@ function PreparationList() {
   const [loading, setLoading] = useState(false)
   const isElectron = Boolean(window?.electron)
   const [loadingId, setLoadingId] = useState(null)
+  const [preparationLoading, setPreparationLoading] = useState(false);
+  const { roles } = useAuth();
 
   const fetchData = async () => {
     setLoading(true)
@@ -39,12 +41,15 @@ function PreparationList() {
 
 
 
-  const stockConfirm = async () => {
+  const preparationAll = async () => {
+    setPreparationLoading(true)
     try {
       const response = await api.get(`/palettes/stock/confirm/${id}`);
+      setPreparationLoading(false)
+      fetchData()
       message.success("operation success");
     } catch (error) {
-
+      message.error(error.response.data.message || "Errur de prepration");
     }
   }
 
@@ -181,35 +186,40 @@ function PreparationList() {
           Articles ({data.doclignes.length})
         </h2>
 
-        <div className='flex gap-3'>
-          {/* <Button
-            color='green'
-            variant='solid'
-            href={`#/preparation/${id}`}
-            className='btn'
-            style={{
-              height: isElectron ? 60 : 30,
-              fontSize: isElectron ? 25 : 14,
-            }}
-          >
-            Preparation <ArrowRight size={isElectron ? 25 : 16} />
-          </Button> */}
-        </div>
+        
+        {
+          roles(['preparation_trailer']) ? <div className='flex gap-3'>
+            <Button
+              onClick={preparationAll}
+              color='green'
+              variant='solid'
+              className='btn'
+              loading={preparationLoading}
+              style={{
+                height: isElectron ? 60 : 30,
+                fontSize: isElectron ? 25 : 14,
+              }}
+            >
+              Preparation <ArrowRight size={isElectron ? 25 : 16} />
+            </Button>
+          </div> : <div className='flex gap-3'>
+            <Button
+              color='green'
+              variant='solid'
+              href={`#/preparation/${id}`}
+              className='btn'
+              style={{
+                height: isElectron ? 60 : 30,
+                fontSize: isElectron ? 25 : 14,
+              }}
+            >
+              Preparation <ArrowRight size={isElectron ? 25 : 16} />
+            </Button>
+          </div>
+        }
+         
 
-         <div className='flex gap-3'>
-          <Button
-            onClick={stockConfirm}
-            color='green'
-            variant='solid'
-            className='btn'
-            style={{
-              height: isElectron ? 60 : 30,
-              fontSize: isElectron ? 25 : 14,
-            }}
-          >
-            Preparation <ArrowRight size={isElectron ? 25 : 16} />
-          </Button>
-        </div>
+     
       </div>
 
       {/* Desktop Table */}

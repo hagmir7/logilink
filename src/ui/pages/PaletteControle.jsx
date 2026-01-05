@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { useParams } from 'react-router-dom'
 import { api } from '../utils/api'
-import { Badge, message, Spin } from 'antd'
+import { Badge, Button, message, Spin } from 'antd'
 import { Circle, CircleCheckBig, Loader, Truck, User } from 'lucide-react'
 import { getExped, getStatus, uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
@@ -11,6 +11,7 @@ export default function PaletteControle() {
   const [palette, setPalette] = useState({ lines: [] })
   const [loadingLines, setLoadingLines] = useState({});
   const [document, setDocument] = useState({});
+  const [controlleLoading, setcontrolleLoading] = useState(false);
 
   useEffect(() => {
     fetchData()
@@ -39,6 +40,23 @@ export default function PaletteControle() {
     }
   }
 
+
+
+  const confirmAll = async (lineId) => {
+    setcontrolleLoading(true)
+    setLoadingLines((prev) => ({ ...prev, [lineId]: true }))
+    try {
+      await api.get(`/palettes/${code}/controlle-all`);
+      await fetchData()
+      setcontrolleLoading(false)
+    } catch (error) {
+      setcontrolleLoading(false)
+      console.error('Confirmation failed:', error)
+    } finally {
+      setLoadingLines((prev) => ({ ...prev, [lineId]: false }))
+    }
+  }
+
   return (
     <div className=''>
        <div className='bg-gradient-to-r bg-[#eff5fe] px-3 py-1 md:py-2 border-b border-gray-200'>
@@ -57,6 +75,9 @@ export default function PaletteControle() {
             </div>
           </div>
           <div >
+            <Button loading={controlleLoading} onClick={confirmAll}>
+              Controlle
+            </Button>
           
           </div>
         </div>
@@ -102,7 +123,6 @@ export default function PaletteControle() {
                           {(() => {
                             const height = item?.docligne?.Hauteur > 0 || item?.docligne?.article?.Hauteur
                             const width = item?.docligne?.Largeur > 0 || item?.docligne?.article?.Largeur
-                            console.log(item);
                             
 
                             if (!height && !width) return null // nothing to display
