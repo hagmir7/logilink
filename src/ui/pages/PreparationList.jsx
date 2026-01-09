@@ -10,7 +10,6 @@ import SkeletonTable from '../components/ui/SkeletonTable';
 import EmptyTable from '../components/ui/EmptyTable';
 import { useAuth } from '../contexts/AuthContext';
 import PrintDocument from '../components/PrintDocument';
-import BackButton from '../components/ui/BackButton';
 import PreparationArticleCard from '../components/PreparationArticleCard';
 
 
@@ -49,6 +48,7 @@ function PreparationList() {
       fetchData()
       message.success("operation success");
     } catch (error) {
+      setPreparationLoading(false)
       message.error(error.response.data.message || "Errur de prepration");
     }
   }

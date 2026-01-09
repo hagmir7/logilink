@@ -290,9 +290,10 @@ const TransferOrdersList = () => {
                 <Descriptions.Item label='Référence Palette'>
                   <Tag color='blue'>{selectedTransfer.palette?.code}</Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label='Type'>
-                  <Tag color='green'>{selectedTransfer.palette?.type}</Tag>
+                 <Descriptions.Item label='N° Client'>
+                  {selectedTransfer.palette?.document.client_id || 'Non spécifié'}
                 </Descriptions.Item>
+               
                 <Descriptions.Item label='Contrôlé'>
                   <Tag
                     color={
@@ -306,9 +307,10 @@ const TransferOrdersList = () => {
                       : 'Non'}
                   </Tag>
                 </Descriptions.Item>
-                <Descriptions.Item label='Poids'>
-                  {selectedTransfer.palette?.weight || 'Non spécifié'}
+                 <Descriptions.Item label='Type'>
+                  <Tag color='green'>{selectedTransfer.palette?.type}</Tag>
                 </Descriptions.Item>
+               
                 <Descriptions.Item label='Document'>
                   {selectedTransfer.palette?.document.piece}
                 </Descriptions.Item>

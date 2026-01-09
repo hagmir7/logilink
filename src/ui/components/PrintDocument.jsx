@@ -243,7 +243,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
   return (
     <div>
 
-      {roles(['commercial', 'admin']) ? (
+      {roles(['commercial', 'admin']) || (roles('preparation') && user.company_id == 2) ? (
         <>
           <Button
             type="primary"
@@ -351,7 +351,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                       <div className='document-info bg'>DATE LIVRE  : {docentete?.DO_DateLivr ? dateFormat(docentete?.DO_DateLivr) : '__'}</div>
                       <div className='document-info'>EXPEDITION : {getExped(docentete?.DO_Expedit)}</div>
                       {
-                        chunkLines(printingLines, 30)?.length > 1 && (<div className='info-row'><span className='info-label'>Page:</span> 1 sur {chunkLines(printingLines, 30).length}</div>)
+                        chunkLines(printingLines, 30)?.length > 1 && (<div className='info-row'><span className='info-label'>Page:</span> {pageIndex + 1} sur {chunkLines(printingLines, 30).length}</div>)
                       }
                       {/* Barcode inside client section */}
                       {docentete?.DO_Piece && (
@@ -406,7 +406,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                         <td>{item.Chant || art.Chant || '__'}</td>
                         {hasDescription && <td>{item.Description}</td>}
                         <td>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(item?.article?.Episseur) || '__'}</td>
-                        <td>{item?.stock?.code_supplier || item.AR_Ref || '__'}</td>
+                        <td>{item.AR_Ref || '__'}</td>
                       </tr>
                     )
                   })}

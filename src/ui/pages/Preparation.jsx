@@ -280,7 +280,7 @@ useEffect(() => {
   const handleSubmit = async () => {
     setLoading('submit', true)
 
-    if((roles(['magasinier']) && !scannedEmplacement) && 1 === Number(user.company_id)){
+    if((roles(['magasinier', 'preparation_cuisine']) && !scannedEmplacement) && 1 === Number(user.company_id)){
       setEmpalcementCodeError('Emplacement requis');
       message.error('Emplacement requis')
       setLoading('submit', false)

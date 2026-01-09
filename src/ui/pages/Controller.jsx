@@ -309,9 +309,14 @@ function Controller() {
             />
           )}
 
-          <Button onClick={validate} loading={validatePartialLoading} className='btn'>
-            <ListTodo /> Validate
-          </Button>
+
+          {
+            parseInt(user?.company_id) == 1 && <Button onClick={validate} loading={validatePartialLoading} className='btn'>
+              <ListTodo /> Validate
+            </Button>
+          }
+
+          
         </div>
       </div>
 
