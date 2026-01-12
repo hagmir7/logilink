@@ -18,8 +18,9 @@ function Document() {
 
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
-  const [documenType, setDocumentType] = useState(1);
+  // const [documenType, setDocumentType] = useState(1);
   const [documenStatus, setDocumentStatus] = useState('');
+  const [documenType, setDocumentType] = useState('');
   const [page, setPage] = useState(1);
   const [moreSpinner, setMoreSpinner] = useState(false);
   const [searchSpinner, setSearchSpinner] = useState(false);
@@ -125,6 +126,7 @@ function Document() {
           <div className={roles('commercial') && 'hidden md:block'}>
             <Search
               placeholder='Recherch'
+               allowClear
               loading={searchSpinner}
               size='large'
               onChange={handleSearch}
@@ -135,18 +137,19 @@ function Document() {
             <RangePicker
               size='large'
               onChange={handleChangeDate}
-              className='min-w-[220px]'
+              className='min-w-[140px]'
             />
           </div>
 
           {roles('commercial') && (
             <Select
               defaultValue=''
-              className='min-w-[220px] block md:hidden'
+              className='min-w-[140px] block md:hidden'
               size='large'
+              allowClear
               onChange={(value) => setDocumentStatus(value)}
               options={[
-                { value: '', label: 'Tout' },
+                { value: '', label: 'État' },
                 { value: '0', label: 'En attente' },
                 { value: '1', label: 'Transféré' },
                 { value: '2', label: 'Reçu' },
@@ -154,6 +157,22 @@ function Document() {
               ]}
             />
           )}
+
+           <Select
+              defaultValue=''
+              allowClear
+              className='min-w-[140px] block md:hidden'
+              size='large'
+              onChange={(value) => setDocumentType(value)}
+              options={[
+                { value: '', label: 'Type' },
+                { value: 'Cuisine', label: 'Cuisine' },
+                { value: 'Placard', label: 'Placard' },
+                { value: 'Laca', label: 'Laca' },
+                { value: 'Polilaminado', label: 'Polilaminado'},
+                { value: 'Stock', label: 'Stock'}
+              ]}
+            />
 
           <Button onClick={() => fetchData()} size='large'>
             {loading ? (

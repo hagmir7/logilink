@@ -83,33 +83,67 @@ export default function FindArticleEmplacement() {
       </div>
 
       {articleError && <div className="text-red-600 text-sm mb-3">{articleError}</div>}
+      {articleData && (() => {
+        const supplierRef =
+          articleData.code_supplier ||
+          articleData.code_supplier_2 ||
+          articleData.qr_code;
 
-      {articleData && (
-        <div className="bg-gray-100 p-3 rounded-md mt-2">
-          <div className={`mb-2 font-bold ${window.electron ? 'text-lg' : 'md'}`}>
-            {uppercaseFirst(articleData.description)}
-            {articleData.name && ` (${articleData.name})`}
-          </div>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            {articleData.color && (
-              <>
-                <div className="font-medium">Couleur:</div>
-                <div className={window.electron ? 'font-bold text-lg' : "text-base"}>{articleData.color}</div>
-              </>
-            )}
-            <div className="font-medium">Dimensions:</div>
-            <div className={window.electron ? 'font-bold text-lg' : "text-base"}>
-              {articleData.height || 0} × {articleData.width || 0} × {articleData.depth || 0}
+        const valueClass = window.electron
+          ? 'font-bold text-lg'
+          : 'text-base font-medium';
+
+        return (
+          <div className="bg-gray-100 p-4 rounded-lg mt-2 space-y-3">
+
+            {/* Title */}
+            <div className={`font-bold ${window.electron ? 'text-xl' : 'text-lg'}`}>
+              {uppercaseFirst(articleData.description)}
+              {articleData.name && (
+                <span className="font-normal text-gray-600">
+                  {' '}({articleData.name})
+                </span>
+              )}
             </div>
-            {articleData.thickness > 0 && (
+
+            {/* Details */}
+            <div className="grid grid-cols-2 gap-x-4 gap-y-2 text-sm">
+
+              {articleData.color && (
+                <>
+                  <div className="text-gray-600">Couleur</div>
+                  <div className={valueClass}>{articleData.color}</div>
+                </>
+              )}
+
+              <div className="text-gray-600">Dimensions</div>
+              <div className={valueClass}>
+                {articleData.height || 0} × {articleData.width || 0} × {articleData.depth || 0}
+              </div>
+
+              {articleData.thickness > 0 && (
+                <>
+                  <div className="text-gray-600">Épaisseur</div>
+                  <div className={valueClass}>{articleData.thickness}</div>
+                </>
+              )}
+
               <>
-                <div className="font-medium">Épaisseur:</div>
-                <div className={window.electron ? 'font-bold text-lg' : "text-base"}>{articleData.thickness}</div>
+                <div className="text-gray-600">Réf. Article</div>
+                <div className={valueClass}>{articleData.code}</div>
               </>
-            )}
+              {supplierRef && (
+                <>
+                  <div className="text-gray-600">Réf. Fournisseur</div>
+                  <div className={valueClass}>{supplierRef}</div>
+                </>
+              )}
+
+            </div>
           </div>
-        </div>
-      )}
+        );
+      })()}
+
 
       {articleCode ? (
         <ArticleEmpacement key={articleCode} code={articleCode} />
@@ -117,7 +151,7 @@ export default function FindArticleEmplacement() {
         <div className="flex justify-center mt-5 w-full">
           <div className="text-center">
             <MapPin size={50} className="text-gray-400 mx-auto" />
-            <p className={`text-center mt-6 ${window.electron ? "text-xl": 'text-lg'}`}>Trouver l'emplacement de l'article</p>
+            <p className={`text-center mt-6 ${window.electron ? "text-xl" : 'text-lg'}`}>Trouver l'emplacement de l'article</p>
           </div>
         </div>
       )}
