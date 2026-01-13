@@ -116,7 +116,7 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
         className: 'bg-blue-600 hover:bg-blue-700'
       }}
       width={800}
-      destroyOnClose
+      destroyOnHidden
     >
       <div className="space-y-4">
         {/* Search Input */}

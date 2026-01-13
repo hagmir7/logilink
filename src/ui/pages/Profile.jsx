@@ -37,6 +37,7 @@ export default function Profile() {
   const { id } = useParams();
   const { roles = [], permissions } = useAuth();
   const [companies, setCompanies] = useState([]);
+  const [services, setServices] = useState([]);
 
 
   const fetchCompanies = async () => {
@@ -52,10 +53,25 @@ export default function Profile() {
     }
   }
 
+   const fetchServices = async () => {
+    try {
+      const response = await api.get('services');
+      setServices(response.data.map(c => ({
+        label: c.name,
+        value: c.id
+      })))
+    } catch (error) {
+      console.error(error);
+      message.error(error?.response?.data?.message || "Une erreur s'est produite")
+    }
+  }
+
 
   useEffect(() => {
     fetchCompanies()
+    fetchServices();
     fetchUserData();
+
   }, [id])
 
 
@@ -78,6 +94,7 @@ export default function Profile() {
         phone: data.user.phone || "",
         roles: userRoleNames,
         company_id: data?.user?.company_id,
+        service_id: data?.user?.service_id,
       });
       
     } catch (err) {
@@ -174,6 +191,18 @@ export default function Profile() {
                   placeholder="Ex. Bonnie Green"
                 />
               </Form.Item>
+
+               <Form.Item label="Service">
+                  <Select
+                    options={services}
+                    value={userData.service_id ? Number(userData.service_id) : null}
+                    onChange={(value) =>
+                      setUserData({ ...userData, service_id: value })
+                    }
+                    placeholder="Sélectionnez une Service"
+                    suffixIcon={<Building size={16} />}
+                  />
+                </Form.Item>
             </Col>
 
             <Col xs={24} md={12}>
@@ -202,18 +231,22 @@ export default function Profile() {
                   placeholder="01-23-45-67-89"
                 />
               </Form.Item>
+             
 
-            <Form.Item label="Société">
-              <Select
-                options={companies}
-                value={userData.company_id ? Number(userData.company_id) : null}
-                onChange={(value) =>
-                  setUserData({ ...userData, company_id: value })
-                }
-                placeholder="Sélectionnez une société"
-                suffixIcon={<Building size={16} />}
-              />
-            </Form.Item>
+
+                <Form.Item label="Société">
+                  <Select
+                    options={companies}
+                    value={userData.company_id ? Number(userData.company_id) : null}
+                    onChange={(value) =>
+                      setUserData({ ...userData, company_id: value })
+                    }
+                    placeholder="Sélectionnez une société"
+                    suffixIcon={<Building size={16} />}
+                  />
+                </Form.Item>
+
+                
             </Col>
           </Row>
 

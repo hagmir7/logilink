@@ -87,7 +87,7 @@ export default function EmplacementArticles({
       width={isElectron ? '95%' : '95%'}
       style={{ maxWidth: isElectron ? undefined : 900 }}
       className={isElectron ? 'electron-modal' : ''}
-      destroyOnClose
+      destroyOnHidden
     >
       <div
         style={{

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Modal, Upload, message, Tag, Empty } from 'antd';
+import { Form, Input, Button, Select, Modal, Upload, message, Tag, Empty, Checkbox } from 'antd';
 import { PlusOutlined, MinusCircleOutlined, PaperClipOutlined, UploadOutlined } from '@ant-design/icons';
 import 'antd/dist/reset.css';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -8,7 +8,6 @@ import { useAuth } from '../contexts/AuthContext';
 import AchatProductSearch from '../components/AchatProductSearch';
 import TransferPurchaseDocument from '../components/TransferPurchaseDocument';
 import FormListSkeleton from '../components/ui/FormListSkeleton';
-
 
 const { Option } = Select;
 
@@ -22,14 +21,37 @@ export default function PurchaseForm() {
   const [initialData, setInitialData] = useState(null);
   const [services, setServices] = useState([]);
   const [users, setUsers] = useState([]);
-  const [currentUser, setcurrentuser] = useState();
+  const [currentUser, setCurrentUser] = useState();
   const [currentService, setCurrentService] = useState();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { roles = [] } = useAuth();
+  const authContext = useAuth();
   const [searchModal, setSearchModal] = useState({});
-  const [units, setUnits] = useState()
+  const [units, setUnits] = useState([]);
   let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api/';
+
+  // Helper function to check roles - handles different formats
+  const hasRole = (roleNames) => {
+    const checkRoles = Array.isArray(roleNames) ? roleNames : [roleNames];
+    
+    // If roles is a function (like in your original code)
+    if (typeof authContext?.roles === 'function') {
+      return authContext.roles(checkRoles);
+    }
+    
+    // If roles is an array
+    if (Array.isArray(authContext?.roles)) {
+      return checkRoles.some(role => authContext.roles.includes(role));
+    }
+    
+    // If roles is an object with role properties
+    if (authContext?.roles && typeof authContext.roles === 'object') {
+      return checkRoles.some(role => authContext.roles[role] === true);
+    }
+    
+    // Default: no roles
+    return false;
+  };
 
   // Fetch all data on mount
   useEffect(() => {
@@ -37,12 +59,18 @@ export default function PurchaseForm() {
       setLoading(false);
     }
     fetchAllData();
-
   }, [id]);
+
+  const getCheckedLines = () => {
+    const lines = form.getFieldValue('lines') || [];
+    const checkedLines = lines.filter(l => l?.checked === true);
+    console.log('All lines:', lines);
+    console.log('Checked lines:', checkedLines);
+    return checkedLines;
+  };
 
   const fetchAllData = async () => {
     try {
-
       // Fetch services and users (always needed)
       const [servicesRes, usersRes, unitsRes] = await Promise.all([
         api.get('services'),
@@ -52,14 +80,14 @@ export default function PurchaseForm() {
 
       setServices(servicesRes.data || []);
       setUsers(usersRes.data || []);
-      setUnits(unitsRes.data || [])
+      setUnits(unitsRes.data || []);
 
       if (id) {
         setLoading(true);
         const documentRes = await api.get(`purchase-documents/${id}`);
         const docData = documentRes.data;
-        setcurrentuser(docData.user)
-        setCurrentService(docData.service)
+        setCurrentUser(docData.user);
+        setCurrentService(docData.service);
 
         setInitialData(docData);
         initializeFormWithData(docData);
@@ -94,28 +122,11 @@ export default function PurchaseForm() {
         quantity: line.quantity,
         unit: line.unit,
         estimated_price: line.estimated_price,
+        checked: false, // Initialize checkbox as unchecked
       })) || []
     };
 
     form.setFieldsValue(formValues);
-
-    if (users.length > 0) {
-      form.setFieldsValue({
-        user_id: docData.user_id || currentUser?.id,
-        reference: docData.reference,
-        status: docData.status ? String(docData.status) : 1,
-        service_id: docData.service_id,
-        note: docData.note,
-        lines: docData.lines?.map(line => ({
-          id: line.id,
-          code: line.code,
-          description: line.description,
-          quantity: line.quantity,
-          unit: line.unit,
-          estimated_price: line.estimated_price,
-        })) || []
-      });
-    }
 
     // Set existing files for display
     if (docData.lines) {
@@ -127,8 +138,8 @@ export default function PurchaseForm() {
             name: file.file_name || file.file_path.split('/').pop(),
             status: 'done',
             existing: true,
-            fileId: file.id, // For force download via ID
-            url: `${baseURL}/download-file/${file.id}` // optional, can be used for preview
+            fileId: file.id,
+            url: `${baseURL}/download-file/${file.id}`
           }));
         }
       });
@@ -139,15 +150,14 @@ export default function PurchaseForm() {
   useEffect(() => {
     if (users.length > 0 && currentUser) {
       form.setFieldsValue({ user_id: currentUser.id });
-
     }
+  }, [users, currentUser, form]);
 
-    if (users.length > 0 && currentService) {
+  useEffect(() => {
+    if (services.length > 0 && currentService) {
       form.setFieldsValue({ service_id: currentService.id });
     }
-  }, [users, currentUser]);
-
-
+  }, [services, currentService, form]);
 
   const openUploadModal = (index) => {
     setCurrentLineIndex(index);
@@ -175,24 +185,25 @@ export default function PurchaseForm() {
     return lineFiles[index]?.length || 0;
   };
 
-const onFinish = (values) => {
-  const formData = new FormData();
+  const onFinish = (values) => {
+    const formData = new FormData();
 
-  // Basic fields
-  formData.append('reference', values.reference);
-  // Make sure status is being sent correctly
-  formData.append('status', values.status ? String(values.status) : '1');
-  if (values.service_id) formData.append('service_id', values.service_id);
-  if (values.user_id) formData.append('user_id', values.user_id);
-  formData.append('note', values.note || '');
-  formData.append('urgent', isUrgent ? '1' : '0');
+    // Basic fields
+    formData.append('reference', values.reference);
+    formData.append('status', values.status ? String(values.status) : '1');
+    if (values.service_id) formData.append('service_id', values.service_id);
+    if (values.user_id) formData.append('user_id', values.user_id);
+    formData.append('note', values.note || '');
+    formData.append('urgent', isUrgent ? '1' : '0');
 
-  // Debug: Log the status being sent
-  console.log('Status being sent:', values.status);
+    // Selective transfer logic
+    const lines = values.lines || [];
+    const checkedLines = lines.filter(line => line.checked === true);
 
-  // Lines
-  if (values.lines && values.lines.length > 0) {
-    values.lines.forEach((line, index) => {
+    // If user checked something → only those, otherwise all lines
+    const linesToSend = checkedLines.length > 0 ? checkedLines : lines;
+
+    linesToSend.forEach((line, index) => {
       if (line.id) {
         formData.append(`lines[${index}][id]`, line.id);
       }
@@ -203,26 +214,26 @@ const onFinish = (values) => {
       formData.append(`lines[${index}][unit]`, line.unit || '');
       formData.append(`lines[${index}][estimated_price]`, line.estimated_price || '0');
 
-      // Add files for this line
-      if (lineFiles[index] && lineFiles[index].length > 0) {
-        lineFiles[index].forEach((file) => {
+      // Attach files
+      const originalIndex = values.lines.indexOf(line);
+      if (lineFiles[originalIndex]?.length > 0) {
+        lineFiles[originalIndex].forEach(file => {
           if (file.originFileObj && !file.existing) {
             formData.append(`lines[${index}][files][]`, file.originFileObj);
           }
         });
       }
     });
-  }
 
-  handleSubmit(formData);
-};
+    handleSubmit(formData);
+  };
 
   const handleSubmit = async (formData) => {
     try {
       const hide = message.loading('Enregistrement en cours...', 0);
 
       if (id) {
-        formData.append('_method', 'PUT'); // Laravel will treat as PUT
+        formData.append('_method', 'PUT');
       }
 
       const url = id
@@ -267,7 +278,6 @@ const onFinish = (values) => {
     if (event.key === "F4") {
       event.preventDefault();
 
-      // Get all lines from the form
       const lines = form.getFieldValue("lines") || [];
       const currentLine = lines[lineIndex];
 
@@ -325,6 +335,7 @@ const onFinish = (values) => {
         quantity: 1,
         unit: '',
         estimated_price: 0,
+        checked: false, // Initialize checkbox
       }));
 
       // Insert new lines after the current line
@@ -360,10 +371,6 @@ const onFinish = (values) => {
     }
   };
 
-
-
-
-
   return (
     <div className='bg-gray-100 pb-32'>
       <div className="rounded-xl max-w-6xl mx-auto pt-2">
@@ -371,6 +378,7 @@ const onFinish = (values) => {
           Document d'achat {"  "}
           {initialData && <Tag color='#f50' style={{ fontSize: '14px' }} className='font-bold tracking-widest'>{initialData.code}</Tag>}
         </h2>
+        
         <AchatProductSearch
           searchModalOpen={searchModal.open}
           lineId={searchModal.lineIndex}
@@ -378,7 +386,6 @@ const onFinish = (values) => {
           onCancel={() => setSearchModal({ open: false, lineIndex: null, value: "" })}
           onSelect={handleArticleSelect}
         />
-
 
         <Form
           form={form}
@@ -404,7 +411,6 @@ const onFinish = (values) => {
               </Form.Item>
 
               {/* Status */}
-
               <Form.Item
                 name="status"
                 label={<span className="font-semibold text-gray-700">Statut</span>}
@@ -415,32 +421,27 @@ const onFinish = (values) => {
                   placeholder="Sélectionner le statut"
                   defaultActiveFirstOption={false}
                   className="w-full"
-                  disabled={(Number(initialData?.status) > 2) && roles(['chef_service'])}
+                  disabled={(Number(initialData?.status) > 2) && hasRole('chef_service')}
                 >
                   {statusOptions
                     .filter(option => {
-                      const currentValue = String(initialData?.status)
+                      const currentValue = String(initialData?.status);
 
                       // Always keep current value (even if > 2)
                       if (String(option.value) === currentValue) {
-                        return true
+                        return true;
                       }
 
                       // chef_service → only 1 & 2 selectable
-                      if (roles(['chef_service'])) {
-                        return ['1', '2'].includes(String(option.value))
+                      if (hasRole('chef_service')) {
+                        return ['1', '2'].includes(String(option.value));
                       }
 
-                      return true
+                      return true;
                     })
                     .map(option => {
-                      const isCurrent =
-                        String(option.value) === String(initialData?.status)
-
-                      const isDisabled =
-                        roles(['chef_service']) &&
-                        Number(option.value) > 2 &&
-                        !isCurrent
+                      const isCurrent = String(option.value) === String(initialData?.status);
+                      const isDisabled = hasRole('chef_service') && Number(option.value) > 2 && !isCurrent;
 
                       return (
                         <Select.Option
@@ -453,13 +454,10 @@ const onFinish = (values) => {
                             {option.label}
                           </span>
                         </Select.Option>
-                      )
+                      );
                     })}
                 </Select>
               </Form.Item>
-
-
-
 
               {/* Service */}
               <Form.Item
@@ -472,7 +470,7 @@ const onFinish = (values) => {
                   className="w-full"
                   showSearch
                   optionFilterProp="children"
-                  disabled={!roles('supper_admin')}
+                  disabled={!hasRole('supper_admin')}
                   filterOption={(input, option) =>
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
@@ -492,7 +490,7 @@ const onFinish = (values) => {
                 <Select
                   placeholder="Sélectionner un utilisateur"
                   className="w-full"
-                  disabled={!roles('supper_admin')}
+                  disabled={!hasRole('supper_admin')}
                   showSearch
                   optionFilterProp="children"
                   filterOption={(input, option) =>
@@ -506,8 +504,6 @@ const onFinish = (values) => {
                   ))}
                 </Select>
               </Form.Item>
-
-
 
               {/* Note */}
               <Form.Item
@@ -532,7 +528,7 @@ const onFinish = (values) => {
                   danger={isUrgent}
                   icon={isUrgent ? <span>🚨</span> : <span>⚪</span>}
                   onClick={() => setIsUrgent(!isUrgent)}
-                  className={`font-medium transition-all  ${isUrgent ? 'shadow-md' : ''}`}
+                  className={`font-medium transition-all ${isUrgent ? 'shadow-md' : ''}`}
                 >
                   {isUrgent ? 'URGENT' : 'Marquer urgent'}
                 </Button>
@@ -545,16 +541,6 @@ const onFinish = (values) => {
             <Form.List name="lines">
               {(fields, { add, remove }) => (
                 <div className="space-y-1">
-                  {/* Header */}
-                  {/* <div className="flex items-center justify-between ">
-                  <h3 className="text-md mb-4 font-bold">Lignes de documents</h3>
-                  {fields.length > 0 && (
-                    <span className="text-sm text-gray-500 font-medium">
-                      {fields.length} ligne{fields.length > 1 ? 's' : ''}
-                    </span>
-                  )}
-                </div> */}
-
                   {/* Purchase Lines */}
                   {fields.length > 0 ? (
                     <div className="space-y-3">
@@ -563,11 +549,6 @@ const onFinish = (values) => {
                           key={field.key}
                           className="relative grid grid-cols-1 md:grid-cols-6 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
                         >
-                          {/* Line Number Badge */}
-                          {/* <div className="absolute -top-2 -left-2 w-6 h-6 bg-blue-500 text-white text-xs font-bold rounded-full flex items-center justify-center shadow-sm">
-                          {index + 1}
-                        </div> */}
-
                           {/* Hidden ID field for updates */}
                           <Form.Item
                             {...field}
@@ -609,7 +590,6 @@ const onFinish = (values) => {
 
                           {/* Quantity */}
                           <div className="flex gap-2 items-start">
-
                             <Form.Item
                               {...field}
                               name={[field.name, 'quantity']}
@@ -623,14 +603,11 @@ const onFinish = (values) => {
                                 step="0.01"
                                 className="w-full"
                               />
-
                             </Form.Item>
-
-
                           </div>
 
+                          {/* Unit */}
                           <div className="flex gap-2 items-start">
-
                             <Form.Item
                               {...field}
                               name={[field.name, 'unit']}
@@ -639,7 +616,6 @@ const onFinish = (values) => {
                             >
                               <Select
                                 showSearch
-                                // style={{ width: 90 }}
                                 placeholder="Unité"
                                 className="w-full"
                                 options={units.map(u => ({ label: u.U_Intitule, value: u.U_Intitule }))}
@@ -649,33 +625,10 @@ const onFinish = (values) => {
                                 }
                               />
                             </Form.Item>
-
-
                           </div>
 
-
-
-
-                          {/* <Form.Item
-                          {...field}
-                          name={[field.name, 'estimated_price']}
-                          className="mb-0 flex-1"
-                        >
-                          <Input
-                            type="number"
-                            placeholder="Prix estimé"
-                            min="0"
-                            step="0.01"
-                            prefix="MAD"
-                            className="w-full"
-                          />
-                        </Form.Item> */}
-
-                          {/* Unit Action Buttons Container */}
-
+                          {/* Action Buttons */}
                           <div className="flex gap-2 justify-between">
-
-
                             {/* Upload Files Button */}
                             <Button
                               type="default"
@@ -699,11 +652,19 @@ const onFinish = (values) => {
                               onClick={() => remove(field.name)}
                               className="flex-shrink-0"
                               title="Supprimer cette ligne"
-                              disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}
+                              disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
                             />
+                            
+                            {/* Checkbox */}
+                            <Form.Item
+                              {...field}
+                              name={[field.name, 'checked']}
+                              valuePropName="checked"
+                              style={{ marginBottom: 0 }}
+                            >
+                              <Checkbox />
+                            </Form.Item>
                           </div>
-
-
                         </div>
                       ))}
                     </div>
@@ -711,23 +672,21 @@ const onFinish = (values) => {
                     <div className="flex flex-col items-center justify-center w-full h-full py-8 text-gray-400 text-center">
                       <Empty
                         image="https://gw.alipayobjects.com/zos/antfincdn/ZHrcdLPrvN/empty.svg"
-                        // styles={{ height: 100 }}
                         description="Aucune ligne d'achat. Cliquez ci-dessous pour ajouter."
                       />
                     </div>
-
                   )}
 
                   {/* Add Button */}
                   <div className='flex justify-center mt-3 w-full'>
-                    <Form.Item className="mb-0 w-1/4 ">
+                    <Form.Item className="mb-0 w-1/4">
                       <Button
                         type="dashed"
-                        onClick={() => add()}
+                        onClick={() => add({ checked: false })} // Initialize new lines with checked: false
                         block
                         icon={<PlusOutlined />}
-                        disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}
-                        className="border-2 border-dashed hover:border-blue-400 hover:text-blue-500 transition-colors "
+                        disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
+                        className="border-2 border-dashed hover:border-blue-400 hover:text-blue-500 transition-colors"
                       >
                         Ajouter une ligne
                       </Button>
@@ -741,15 +700,23 @@ const onFinish = (values) => {
           {/* Submit Button */}
           <div className='mt-4 fixed right-0 bottom-0 py-3 z-40 bg-white w-full flex justify-end px-5 shadow-2xl border-t border-gray-200 gap-3'>
             <Form.Item>
-              <Button type="primary" htmlType="submit" size="middle" disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')}>
+              <Button 
+                type="primary" 
+                htmlType="submit" 
+                size="middle" 
+                disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
+              >
                 {initialData ? 'Mettre à jour' : 'Enregistrer'}
               </Button>
             </Form.Item>
 
-            {
-              id && roles('admin') ? <TransferPurchaseDocument document={initialData} /> : ''
-            }
-
+            {id && hasRole('admin') ? (
+              <TransferPurchaseDocument
+                document={initialData}
+                getCheckedLines={getCheckedLines}
+                fetchAllData={fetchAllData}
+              />
+            ) : null}
           </div>
         </Form>
 
@@ -788,19 +755,22 @@ const onFinish = (values) => {
                   return (
                     <div className="flex items-center justify-between">
                       {originNode}
-                      {/* remove icon hidden */}
                     </div>
                   );
                 }
                 return originNode;
               }}
             >
-
-              <Button icon={<UploadOutlined />} disabled={(Number(initialData?.status) > 2) && !roles('supper_admin')} block size="large" type="dashed">
+              <Button 
+                icon={<UploadOutlined />} 
+                disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')} 
+                block 
+                size="large" 
+                type="dashed"
+              >
                 Cliquez ou glissez des fichiers ici
               </Button>
             </Upload>
-
 
             <p className="text-gray-500 text-sm mt-3">
               Vous pouvez joindre plusieurs fichiers (images, PDFs, documents, etc.)

@@ -28,6 +28,7 @@ export default function RegisterForm({ fetchData }) {
     const [errorsMessage, setErrorsMessage] = useState([]);
 
     const [companies, setCompanies] = useState([]);
+    const [services, setServices] = useState([]);
 
 
     const fetchCompanies = async () => {
@@ -43,9 +44,23 @@ export default function RegisterForm({ fetchData }) {
         }
     }
 
+     const fetchServices = async () => {
+        try {
+            const response = await api.get('services');
+            setServices(response.data.map(c => ({
+                label: c.name,
+                value: c.id
+            })))
+        } catch (error) {
+            console.error(error);
+            message.error(error?.response?.data?.message || "Une erreur s'est produite")
+        }
+    }
+
 
     useEffect(() => {
-        fetchCompanies()
+        fetchCompanies();
+        fetchServices();
     }, [])
 
     const handleSubmit = async (values) => {
@@ -222,6 +237,17 @@ export default function RegisterForm({ fetchData }) {
                                 iconRender={(visible) =>
                                     visible ? <EyeOff size={16} /> : <Eye size={16} />
                                 }
+                            />
+                        </Form.Item>
+                    </Col>
+
+                    <Col xs={24} md={12}>
+                        <Form.Item label="Service" name="service_id">
+                            <Select
+                                options={services}
+
+                                placeholder="Sélectionnez une service"
+                                suffixIcon={<Building size={16} />}
                             />
                         </Form.Item>
                     </Col>

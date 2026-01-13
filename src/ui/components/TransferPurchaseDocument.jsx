@@ -1,20 +1,23 @@
-
 import React, { useEffect, useState } from 'react';
 import { ArrowRight } from 'lucide-react';
 import { Form, Input, InputNumber, Button, Modal, Select, message } from 'antd';
 import { api } from '../utils/api';
 
-
 const { Option } = Select;
-const TransferPurchaseDocument = ({ document }) => {
+
+const TransferPurchaseDocument = ({ document, getCheckedLines, fetchAllData }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [company, setCompany] = useState(false);
     const [suppliers, setSuppliers] = useState([]);
+    const [selectedLines, setSelectedLines] = useState([]);
 
     const [form] = Form.useForm();
 
-
     const showModal = () => {
+        // Get checked lines when modal opens
+        const checkedLines = getCheckedLines();
+        console.log('Checked lines on modal open:', checkedLines);
+        setSelectedLines(checkedLines);
         setIsModalOpen(true);
     };
 
@@ -23,13 +26,20 @@ const TransferPurchaseDocument = ({ document }) => {
     };
 
     const onFinish = async (values) => { 
+
+        const linesToTransfer = selectedLines.length > 0 
+            ? selectedLines 
+            : document?.lines || [];
+
         const hide = message.loading('Enregistrement en cours...', 0);
         try {
             const response = await api.post('purchase-documents/transfer', {
                 ...values,
-                document_id: document?.id 
+                document_id: document?.id,
+                lines: linesToTransfer
             });
             message.success('Document transféré avec succès!');
+            fetchAllData()
             setIsModalOpen(false);
             form.resetFields();
         } catch (error) {
@@ -43,7 +53,7 @@ const TransferPurchaseDocument = ({ document }) => {
         } finally {
             hide();
         }
-    }
+    };
 
     const getCompts = async () => {
         try {
@@ -67,17 +77,13 @@ const TransferPurchaseDocument = ({ document }) => {
         getCompts();
     }, [company]); 
 
-
     const changeCompany = (value) => {
         setCompany(value);
-
         setSuppliers([]);
-
         form.setFieldsValue({
             supplier: null
         });
     };
-
 
     return (
         <>
@@ -85,7 +91,16 @@ const TransferPurchaseDocument = ({ document }) => {
                 <span>Transfert</span>
             </Button>
             <Modal
-                title="Transférer vers Sage"
+                title={
+                    <div>
+                        <div>Transférer vers Sage</div>
+                        <div className="text-sm text-gray-500 font-normal mt-1">
+                            {selectedLines.length > 0 
+                                ? `${selectedLines.length} ligne(s) sélectionnée(s)`
+                                : 'Toutes les lignes seront transférées'}
+                        </div>
+                    </div>
+                }
                 closable={{ 'aria-label': 'Custom Close Button' }}
                 cancelText="Annuler"
                 open={isModalOpen}
@@ -118,16 +133,16 @@ const TransferPurchaseDocument = ({ document }) => {
                     </Form.Item>
 
                     {/* Souche */}
-                   <Form.Item
+                    <Form.Item
                         label={<span className="font-semibold text-gray-700 mt-2">Souche</span>}
                         name="souche"
                         rules={[
-                        { required: true, message: 'La souche est requise' },
+                            { required: true, message: 'La souche est requise' },
                         ]}
                     >
                         <Select placeholder="Sélectionnez la souche" className="w-full">
-                        <Option value={0}>Achat A</Option>
-                        <Option value={2}>Achat B</Option>
+                            <Option value={0}>Achat A</Option>
+                            <Option value={2}>Achat B</Option>
                         </Select>
                     </Form.Item>
 
@@ -135,7 +150,6 @@ const TransferPurchaseDocument = ({ document }) => {
                     <Form.Item
                         label={<span className="font-semibold text-gray-700 mt-2">Référence</span>}
                         name="reference"
-                        
                         rules={[
                             { required: true, message: 'La référence est requise' },
                             { max: 50, message: 'Maximum 50 caractères' },
@@ -159,20 +173,21 @@ const TransferPurchaseDocument = ({ document }) => {
                             filterOption={(input, option) =>
                                 option.label.toLowerCase().includes(input.toLowerCase())
                             }
-                            options={suppliers} // assuming suppliers is the state from setSuppliers
+                            options={suppliers}
                         />
                     </Form.Item>
 
                     <div className='mt-3'>
-                        <Form.Item >
-                        <Button type="primary" htmlType="submit" className="w-full ">
-                            Enregistrer
-                        </Button>
-                    </Form.Item>
+                        <Form.Item>
+                            <Button type="primary" htmlType="submit" className="w-full">
+                                Enregistrer
+                            </Button>
+                        </Form.Item>
                     </div>
                 </Form>
             </Modal>
         </>
     );
 };
+
 export default TransferPurchaseDocument;

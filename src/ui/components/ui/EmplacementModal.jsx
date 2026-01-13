@@ -86,7 +86,7 @@ const EmplacementModal = ({
       onOk={handleCancel}
       onCancel={handleCancel}
       centered
-      destroyOnClose={false}
+      destroyOnHidden={false}
       maskClosable={false}
       width={{
         xs: '95%',
