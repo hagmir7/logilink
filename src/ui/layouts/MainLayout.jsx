@@ -204,7 +204,7 @@ const sideMenu = () => {
           key: 'submenu-102',
           disabled: !permissions('view:users'),
           icon: <ChartCandlestick size={20} />,
-          label: <Link to='/suppliers-evaluation'>F.Evaluations</Link>,
+          label: <Link to='/supplier-interviews'>F.Evaluations</Link>,
         },
       ],
     },

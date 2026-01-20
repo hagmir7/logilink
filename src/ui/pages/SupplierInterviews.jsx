@@ -12,7 +12,7 @@ import SupplierFrom from "../components/SupplierFrom";
 import { useNavigate } from "react-router-dom";
 import SupplierInterviewForm from "../components/SupplierInterviewForm";
 
-export default function Suppliers() {
+export default function SupplierInterviews() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -35,7 +35,7 @@ export default function Suppliers() {
     setLoading(true);
 
     try {
-      const response = await api.get("client/suppliers", {
+      const response = await api.get("supplier-interviews", {
         params: { company_db: company },
       });
 
@@ -96,15 +96,14 @@ export default function Suppliers() {
     setIsModalOpen(false);
   };
 
-  /* =======================
-     Render
-  ======================= */
+
+
   return (
     <div>
       {/* Header */}
       <div className="flex justify-between items-center pt-2 px-2">
         <h2 className="text-lg font-semibold text-gray-800">
-          Fournisseurs
+          Fournisseur Evaluation
         </h2>
 
         <div className="flex gap-3">

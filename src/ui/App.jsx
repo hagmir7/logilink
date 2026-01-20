@@ -54,6 +54,7 @@ import Purchase from './pages/Purchase'
 import PurchaseForm from './pages/PurchaseForm'
 import InventoryDepotEmplacmentList from './pages/InventoryDepotEmplacmentList'
 import Suppliers from './pages/Suppliers'
+import SupplierInterviews from './pages/SupplierInterviews'
 
 
 const NotFound = () => {
@@ -102,7 +103,8 @@ function App() {
           <Route path='/transfer-order' element={<TransferOrder />} />
           <Route path='/transfer-stock' element={<TransferStock />} />
           <Route path='/find-article' element={<FindArticleEmplacement />} />
-           <Route path='/suppliers' element={<Suppliers />} />
+          <Route path='/suppliers' element={<Suppliers />} />
+          <Route path='/supplier-interviews' element={<SupplierInterviews />} />
           <Route path='/user-archive' element={<UserArchive />} />
           <Route
             path='/layout/user-archive/:id'
