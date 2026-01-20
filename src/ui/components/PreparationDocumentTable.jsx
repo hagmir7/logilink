@@ -148,7 +148,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-2 items-center'>
-                    <span>{formatDate(new Date(data?.docentete?.DO_DateLivr))}</span>
+                     <span>{formatDate(data?.docentete?.DO_DateLivr)}</span>
                     {/* {data.has_user_printer} */}
                     <span>{Number(data.has_user_printer) > 0 && <Printer />}</span>
                     <span className="text-md">

@@ -44,21 +44,16 @@ const CreateDocument = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 p-6 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-gray-100 font-sans">
       {/* Main Application Window */}
-      <div className="bg-white rounded-lg shadow-2xl border border-gray-300 max-w-7xl mx-auto">
+      <div className="bg-white mx-auto">
         
         {/* Title Bar */}
-        <div className="bg-blue-600 text-white px-6 py-3 rounded-t-lg border-b border-blue-700">
+        <div className="bg-blue-600 text-white px-6 py-3  border-b border-blue-700">
           <div className="flex justify-between items-center">
             <h1 className="text-lg font-bold">
               Devis : Envoyé N° 25BDE00454 CL012 INTERIEUR MARROC
             </h1>
-            <div className="flex space-x-2">
-              <div className="w-3 h-3 bg-green-400 rounded-full"></div>
-              <div className="w-3 h-3 bg-yellow-400 rounded-full"></div>
-              <div className="w-3 h-3 bg-red-400 rounded-full"></div>
-            </div>
           </div>
         </div>
 
@@ -86,44 +81,51 @@ const CreateDocument = () => {
               <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
                 Client Numéro
               </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-600">Numéro:</span>
-                  <input
-                    type="text"
-                    value={formData.clientNumber}
-                    onChange={(e) => handleInputChange('client', 'clientNumber', e.target.value)}
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Date:</span>
-                  <input
-                    type="text"
-                    value={formData.date}
-                    onChange={(e) => handleInputChange('client', 'date', e.target.value)}
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">N° document:</span>
-                  <input
-                    type="text"
-                    value={formData.documentNumber}
-                    onChange={(e) => handleInputChange('client', 'documentNumber', e.target.value)}
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Référence:</span>
-                  <input
-                    type="text"
-                    value={formData.reference}
-                    onChange={(e) => handleInputChange('client', 'reference', e.target.value)}
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
+<div className="space-y-3 grid grid-cols-2 gap-3">
+  <div className="flex items-center justify-end gap-2">
+    <span className="text-sm font-medium text-gray-600 whitespace-nowrap">Numéro:</span>
+    <input
+      type="text"
+      value={formData.clientNumber}
+      onChange={(e) => handleInputChange('client', 'clientNumber', e.target.value)}
+      className="w-32 px-3 py-1 border border-gray-300 rounded text-sm font-semibold text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+<div className="flex items-center justify-end gap-2">
+  <span className="text-sm text-gray-600 whitespace-nowrap">Date:</span>
+  <input
+    type="date"
+    value={formData.date ? `20${formData.date.slice(0,2)}-${formData.date.slice(2,4)}-${formData.date.slice(4,6)}` : ''}
+    onChange={(e) => {
+      const dateValue = e.target.value; // Format: YYYY-MM-DD
+      if (dateValue) {
+        const [year, month, day] = dateValue.split('-');
+        const formattedDate = `${year.slice(2)}${month}${day}`; // Convert to YYMMDD
+        handleInputChange('client', 'date', formattedDate);
+      }
+    }}
+    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+  />
+</div>
+  <div className="flex items-center justify-end gap-2">
+    <span className="text-sm text-gray-600 whitespace-nowrap">N° document:</span>
+    <input
+      type="text"
+      value={formData.documentNumber}
+      onChange={(e) => handleInputChange('client', 'documentNumber', e.target.value)}
+      className="w-32 px-3 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+  <div className="flex items-center justify-end gap-2">
+    <span className="text-sm text-gray-600 whitespace-nowrap">Référence:</span>
+    <input
+      type="text"
+      value={formData.reference}
+      onChange={(e) => handleInputChange('client', 'reference', e.target.value)}
+      className="w-32 px-3 py-1 border border-gray-300 rounded text-sm font-semibold bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+    />
+  </div>
+</div>
             </div>
 
             {/* Status Card */}
@@ -160,69 +162,7 @@ const CreateDocument = () => {
             </div>
           </div>
 
-          {/* Affaire & Expedition Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-            {/* Affaire Card */}
-            <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-                Affaire
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Représentant:</span>
-                  <input
-                    type="text"
-                    value={formData.representative}
-                    onChange={(e) => handleInputChange('affaire', 'representative', e.target.value)}
-                    className="w-48 px-3 py-1 border border-gray-300 rounded text-sm font-medium bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Entête:</span>
-                  <input
-                    type="text"
-                    value={formData.header}
-                    onChange={(e) => handleInputChange('affaire', 'header', e.target.value)}
-                    className="w-16 px-3 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
 
-            {/* Expedition Card */}
-            <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-                Expédition EX-WORK
-              </h3>
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">N° Expédition:</span>
-                  <input
-                    type="text"
-                    value={formData.expeditionNumber}
-                    onChange={(e) => handleInputChange('expedition', 'expeditionNumber', e.target.value)}
-                    placeholder="Numéro d'expédition"
-                    className="w-48 px-3 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Port:</span>
-                  <input
-                    type="text"
-                    value={formData.port}
-                    onChange={(e) => handleInputChange('expedition', 'port', e.target.value)}
-                    placeholder="Port de destination"
-                    className="w-48 px-3 py-1 border border-gray-300 rounded text-sm bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex justify-end">
-                  <button className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded text-sm font-medium transition-colors duration-200">
-                    Valider
-                  </button>
-                </div>
-              </div>
-            </div>
-          </div>
 
           {/* Articles Table */}
           <div className="mb-6">
@@ -295,72 +235,6 @@ const CreateDocument = () => {
             </div>
           </div>
 
-          {/* Actions and Totals Section */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Actions Card */}
-            <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm">
-              <h3 className="text-sm font-semibold text-gray-700 mb-3 uppercase tracking-wide">
-                Actions
-              </h3>
-              <div className="flex space-x-3">
-                <button className="flex items-center space-x-1 px-4 py-2 border border-gray-400 rounded text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                  <span>➖</span>
-                  <span>Actions -</span>
-                </button>
-                <button className="flex items-center space-x-1 px-4 py-2 border border-gray-400 rounded text-sm text-gray-700 hover:bg-gray-100 transition-colors duration-200">
-                  <span>➖</span>
-                  <span>Actions -</span>
-                </button>
-              </div>
-            </div>
-
-            {/* Totals Card */}
-            <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 shadow-sm">
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Tools net:</span>
-                  <input
-                    type="text"
-                    value={formData.toolsNet}
-                    onChange={(e) => handleInputChange('totals', 'toolsNet', e.target.value)}
-                    placeholder="0.00"
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm text-right bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm font-medium text-gray-700">Total HT:</span>
-                  <input
-                    type="text"
-                    value={formData.totalHT}
-                    onChange={(e) => handleInputChange('totals', 'totalHT', e.target.value)}
-                    placeholder="0.00"
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm text-right font-semibold text-blue-600 bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <hr className="border-gray-300" />
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Tools brut:</span>
-                  <input
-                    type="text"
-                    value={formData.toolsBrut}
-                    onChange={(e) => handleInputChange('totals', 'toolsBrut', e.target.value)}
-                    placeholder="0.00"
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm text-right bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Total HT devise:</span>
-                  <input
-                    type="text"
-                    value={formData.totalHTDevise}
-                    onChange={(e) => handleInputChange('totals', 'totalHTDevise', e.target.value)}
-                    placeholder="0.00"
-                    className="w-32 px-3 py-1 border border-gray-300 rounded text-sm text-right bg-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
 
         {/* Status Bar */}

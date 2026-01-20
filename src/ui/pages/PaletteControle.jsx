@@ -115,7 +115,7 @@ export default function PaletteControle() {
                       <h3 className='text-xl font-semibold text-gray-700'>
                         {item?.docligne?.Nom ||
                           item?.docligne?.article?.Nom ||
-                          item?.docligne.DL_Design ||
+                          item?.docligne?.DL_Design ||
                           '__'}{' '}
                         {item?.docligne?.article?.Description || null}{' '}
                         {item?.docligne?.Poignée}
@@ -178,7 +178,7 @@ export default function PaletteControle() {
                         Profondeur:{' '}
                         <strong>
                           {Math.floor(
-                            item?.docligne.Profondeur
+                            item?.docligne?.Profondeur
                               ? item?.docligne?.Profondeur
                               : item?.docligne?.article?.Profonduer
                           ) || '__'}

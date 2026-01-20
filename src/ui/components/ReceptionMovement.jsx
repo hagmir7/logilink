@@ -221,6 +221,7 @@ export default function ReceptionMovement() {
         condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
         company: company,
+        piece: id
       }
 
 

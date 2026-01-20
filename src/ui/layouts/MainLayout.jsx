@@ -22,6 +22,10 @@ import {
   Archive,
   ScrollText,
   FileInput,
+  File,
+  ChartSpline,
+  Handshake,
+  ChartCandlestick,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -37,17 +41,17 @@ const sideMenu = () => {
   const [purchaseStatus, setPurchaseStatus] = useState(0);
   const navigate = useNavigate()
 
-  const getPurchaseCount = async ()=> {
+  const getPurchaseCount = async () => {
     try {
       const response = await api.get("status-count/2");
       setPurchaseStatus(response.data)
     } catch (error) {
-      
+
     }
   }
 
 
-  useEffect(()=>{
+  useEffect(() => {
     getPurchaseCount();
   }, [])
 
@@ -101,7 +105,7 @@ const sideMenu = () => {
         //   label: <Link to='/user-archive'>Mes documents</Link>,
         // },
 
-        
+
         //  {
         //   key: 'submenu-20',
         //   className: 'hidden',
@@ -136,7 +140,7 @@ const sideMenu = () => {
         {
           key: 'submenu-3',
           icon: <Warehouse size={19} />,
-          onClick: ()=> handleShow(navigate, '/depots', 1000,800),
+          onClick: () => handleShow(navigate, '/depots', 1000, 800),
           label: "Depots",
         },
 
@@ -151,23 +155,59 @@ const sideMenu = () => {
     {
       key: 'menu-6',
       icon: <FileDown size={20} />,
-      disabled:  !roles(['logistique', 'admin']),
+      disabled: !roles(['logistique', 'admin']),
       label: <Link to='/reception'>Reception</Link>,
 
     },
     {
-        key: 'menu-7',
-        icon: <BaggageClaim size={20} />,
-        disabled: !roles(['admin', 'chef_service']),
-        label: (
-          <div className="flex items-center justify-between w-full">
+      key: 'menu-7',
+      icon: <BaggageClaim size={20} />,
+      disabled: !roles(['admin', 'chef_service']),
+      label: (
+        <div className="flex items-center justify-between w-full">
+          <Link to="/purchase" className="flex-1">
+            Achat
+          </Link>
+          {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
+        </div>
+      ),
+
+      children: [
+         {
+          key: 'submenu-101',
+          disabled: !permissions('view:users'),
+          icon: <ChartSpline size={20} />,
+          label: <Link to='/purchase-overview'>Overview</Link>,
+        },
+
+
+        {
+          key: 'submenu-100',
+          disabled: !permissions('view:users'),
+          icon: <UserCheck size={20} />,
+          label: (<div className="flex items-center justify-between w-full">
             <Link to="/purchase" className="flex-1">
-              Achat
+              Domands
             </Link>
             {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
-          </div>
-        ),
-      },
+          </div>),
+        },
+
+        {
+          key: 'submenu-104',
+          disabled: !permissions('view:users'),
+          icon: <Handshake size={20} />,
+          label: <Link to='/suppliers'>Fournisseurs</Link>,
+        },
+
+        {
+          key: 'submenu-102',
+          disabled: !permissions('view:users'),
+          icon: <ChartCandlestick size={20} />,
+          label: <Link to='/suppliers-evaluation'>F.Evaluations</Link>,
+        },
+      ],
+    },
     {
       key: 'menu-8',
       icon: <Users size={20} />,
@@ -196,7 +236,7 @@ const sideMenu = () => {
         {
           key: 'submenu-8-209',
           disabled: !permissions('view:roles'),
-          
+
           icon: <Lock size={20} />,
           label: <Link to='/roles'>Roles</Link>,
         },
@@ -228,7 +268,7 @@ const MainLayout = () => {
 
     // Initialize on first render
     checkScreenSize()
-  
+
     // Add event listener for window resize
     window.addEventListener('resize', checkScreenSize)
 

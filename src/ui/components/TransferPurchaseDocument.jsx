@@ -10,13 +10,12 @@ const TransferPurchaseDocument = ({ document, getCheckedLines, fetchAllData }) =
     const [company, setCompany] = useState(false);
     const [suppliers, setSuppliers] = useState([]);
     const [selectedLines, setSelectedLines] = useState([]);
+    const [devise, setDevise] = useState([]);
 
     const [form] = Form.useForm();
 
     const showModal = () => {
-        // Get checked lines when modal opens
         const checkedLines = getCheckedLines();
-        console.log('Checked lines on modal open:', checkedLines);
         setSelectedLines(checkedLines);
         setIsModalOpen(true);
     };
@@ -36,7 +35,7 @@ const TransferPurchaseDocument = ({ document, getCheckedLines, fetchAllData }) =
             const response = await api.post('purchase-documents/transfer', {
                 ...values,
                 document_id: document?.id,
-                lines: linesToTransfer
+                lines: linesToTransfer,
             });
             message.success('Document transféré avec succès!');
             fetchAllData()
@@ -73,13 +72,31 @@ const TransferPurchaseDocument = ({ document, getCheckedLines, fetchAllData }) =
         }
     };
 
+     const getDevise = async () => {
+        try {
+            const params = new URLSearchParams();
+            if (company) params.append('company_db', company);
+
+            const response = await api.get(`devise?${params.toString()}`);
+            setDevise(
+                response.data.map(item => ({
+                    label: item.D_Intitule + " - " + item.D_Monnaie,
+                    value: item.cbIndice
+                }))
+            );
+        } catch (error) {
+            console.error(error);
+            message.error(error.response?.data?.message || 'Erreur lors de la récupération des fournisseurs');
+        }
+    };
+
     useEffect(() => {
         getCompts();
+        getDevise();
     }, [company]); 
 
     const changeCompany = (value) => {
         setCompany(value);
-        setSuppliers([]);
         form.setFieldsValue({
             supplier: null
         });
@@ -144,6 +161,17 @@ const TransferPurchaseDocument = ({ document, getCheckedLines, fetchAllData }) =
                             <Option value={0}>Achat A</Option>
                             <Option value={2}>Achat B</Option>
                         </Select>
+                    </Form.Item>
+
+
+                      <Form.Item
+                        label={<span className="font-semibold text-gray-700 mt-2">Devise</span>}
+                        name="devise"
+                        rules={[
+                            { required: true, message: 'La devis est requise' },
+                        ]}
+                    >
+                        <Select placeholder="Sélectionnez la devise" options={devise} className="w-full"/ >
                     </Form.Item>
 
                     {/* Référence */}

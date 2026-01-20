@@ -18,6 +18,7 @@ import {
   Popconfirm,
   Empty,
   InputNumber,
+  Tooltip,
 } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
@@ -240,14 +241,32 @@ function Controller() {
   }
 
 
-  // const company = data?.docentete?.document?.companies?.find(
-  //   c => +c.id === +user.company_id
-  // );
-  // setStatus(company ? getStatus(company.pivot.status_id) : null);
+  const getLineColor = (color, role_id, status) => {
 
+    const colors = {
+      4: "#059669",
+      5: "#228B22",
+      8: "#2ECC71"
+    }
 
+    if ([4, 5, 8].includes(parseInt(role_id)) & parseInt(status) === 7) {
+      return colors[parseInt(role_id)]
+    } else {
+      return color;
+    }
 
+  }
 
+  function strClean(str) {
+    if (str) {
+      return str.replace(/\w\S*/g, function (txt) {
+        return txt.charAt(0).toUpperCase() + txt.substr(1);
+      }).replace("_", " ");
+    } else {
+      return str;
+    }
+
+  }
 
   
   return (
@@ -266,6 +285,7 @@ function Controller() {
                 <Settings size={12} />
               </span>
             )}
+
             {data?.docentete?.document && (
               <Tag color={status.color}>
                 {status.name}
@@ -521,9 +541,12 @@ function Controller() {
                       )}
                     </td>
                     <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
-                      <Tag color={item.line?.status?.color}>
-                        {item.line?.status?.name}
-                      </Tag>
+                      <Tooltip title={strClean(item.line?.role?.name)}>
+                        <Tag color={getLineColor(item.line?.status?.color, item.line?.role_id, item.line?.status?.id)}>
+                          {item.line?.status?.name}
+                        </Tag>
+                      </Tooltip>
+
                     </td>
 
                     <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
