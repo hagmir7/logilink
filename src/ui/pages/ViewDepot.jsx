@@ -8,6 +8,7 @@ import CreateEmplacement from '../components/CreateEmplacement'
 import { useAuth } from '../contexts/AuthContext'
 import BackButton from '../components/ui/BackButton'
 import EmplacementArticles from '../components/EmplacementArticles'
+import EmplacementModal from '../components/ui/EmplacementModal'
 const { Search } = Input
 
 export default function ViewDepot() {
@@ -155,10 +156,17 @@ export default function ViewDepot() {
         </table>
       </div>
 
-      <EmplacementArticles
+      {/* <EmplacementArticles
         emplacement_code={emplacement}
         open={open}
         onClose={() => setOpen(false)}
+      /> */}
+
+      <EmplacementModal
+        selectedEmplacement={emplacement}
+        setSelectedEmplacement={setEmplacement}
+        // handleOk={handleOk}
+        parseEmplacement={emplacement}
       />
 
       {/* States */}

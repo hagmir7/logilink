@@ -15,7 +15,7 @@ import Skeleton from '../components/ui/Skeleton'
 import PrintDocument from '../components/PrintDocument';
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal';
 import ResetPrinter from '../components/ResetPrinter';
-import PrintDocumentTest from '../components/PrintDocumentTest';
+
 
 function Commercial() {
   const { id } = useParams()
@@ -27,7 +27,7 @@ function Commercial() {
   const { roles = [] } = useAuth()
   const navigate = useNavigate()
 
-  const fetchData = async (piece=null) => {
+  const fetchData = async (piece = null) => {
     setLoading(true)
     try {
       const response = await api.get(`docentetes/${piece || id}`)
@@ -45,11 +45,11 @@ function Commercial() {
     fetchData()
 
     const interval = setInterval(() => {
-      fetchData() 
+      fetchData()
     }, 40000)
 
-    return () => clearInterval(interval) 
-  }, [id]) 
+    return () => clearInterval(interval)
+  }, [id])
 
 
   const currentItems = data?.doclignes || []
@@ -101,7 +101,7 @@ function Commercial() {
           lines: selected,
         }
         const response = await api.post('docentetes/transfer', data)
-        if(response?.data?.piece){
+        if (response?.data?.piece) {
           navigate(`/document/${response?.data?.piece}`)
         }
         setSelectedCompany(null)
@@ -111,7 +111,7 @@ function Commercial() {
       } catch (error) {
         console.error(error);
         message.error(error.response.data.message || "Can't trnsfer the article");
-      }      
+      }
     } else {
       message.warning('Aucun article sélectionné')
     }
@@ -134,12 +134,12 @@ function Commercial() {
     }
   }
 
-   const getStatusColor = (status) => {
-     return status?.color || 'gray'
-   }
+  const getStatusColor = (status) => {
+    return status?.color || 'gray'
+  }
 
 
-   
+
   return (
     <div className='h-full flex flex-col bg-gray-50'>
       <div className='flex-shrink-0 bg-white border-b border-gray-200 shadow-sm'>
@@ -205,7 +205,7 @@ function Commercial() {
           </div>
 
           {/* Document Info Cards */}
-          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4'>
             {[
               {
                 label: 'Client',
@@ -220,6 +220,10 @@ function Commercial() {
                 value: getExped(data.docentete.DO_Expedit),
               },
               {
+                label: 'Bon de commande',
+                value: data?.docentete?.document?.piece_bc,
+              },
+              {
                 label: 'Société',
                 value: (
                   <div>
@@ -227,8 +231,7 @@ function Commercial() {
                       data.docentete.document.companies
                         .map(
                           (company) =>
-                            `${company.name} ${
-                              company.pivot.printed == 1 ? '🖨️' : ''
+                            `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''
                             }`
                         )
                         .join(' & ')

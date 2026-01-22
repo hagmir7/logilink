@@ -341,7 +341,7 @@ function Controller() {
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4'>
         {[
           {
             label: 'Client',
@@ -354,6 +354,10 @@ function Controller() {
           {
             label: 'Expédition',
             value: getExped(data.docentete.DO_Expedit),
+          },
+           {
+            label: 'Bon de commande',
+            value: data?.docentete?.document?.piece_bc,
           },
           {
             label: 'Société',
@@ -581,12 +585,11 @@ function Controller() {
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100'>
-                      {item?.Episseur | item?.article?.Episseur}
+                      {Math.floor(item?.Episseur) || Math.floor(item?.article?.Episseur)}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
-                      {(item.Couleur ? item.Couleur : item?.article?.Couleur) ||
-                        '__'}
+                      {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100'>
