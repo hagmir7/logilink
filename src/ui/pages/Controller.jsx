@@ -41,6 +41,7 @@ function Controller() {
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [status, setStatus] = useState({})
 
+
   const selectedRowsFull = Object.values(selected)
   .map(sel => data.doclignes.find(line =>
     line.id === sel.line_id || line.line?.id === sel.line_id

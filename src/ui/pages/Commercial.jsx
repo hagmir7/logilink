@@ -4,12 +4,16 @@ import {
   Undo2,
   LoaderCircle,
   Settings,
+  AlertCircle,
+  Store,
+  Check,
+  CheckCircle,
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { getExped, uppercaseFirst } from '../utils/config';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Button, Checkbox, Empty, message, Popconfirm, Select, Tag } from 'antd';
+import { Button, Checkbox, Empty, message, Popconfirm, Select, Tag, Tooltip } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
 import Skeleton from '../components/ui/Skeleton'
 import PrintDocument from '../components/PrintDocument';
@@ -24,6 +28,7 @@ function Commercial() {
   const [selected, setSelected] = useState([])
   const [selectedCompany, setSelectedCompany] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
+  const [isUrgent, setIsUrgent] = useState(false);
   const { roles = [] } = useAuth()
   const navigate = useNavigate()
 
@@ -32,6 +37,7 @@ function Commercial() {
     try {
       const response = await api.get(`docentetes/${piece || id}`)
       setData(response.data)
+      setIsUrgent(parseInt(response?.data?.docentete?.document?.urgent) || false)
     } catch (err) {
       console.error('Failed to fetch data:', err)
     } finally {
@@ -99,6 +105,7 @@ function Commercial() {
         const data = {
           company: selectedCompany,
           lines: selected,
+          urgent: isUrgent
         }
         const response = await api.post('docentetes/transfer', data)
         if (response?.data?.piece) {
@@ -284,6 +291,25 @@ function Commercial() {
                     </Button>
                   </Popconfirm>
                 )}
+
+              <Tooltip title="Vente de comptoir">
+                <Button
+                  type={isUrgent ? 'primary' : 'default'}
+                  color={isUrgent && 'cyan'}
+                  variant="solid"
+                  icon={
+                    isUrgent ? (
+                      <CheckCircle size={16} />
+                    ) : (
+                      <Store size={16} />
+                    )
+                  }
+                  onClick={() => setIsUrgent(!isUrgent)}
+                  className={`${isUrgent ? 'shadow-md' : ''}`}
+                >
+                  VC
+                </Button>
+              </Tooltip>
 
               <Select
                 placeholder='Transférer vers'

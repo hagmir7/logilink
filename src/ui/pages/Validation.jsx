@@ -27,6 +27,9 @@ function Validation() {
     searchParams.get('type') || ''
   )
 
+  const [orderBy, setOrderBy] = useState('')
+  const [orderDir, setOrderDir] = useState('asc')
+
   const navigate = useNavigate()
   const { roles = [] } = useAuth()
 
@@ -44,9 +47,11 @@ function Validation() {
 
       if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`)
       if (documentType) params.push(`type=${encodeURIComponent(documentType)}`)
+      if (orderBy) params.push(`order_by=${encodeURIComponent(orderBy)}`)
+      if (orderDir) params.push(`order_dir=${encodeURIComponent(orderDir)}`)
       if (pageNum > 1) params.push(`page=${pageNum}`)
 
-      if (params.length > 0) {
+      if (params.length) {
         url += `?${params.join('&')}`
       }
 
@@ -61,11 +66,10 @@ function Validation() {
       } else {
         setData(response.data)
       }
-
-      setLoading(false)
     } catch (err) {
       console.error(err)
       message.error(err.response?.data?.message || 'Failed to fetch data')
+    } finally {
       setLoading(false)
     }
   }
@@ -73,11 +77,15 @@ function Validation() {
   /* =========================
      EFFECTS
   ========================= */
-  useEffect(() => {
-    fetchData()
-    window.electron?.notifyPrintReady?.()
-  }, [])
 
+  // Initial load + sorting change
+  useEffect(() => {
+    setPage(1)
+    fetchData(currentSearch, 1, false)
+    window.electron?.notifyPrintReady?.()
+  }, [orderBy, orderDir])
+
+  // Type change
   useEffect(() => {
     setPage(1)
     fetchData(currentSearch, 1, false)
@@ -91,6 +99,8 @@ function Validation() {
   }
 
   const loadMore = async () => {
+    if (!data.next_page_url) return
+
     setMoreSpinner(true)
     const nextPage = page + 1
     setPage(nextPage)
@@ -102,8 +112,7 @@ function Validation() {
     }
   }
 
-  const handleSearch = async (e) => {
-    const value = e.target.value
+  const handleSearch = async (value) => {
     setSearchSpinner(true)
     setCurrentSearch(value)
     setPage(1)
@@ -130,7 +139,11 @@ function Validation() {
 
   const handleRefresh = () => {
     setCurrentSearch('')
+    setDocumentType('')
+    setOrderBy('')
+    setOrderDir('asc')
     setPage(1)
+    setSearchParams({})
     fetchData('', 1, false)
   }
 
@@ -150,9 +163,9 @@ function Validation() {
             <div className='flex gap-2'>
               <Search
                 placeholder='Rechercher'
-                loading={searchSpinner}
                 size='large'
-                onChange={handleSearch}
+                loading={searchSpinner}
+                onSearch={handleSearch}
                 allowClear
               />
 
@@ -178,7 +191,7 @@ function Validation() {
               ) : (
                 <RefreshCcw size={17} />
               )}
-              <span className='hidden sm:inline'>Rafraîchir</span>
+              <span className='hidden sm:inline'> Rafraîchir</span>
             </Button>
           </div>
         </div>
@@ -188,6 +201,10 @@ function Validation() {
       {roles(['preparation', 'controleur']) && (
         <PreparationDocumentTable
           documents={data.data}
+          orderBy={orderBy}
+          setOrderBy={setOrderBy}
+          orderDir={orderDir}
+          setOrderDir={setOrderDir}
           onSelectOrder={handleSelectOrder}
         />
       )}

@@ -18,7 +18,6 @@ function Document() {
 
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
-  // const [documenType, setDocumentType] = useState(1);
   const [documenStatus, setDocumentStatus] = useState('');
   const [documenType, setDocumentType] = useState('');
   const [page, setPage] = useState(1);
@@ -30,14 +29,21 @@ function Document() {
   const navigate = useNavigate();
   const { roles = [] } = useAuth();
 
-  // Build the API URL dynamically
+
+  const [orderBy, setOrderBy] = useState('');
+  const [orderDir, setOrderDir] = useState('asc');
+
+
   const buildUrl = (pageNumber = 1, search = searchTerm) => {
     const queryParams = new URLSearchParams();
     if (documenType) queryParams.append('type', documenType);
     if (documenStatus) queryParams.append('status', documenStatus);
     if (dateFilter?.length) queryParams.append('date', dateFilter.join(','));
     if (search) queryParams.append('search', search);
+    if (orderBy) queryParams.append('order_by', orderBy);
+    if (orderDir) queryParams.append('order_dir', orderDir);
     if (pageNumber) queryParams.append('page', pageNumber);
+
 
     let url = 'documents/preparation-list';
     if (roles('commercial')) url = 'docentetes/commercial';
@@ -67,9 +73,9 @@ function Document() {
     const intervalId = setInterval(fetchAndNotify, 40000);
     return () => clearInterval(intervalId);
 
-   
-    
-  }, [documenType, documenStatus, dateFilter]);
+
+
+  }, [documenType, documenStatus, dateFilter, orderBy, orderDir]);
 
   const loadMore = async () => {
     if (!data.next_page_url) return;
@@ -126,7 +132,7 @@ function Document() {
           <div className={roles('commercial') && 'hidden md:block'}>
             <Search
               placeholder='Recherch'
-               allowClear
+              allowClear
               loading={searchSpinner}
               size='large'
               onChange={handleSearch}
@@ -158,21 +164,21 @@ function Document() {
             />
           )}
 
-           <Select
-              defaultValue=''
-              allowClear
-              className='min-w-[140px] block md:hidden'
-              size='large'
-              onChange={(value) => setDocumentType(value)}
-              options={[
-                { value: '', label: 'Type' },
-                { value: 'Cuisine', label: 'Cuisine' },
-                { value: 'Placard', label: 'Placard' },
-                { value: 'Laca', label: 'Laca' },
-                { value: 'Polilaminado', label: 'Polilaminado'},
-                { value: 'Stock', label: 'Stock'}
-              ]}
-            />
+          <Select
+            defaultValue=''
+            allowClear
+            className='min-w-[140px] block md:hidden'
+            size='large'
+            onChange={(value) => setDocumentType(value)}
+            options={[
+              { value: '', label: 'Type' },
+              { value: 'Cuisine', label: 'Cuisine' },
+              { value: 'Placard', label: 'Placard' },
+              { value: 'Laca', label: 'Laca' },
+              { value: 'Polilaminado', label: 'Polilaminado' },
+              { value: 'Stock', label: 'Stock' }
+            ]}
+          />
 
           <Button onClick={() => fetchData()} size='large'>
             {loading ? (
@@ -195,18 +201,21 @@ function Document() {
 
       {(roles('preparation') || roles('montage') || roles('fabrication')) && (
         <PreparationDocumentTable
-          // loading={loading}
           documents={data.data}
           onSelectOrder={handleSelectOrder}
+          orderBy={orderBy}
+          setOrderBy={setOrderBy}
+          orderDir={setOrderDir}
+          setOrderDir={setOrderDir}
         />
       )}
 
       {(roles('preparation_cuisine') ||
         roles('preparation_trailer') ||
         roles('magasinier')) && (
-        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
-          {data.data.length > 0
-            ? data.data.map((item, index) => (
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
+            {data.data.length > 0
+              ? data.data.map((item, index) => (
                 <DocumentCard
                   key={index}
                   data={item}
@@ -214,9 +223,9 @@ function Document() {
                   onSelectOrder={handleSelectOrder}
                 />
               ))
-            : null}
-        </div>
-      )}
+              : null}
+          </div>
+        )}
 
       {data.next_page_url && (
         <div className='flex justify-center py-6'>
@@ -230,7 +239,7 @@ function Document() {
           </Button>
         </div>
       )}
-  
+
       {(data.data.length === 0 && !loading) && (
         <Empty className='mt-10' description='Aucun document à afficher' />
       )}

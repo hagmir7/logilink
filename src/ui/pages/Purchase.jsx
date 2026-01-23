@@ -1,6 +1,6 @@
 
 import React, { useEffect, useState } from "react";
-import { Button, message, Modal, Select } from "antd";
+import { Button, message, Modal, Select, Tag } from "antd";
 import {
   RefreshCcw,
   PlusCircle,
@@ -232,7 +232,10 @@ export default function Purchase() {
                     onClick={()=> handleShow(navigate, `/purchase/${item.id}`, 1200, 800)}
                     className="border-t border-gray-300 hover:bg-gray-50 whitespace-normal cursor-context-menu"
                   >
-                    <td className="px-3 py-2 whitespace-nowrap">{item?.code}</td>
+                    <td className="px-3 py-2 whitespace-nowrap flex gap-2">
+                      <span>{item?.code}</span>
+                        <span>{item.urgent && <Tag color={'red'}>🚨</Tag>}</span>
+                    </td>
                     <td className="px-3 py-2 whitespace-nowrap">
                       {item?.reference}
                     </td>

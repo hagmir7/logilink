@@ -10,7 +10,7 @@ const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
 }
 
-function PreparationDocumentTable({ documents = [], loading }) {
+function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy, orderDir, setOrderDir }) {
   const { roles } = useAuth();
 
   const { user } = useAuth();
@@ -19,11 +19,7 @@ function PreparationDocumentTable({ documents = [], loading }) {
     return data?.companies?.find(item => item.id === Number(user.company_id))
   }
 
-
-
-  const navigate = useNavigate()
-
-
+  const navigate = useNavigate();
 
   const getExpeditionColor = (expedit) => {
     const colorMap = {
@@ -52,6 +48,15 @@ function PreparationDocumentTable({ documents = [], loading }) {
     }
   }
 
+  const reOrder = (order_by) => {
+    setOrderDir(prev =>
+      orderBy === order_by
+        ? (prev === 'asc' ? 'desc' : 'asc')
+        : 'asc'
+    );
+    setOrderBy(order_by);
+  };
+
 
 
   return (
@@ -62,23 +67,23 @@ function PreparationDocumentTable({ documents = [], loading }) {
           <table className='w-full border-collapse '>
             <thead className='sticky top-0 bg-gradient-to-b from-gray-50 to-gray-100 border-b border-gray-300 shadow-sm z-10'>
               <tr>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
-                  Document
+                <th onClick={()=> reOrder('piece')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                  Document <span className='text-gray-500'>{orderBy == 'piece'? "▲" : "▼"}</span>
                 </th>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
-                  Statut
+                <th onClick={()=> reOrder('status')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                  Statut <span className='text-gray-500'>{orderBy == 'status'? "▲" : "▼"}</span>
                 </th>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
-                  Expédition
+                <th onClick={()=> reOrder('expedition')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                  Expédition <span className='text-gray-500'>{orderBy == 'expedition'? "▲" : "▼"}</span>
                 </th>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
-                  Client
+                <th onClick={()=> reOrder('client')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                  Client <span className='text-gray-500'>{orderBy == 'client'? "▲" : "▼"}</span>
                 </th>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
-                  Référence
+                <th className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                  Référence 
                 </th>
-                <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
-                  Date Document
+                <th onClick={()=> reOrder('date')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
+                  Date Document <span className='text-gray-500'>{orderBy == 'date'? "▲" : "▼"}</span>
                 </th>
                 <th className='px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Date Prévue

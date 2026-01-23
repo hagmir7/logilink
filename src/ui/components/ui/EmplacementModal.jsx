@@ -5,6 +5,7 @@ import {
   Space,
   Skeleton,
   Popconfirm,
+  Empty,
 } from "antd";
 import { api } from "../../utils/api";
 import { useEffect, useState, useCallback } from "react";
@@ -89,67 +90,73 @@ const EmplacementModal = ({
       onCancel={handleCancel}
       centered
       maskClosable={false}
+      onOk={handleCancel}
+      cancelText="Annuler"
       width="70%"
     >
       {loading ? (
         <Skeleton active />
       ) : (
         <Space direction="vertical" className="w-full">
-          {palettes.map((palette) => (
-            <Collapse
-              key={palette.code}
-              items={[
-                {
-                  key: palette.code,
-                  label: (
-                    <div className="flex justify-between items-center w-full">
-                      <span className="font-semibold">{palette.code}</span>
+          {palettes.length === 0 ? (
+            <Empty description="Aucune palette trouvée" />
+          ) : (
+            palettes.map((palette) => (
+              <Collapse
+                key={palette.code}
+                items={[
+                  {
+                    key: palette.code,
+                    label: (
+                      <div className="flex justify-between items-center w-full">
+                        <span className="font-semibold">{palette.code}</span>
 
-                      <div className="flex items-center gap-3">
-                        <Popconfirm
-                          title="Ajouter un article"
-                          okText="Ajouter"
-                          cancelText="Annuler"
-                          style={{width:600}}
-                          description={
-                            <ArticlesSelect
-                              value={articleId}
-                              onChange={setArticleId}
-                            />
-                          }
-                          onConfirm={() =>
-                            handleAddArticle(palette.code)
-                          }
-                          onCancel={() => setArticleId(null)}
-                        >
-                          <button className="text-green-600 bg-green-100 border border-green-200 p-1.5 rounded-full">
-                            <Plus size={14} />
-                          </button>
-                        </Popconfirm>
+                        <div className="flex items-center gap-3">
+                          <Popconfirm
+                            title="Ajouter un article"
+                            okText="Ajouter"
+                            cancelText="Annuler"
+                            style={{width:600}}
+                            description={
+                              <ArticlesSelect
+                                value={articleId}
+                                onChange={setArticleId}
+                              />
+                            }
+                            onConfirm={() =>
+                              handleAddArticle(palette.code)
+                            }
+                            onCancel={() => setArticleId(null)}
+                          >
+                            <button className="text-green-600 bg-green-100 border border-green-200 p-1.5 rounded-full">
+                              <Plus size={14} />
+                            </button>
+                          </Popconfirm>
 
-                        <Popconfirm
-                          title="Supprimer cette palette ?"
-                          okText="Oui"
-                          cancelText="Non"
-                          onConfirm={() => handleDelete(palette.code)}
-                        >
-                          <button className="text-red-600 bg-red-100 border border-red-200 p-1.5 rounded-full">
-                            <Trash size={14} />
-                          </button>
-                        </Popconfirm>
+                          <Popconfirm
+                            title="Supprimer cette palette ?"
+                            okText="Oui"
+                            cancelText="Non"
+                            onConfirm={() => handleDelete(palette.code)}
+                          >
+                            <button className="text-red-600 bg-red-100 border border-red-200 p-1.5 rounded-full">
+                              <Trash size={14} />
+                            </button>
+                          </Popconfirm>
+                        </div>
                       </div>
-                    </div>
-                  ),
-                  children: (
-                    <PaletteArticleCard
-                      palette={palette}
-                      inventory_id={inventory_id}
-                    />
-                  ),
-                },
-              ]}
-            />
-          ))}
+                    ),
+                    children: (
+                      <PaletteArticleCard
+                        palette={palette}
+                        inventory_id={inventory_id}
+                      />
+                    ),
+                  },
+                ]}
+              />
+            ))
+          )}
         </Space>
       )}
     </Modal>

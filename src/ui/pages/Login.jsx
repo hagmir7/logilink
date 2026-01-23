@@ -16,14 +16,15 @@ const Login = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [usernames, setUsernames] = useState([]);
   const [appVersion, setAppVersion] = useState('');
+  const [errorType, setErrorType] = useState(null);
 
-  /* Load saved usernames */
+
   useEffect(() => {
     const saved = JSON.parse(localStorage.getItem('usernames') || '[]');
     setUsernames(saved);
   }, []);
 
-  /* Load Electron app version */
+
   useEffect(() => {
     const loadVersion = async () => {
       if (window.electron?.version) {
@@ -34,7 +35,6 @@ const Login = () => {
     loadVersion();
   }, []);
 
-  /* Default credentials in dev + verify authentication */
   useEffect(() => {
     form.setFieldsValue({
       login: import.meta.env.MODE === 'development' ? 'admin' : '',
@@ -43,18 +43,29 @@ const Login = () => {
     checkAuth();
   }, [form]);
 
-  /* Submit login */
+
   const handleSubmit = async (values) => {
-    await login(values); // wait processing
+    try {
+      setErrorType(null);
+      await login(values);
 
-    // ⛔ Do not save username if login failed
-    const token = localStorage.getItem('authToken');
-    if (!token) return; // Login failed ➝ no saving
+      const token = localStorage.getItem('authToken');
+      if (!token) {
+        setErrorType('auth'); 
+        return; 
+      }
 
-    // 🔥 Save username only when login success
-    const updated = Array.from(new Set([values.login, ...usernames]));
-    localStorage.setItem('usernames', JSON.stringify(updated));
-    setUsernames(updated);
+      const updated = Array.from(new Set([values.login, ...usernames]));
+      localStorage.setItem('usernames', JSON.stringify(updated));
+      setUsernames(updated);
+    } catch (error) {
+      // Check if it's a network error
+      if (error.message?.includes('Network') || error.code === 'ERR_NETWORK' || !navigator.onLine) {
+        setErrorType('network');
+      } else {
+        setErrorType('auth');
+      }
+    }
   };
 
   /* Auto navigation if already logged in */
@@ -62,15 +73,36 @@ const Login = () => {
     const token = localStorage.getItem('authToken');
     if (!token) return;
 
-    const response = await api.get('user', {
-      headers: { Authorization: `Bearer ${token}` }
-    });
+    try {
+      const response = await api.get('user', {
+        headers: { Authorization: `Bearer ${token}` }
+      });
 
-    if (window.electron) {
-      await window.electron.user({ user: response.data, access_token: token });
-    } else {
-      navigate('/');
+      if (window.electron) {
+        await window.electron.user({ user: response.data, access_token: token });
+      } else {
+        navigate('/');
+      }
+    } catch (error) {
+      // Silent fail for auto-check
+      console.error('Auth check failed:', error);
     }
+  };
+
+  // Determine which message to show
+  const getErrorMessage = () => {
+    if (errorType === 'network') {
+      return (
+        <div>
+          <div className="font-semibold mb-2">Erreur de connexion réseau</div>
+          <div>
+            Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet 
+            ou cliquez sur le bouton ci-dessous pour changer le type de connexion.
+          </div>
+        </div>
+      );
+    }
+    return message;
   };
 
   return (
@@ -86,7 +118,26 @@ const Login = () => {
           <Title level={2} className="text-gray-800">Connectez-vous</Title>
         </div>
 
-        {message && <Alert message={message} type="error" showIcon className="mb-6" />}
+        {(message || errorType === 'network') && (
+          <Alert 
+            message={getErrorMessage()} 
+            type={errorType === 'network' ? 'warning' : 'error'} 
+            showIcon 
+            className="mb-6"
+            action={
+              errorType === 'network' && (
+                <Button 
+                  size="small" 
+                  type="link" 
+                  onClick={() => setIsModalOpen(true)}
+                  className="text-orange-600 hover:text-orange-700"
+                >
+                  Changer la connexion
+                </Button>
+              )
+            }
+          />
+        )}
 
         <Form form={form} layout="vertical" onFinish={handleSubmit}>
 
