@@ -4,9 +4,7 @@ import {
   Undo2,
   LoaderCircle,
   Settings,
-  AlertCircle,
   Store,
-  Check,
   CheckCircle,
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
@@ -178,7 +176,7 @@ function Commercial() {
             </div>
             <div className='flex gap-3'>
               <Button
-                onClick={fetchData}
+                onClick={() => (fetchData(id))}
                 className='flex items-center gap-2 hover:shadow-md transition-shadow'
               >
                 {loading ? (

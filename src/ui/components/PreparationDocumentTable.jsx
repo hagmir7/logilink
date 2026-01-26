@@ -76,10 +76,10 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
                 <th onClick={()=> reOrder('expedition')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
                   Expédition <span className='text-gray-500'>{orderBy == 'expedition'? "▲" : "▼"}</span>
                 </th>
-                <th onClick={()=> reOrder('client')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                <th onClick={()=> reOrder('client')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Client <span className='text-gray-500'>{orderBy == 'client'? "▲" : "▼"}</span>
                 </th>
-                <th className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                <th className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Référence 
                 </th>
                 <th onClick={()=> reOrder('date')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
@@ -112,6 +112,12 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
                       </span>
 
                       {data?.docentete?.DO_Reliquat === "1" && (
+                        <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
+                          <Settings size={12} />
+                        </span>
+                      )}
+
+                       {data?.urgent && (
                         <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
                           <Settings size={12} />
                         </span>
