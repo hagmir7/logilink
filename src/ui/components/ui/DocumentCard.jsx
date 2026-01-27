@@ -40,6 +40,12 @@ function DocumentCard({ data, onSelectOrder, loading }) {
                   <Settings />
                 </span>
               ) : null}
+
+              {parseInt(data?.urgent) ? (
+                <span className='ml-1 p-1 bg-red-100 text-red-600 rounded border border-red-300 shadow-sm'>
+                  🚨
+                </span>
+              ) : ''}
             </div>
           </div>
 

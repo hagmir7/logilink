@@ -116,12 +116,12 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
                           <Settings size={12} />
                         </span>
                       )}
-
-                       {data?.urgent && (
-                        <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
-                          <Settings size={12} />
+                      {parseInt(data?.urgent) ? (
+                        <span className='ml-2 p-1 bg-red-100 text-red-600 rounded border border-red-300 shadow-sm'>
+                          🚨
                         </span>
-                      )}
+                      ) : ''}
+
                     </div>
                   </td>
 
