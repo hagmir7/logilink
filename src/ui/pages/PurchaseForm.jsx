@@ -421,6 +421,7 @@ export default function PurchaseForm() {
                   placeholder="Sélectionner le statut"
                   defaultActiveFirstOption={false}
                   className="w-full"
+                  name="service_id"
                   disabled={(Number(initialData?.status) > 2) && hasRole('chef_service')}
                 >
                   {statusOptions
