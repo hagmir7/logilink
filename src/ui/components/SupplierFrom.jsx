@@ -93,7 +93,7 @@ const SupplierFrom = ({
                     Mettre à jour
                 </Button>,
             ]}
-            destroyOnClose
+            // destroyOnClose
         >
             {fetching ? (
                 <div style={{ textAlign: "center", padding: 30 }}>

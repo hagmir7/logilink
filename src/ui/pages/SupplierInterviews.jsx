@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Button, message, Modal, Select } from "antd";
+import { Badge, Button, Empty, message, Modal, Select, Tag } from "antd";
 import {
   RefreshCcw,
   PlusCircle,
@@ -11,6 +11,7 @@ import TableSkeleton from "../components/ui/TableSkeleton";
 import SupplierFrom from "../components/SupplierFrom";
 import { useNavigate } from "react-router-dom";
 import SupplierInterviewForm from "../components/SupplierInterviewForm";
+import { formatDate } from "../utils/config";
 
 export default function SupplierInterviews() {
   const [data, setData] = useState([]);
@@ -39,6 +40,9 @@ export default function SupplierInterviews() {
         params: { company_db: company },
       });
 
+      console.log(response.data);
+      
+
       setData(response.data);
     } catch (error) {
       message.warning(
@@ -50,17 +54,13 @@ export default function SupplierInterviews() {
     }
   };
 
-  /* =======================
-     Open update modal
-  ======================= */
+
   const openUpdate = (CT_Num) => {
     setSelectedClient(CT_Num);
     setOpen(true);
   };
 
-  /* =======================
-     Delete supplier (optional)
-  ======================= */
+
   const handleDelete = async (id) => {
     try {
       await api.delete(`client/suppliers/${id}`);
@@ -152,20 +152,22 @@ export default function SupplierInterviews() {
       {/* Table */}
       <div className="mt-4 overflow-auto bg-white border-gray-300 border-b">
         <table className="min-w-full text-sm border-t border-gray-300">
-          <thead className="bg-gray-100 whitespace-nowrap">
-            <tr>
-              <th className="px-3 py-2 text-left">Code</th>
-              <th className="px-3 py-2 text-left">Fournisseur</th>
-              <th className="px-3 py-2 text-left">Nature d'achat</th>
-              <th className="px-3 py-2 text-left">Téléphone</th>
-              <th className="px-3 py-2 text-left">E-mail</th>
-              <th className="px-3 py-2 text-left">Adresse</th>
-            </tr>
-          </thead>
+          {
+            data.length != 0 && (<thead className="bg-gray-100 whitespace-nowrap">
+              <tr>
+                <th className="px-3 py-2 text-left">Code</th>
+                <th className="px-3 py-2 text-left">Fournisseur </th>
+                <th className="px-3 py-2 text-left">Produit / Service Achat</th>
+                <th className="px-3 py-2 text-left">Note</th>
+                <th className="px-3 py-2 text-left">Date</th>
+              </tr>
+            </thead>)
+          }
+          
 
           <tbody>
             {loading ? (
-              <TableSkeleton rows={4} columns={6} />
+              <TableSkeleton rows={4} columns={5} />
             ) : data.length > 0 ? (
               data.map((item) => (
                 <tr
@@ -174,18 +176,12 @@ export default function SupplierInterviews() {
                   className="border-t border-gray-300 hover:bg-gray-50 cursor-pointer whitespace-nowrap"
                 >
                   <td className="px-3 py-2">{item.CT_Num}</td>
-                  <td className="px-3 py-2">{item.CT_Intitule}</td>
+                  <td className="px-3 py-2">{item?.client.CT_Intitule}</td>
+                  <td className="px-3 py-2"> {item.description}  </td>
                   <td className="px-3 py-2">
-                    {item.Nature_Achat || "__"}
+                    <Tag>{item.note | 0}</Tag>
                   </td>
-                  <td className="px-3 py-2">
-                    {item.CT_Telephone || item.CT_Telecopie}
-                  </td>
-                  <td className="px-3 py-2">{item.CT_EMail}</td>
-                  <td className="px-3 py-2">
-                    {item.CT_Pays}
-                    {item.CT_Ville && `, ${item.CT_Ville}`}
-                  </td>
+                  <td className="px-3 py-2">{formatDate(item.created_at)}</td>
                 </tr>
               ))
             ) : (
@@ -194,7 +190,7 @@ export default function SupplierInterviews() {
                   colSpan={6}
                   className="text-center py-8 text-gray-500"
                 >
-                  Aucun fournisseur trouvé
+                 <Empty description=" Aucun fournisseur trouvé" />
                 </td>
               </tr>
             )}

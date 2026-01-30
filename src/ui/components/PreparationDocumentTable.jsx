@@ -67,13 +67,13 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
           <table className='w-full border-collapse '>
             <thead className='sticky top-0 bg-gradient-to-b from-gray-50 to-gray-100 border-b border-gray-300 shadow-sm z-10'>
               <tr>
-                <th onClick={()=> reOrder('piece')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                <th onClick={()=> reOrder('piece')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Document <span className='text-gray-500'>{orderBy == 'piece'? "▲" : "▼"}</span>
                 </th>
-                <th onClick={()=> reOrder('status')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                <th onClick={()=> reOrder('status')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Statut <span className='text-gray-500'>{orderBy == 'status'? "▲" : "▼"}</span>
                 </th>
-                <th onClick={()=> reOrder('expedition')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0'>
+                <th onClick={()=> reOrder('expedition')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>
                   Expédition <span className='text-gray-500'>{orderBy == 'expedition'? "▲" : "▼"}</span>
                 </th>
                 <th onClick={()=> reOrder('client')} className='cursor-pointer px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 last:border-r-0 whitespace-nowrap'>

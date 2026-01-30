@@ -46,6 +46,7 @@ export default function Purchase() {
   const [filterOpen, setFilterOpen] = useState(false);
   const [services, setServices] = useState([]);
   const [users, setUsers] = useState([]);
+  const [page, setPage] = useState(1);
 
 
   const [filters, setFilters] = useState({
@@ -67,37 +68,54 @@ export default function Purchase() {
     }
   };
 
-  const fetchData = useCallback(async (reset = true) => {
-    reset ? setLoading(true) : setLoadingMore(true);
+  const fetchData = useCallback(
+    async (reset = true) => {
+      reset ? setLoading(true) : setLoadingMore(true);
 
-    try {
-      const { data: res } = await api.get("purchase-documents", {
-        params: {
-          service: filters.service,
-          status: filters.status,
-          user: filters.user,
-          date_filter: filters.dates,
-        },
-      });
+      try {
+        const { data: res } = await api.get("purchase-documents", {
+          params: {
+            page: reset ? 1 : page,
+            service: filters.service,
+            status: filters.status,
+            user: filters.user,
+            date_filter: filters.dates,
+          },
+        });
 
-      setData(reset ? res.data : prev => [...prev, ...res.data]);
-      setPagination({
-        current: res.current_page,
-        next: res.next_page_url,
-        total: res.total,
-      });
-    } catch (err) {
-      message.warning(err?.response?.data?.message || "Erreur lors du chargement");
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  }, [filters]);
+        setData(prev =>
+          reset ? res.data : [...prev, ...res.data]
+        );
+
+        setPagination({
+          current: res.current_page,
+          next: res.next_page_url,
+          total: res.total,
+        });
+
+        if (!reset) {
+          setPage(res.current_page + 1);
+        } else {
+          setPage(2);
+        }
+
+      } catch (err) {
+        message.warning(
+          err?.response?.data?.message || "Erreur lors du chargement"
+        );
+      } finally {
+        setLoading(false);
+        setLoadingMore(false);
+      }
+    },
+    [filters, page]
+  );
 
 
   useEffect(() => {
+    setPage(1);
     fetchData(true);
-  }, [fetchData]);
+  }, [filters]);
 
   useEffect(() => {
     fetchOptions("services", s => ({ label: s.name, value: s.id }), setServices);
@@ -219,7 +237,7 @@ export default function Purchase() {
                   </td>
                   <td className="px-3 py-2">{item.reference}</td>
                   <td className="px-3 py-2">{item.service?.name}</td>
-                  <td className="px-3 py-2">{item.user?.full_name}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{item.user?.full_name}</td>
                   <td className="px-3 py-2">{renderStatus(item.status)}</td>
                   <td className="px-3 py-2">{formatDate(item.created_at)}</td>
                 </tr>
@@ -227,7 +245,7 @@ export default function Purchase() {
             ) : (
               <tr>
                 <td colSpan={6} className="py-8 text-center">
-                  <Empty  description="Aucun document d'achat"/>
+                  <Empty description="Aucun document d'achat" />
                 </td>
               </tr>
             )}
@@ -236,11 +254,15 @@ export default function Purchase() {
 
         {pagination?.next && (
           <div className="p-4 flex justify-center">
-            <Button loading={loadingMore} onClick={() => fetchData(false)}>
+            <Button
+              loading={loadingMore}
+              onClick={() => fetchData(false)}
+            >
               Charger plus
             </Button>
           </div>
         )}
+
       </div>
     </div>
   );

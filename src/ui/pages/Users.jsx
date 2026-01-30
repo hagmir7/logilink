@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react'
-import { Search, Plus, Edit, Loader2, Trash } from 'lucide-react'
+import { Search, Plus, Edit, Loader2, Trash, Lock } from 'lucide-react'
 import CModal from '../components/ui/CModal'
 import { useNavigate } from 'react-router-dom'
 import { api } from '../utils/api'
 import RegisterForm from '../components/RegisterForm'
 import { useAuth } from '../contexts/AuthContext'
 import { message, Popconfirm } from 'antd'
+import UpdatePasswordModal from '../components/UpdatePasswordModal'
 
 export default function Users() {
   const [users, setUsers] = useState([])
@@ -14,6 +15,10 @@ export default function Users() {
   const [isLoading, setIsLoading] = useState(true)
   const { roles = [], permissions } = useAuth()
   const navigate = useNavigate()
+
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
 
   useEffect(() => {
     getUsers()
@@ -153,6 +158,15 @@ export default function Users() {
                 {new Date(user.created_at).toLocaleDateString()}
               </td>
               <td className='px-6 py-2 flex gap-4'>
+                <button
+                  onClick={() => {
+                    setSelectedUser(users.find(user => user.id == user.id))
+                    setModalVisible(true)
+                  }}
+                  className='font-medium text-blue-600 hover:underline cursor-pointer'
+                >
+                  <Lock size={19} />
+                </button>
                 {roles('admin') ? (
                   <button
                     onClick={() => handleShow(user.id)}
@@ -201,6 +215,16 @@ export default function Users() {
           Aucun utilisateur trouvé.
         </div>
       )}
+
+
+       <UpdatePasswordModal
+        open={modalVisible}
+        user={selectedUser}
+        onClose={() => {
+          setModalVisible(false);
+          setSelectedUser(null);
+        }}
+      />
     </div>
   )
 }

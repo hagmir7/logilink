@@ -17,6 +17,7 @@ import Skeleton from '../components/ui/Skeleton'
 import PrintDocument from '../components/PrintDocument';
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal';
 import ResetPrinter from '../components/ResetPrinter';
+import DocumentLineActions from '../components/DocumentLineActions';
 
 
 function Commercial() {
@@ -27,7 +28,9 @@ function Commercial() {
   const [selectedCompany, setSelectedCompany] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
   const [isUrgent, setIsUrgent] = useState(false);
-  const { roles = [] } = useAuth()
+  const [open, setOpen] = useState(false);
+  const [selectedLine, setSelectedLine] = useState(null);
+  const { roles = [], user } = useAuth()
   const navigate = useNavigate()
 
   const fetchData = async (piece = null) => {
@@ -141,6 +144,13 @@ function Commercial() {
 
   const getStatusColor = (status) => {
     return status?.color || 'gray'
+  }
+
+
+
+  const openActionModal = (line_id) =>{
+    setOpen(true)
+    setSelectedLine(line_id);
   }
 
 
@@ -413,6 +423,7 @@ function Commercial() {
                               duration-150 
                               ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                             `}
+                            onClick={user.name = "admin" && (()=> openActionModal(item.line.id))}
                           >
                             <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                               {item?.line ? (
@@ -660,6 +671,7 @@ function Commercial() {
           </div>
         </div>
       </div>
+      <DocumentLineActions line_id={selectedLine} open={open} setOpne={setOpen} />
     </div>
   )
 }

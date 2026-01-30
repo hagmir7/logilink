@@ -1,8 +1,9 @@
+import React, { useEffect, useState, useCallback } from 'react'
 import { Loader2, RefreshCcw } from 'lucide-react'
-import React, { useState, useEffect } from 'react'
-import { api } from '../utils/api'
-import { useNavigate, useSearchParams } from 'react-router-dom'
 import { Button, Input, message, Select } from 'antd'
+import { useNavigate, useSearchParams } from 'react-router-dom'
+
+import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import PreparationDocumentTable from '../components/PreparationDocumentTable'
 import ReadyOrder from '../components/ReadyOrder'
@@ -10,6 +11,13 @@ import ReadyOrder from '../components/ReadyOrder'
 const { Search } = Input
 
 function Validation() {
+  const navigate = useNavigate()
+  const { roles = [] } = useAuth()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  /* =========================
+     STATE
+  ========================= */
   const [data, setData] = useState({
     data: [],
     next_page_url: null,
@@ -17,12 +25,11 @@ function Validation() {
   })
 
   const [loading, setLoading] = useState(false)
-  const [page, setPage] = useState(1)
-  const [moreSpinner, setMoreSpinner] = useState(false)
-  const [searchSpinner, setSearchSpinner] = useState(false)
+  const [moreLoading, setMoreLoading] = useState(false)
+  const [searchLoading, setSearchLoading] = useState(false)
 
-  const [currentSearch, setCurrentSearch] = useState('')
-  const [searchParams, setSearchParams] = useSearchParams()
+  const [page, setPage] = useState(1)
+  const [search, setSearch] = useState('')
   const [documentType, setDocumentType] = useState(
     searchParams.get('type') || ''
   )
@@ -30,121 +37,104 @@ function Validation() {
   const [orderBy, setOrderBy] = useState('')
   const [orderDir, setOrderDir] = useState('asc')
 
-  const navigate = useNavigate()
-  const { roles = [] } = useAuth()
-
-  const baseUrl = 'documents/validation-controller'
+  const BASE_URL = 'documents/validation-controller'
 
   /* =========================
-     FETCH DATA
+     FETCH
   ========================= */
-  const fetchData = async (searchTerm = '', pageNum = 1, append = false) => {
-    if (!append) setLoading(true)
+  const fetchData = useCallback(
+    async ({ page = 1, append = false } = {}) => {
+      if (!append) setLoading(true)
 
-    try {
-      let url = baseUrl
-      const params = []
+      try {
+        const params = new URLSearchParams()
 
-      if (searchTerm) params.push(`search=${encodeURIComponent(searchTerm)}`)
-      if (documentType) params.push(`type=${encodeURIComponent(documentType)}`)
-      if (orderBy) params.push(`order_by=${encodeURIComponent(orderBy)}`)
-      if (orderDir) params.push(`order_dir=${encodeURIComponent(orderDir)}`)
-      if (pageNum > 1) params.push(`page=${pageNum}`)
+        if (search) params.append('search', search)
+        if (documentType) params.append('type', documentType)
+        if (orderBy) params.append('order_by', orderBy)
+        if (orderDir) params.append('order_dir', orderDir)
+        if (page > 1) params.append('page', page)
 
-      if (params.length) {
-        url += `?${params.join('&')}`
+        const { data: response } = await api.get(
+          `${BASE_URL}?${params.toString()}`
+        )
+
+        setData(prev =>
+          append
+            ? {
+                data: [...prev.data, ...response.data],
+                next_page_url: response.next_page_url,
+                total: response.total,
+              }
+            : response
+        )
+      } catch (err) {
+        console.error(err)
+        message.error(err.response?.data?.message || 'Failed to fetch data')
+      } finally {
+        setLoading(false)
       }
-
-      const response = await api.get(url)
-
-      if (append) {
-        setData(prev => ({
-          data: [...prev.data, ...response.data.data],
-          next_page_url: response.data.next_page_url,
-          total: response.data.total,
-        }))
-      } else {
-        setData(response.data)
-      }
-    } catch (err) {
-      console.error(err)
-      message.error(err.response?.data?.message || 'Failed to fetch data')
-    } finally {
-      setLoading(false)
-    }
-  }
+    },
+    [search, documentType, orderBy, orderDir]
+  )
 
   /* =========================
      EFFECTS
   ========================= */
-
-  // Initial load + sorting change
   useEffect(() => {
     setPage(1)
-    fetchData(currentSearch, 1, false)
+    fetchData({ page: 1 })
     window.electron?.notifyPrintReady?.()
-  }, [orderBy, orderDir])
-
-  // Type change
-  useEffect(() => {
-    setPage(1)
-    fetchData(currentSearch, 1, false)
-  }, [documentType])
+  }, [fetchData])
 
   /* =========================
      HANDLERS
   ========================= */
-  const handleSelectOrder = (orderId) => {
-    navigate(`/document/${orderId}`)
+  const handleSearch = async (value = '') => {
+    setSearchLoading(true)
+    setSearch(value)
+    setPage(1)
+
+    try {
+      await fetchData({ page: 1 })
+    } finally {
+      setSearchLoading(false)
+    }
+  }
+
+  const handleTypeChange = value => {
+    setDocumentType(value)
+    setPage(1)
+
+    value ? setSearchParams({ type: value }) : setSearchParams({})
   }
 
   const loadMore = async () => {
     if (!data.next_page_url) return
 
-    setMoreSpinner(true)
+    setMoreLoading(true)
     const nextPage = page + 1
     setPage(nextPage)
 
     try {
-      await fetchData(currentSearch, nextPage, true)
+      await fetchData({ page: nextPage, append: true })
     } finally {
-      setMoreSpinner(false)
-    }
-  }
-
-  const handleSearch = async (value) => {
-    setSearchSpinner(true)
-    setCurrentSearch(value)
-    setPage(1)
-
-    try {
-      await fetchData(value, 1, false)
-    } catch {
-      message.error('Search failed')
-    } finally {
-      setSearchSpinner(false)
-    }
-  }
-
-  const handleTypeChange = (value) => {
-    setDocumentType(value)
-    setPage(1)
-
-    if (value) {
-      setSearchParams({ type: value })
-    } else {
-      setSearchParams({})
+      setMoreLoading(false)
     }
   }
 
   const handleRefresh = () => {
-    setCurrentSearch('')
+    setSearch('')
     setDocumentType('')
     setOrderBy('')
     setOrderDir('asc')
     setPage(1)
     setSearchParams({})
-    fetchData('', 1, false)
+    fetchData({ page: 1 })
+  }
+
+  const handleSelectOrder = orderId => {
+    navigate(`/document/${orderId}`)
   }
 
   /* =========================
@@ -155,45 +145,48 @@ function Validation() {
       {/* HEADER */}
       <div className='px-2 md:px-3 my-2'>
         <h2 className='text-lg font-semibold text-gray-800 mb-2'>
-          Controle et Validation des commandes
+          Contrôle et validation des commandes
         </h2>
 
-        <div className='flex justify-between items-center'>
-          <div className='flex gap-4'>
-            <div className='flex gap-2'>
-              <Search
-                placeholder='Rechercher'
-                size='large'
-                loading={searchSpinner}
-                onSearch={handleSearch}
-                allowClear
-              />
+        <div className='flex gap-3'>
+          <Search
+            placeholder='Rechercher'
+            size='large'
+            value={search}
+            className='max-w-[400px]'
+            loading={searchLoading}
+            allowClear
+            onSearch={handleSearch}
+            onChange={e => {
+              const value = e.target.value
+              setSearch(value)
+              if (!value) handleSearch('')
+            }}
+          />
 
-              <Select
-                value={documentType}
-                className='min-w-[200px] block md:hidden'
-                size='large'
-                onChange={handleTypeChange}
-                options={[
-                  { value: '', label: 'Type' },
-                  { value: 'Cuisine', label: 'Cuisine' },
-                  { value: 'Placard', label: 'Placard' },
-                  { value: 'Laca', label: 'Laca' },
-                  { value: 'Polilaminado', label: 'Polilaminado' },
-                  { value: 'Stock', label: 'Stock' },
-                ]}
-              />
-            </div>
+          <Select
+            value={documentType}
+            size='large'
+            className='min-w-[200px]'
+            onChange={handleTypeChange}
+            options={[
+              { value: '', label: 'Type' },
+              { value: 'Cuisine', label: 'Cuisine' },
+              { value: 'Placard', label: 'Placard' },
+              { value: 'Laca', label: 'Laca' },
+              { value: 'Polilaminado', label: 'Polilaminado' },
+              { value: 'Stock', label: 'Stock' },
+            ]}
+          />
 
-            <Button onClick={handleRefresh} size='large'>
-              {loading ? (
-                <Loader2 className='animate-spin text-blue-500' size={17} />
-              ) : (
-                <RefreshCcw size={17} />
-              )}
-              <span className='hidden sm:inline'> Rafraîchir</span>
-            </Button>
-          </div>
+          <Button onClick={handleRefresh} size='large'>
+            {loading ? (
+              <Loader2 className='animate-spin text-blue-500' size={17} />
+            ) : (
+              <RefreshCcw size={17} />
+            )}
+            <span className='hidden sm:inline'> Rafraîchir</span>
+          </Button>
         </div>
       </div>
 
@@ -220,12 +213,12 @@ function Validation() {
       {data.next_page_url && (
         <div className='flex justify-center my-4 pb-12'>
           <Button
-            onClick={loadMore}
-            size='large'
             type='primary'
-            loading={moreSpinner}
+            size='large'
+            loading={moreLoading}
+            onClick={loadMore}
           >
-            Charger Plus
+            Charger plus
           </Button>
         </div>
       )}

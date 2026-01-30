@@ -35,7 +35,6 @@ import CompanyStock from './pages/CompanyStock'
 import StockMovement from './components/StockMovement'
 import Reception from './pages/Reception'
 import ViewReception from './pages/ViewReception'
-import UpdatePassword from './pages/UpdatePassword'
 import ReceptionMovement from './components/ReceptionMovement'
 import ReceptionMovementList from './pages/ReceptionMovementList'
 import UpdateArticleRef from './pages/UpdateArticleRef'
@@ -114,7 +113,6 @@ function App() {
 
           <Route path='/users' element={<Users />} />
           <Route path='/users/actions' element={<UsersActions />} />
-          <Route path='update-password' element={<UpdatePassword />} />
           <Route path='/layout/document/:id' element={<ViewDocument />} />
           <Route path='/roles' element={<Roles />} />
           <Route path='/roles/:id' element={<ViewRole />} />

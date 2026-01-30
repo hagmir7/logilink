@@ -159,14 +159,14 @@ export default function Suppliers() {
               <th className="px-3 py-2 text-left">Fournisseur</th>
               <th className="px-3 py-2 text-left">Nature d'achat</th>
               <th className="px-3 py-2 text-left">Téléphone</th>
-              <th className="px-3 py-2 text-left">E-mail</th>
+              {/* <th className="px-3 py-2 text-left">E-mail</th> */}
               <th className="px-3 py-2 text-left">Adresse</th>
             </tr>
           </thead>
 
           <tbody>
             {loading ? (
-              <TableSkeleton rows={4} columns={6} />
+              <TableSkeleton rows={4} columns={5} />
             ) : data.length > 0 ? (
               data.map((item) => (
                 <tr
@@ -182,7 +182,7 @@ export default function Suppliers() {
                   <td className="px-3 py-2">
                     {item.CT_Telephone || item.CT_Telecopie}
                   </td>
-                  <td className="px-3 py-2">{item.CT_EMail}</td>
+                  {/* <td className="px-3 py-2">{item.CT_EMail}</td> */}
                   <td className="px-3 py-2">
                     {item.CT_Pays}
                     {item.CT_Ville && `, ${item.CT_Ville}`}

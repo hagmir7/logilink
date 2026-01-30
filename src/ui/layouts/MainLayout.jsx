@@ -37,7 +37,7 @@ import { handleShow } from '../utils/config'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
-  const { roles = [], permissions } = useAuth();
+  const { roles = [], permissions, user } = useAuth();
   const [purchaseStatus, setPurchaseStatus] = useState(0);
   const navigate = useNavigate()
 
@@ -159,15 +159,24 @@ const sideMenu = () => {
       label: <Link to='/reception'>Reception</Link>,
 
     },
+
+
+    {
+      key: 'menu-66',
+      hidden: roles('admin'),
+      icon: <BaggageClaim size={20} />,
+      disabled: !roles(['admin', 'chef_service']),
+      label: <Link to='/purchase'>Achat</Link>,
+    },
+
     {
       key: 'menu-7',
       icon: <BaggageClaim size={20} />,
+      hidden: !roles('admin') || !parseInt(user?.service_id),
       disabled: !roles(['admin', 'chef_service']),
       label: (
         <div className="flex items-center justify-between w-full">
-          <Link to="/purchase" className="flex-1">
             Achat
-          </Link>
           {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
         </div>
       ),
@@ -175,7 +184,7 @@ const sideMenu = () => {
       children: [
          {
           key: 'submenu-101',
-          disabled: !permissions('view:users'),
+          disabled: true,
           icon: <ChartSpline size={20} />,
           label: <Link to='/purchase-overview'>Overview</Link>,
         },
@@ -183,7 +192,7 @@ const sideMenu = () => {
 
         {
           key: 'submenu-100',
-          disabled: !permissions('view:users'),
+          disabled: !roles(['admin', 'supper_admin'] || !parseInt(user.service_id) === 4),
           icon: <UserCheck size={20} />,
           label: (<div className="flex items-center justify-between w-full">
             <Link to="/purchase" className="flex-1">
@@ -195,14 +204,14 @@ const sideMenu = () => {
 
         {
           key: 'submenu-104',
-          disabled: !permissions('view:users'),
+          disabled: !roles(['admin', 'supper_admin'] || !parseInt(user.service_id) === 4),
           icon: <Handshake size={20} />,
           label: <Link to='/suppliers'>Fournisseurs</Link>,
         },
 
         {
           key: 'submenu-102',
-          disabled: !permissions('view:users'),
+          disabled: !roles(['admin', 'supper_admin'] || !parseInt(user.service_id) === 4),
           icon: <ChartCandlestick size={20} />,
           label: <Link to='/supplier-interviews'>F.Evaluations</Link>,
         },
@@ -218,13 +227,6 @@ const sideMenu = () => {
           disabled: !permissions('view:users'),
           icon: <UserCheck size={20} />,
           label: <Link to='/users'>Utilisateurs</Link>,
-        },
-
-        {
-          key: 'submenu-8-14-9',
-          disabled: !permissions('view:users'),
-          icon: <Lock size={20} />,
-          label: <Link to='/update-password'>Mots de passe</Link>,
         },
 
         {

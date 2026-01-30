@@ -1,4 +1,4 @@
-import { Loader2, RefreshCcw } from 'lucide-react';
+import { Download, Loader2, RefreshCcw } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
@@ -27,11 +27,51 @@ function Document() {
   const [dateFilter, setDateFilter] = useState(null);
 
   const navigate = useNavigate();
-  const { roles = [] } = useAuth();
+  const { roles = [], user } = useAuth();
 
 
   const [orderBy, setOrderBy] = useState('');
   const [orderDir, setOrderDir] = useState('asc');
+
+
+  const handleExport = async () => {
+    try {
+      const queryParams = new URLSearchParams();
+
+      if (documenType) queryParams.append('type', documenType);
+      if (documenStatus) queryParams.append('status', documenStatus);
+      if (dateFilter?.length) queryParams.append('date', dateFilter.join(','));
+      if (searchTerm) queryParams.append('search', searchTerm);
+      if (orderBy) queryParams.append('order_by', orderBy);
+      if (orderDir) queryParams.append('order_dir', orderDir);
+
+      let url = 'documents/preparation/export';
+      if (roles('commercial')) url = 'docentetes/commercial/export';
+
+      const response = await api.get(`${url}?${queryParams.toString()}`, {
+        responseType: 'blob', // 🔑 IMPORTANT
+      });
+
+      // 📥 Create file
+      const blob = new Blob(
+        [response.data],
+        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+      );
+
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+
+      link.href = downloadUrl;
+      link.setAttribute('download', 'preparation_documents.xlsx');
+      document.body.appendChild(link);
+      link.click();
+
+      link.remove();
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Export failed:', error);
+    }
+  };
 
 
   const buildUrl = (pageNumber = 1, search = searchTerm) => {
@@ -137,6 +177,7 @@ function Document() {
               size='large'
               onChange={handleSearch}
             />
+           
           </div>
 
           <div className='hidden md:block'>
@@ -163,6 +204,20 @@ function Document() {
               ]}
             />
           )}
+
+          {parseInt(user.company_id, 10) === 2 && roles('preparation') && (
+            <Button
+              color="green"
+              variant="solid"
+              size="large"
+              onClick={handleExport}
+              icon={<Download size={17} />}
+            >
+              Export
+            </Button>
+          )}
+
+
 
           <Select
             defaultValue=''
