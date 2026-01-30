@@ -58,7 +58,6 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
   };
 
 
-
   return (
     <div className='w-full h-full flex flex-col pb-12'>
       {/* Desktop Table View */}

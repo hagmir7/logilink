@@ -8,6 +8,7 @@ import { useAuth } from '../contexts/AuthContext';
 import AchatProductSearch from '../components/AchatProductSearch';
 import TransferPurchaseDocument from '../components/TransferPurchaseDocument';
 import FormListSkeleton from '../components/ui/FormListSkeleton';
+import PurchaseImages from '../components/ui/PurchaseImages';
 
 const { Option } = Select;
 
@@ -28,27 +29,27 @@ export default function PurchaseForm() {
   const authContext = useAuth();
   const [searchModal, setSearchModal] = useState({});
   const [units, setUnits] = useState([]);
-  let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api/';
+  let baseURL = 'http://localhost:8000/api' || localStorage.getItem('connection_url') || 'http://192.168.1.113/api/';
 
   // Helper function to check roles - handles different formats
   const hasRole = (roleNames) => {
     const checkRoles = Array.isArray(roleNames) ? roleNames : [roleNames];
-    
+
     // If roles is a function (like in your original code)
     if (typeof authContext?.roles === 'function') {
       return authContext.roles(checkRoles);
     }
-    
+
     // If roles is an array
     if (Array.isArray(authContext?.roles)) {
       return checkRoles.some(role => authContext.roles.includes(role));
     }
-    
+
     // If roles is an object with role properties
     if (authContext?.roles && typeof authContext.roles === 'object') {
       return checkRoles.some(role => authContext.roles[role] === true);
     }
-    
+
     // Default: no roles
     return false;
   };
@@ -71,7 +72,6 @@ export default function PurchaseForm() {
 
   const fetchAllData = async () => {
     try {
-      // Fetch services and users (always needed)
       const [servicesRes, usersRes, unitsRes] = await Promise.all([
         api.get('services'),
         api.get('users'),
@@ -103,6 +103,18 @@ export default function PurchaseForm() {
       setLoading(false);
     }
   };
+
+ const getPreviewImages = (lineIndex) => {
+  if (lineIndex === null) return [];
+  console.log((lineFiles[lineIndex] || [])
+    .filter(file => file.existing && file.url)
+    .map(file => file.url));
+  
+  return (lineFiles[lineIndex] || [])
+    .filter(file => file.existing && file.url)
+    .map(file => file.url);
+};
+
 
   const initializeFormWithData = (docData) => {
     // Set urgent state
@@ -139,7 +151,7 @@ export default function PurchaseForm() {
             status: 'done',
             existing: true,
             fileId: file.id,
-            url: `${baseURL}/download-file/${file.id}`
+            url: `${baseURL}/download/purchase-file/${file.id}`
           }));
         }
       });
@@ -378,7 +390,7 @@ export default function PurchaseForm() {
           Document d'achat {"  "}
           {initialData && <Tag color='#f50' style={{ fontSize: '14px' }} className='font-bold tracking-widest'>{initialData.code}</Tag>}
         </h2>
-        
+
         <AchatProductSearch
           searchModalOpen={searchModal.open}
           lineId={searchModal.lineIndex}
@@ -655,7 +667,7 @@ export default function PurchaseForm() {
                               title="Supprimer cette ligne"
                               disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
                             />
-                            
+
                             {/* Checkbox */}
                             <Form.Item
                               {...field}
@@ -701,10 +713,10 @@ export default function PurchaseForm() {
           {/* Submit Button */}
           <div className='mt-4 fixed right-0 bottom-0 py-3 z-40 bg-white w-full flex justify-end px-5 shadow-2xl border-t border-gray-200 gap-3'>
             <Form.Item>
-              <Button 
-                type="primary" 
-                htmlType="submit" 
-                size="middle" 
+              <Button
+                type="primary"
+                htmlType="submit"
+                size="middle"
                 disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
               >
                 {initialData ? 'Mettre à jour' : 'Enregistrer'}
@@ -751,27 +763,24 @@ export default function PurchaseForm() {
                 showDownloadIcon: true,
                 showPreviewIcon: false,
               }}
-              itemRender={(originNode, file) => {
-                if (file.existing) {
-                  return (
-                    <div className="flex items-center justify-between">
-                      {originNode}
-                    </div>
-                  );
-                }
-                return originNode;
-              }}
             >
-              <Button 
-                icon={<UploadOutlined />} 
-                disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')} 
-                block 
-                size="large" 
+              {/* 🔥 Existing images preview */}
+              {/* <PurchaseImages imageList={getImagesList(currentLineIndex)} /> */}
+              
+
+              <Button
+                icon={<UploadOutlined />}
+                disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
+                block
+                size="large"
                 type="dashed"
               >
                 Cliquez ou glissez des fichiers ici
               </Button>
             </Upload>
+
+            <PurchaseImages imageList={getPreviewImages(currentLineIndex)} />
+
 
             <p className="text-gray-500 text-sm mt-3">
               Vous pouvez joindre plusieurs fichiers (images, PDFs, documents, etc.)

@@ -15,9 +15,6 @@ function Validation() {
   const { roles = [] } = useAuth()
   const [searchParams, setSearchParams] = useSearchParams()
 
-  /* =========================
-     STATE
-  ========================= */
   const [data, setData] = useState({
     data: [],
     next_page_url: null,
@@ -34,14 +31,12 @@ function Validation() {
     searchParams.get('type') || ''
   )
 
-  const [orderBy, setOrderBy] = useState('')
+  const [orderBy, setOrderBy] = useState('status')
   const [orderDir, setOrderDir] = useState('asc')
 
   const BASE_URL = 'documents/validation-controller'
 
-  /* =========================
-     FETCH
-  ========================= */
+
   const fetchData = useCallback(
     async ({ page = 1, append = false } = {}) => {
       if (!append) setLoading(true)
@@ -62,10 +57,10 @@ function Validation() {
         setData(prev =>
           append
             ? {
-                data: [...prev.data, ...response.data],
-                next_page_url: response.next_page_url,
-                total: response.total,
-              }
+              data: [...prev.data, ...response.data],
+              next_page_url: response.next_page_url,
+              total: response.total,
+            }
             : response
         )
       } catch (err) {
@@ -78,18 +73,14 @@ function Validation() {
     [search, documentType, orderBy, orderDir]
   )
 
-  /* =========================
-     EFFECTS
-  ========================= */
+
   useEffect(() => {
     setPage(1)
     fetchData({ page: 1 })
     window.electron?.notifyPrintReady?.()
   }, [fetchData])
 
-  /* =========================
-     HANDLERS
-  ========================= */
+
   const handleSearch = async (value = '') => {
     setSearchLoading(true)
     setSearch(value)
@@ -137,12 +128,10 @@ function Validation() {
     navigate(`/document/${orderId}`)
   }
 
-  /* =========================
-     RENDER
-  ========================= */
+
   return (
     <div className='min-h-screen'>
-      {/* HEADER */}
+
       <div className='px-2 md:px-3 my-2'>
         <h2 className='text-lg font-semibold text-gray-800 mb-2'>
           Contrôle et validation des commandes
