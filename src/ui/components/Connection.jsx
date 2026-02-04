@@ -84,11 +84,11 @@ export default function Connection() {
                 </div>
             ) : null}
 
-            {connection && connection !== 'custom' && (
+            {/* {connection && connection !== 'custom' && (
                 <div style={{ marginTop: 10, color: '#555' }}>
                     <strong>URL actuelle :</strong> {connection}
                 </div>
-            )}
+            )} */}
         </div>
     );
 }

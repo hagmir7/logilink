@@ -15,7 +15,7 @@ function ReadyOrder({ documents = [], onSelectOrder, loading }) {
   const { user } = useAuth();
 
   const company = (data) => {
-    return data?.companies?.find(item => item.id === Number(user.company_id))
+    return data?.companies?.find(item => item.id === Number(user?.company_id))
   }
 
   

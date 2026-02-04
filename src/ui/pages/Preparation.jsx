@@ -14,12 +14,11 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
 import { uppercaseFirst } from '../utils/config'
-import { Alert, Button, Input, message, Modal, Radio, Space } from 'antd'
+import { Alert, Button, Input, message, Modal, Radio, Space, notification } from 'antd'
 import { PalettesModal } from '../components/PalettesModal';
 import { CloseOutlined } from '@ant-design/icons';
 import { useAuth } from '../contexts/AuthContext'
 import TicketPrinter from '../components/TicketPrinter'
-
 
 
 export default function Preparation() {
@@ -46,6 +45,7 @@ export default function Preparation() {
   const lineInput = useRef();
   const [loadingCreate, setLoadingCreate] = useState(false)
   const [checkedPalette, setCheckedPalette] = useState(null)
+  const { roles, user } = useAuth();
 
 
   const [empalcementCode, setEmpalcementCode] = useState("");
@@ -134,10 +134,20 @@ export default function Preparation() {
 
   const [docenteteData, setDocenteteData] = useState(null);
 
-useEffect(() => {
-    api.get(`documents/${id}`).then(res => setDocenteteData(res.data));
-}, [id]);
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const res = await api.get(`documents/${id}`);
+        setDocenteteData(res.data);
+      } catch (error) {
+        console.error('Error fetching document:', error);
+      }
+    };
 
+    if (id) {
+      fetchData();
+    }
+  }, [id]);
 
   const goPrevious = () => {
     const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
@@ -154,7 +164,7 @@ useEffect(() => {
         document_id: id,
         palette: EmpalcementCode ?? currentPalette?.code,
       })
-      
+
       setPalette(data.palette)
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
@@ -174,9 +184,6 @@ useEffect(() => {
   const lineNameGenerator = (data) => {
     const height = Math.floor(data?.docligne?.Hauteur) || Math.floor(data?.docligne?.article?.Hauteur) || 0;
     const width = Math.floor(data?.docligne?.Largeur) || Math.floor(data?.docligne?.article?.Largeur) || 0;
-
-
-
 
     let dimensions = '';
     if (height && width) {
@@ -201,8 +208,8 @@ useEffect(() => {
     } else {
       arName = data?.docligne?.article?.AR_Design ?? '';
     }
-    
-    
+
+
     return {
       label: arName,
       value: data?.id,
@@ -273,14 +280,22 @@ useEffect(() => {
     }, 600);
   };
 
-  
 
-  const { roles, user } = useAuth();
+  const [notificationApi, contextHolder] = notification.useNotification();
+
+  const openNotificationWithIcon = type => {
+    notificationApi[type]({
+      description: <strong className='text-md'>Cet élément est en cours d'utilisation</strong>,
+    });
+  };
+
+
+
 
   const handleSubmit = async () => {
     setLoading('submit', true)
 
-    if((roles(['magasinier', 'preparation_cuisine']) && !scannedEmplacement) && 1 === Number(user.company_id)){
+    if ((roles(['magasinier', 'preparation_cuisine']) && !scannedEmplacement) && 1 === Number(user?.company_id)) {
       setEmpalcementCodeError('Emplacement requis');
       message.error('Emplacement requis')
       setLoading('submit', false)
@@ -314,7 +329,14 @@ useEffect(() => {
       lineInput.current.focus()
     } catch (err) {
       console.error('Error confirming:', err)
-      message.error(err.response.data.message)
+      const errorMessage = err?.response?.data?.message ?? '';
+
+      if (errorMessage.includes('en cours')) {
+        openNotificationWithIcon('warning')
+      } else {
+        message.error(errorMessage || "Une erreur est survenue");
+      }
+
     } finally {
       setLoading('submit', false)
     }
@@ -328,9 +350,7 @@ useEffect(() => {
         palette: palette.code,
         pivot_id
       })
-      createPalette()
-
-
+      createPalette();
       setArticle({
         ref: '',
         design: '',
@@ -406,7 +426,7 @@ useEffect(() => {
 
     let arName;
 
-    
+
     if (selected.docligne?.article?.Nom && selected?.docligne?.article?.Nom !== "NULL") {
       arName = `${selected?.docligne?.article?.Nom} ${dimensions} ${color}`.trim();
     } else {
@@ -433,10 +453,28 @@ useEffect(() => {
   };
 
 
+  const confirmAll = async () => {
+    try {
+      const response = await api.get(`palettes/stock/confirm/${id}`)
+      message.success("Préparation réussie");
+    } catch (error) {
+      console.error('Error confirming:', err)
+      const errorMessage = err?.response?.data?.message ?? '';
+
+      if (errorMessage.includes('en cours')) {
+        openNotificationWithIcon('warning')
+      } else {
+        message.error(errorMessage || "Une erreur est survenue");
+      }
+    }
+  }
+
+
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-10'>
       {/* Header */}
+      {contextHolder}
       <Modal
         title="Sélectionnez une option"
         closable={true}
@@ -449,6 +487,7 @@ useEffect(() => {
         styles={{ padding: '24px' }}
       >
         <div style={{ padding: '16px 0' }}>
+           
           <Radio.Group
             onChange={changeSelectedLine}
             value={selectedOption}
@@ -502,17 +541,19 @@ useEffect(() => {
               />
               <TicketPrinter docentete={{ DO_Piece: id, DO_Tiers: docenteteData?.document.client_id }} palettes={[{ code: palette?.code }]} btnSize="large" />
             </div>
-            
 
-            
+
+
           </div>
         </div>
       </div>
 
-      <div className='mx-auto p-2 md:p-4 space-y-3 sm:space-y-8 max-w-7xl'>
+      <div className='mx-auto p-2 md:p-4 space-y-3 sm:space-y-8 max-w-7xl '>
+       
         {/* Scanner Section */}
-        <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6'>
-          <div className='flex justify-center items-center gap-3 mb-4 sm:mb-6'>
+        <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 relative'>
+          <button className='absolute right-1 p-6 px-10' onClick={confirmAll}></button>
+          <div className='flex justify-center items-center gap-3 mb-4 sm:mb-6 '>
             <div className='p-2 bg-blue-100 rounded-lg'>
               <QScanner onScan={handleScan} />
             </div>
@@ -758,7 +799,7 @@ useEffect(() => {
             className='px-4 py-3 sm:px-6 text-white sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl '
           >
             {loadingStates.submit ? (
-              <div  className='text-white flex gap-2 items-center'>
+              <div className='text-white flex gap-2 items-center'>
                 <Loader2 className='w-8 h-8 sm:w-5 sm:h-5 animate-spin' />{' '}
                 <span>Validation...</span>
               </div>
@@ -806,112 +847,112 @@ useEffect(() => {
             </div>
           )}
 
-      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-        {lines?.map((item, index) => {
-          const lineHeight =
-            Math.floor(item.docligne?.Hauteur) ||
-            Math.floor(item.docligne?.article?.Hauteur) ||
-            false;
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
+            {lines?.map((item, index) => {
+              const lineHeight =
+                Math.floor(item.docligne?.Hauteur) ||
+                Math.floor(item.docligne?.article?.Hauteur) ||
+                false;
 
-          const lineWidth =
-            Math.floor(item.docligne?.Largeur) ||
-            Math.floor(item.docligne?.article?.Largeur) ||
-            false;
+              const lineWidth =
+                Math.floor(item.docligne?.Largeur) ||
+                Math.floor(item.docligne?.article?.Largeur) ||
+                false;
 
-          return (
-            <div key={item.id || index} className="relative">
-              {/* Badge Reference */}
-              <div className="absolute -top-2 -right-2 z-20">
-                <span className="px-3 py-1 bg-cyan-600 text-white text-base font-semibold rounded-full shadow">
-                  {item.ref}
-                </span>
-              </div>
-
-              {/* Card */}
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden">
-                <div className="p-5 bg-gradient-to-r from-amber-50 to-orange-50">
-
-                  {/* Title & Qty */}
-                  <div className="flex justify-between items-start mb-4">
-                    <div className="flex-1 pr-4">
-                      <h3 className="text-2xl font-semibold text-gray-900 leading-snug break-words">
-                        {uppercaseFirst(
-                          item?.docligne?.Nom ||
-                            item?.docligne?.article?.Nom ||
-                            item?.docligne?.article?.AR_Design ||
-                            "__"
-                        )}{" "}
-                        {item?.docligne?.Poignée} {item?.docligne?.Rotation}{" "}
-                        {item?.docligne?.Description}
-                      </h3>
-
-                      {/* Dimensions */}
-                      <p className="text-2xl text-gray-700 mt-2">
-                        {lineHeight ? `${lineHeight}` : "__"}
-                        {lineHeight && lineWidth ? " × " : ""}
-                        {lineWidth ? `${lineWidth}` : "__"} mm
-                      </p>
-
-                      {/* Color */}
-                      {(item.docligne?.Couleur || item.docligne?.article?.Couleur) && (
-                        <span className="inline-block mt-2 px-3 py-1 bg-gray-200 rounded-full text-gray-700 text-base font-medium">
-                          {item.docligne?.Couleur ||
-                            item.docligne?.article?.Couleur}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Quantity */}
-                    <div className="text-right">
-                      <div className="text-2xl font-bold text-gray-900">
-                        {item.pivot?.quantity
-                          ? Math.floor(item.pivot.quantity)
-                          : 0}
-                      </div>
-                      <div className="text-sm text-gray-500">Unités</div>
-                    </div>
+              return (
+                <div key={item.id || index} className="relative">
+                  {/* Badge Reference */}
+                  <div className="absolute -top-2 -right-2 z-20">
+                    <span className="px-3 py-1 bg-cyan-600 text-white text-base font-semibold rounded-full shadow">
+                      {item.ref}
+                    </span>
                   </div>
 
-                  {/* Divider */}
-                  <div className="pt-4 mt-3 border-t border-gray-300 flex items-center justify-between">
-                    <div className="flex-1 flex justify-between text-lg text-gray-700 pr-4">
+                  {/* Card */}
+                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden">
+                    <div className="p-5 bg-gradient-to-r from-amber-50 to-orange-50">
 
-                      {/* Thickness */}
-                      <div>
-                        Ép:{" "}
-                        <strong className="font-semibold text-gray-900">
-                          {Math.floor(
-                            item.docligne?.Episseur > 0
-                              ? item.docligne?.Episseur
-                              : item.docligne?.article?.Episseur ?? "__"
-                          ) || "__"}
-                        </strong>
+                      {/* Title & Qty */}
+                      <div className="flex justify-between items-start mb-4">
+                        <div className="flex-1 pr-4">
+                          <h3 className="text-2xl font-semibold text-gray-900 leading-snug break-words">
+                            {uppercaseFirst(
+                              item?.docligne?.Nom ||
+                              item?.docligne?.article?.Nom ||
+                              item?.docligne?.article?.AR_Design ||
+                              "__"
+                            )}{" "}
+                            {item?.docligne?.Poignée} {item?.docligne?.Rotation}{" "}
+                            {item?.docligne?.Description}
+                          </h3>
+
+                          {/* Dimensions */}
+                          <p className="text-2xl text-gray-700 mt-2">
+                            {lineHeight ? `${lineHeight}` : "__"}
+                            {lineHeight && lineWidth ? " × " : ""}
+                            {lineWidth ? `${lineWidth}` : "__"} mm
+                          </p>
+
+                          {/* Color */}
+                          {(item.docligne?.Couleur || item.docligne?.article?.Couleur) && (
+                            <span className="inline-block mt-2 px-3 py-1 bg-gray-200 rounded-full text-gray-700 text-base font-medium">
+                              {item.docligne?.Couleur ||
+                                item.docligne?.article?.Couleur}
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Quantity */}
+                        <div className="text-right">
+                          <div className="text-2xl font-bold text-gray-900">
+                            {item.pivot?.quantity
+                              ? Math.floor(item.pivot.quantity)
+                              : 0}
+                          </div>
+                          <div className="text-sm text-gray-500">Unités</div>
+                        </div>
                       </div>
 
-                      {/* Chant */}
-                      <div>
-                        Chant:{" "}
-                        <strong className="font-semibold text-gray-900">
-                          {item.docligne?.Chant || item.docligne?.article?.Chant || "__"}
-                        </strong>
+                      {/* Divider */}
+                      <div className="pt-4 mt-3 border-t border-gray-300 flex items-center justify-between">
+                        <div className="flex-1 flex justify-between text-lg text-gray-700 pr-4">
+
+                          {/* Thickness */}
+                          <div>
+                            Ép:{" "}
+                            <strong className="font-semibold text-gray-900">
+                              {Math.floor(
+                                item.docligne?.Episseur > 0
+                                  ? item.docligne?.Episseur
+                                  : item.docligne?.article?.Episseur ?? "__"
+                              ) || "__"}
+                            </strong>
+                          </div>
+
+                          {/* Chant */}
+                          <div>
+                            Chant:{" "}
+                            <strong className="font-semibold text-gray-900">
+                              {item.docligne?.Chant || item.docligne?.article?.Chant || "__"}
+                            </strong>
+                          </div>
+                        </div>
+
+                        {/* Remove Button */}
+                        <button
+                          onClick={() => remove(item.id, item.pivot.id)}
+                          disabled={loadingStates.remove}
+                          className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition disabled:opacity-50"
+                        >
+                          <X className="w-6 h-6 text-white" />
+                        </button>
                       </div>
                     </div>
-
-                    {/* Remove Button */}
-                    <button
-                      onClick={() => remove(item.id, item.pivot.id)}
-                      disabled={loadingStates.remove}
-                      className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition disabled:opacity-50"
-                    >
-                      <X className="w-6 h-6 text-white" />
-                    </button>
                   </div>
                 </div>
-              </div>
-            </div>
-          );
-        })}
-      </div>
+              );
+            })}
+          </div>
 
 
           {lines?.length === 0 && !loadingStates.remove && (

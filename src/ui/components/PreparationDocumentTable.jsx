@@ -16,7 +16,7 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
   const { user } = useAuth();
 
   const company = (data) => {
-    return data?.companies?.find(item => item.id === Number(user.company_id))
+    return data?.companies?.find(item => item.id === Number(user?.company_id))
   }
 
   const navigate = useNavigate();
@@ -164,7 +164,7 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
                     <span className="text-md">
                       {parseInt(
                         data?.companies?.find(
-                          (company) => parseInt(company.id) === parseInt(user.company_id)
+                          (company) => parseInt(company.id) === parseInt(user?.company_id)
                         )?.pivot?.updated ?? 0
                       ) === 1 && <Edit className='text-red-600' size={17} />}
 

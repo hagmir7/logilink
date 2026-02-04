@@ -13,6 +13,7 @@ export default function ReceptionMovement() {
 
   const [quantity, setQuantity] = useState('')
   const [emplacementCode, setEmplacementCode] = useState('')
+  const [containerCode, setContainerCode] = useState('')
   const [articleCode, setArticleCode] = useState('')
   const [emplacementData, setEmplacementData] = useState(null)
   const [articleData, setArticleData] = useState(null)
@@ -221,9 +222,9 @@ export default function ReceptionMovement() {
         condition: condition ? parseFloat(condition.replace(',', '.')) : null,
         palettes: Number(quantity),
         company: company,
-        piece: id
+        piece: id,
+        container_code: containerCode
       }
-
 
       const { data } = await api.post(`receptions/movement/${id}?company_db=${company_db}`, payload);
 
@@ -236,6 +237,7 @@ export default function ReceptionMovement() {
       setTotalQuantity(0)
       articleInput?.current?.focus()
       message.success('Opération effectuée avec succès');
+      setContainerCode(null)
       fetchArticles()
     } catch (error) {
       console.error(error)
@@ -256,6 +258,11 @@ export default function ReceptionMovement() {
     setEmplacementData(null)
     setEmplacementError('')
     if (result.length >= 3) fetchEmplacementData(result)
+  }
+
+   const changeContainerCode = (value) => {
+    const result = sanitizeInput(value)
+    setContainerCode(result)
   }
 
 
@@ -287,8 +294,6 @@ export default function ReceptionMovement() {
       setConditionList(getConditionOptions())
     }
   }
-
-
   const is_electron = window.electron;
 
 
@@ -625,6 +630,33 @@ export default function ReceptionMovement() {
           />
         </div>
       )}
+
+
+
+      <div className='px-5 mt-2'>
+        <h2 className='text-md font-semibold text-gray-700 mb-2'>
+          Ref conteneur
+        </h2>
+
+        <div className='flex gap-2'>
+          <Input
+            placeholder='Saisir le code conteneur'
+            size='large'
+            className={is_electron && 'h-[60px]'}
+            style={is_electron ? { fontSize: '30px' } : {}}
+            autoFocus={true}
+            value={containerCode}
+            onChange={(e) => changeContainerCode(e.target.value)}
+            allowClear={true}
+          />
+          <InputField
+            value={containerCode}
+            onChange={(e) => changeContainerCode(e.target.value)}
+            onScan={(value) => changeContainerCode(value)}
+          />
+        </div>
+
+      </div>
 
       {/* Submit Button */}
       <div className='px-5 my-3 mt-10'>

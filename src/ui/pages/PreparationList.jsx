@@ -87,7 +87,7 @@ function PreparationList() {
   const { user } = useAuth()
 
   const company = data?.docentete?.document?.companies?.find(
-    (item) => item.id === Number(user.company_id)
+    (item) => item.id === Number(user?.company_id)
   )
 
 

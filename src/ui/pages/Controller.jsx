@@ -48,48 +48,54 @@ function Controller() {
   ))
   .filter(Boolean);
 
-  const fetchData = async () => {
+const fetchData = async (silent = false) => {
+  if (!silent) {
     setLoading(true)
+  }
 
-    try {
-      const response = await api.get(`docentetes/${id}`)
+  try {
+    const response = await api.get(`docentetes/${id}`)
+    setData(response.data)
 
-      setData(response.data)
+    const companies = response.data?.docentete?.document?.companies || []
+    const company = companies.find(
+      (item) => item.id === Number(user?.company_id)
+    )
 
-      const companies = response.data?.docentete?.document?.companies || []
-      const company = companies.find(
-        (item) => item.id === Number(user?.company_id)
-      )
-
-      if (company) {
-        setDocumentCompany(company)
-        if (company.pivot?.status_id) {
-          setStatus(getStatus(Number(company.pivot.status_id)))
-        }
-      } else {
-        console.warn('Company not found for user')
-        setDocumentCompany({})
-        setStatus({})
+    if (company) {
+      setDocumentCompany(company)
+      if (company.pivot?.status_id) {
+        setStatus(getStatus(Number(company.pivot.status_id)))
       }
-    } catch (err) {
-      console.error('Failed to fetch data:', err)
-      message.error('Erreur lors du chargement des données')
-    } finally {
+    } else {
+      setDocumentCompany({})
+      setStatus({})
+    }
+  } catch (err) {
+    console.error('Failed to fetch data:', err)
+    message.error('Erreur lors du chargement des données')
+  } finally {
+    if (!silent) {
       setLoading(false)
     }
   }
+}
 
-  useEffect(() => {
-    if (!user?.company_id) return
 
-    fetchData()
+useEffect(() => {
+  if (!user?.company_id) return
 
-    const interval = setInterval(() => {
-      fetchData()
-    }, 50000)
+  // First load → with loader
+  fetchData(false)
 
-    return () => clearInterval(interval) // cleanup on unmount or when id/user changes
-  }, [id, user])
+  // Interval → silent refresh (no loader)
+  const interval = setInterval(() => {
+    fetchData(true)
+  }, 50000)
+
+  return () => clearInterval(interval)
+}, [id, user?.company_id])
+
 
   const currentItems = data?.doclignes || []
 
@@ -125,7 +131,7 @@ function Controller() {
         lines: selectedItems
       })
       message.success("document validated successfully")
-        fetchData()
+        fetchData(true)
       setValidatePartialLoading(false)
     } catch (error) {
       setValidatePartialLoading(false)
@@ -242,21 +248,21 @@ function Controller() {
   }
 
 
+
   const getLineColor = (color, role_id, status) => {
-
-    const colors = {
-      4: "#059669",
-      5: "#228B22",
-      8: "#2ECC71"
-    }
-
-    if ([4, 5, 8].includes(parseInt(role_id)) & parseInt(status) === 7) {
-      return colors[parseInt(role_id)]
-    } else {
-      return color;
-    }
-
+  const colors = {
+    4: "#059669", // Blue
+    5: "#DC2626", // Red
+    8: "#06B6D4", // Orange
   }
+
+  if ([4, 5, 8].includes(Number(role_id)) && Number(status) === 7) {
+    return colors[Number(role_id)]
+  }
+
+  return color
+}
+
 
   function strClean(str) {
     if (str) {
@@ -302,7 +308,7 @@ function Controller() {
             </Button>
           )}
 
-          <Button onClick={fetchData}>
+          <Button onClick={()=> fetchData()}>
             {loading ? (
               <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
             ) : (

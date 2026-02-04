@@ -243,7 +243,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
   return (
     <div>
 
-      {roles(['commercial', 'admin']) || (roles('preparation') && user.company_id == 2) ? (
+      {roles(['commercial', 'admin']) || (roles('preparation') && user?.company_id == 2) ? (
         <>
           <Button
             type="primary"

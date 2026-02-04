@@ -44,7 +44,7 @@ function DocumentPalettes() {
       setDocument(data);
 
       const company = data?.companies?.find(
-        (c) => parseInt(c.id) === parseInt(user.company_id)
+        (c) => parseInt(c.id) === parseInt(user?.company_id)
       );
 
       if (company?.pivot?.status_id) {

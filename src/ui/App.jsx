@@ -1,6 +1,6 @@
 import './App.css'
 import MainLayout from './layouts/MainLayout'
-import { Routes, Route } from 'react-router-dom'
+import { Routes, Route, useNavigate } from 'react-router-dom'
 import Roles from './pages/Roles'
 import ViewRole from './pages/ViewRole'
 import Login from './pages/Login'
@@ -54,6 +54,7 @@ import PurchaseForm from './pages/PurchaseForm'
 import InventoryDepotEmplacmentList from './pages/InventoryDepotEmplacmentList'
 import Suppliers from './pages/Suppliers'
 import SupplierInterviews from './pages/SupplierInterviews'
+import { useEffect } from 'react'
 
 
 const NotFound = () => {
@@ -61,6 +62,19 @@ const NotFound = () => {
 }
 
 function App() {
+
+  const navigate = useNavigate()
+
+  useEffect(() => {
+    const raw = localStorage.getItem('user')
+    console.log(raw);
+    
+
+    if (!raw || raw === 'undefined' || raw === 'null') {
+      navigate('/login', { replace: true })
+    }
+  }, [navigate])
+
   return (
     <>
       <ScrollToTop />

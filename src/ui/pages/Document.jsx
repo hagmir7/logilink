@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import DocumentCard from '../components/ui/DocumentCard';
-import { Button, Select, DatePicker, Input, Empty } from 'antd';
+import { Button, Select, DatePicker, Input, Empty, message } from 'antd';
 import { useAuth } from '../contexts/AuthContext';
 import DocumentTable from '../components/DocumentTable';
 import dayjs from 'dayjs';
@@ -32,6 +32,8 @@ function Document() {
 
   const [orderBy, setOrderBy] = useState('');
   const [orderDir, setOrderDir] = useState('asc');
+
+
 
 
   const handleExport = async () => {
@@ -97,6 +99,13 @@ function Document() {
       const response = await api.get(buildUrl(pageNumber, search));
       setData(response.data);
     } catch (err) {
+      const navigate = useNavigate()
+      const raw = localStorage.getItem('user')
+
+      if (!raw || raw === 'undefined' || raw === 'null') {
+        navigate('/login', { replace: true })
+      }
+      message.error(err.response.data.message)
       console.error('Failed to fetch data:', err);
     } finally {
       setLoading(false);
@@ -177,7 +186,7 @@ function Document() {
               size='large'
               onChange={handleSearch}
             />
-           
+
           </div>
 
           <div className='hidden md:block'>
@@ -205,7 +214,7 @@ function Document() {
             />
           )}
 
-          {parseInt(user.company_id, 10) === 2 && roles('preparation') && (
+          {parseInt(user?.company_id, 10) === 2 && roles('preparation') && (
             <Button
               color="green"
               variant="solid"

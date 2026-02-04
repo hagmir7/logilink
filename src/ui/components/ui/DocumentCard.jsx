@@ -8,7 +8,7 @@ import Spinner from './Spinner';
 function DocumentCard({ data, onSelectOrder, loading }) {
 
   const { user } = useAuth();
-  const company = data?.companies?.find(item => item.id === Number(user.company_id))
+  const company = data?.companies?.find(item => item.id === Number(user?.company_id))
   
   return (
     <div>

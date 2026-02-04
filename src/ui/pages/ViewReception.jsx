@@ -5,6 +5,7 @@ import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import Skeleton from '../components/ui/Skeleton'
 import { ArrowRight, CheckCircle, CircleCheckBig, Clock, Settings, Undo2 } from 'lucide-react'
+import ReceptionMovmentsModal from '../components/ReceptionMovmentsModal'
 
 function ViewReception() {
   const [data, setData] = useState([])
@@ -25,7 +26,7 @@ function ViewReception() {
       })
       setData(response.data)
       console.log(response.data);
-      
+
     } catch (error) {
       if (error.name !== 'CanceledError') {
         console.error('Error fetching reception:', error)
@@ -171,7 +172,7 @@ function ViewReception() {
   ];
 
   function getStatus(id) {
-    return statuses.find(status => status.id === Number(id)) || null;
+    return statuses.find(status => status.id === parseInt(id)) || null;
   }
 
 
@@ -196,9 +197,12 @@ function ViewReception() {
               >
                 {getStatus(data?.document?.status_id)?.name || 'En attente'}
               </Tag>}
-              
+
             </h1>
-            <div className='flex gap-1 items-center'><Clock size={17} className='text-gray-500' /> {loading ? <Skeleton /> : formatDate(data.DO_Date)} </div>
+            <div className='flex gap-3 items-center'><Clock size={17} className='text-gray-500' /> 
+              {loading ? <Skeleton /> : formatDate(data.DO_Date)} 
+              <ReceptionMovmentsModal piece={id} company={company} /> 
+            </div>
           </div>
 
           {/* Info cards */}
@@ -234,46 +238,49 @@ function ViewReception() {
             <h2 className='text-md font-semibold text-gray-800 mb-2'>Articles {!loading ? "(" + data?.doclignes?.length + ")" : ""}</h2>
 
             {Number(data?.document?.status_id) === 2 ? (
-          <Button color="success" variant="solid" onClick={handleValidation} loading={validationSpin} className="mb-2">
-            Valider <CircleCheckBig size={18} />
-          </Button>
-        ) : (
-          <div className="mb-3 flex gap-2">
-            {data.document && (
-              <Popconfirm
-                title="Réinitialiser la commande"
-                description="Êtes-vous sûr de vouloir réinitialiser cette tâche ?"
-                onConfirm={reset}
-                okText="Réinitialiser"
-                cancelText="Annuler"
-              >
-                <Button danger disabled={Number(data?.document?.status_id) > 1} className="flex items-center gap-2 hover:shadow-md transition-shadow">
-                  Réinitialiser <Undo2 size={18} />
+              <Button color="success" variant="solid" onClick={handleValidation} loading={validationSpin} className="mb-2">
+                Valider <CircleCheckBig size={18} />
+              </Button>
+            ) : (
+              <div className="mb-3 flex gap-2">
+                {data.document && (
+                  <Popconfirm
+                    title="Réinitialiser la commande"
+                    description="Êtes-vous sûr de vouloir réinitialiser cette tâche ?"
+                    onConfirm={reset}
+                    okText="Réinitialiser"
+                    cancelText="Annuler"
+                  >
+                    <Button danger disabled={Number(data?.document?.status_id) > 1} className="flex items-center gap-2 hover:shadow-md transition-shadow">
+                      Réinitialiser <Undo2 size={18} />
+                    </Button>
+                  </Popconfirm>
+                )}
+
+
+
+                <Select
+                  style={{ width: 250 }}
+                  options={users}
+                  onChange={setUser}
+                  placeholder="Magasinier"
+                  disabled={Number(data?.document?.status_id) > 2}
+                />
+
+                <Button
+                  onClick={handleTransfer}
+                  loading={transferSpin}
+                  color="cyan"
+                  variant="solid"
+                  disabled={Number(data?.document?.status_id) > 2}
+                >
+                  Transfer <ArrowRight size={18} />
                 </Button>
-              </Popconfirm>
+              </div>
+
+
             )}
 
-            <Select
-              style={{ width: 250 }}
-              options={users}
-              onChange={setUser}
-              placeholder="Magasinier"
-              disabled={Number(data?.document?.status_id) > 2}
-            />
-
-            <Button
-              onClick={handleTransfer}
-              loading={transferSpin}
-              color="cyan"
-              variant="solid"
-              disabled={Number(data?.document?.status_id) > 2}
-            >
-              Transfer <ArrowRight size={18} />
-            </Button>
-          </div>
-        )}
-
-           
           </div>
           <div className='bg-white border rounded-lg overflow-hidden'>
             <table className='w-full border-collapse'>
@@ -299,7 +306,7 @@ function ViewReception() {
                   data.doclignes.map((item) => (
                     <tr key={item.cbMarq} className='border-t'>
                       <td className='px-2 py-1 border-r flex items-center justify-center'>
-                       
+
                         <span>
                           {users?.find((u) => Number(u.value) == Number(item?.line?.role_id))?.label} &nbsp;
                         </span>
