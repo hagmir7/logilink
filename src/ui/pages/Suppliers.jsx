@@ -1,9 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Button, message, Modal, Select } from "antd";
+import { Button, message, Modal, Select, Tooltip } from "antd";
 import {
   RefreshCcw,
   PlusCircle,
   CircleAlert,
+  Sheet,
+  RefreshCcwDot,
+  RefreshCw,
 } from "lucide-react";
 
 import { api } from "../utils/api";
@@ -15,6 +18,7 @@ import SupplierInterviewForm from "../components/SupplierInterviewForm";
 export default function Suppliers() {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [downloadLoading, setDownloadLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedClient, setSelectedClient] = useState(null);
   const [company, setCompany] = useState('sqlsrv_inter');
@@ -96,6 +100,46 @@ export default function Suppliers() {
     setIsModalOpen(false);
   };
 
+  const downloadSuppliers = async () => {
+    setDownloadLoading(true);
+    try {
+      const response = await api.post("client/suppliers/download",
+        {
+          company_db: "sqlsrv_inter"
+        },
+        {
+          responseType: "blob"
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      const link = document.createElement("a");
+      link.href = url;
+      const now = new Date();
+      const shortDate =
+        String(now.getFullYear()).slice(2) +   // YY
+        String(now.getMonth() + 1).padStart(2, '0') + // MM
+        String(now.getDate()).padStart(2, '0') +      // DD
+        '_' +
+        String(now.getHours()).padStart(2, '0') +     // HH
+        String(now.getMinutes()).padStart(2, '0');    // MM
+
+      link.setAttribute("download", `liste-fournisseurs_${shortDate}.pdf`);
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+    } catch (error) {
+      console.error("Download error:", error);
+      message.error("Erreur lors du téléchargement.");
+    } finally {
+      setDownloadLoading(false);
+    }
+  };
+
+
   /* =======================
      Render
   ======================= */
@@ -113,12 +157,25 @@ export default function Suppliers() {
             className="flex items-center gap-2"
           >
             {loading ? (
-              <RefreshCcw className="animate-spin h-4 w-4" />
+              <RefreshCw className="animate-spin h-4 w-4" />
             ) : (
-              <RefreshCcw className="h-4 w-4" />
+              <RefreshCw className="h-4 w-4" />
             )}
             Rafraîchir
           </Button>
+
+
+          <Tooltip title="LISTE DES PRESTATAIRES EXTERNES REFERENCES">
+            <Button
+              onClick={downloadSuppliers}
+              loading={downloadLoading}
+              variant="solid"
+              color="green"
+              className="flex items-center gap-2"
+            >
+              {!downloadLoading && <Sheet className="h-4 w-4" />}
+            </Button>
+          </Tooltip>
 
           <Button type="primary" onClick={showModal}>
             Evaluation
@@ -202,18 +259,18 @@ export default function Suppliers() {
           </tbody>
         </table>
       </div>
-        
-        <Modal
-          title="Créer une évaluation des fournisseurs"
-          closable={{ 'aria-label': 'Close Button' }}
-          open={isModalOpen}
-          onOk={handleOk}
-          onCancel={handleCancel}
-          footer={false}
-        >
-          <SupplierInterviewForm company={company} />
-        </Modal>
- 
+
+      <Modal
+        title="Créer une évaluation des fournisseurs"
+        closable={{ 'aria-label': 'Close Button' }}
+        open={isModalOpen}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        footer={false}
+      >
+        <SupplierInterviewForm company={company} />
+      </Modal>
+
 
     </div>
   );

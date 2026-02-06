@@ -122,7 +122,7 @@ const SupplierFrom = ({
                     <Form.Item
                         label="Email"
                         name="CT_EMail"
-                        rules={[{ type: "email", required: true }]}
+                        // rules={[{ type: "email", required: true }]}
                     >
                         <Input />
                     </Form.Item>
@@ -130,7 +130,7 @@ const SupplierFrom = ({
                     <Form.Item
                         label="Adresse"
                         name="CT_Adresse"
-                        rules={[{ required: true }]}
+                        // rules={[{ required: true }]}
                     >
                         <Input />
                     </Form.Item>
@@ -140,7 +140,7 @@ const SupplierFrom = ({
                             <Form.Item
                                 label="Téléphone"
                                 name="CT_Telephone"
-                                rules={[{ required: true }]}
+                                // rules={[{ required: true }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -150,7 +150,7 @@ const SupplierFrom = ({
                             <Form.Item
                                 label="Fax"
                                 name="CT_Telecopie"
-                                rules={[{ required: true }]}
+                                // rules={[{ required: true }]}
                             >
                                 <Input />
                             </Form.Item>
@@ -160,7 +160,7 @@ const SupplierFrom = ({
                     <Form.Item
                         label="Ville"
                         name="CT_Ville"
-                        rules={[{ required: true }]}
+                        // rules={[{ required: true }]}
                     >
                         <Input />
                     </Form.Item>
