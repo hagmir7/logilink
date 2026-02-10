@@ -1,13 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Button, message, Modal, Select, Tooltip } from "antd";
-import {
-  RefreshCcw,
-  PlusCircle,
-  CircleAlert,
-  Sheet,
-  RefreshCcwDot,
-  RefreshCw,
-} from "lucide-react";
+import {CircleAlert, Sheet, RefreshCw } from "lucide-react";
 
 import { api } from "../utils/api";
 import TableSkeleton from "../components/ui/TableSkeleton";

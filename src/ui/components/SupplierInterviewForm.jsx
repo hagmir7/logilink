@@ -7,13 +7,13 @@ const SupplierInterviewForm = ({ onSuccess, company }) => {
     const [loading, setLoading] = useState(false);
     const [form] = Form.useForm();
     const [suppliers, setSuppliers] = useState([]);
-    console.log(company);
+    const [currentCompany, setCurrentCompany] = useState(company);
 
-    /* 🔹 Récupération des fournisseurs */
+
     const getCompts = async () => {
         try {
             const params = new URLSearchParams();
-            if (company) params.append("company_db", company);
+            if (currentCompany) params.append("company_db", currentCompany);
 
             const response = await api.get(`client/suppliers?${params.toString()}`);
             setSuppliers(
@@ -30,6 +30,8 @@ const SupplierInterviewForm = ({ onSuccess, company }) => {
             );
         }
     };
+
+
 
     /* 🔹 Soumission du formulaire */
     const handleSubmit = async (values) => {
@@ -74,6 +76,25 @@ const SupplierInterviewForm = ({ onSuccess, company }) => {
                 note: 0,
             }}
         >
+
+            <Form.Item
+                label={<span className="font-semibold text-gray-700 mt-2">Société</span>}
+                name="company_db"
+                rules={[
+                    { required: true, message: 'La Société est requise' },
+                ]}
+            >
+                <Select
+                    onChange={(value) => setCurrentCompany(value)}
+                    placeholder="Sélectionnez la société"
+                    className="w-full"
+                >
+                    <Select.Option value="sqlsrv_inter">Intercocina</Select.Option>
+                    <Select.Option value="sqlsrv_asti">AstiDkora</Select.Option>
+                    <Select.Option value="sqlsrv_serie">Seriemoble</Select.Option>
+                    <Select.Option value="sqlsrv">Stile Mobili</Select.Option>
+                </Select>
+            </Form.Item>
             {/* Fournisseur */}
             <Form.Item
                 label={<span className="font-semibold text-gray-700 mt-2">Fournisseur</span>}

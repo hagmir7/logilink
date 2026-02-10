@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import { Badge, Button, Empty, message, Modal, Select, Tag } from "antd";
 import {
   RefreshCcw,
-  PlusCircle,
   CircleAlert,
 } from "lucide-react";
 
@@ -11,7 +10,7 @@ import TableSkeleton from "../components/ui/TableSkeleton";
 import SupplierFrom from "../components/SupplierFrom";
 import { useNavigate } from "react-router-dom";
 import SupplierInterviewForm from "../components/SupplierInterviewForm";
-import { formatDate } from "../utils/config";
+import { formatDate, handleShow } from "../utils/config";
 
 export default function SupplierInterviews() {
   const [data, setData] = useState([]);
@@ -25,9 +24,8 @@ export default function SupplierInterviews() {
   const navigate = useNavigate();
   const { confirm } = Modal;
 
-  /* =======================
-     Fetch suppliers
-  ======================= */
+
+  
   useEffect(() => {
     fetchData(true);
   }, [company]);
@@ -36,12 +34,12 @@ export default function SupplierInterviews() {
     setLoading(true);
 
     try {
+      
+      console.log(company);
+      
       const response = await api.get("supplier-interviews", {
         params: { company_db: company },
       });
-
-      console.log(response.data);
-      
 
       setData(response.data);
     } catch (error) {
@@ -172,14 +170,14 @@ export default function SupplierInterviews() {
               data.map((item) => (
                 <tr
                   key={item.CT_Num}
-                  onClick={() => openUpdate(item.CT_Num)}
+                  onClick={() => handleShow(navigate, `/supplier-interviews/${item.id}`, 1000, 600)}
                   className="border-t border-gray-300 hover:bg-gray-50 cursor-pointer whitespace-nowrap"
                 >
                   <td className="px-3 py-2">{item.CT_Num}</td>
-                  <td className="px-3 py-2">{item?.client.CT_Intitule}</td>
+                  <td className="px-3 py-2">{item?.client?.CT_Intitule}</td>
                   <td className="px-3 py-2"> {item.description}  </td>
                   <td className="px-3 py-2">
-                    <Tag>{item.note | 0}</Tag>
+                    <Tag>{item.total_note | 0}</Tag>
                   </td>
                   <td className="px-3 py-2">{formatDate(item.created_at)}</td>
                 </tr>

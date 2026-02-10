@@ -55,6 +55,7 @@ import InventoryDepotEmplacmentList from './pages/InventoryDepotEmplacmentList'
 import Suppliers from './pages/Suppliers'
 import SupplierInterviews from './pages/SupplierInterviews'
 import { useEffect } from 'react'
+import ShowSupplierIntervew from './components/ShowSupplierIntervew'
 
 
 const NotFound = () => {
@@ -100,6 +101,7 @@ function App() {
         <Route path='import-stock' element={<ImportStock />} />
         <Route path='profile/:id' element={<Profile />} />
         <Route path='depots/view/:id' element={<DepotEmplacement />} />
+         <Route path='/supplier-interviews/:id' element={<ShowSupplierIntervew />} />
 
         <Route path='depots' element={<Depots />} />
         <Route path='depots/:id' element={<ViewDepot />} />
@@ -118,6 +120,7 @@ function App() {
           <Route path='/find-article' element={<FindArticleEmplacement />} />
           <Route path='/suppliers' element={<Suppliers />} />
           <Route path='/supplier-interviews' element={<SupplierInterviews />} />
+         
           <Route path='/user-archive' element={<UserArchive />} />
           <Route
             path='/layout/user-archive/:id'
