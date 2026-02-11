@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api'
-import { useParams } from 'react-router-dom'
+import { useParams, useSearchParams } from 'react-router-dom'
 import { formatDate } from '../utils/config'
 
 export default function ShowSupplierIntervew() {
   const [data, setData] = useState(null)
   const [notes, setNotes] = useState({})
+
+  const [params] = useSearchParams();
 
   const { id } = useParams();
   
@@ -14,9 +16,7 @@ export default function ShowSupplierIntervew() {
     const fetchInterview = async () => {
       try {
         const { data } = await api.get(`supplier-interviews/${id}`)
-
         setData(data)
-
         const init = {}
         data.criterias.forEach(c => {
           init[c.id] = c.note ?? ''
@@ -37,7 +37,7 @@ const handleNoteChange = async (criteriaId, value) => {
 
   try {
     await api.post(
-      `supplier-interviews/${data.interview.id}/criteria`,
+      `supplier-interviews/${data.interview.id}/criteria?company_db=${params.get('company_db')}`,
       {
         criteria_id: criteriaId,
         note: Number(value),
@@ -60,7 +60,6 @@ const handleNoteChange = async (criteriaId, value) => {
       {/* Header */}
        <h2 className="text-lg font-semibold">Évaluation Fournisseur</h2>
       <div className='flex justify-between gap-2'>
-       
         <p className="text-gray-800 py-2 px-4 rounded-2xl shadow-2xs bg-gray-50 border border-gray-100">
            <strong>Producit / Service Achate</strong>  
             <div className='mt-2'>{data.interview.description}</div>

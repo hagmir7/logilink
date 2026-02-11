@@ -147,6 +147,7 @@ export default function SupplierInterviews() {
         onUpdated={() => fetchData(true)}
       />
 
+
       {/* Table */}
       <div className="mt-4 overflow-auto bg-white border-gray-300 border-b">
         <table className="min-w-full text-sm border-t border-gray-300">
@@ -170,7 +171,7 @@ export default function SupplierInterviews() {
               data.map((item) => (
                 <tr
                   key={item.CT_Num}
-                  onClick={() => handleShow(navigate, `/supplier-interviews/${item.id}`, 1000, 600)}
+                  onClick={() => handleShow(navigate, `/supplier-interviews/${item.id}?company_db=${company}`, 1000, 600)}
                   className="border-t border-gray-300 hover:bg-gray-50 cursor-pointer whitespace-nowrap"
                 >
                   <td className="px-3 py-2">{item.CT_Num}</td>

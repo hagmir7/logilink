@@ -185,6 +185,8 @@ export const formatCurrency = (value) => {
 
 // config.jsx
 export const handleShow = async (navigate, path, width=1400, height=800) => {
+  console.log(path);
+  
   try {
     if (window.electron && typeof window.electron.openShow === 'function') {
       await window.electron.openShow({ url:path, width, height});
