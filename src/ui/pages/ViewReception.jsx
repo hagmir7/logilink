@@ -199,9 +199,9 @@ function ViewReception() {
               </Tag>}
 
             </h1>
-            <div className='flex gap-3 items-center'><Clock size={17} className='text-gray-500' /> 
-              {loading ? <Skeleton /> : formatDate(data.DO_Date)} 
-              <ReceptionMovmentsModal piece={id} company={company} /> 
+            <div className='flex gap-3 items-center'><Clock size={17} className='text-gray-500' />
+              {loading ? <Skeleton /> : formatDate(data.DO_Date)}
+              <ReceptionMovmentsModal piece={id} company={company} />
             </div>
           </div>
 
@@ -238,9 +238,31 @@ function ViewReception() {
             <h2 className='text-md font-semibold text-gray-800 mb-2'>Articles {!loading ? "(" + data?.doclignes?.length + ")" : ""}</h2>
 
             {Number(data?.document?.status_id) === 2 ? (
-              <Button color="success" variant="solid" onClick={handleValidation} loading={validationSpin} className="mb-2">
-                Valider <CircleCheckBig size={18} />
-              </Button>
+              <div className='flex gap-2 mb-3'>
+                <Button color="success" variant="solid" onClick={handleValidation} loading={validationSpin} className="mb-2">
+                  Valider <CircleCheckBig size={18} />
+                </Button>
+                <Select
+                  style={{ width: 250 }}
+                  options={users}
+                  onChange={setUser}
+                  placeholder="Magasinier"
+                  disabled={Number(data?.document?.status_id) > 2}
+                  allowClear
+                />
+
+                <Button
+                  onClick={handleTransfer}
+                  loading={transferSpin}
+                  color="cyan"
+                  variant="solid"
+                  disabled={Number(data?.document?.status_id) > 2}
+                >
+                  Transfer <ArrowRight size={18} />
+                </Button>
+              </div>
+
+
             ) : (
               <div className="mb-3 flex gap-2">
                 {data.document && (
@@ -280,6 +302,10 @@ function ViewReception() {
 
 
             )}
+
+
+
+
 
           </div>
           <div className='bg-white border rounded-lg overflow-hidden'>

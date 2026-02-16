@@ -2,12 +2,17 @@ import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 import { useParams, useSearchParams } from 'react-router-dom'
 import { formatDate } from '../utils/config'
+import { Button, message, Tooltip } from 'antd'
+import { Sheet } from 'lucide-react'
 
 export default function ShowSupplierIntervew() {
-  const [data, setData] = useState(null)
-  const [notes, setNotes] = useState({})
+  const [data, setData] = useState(null);
+  const [notes, setNotes] = useState({});
+  const [downloadLoading, setDownloadLoading] = useState(false);
 
   const [params] = useSearchParams();
+
+  
 
   const { id } = useParams();
   
@@ -15,7 +20,11 @@ export default function ShowSupplierIntervew() {
   useEffect(() => {
     const fetchInterview = async () => {
       try {
-        const { data } = await api.get(`supplier-interviews/${id}`)
+        const { data } = await api.get(`supplier-interviews/${id}`,{
+          params: {
+            company_db: params.get('company_db')
+          }
+        })
         setData(data)
         const init = {}
         data.criterias.forEach(c => {
@@ -37,16 +46,56 @@ const handleNoteChange = async (criteriaId, value) => {
 
   try {
     await api.post(
-      `supplier-interviews/${data.interview.id}/criteria?company_db=${params.get('company_db')}`,
+      `supplier-interviews/${data.interview.id}/criteria`,
       {
         criteria_id: criteriaId,
         note: Number(value),
+        company_db: params.get('company_db')
       }
     )
   } catch (error) {
     console.error('Save failed', error)
   }
 }
+
+  const downloadInterview = async () => {
+    setDownloadLoading(true);
+    try {
+      const response = await api.post(`supplier-interviews/${data.interview.id}/download`,
+        {
+          company_db: params.get('company_db')
+        },
+        {
+          responseType: "blob"
+        }
+      );
+
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      const link = document.createElement("a");
+      link.href = url;
+      const now = new Date();
+      const shortDate =
+        String(now.getFullYear()).slice(2) +   // YY
+        String(now.getMonth() + 1).padStart(2, '0') + // MM
+        String(now.getDate()).padStart(2, '0') +      // DD
+        '_' +
+        String(now.getHours()).padStart(2, '0') +     // HH
+        String(now.getMinutes()).padStart(2, '0');    // MM
+
+      link.setAttribute("download", `evaluation-fournisseur-${data.interview?.CT_Num}-${shortDate}.pdf`);
+
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+    } catch (error) {
+      console.error("Download error:", error);
+      message.error(error?.response?.data?.message || "Erreur lors du téléchargement.");
+    } finally {
+      setDownloadLoading(false);
+    }
+  };
 
   const total = Object.values(notes)
     .map(Number)
@@ -58,7 +107,20 @@ const handleNoteChange = async (criteriaId, value) => {
   return (
     <div className="p-4 space-y-4">
       {/* Header */}
-       <h2 className="text-lg font-semibold">Évaluation Fournisseur</h2>
+       <div className='flex justify-between'>
+        <h2 className="text-lg font-semibold">Évaluation Fournisseur</h2>
+         <Tooltip title="LISTE DES PRESTATAIRES EXTERNES REFERENCES">
+            <Button
+              onClick={downloadInterview}
+              loading={downloadLoading}
+              variant="solid"
+              color="green"
+              className="flex items-center gap-2"
+            >
+              {!downloadLoading && <Sheet className="h-4 w-4" />}
+            </Button>
+          </Tooltip>
+       </div>
       <div className='flex justify-between gap-2'>
         <p className="text-gray-800 py-2 px-4 rounded-2xl shadow-2xs bg-gray-50 border border-gray-100">
            <strong>Producit / Service Achate</strong>  
