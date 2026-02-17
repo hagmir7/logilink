@@ -56,10 +56,16 @@ import Suppliers from './pages/Suppliers'
 import SupplierInterviews from './pages/SupplierInterviews'
 import { useEffect } from 'react'
 import ShowSupplierIntervew from './components/ShowSupplierIntervew'
+import { Button, Result } from 'antd'
 
 
 const NotFound = () => {
-  return <>Page not found 404</>
+  return  <Result
+    status="404"
+    title="404"
+    subTitle="Désolé, la page que vous avez visitée n'existe pas."
+    extra={<Button type="primary">Retour à l'accueil</Button>}
+  />
 }
 
 function App() {

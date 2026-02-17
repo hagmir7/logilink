@@ -29,9 +29,10 @@ export default function PurchaseForm() {
   const authContext = useAuth();
   const [searchModal, setSearchModal] = useState({});
   const [units, setUnits] = useState([]);
-  let baseURL = 'http://localhost:8000/api' || localStorage.getItem('connection_url') || 'http://192.168.1.113/api/';
 
-  // Helper function to check roles - handles different formats
+  let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api';
+
+
   const hasRole = (roleNames) => {
     const checkRoles = Array.isArray(roleNames) ? roleNames : [roleNames];
 
@@ -134,7 +135,7 @@ export default function PurchaseForm() {
         quantity: line.quantity,
         unit: line.unit,
         estimated_price: line.estimated_price,
-        checked: false, // Initialize checkbox as unchecked
+        checked: false,
       })) || []
     };
 
@@ -151,7 +152,7 @@ export default function PurchaseForm() {
             status: 'done',
             existing: true,
             fileId: file.id,
-            url: `${baseURL}/download/purchase-file/${file.id}`
+            url: `${baseURL.replace(/\/$/, '')}/download/purchase-file/${file.id}`
           }));
         }
       });
