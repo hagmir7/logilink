@@ -25,6 +25,7 @@
     "publish": "npm run build && electron-builder --win --x64 --publish always"
   },
   "dependencies": {
+    "@ant-design/plots": "^2.6.8",
     "@ericblade/quagga2": "^1.8.4",
     "@fontsource/inter": "^5.2.5",
     "@tailwindcss/vite": "^4.1.4",

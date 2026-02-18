@@ -184,7 +184,7 @@ const sideMenu = () => {
       children: [
          {
           key: 'submenu-101',
-          disabled: true,
+          // disabled: true,
           icon: <ChartSpline size={20} />,
           label: <Link to='/purchase-overview'>Overview</Link>,
         },

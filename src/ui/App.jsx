@@ -57,6 +57,7 @@ import SupplierInterviews from './pages/SupplierInterviews'
 import { useEffect } from 'react'
 import ShowSupplierIntervew from './components/ShowSupplierIntervew'
 import { Button, Result } from 'antd'
+import PurchaseOverview from './pages/PurchaseOverview'
 
 
 const NotFound = () => {
@@ -178,6 +179,9 @@ function App() {
           <Route path='layout/depots/:id' element={<ViewDepot />} />
           <Route path='articles' element={<Article />} />
           <Route path='reception' element={<Reception />} />
+          <Route path='layout/reception/:id/:company' element={<ViewReception />} />
+
+          <Route path='purchase-overview' element={<PurchaseOverview />} />
         </Route>
       </Routes>
     </>

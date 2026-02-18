@@ -41,7 +41,7 @@ function ReceptionTable({ documents = [], onSelectOrder, loading, company }) {
           resizable: true,
         })
       } else {
-        navigate(`/reception/${id}`)
+        navigate(`/layout/reception/${id}/${company}`)
       }
     } catch (error) {
       console.error('Error navigating to article:', error)
