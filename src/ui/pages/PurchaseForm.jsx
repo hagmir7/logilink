@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Modal, Upload, message, Tag, Empty, Checkbox } from 'antd';
+import { Form, Input, Button, Select, Modal, Upload, message, Tag, Empty, Checkbox, DatePicker } from 'antd';
 import { PlusOutlined, MinusCircleOutlined, PaperClipOutlined, UploadOutlined } from '@ant-design/icons';
 import 'antd/dist/reset.css';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -9,12 +9,13 @@ import AchatProductSearch from '../components/AchatProductSearch';
 import TransferPurchaseDocument from '../components/TransferPurchaseDocument';
 import FormListSkeleton from '../components/ui/FormListSkeleton';
 import PurchaseImages from '../components/ui/PurchaseImages';
+import dayjs from 'dayjs';
 
 const { Option } = Select;
 
 export default function PurchaseForm() {
   const [form] = Form.useForm();
-  const [isUrgent, setIsUrgent] = useState(false);
+  const [priority, setPriority] = useState('urgent');
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState(null);
   const [lineFiles, setLineFiles] = useState({});
@@ -35,27 +36,21 @@ export default function PurchaseForm() {
 
   const hasRole = (roleNames) => {
     const checkRoles = Array.isArray(roleNames) ? roleNames : [roleNames];
-
-    // If roles is a function (like in your original code)
+    
     if (typeof authContext?.roles === 'function') {
       return authContext.roles(checkRoles);
     }
 
-    // If roles is an array
     if (Array.isArray(authContext?.roles)) {
       return checkRoles.some(role => authContext.roles.includes(role));
     }
 
-    // If roles is an object with role properties
     if (authContext?.roles && typeof authContext.roles === 'object') {
       return checkRoles.some(role => authContext.roles[role] === true);
     }
-
-    // Default: no roles
     return false;
   };
 
-  // Fetch all data on mount
   useEffect(() => {
     if (!id) {
       setLoading(false);
@@ -66,8 +61,6 @@ export default function PurchaseForm() {
   const getCheckedLines = () => {
     const lines = form.getFieldValue('lines') || [];
     const checkedLines = lines.filter(l => l?.checked === true);
-    console.log('All lines:', lines);
-    console.log('Checked lines:', checkedLines);
     return checkedLines;
   };
 
@@ -105,21 +98,33 @@ export default function PurchaseForm() {
     }
   };
 
- const getPreviewImages = (lineIndex) => {
-  if (lineIndex === null) return [];
-  console.log((lineFiles[lineIndex] || [])
-    .filter(file => file.existing && file.url)
-    .map(file => file.url));
-  
-  return (lineFiles[lineIndex] || [])
-    .filter(file => file.existing && file.url)
-    .map(file => file.url);
-};
+  const getPreviewImages = (lineIndex) => {
+    if (lineIndex === null) return [];
+
+    return (lineFiles[lineIndex] || [])
+      .filter(file => file.existing && file.url)
+      .map(file => file.url);
+  };
 
 
   const initializeFormWithData = (docData) => {
-    // Set urgent state
-    setIsUrgent(docData.urgent || false);
+
+    if (docData.urgent) {
+      setPriority('urgent');
+    } else if (docData.planned_at) {
+      setPriority('planned');
+    } else {
+      setPriority('normal');
+    }
+
+    
+    
+
+    if (docData.planned_at) {
+      form.setFieldsValue({
+        planned_at: dayjs(docData.planned_at)
+      });
+    }
 
     // Prepare form values
     const formValues = {
@@ -207,7 +212,19 @@ export default function PurchaseForm() {
     if (values.service_id) formData.append('service_id', values.service_id);
     if (values.user_id) formData.append('user_id', values.user_id);
     formData.append('note', values.note || '');
-    formData.append('urgent', isUrgent ? '1' : '0');
+
+    
+
+    // Handle priority
+    if (priority === 'urgent') {
+      formData.set('urgent', '1');
+    }
+
+    if (priority === 'planned' && values.planned_at) {
+      formData.set('planned_at', values.planned_at.format('YYYY-MM-DD'));
+    }
+
+    
 
     // Selective transfer logic
     const lines = values.lines || [];
@@ -320,7 +337,7 @@ export default function PurchaseForm() {
     }
 
     if (selectedArticles.length === 1) {
-      // Single article: Update the current line
+
       const article = selectedArticles[0];
       const updatedLines = [...lines];
       updatedLines[lineIndex] = {
@@ -331,27 +348,26 @@ export default function PurchaseForm() {
       form.setFieldsValue({ lines: updatedLines });
       message.success('Article ajouté à la ligne');
     } else if (selectedArticles.length > 1) {
-      // Multiple articles: Update first, create new lines for others
       const updatedLines = [...lines];
 
-      // Update the current line with the first article
+
       updatedLines[lineIndex] = {
         ...updatedLines[lineIndex],
         code: selectedArticles[0].code,
         description: selectedArticles[0].description,
       };
 
-      // Create new lines for remaining articles
+
       const newLines = selectedArticles.slice(1).map(article => ({
         code: article.code,
         description: article.description,
         quantity: 1,
         unit: '',
         estimated_price: 0,
-        checked: false, // Initialize checkbox
+        checked: false,
       }));
 
-      // Insert new lines after the current line
+
       updatedLines.splice(lineIndex + 1, 0, ...newLines);
 
       form.setFieldsValue({ lines: updatedLines });
@@ -535,17 +551,57 @@ export default function PurchaseForm() {
                 />
               </Form.Item>
 
-              {/* Urgent Button */}
-              <div className='mt-7.5'>
-                <Button
-                  type={isUrgent ? 'primary' : 'default'}
-                  danger={isUrgent}
-                  icon={isUrgent ? <span>🚨</span> : <span>⚪</span>}
-                  onClick={() => setIsUrgent(!isUrgent)}
-                  className={`font-medium transition-all ${isUrgent ? 'shadow-md' : ''}`}
-                >
-                  {isUrgent ? 'URGENT' : 'Marquer urgent'}
-                </Button>
+              {/* Urgent Select */}
+
+              <div>
+                <span className='font-semibold'>Priorité</span>
+              <div className="mt-2.5 flex gap-1">
+              <Select
+                value={priority}
+                onChange={(value) => setPriority(value)}
+                  className={`font-medium ${ priority === 'planned' ? 'w-1/2' : 'w-full'}`}
+                  options={[
+                    {
+                      value: "normal",
+                      label: (
+                        <span className="flex items-center gap-2">
+                          ⚪ <span>Normale</span>
+                        </span>
+                      ),
+                    },
+                    {
+                      value: "urgent",
+                      label: (
+                        <span className="flex items-center gap-2 text-red-600 font-semibold">
+                          🚨 <span>Urgente</span>
+                        </span>
+                      ),
+                    },
+                    {
+                      value: "planned",
+                      label: (
+                        <span className="flex items-center gap-2 text-green-600 font-semibold">
+                          📅 <span>Planifiée</span>
+                        </span>
+                      ),
+                    },
+                  ]}
+                />
+
+                {priority === "planned" && (
+                  <div className="w-1/2">
+                    <Form.Item
+                      name={'planned_at'}
+                      rules={[{ required: true, message: 'Requis' }]}
+                      className="mb-0 col-span-2"
+                      style={{ marginBottom: 0 }}
+                    >
+                      <DatePicker className="w-full" placeholder="Choisir une date" />
+                    </Form.Item>
+
+                  </div>
+                )}
+              </div>
               </div>
             </div>
           </div>
@@ -767,7 +823,7 @@ export default function PurchaseForm() {
             >
               {/* 🔥 Existing images preview */}
               {/* <PurchaseImages imageList={getImagesList(currentLineIndex)} /> */}
-              
+
 
               <Button
                 icon={<UploadOutlined />}

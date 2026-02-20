@@ -160,7 +160,7 @@ export default function Users() {
               <td className='px-6 py-2 flex gap-4'>
                 <button
                   onClick={() => {
-                    setSelectedUser(users.find(user => user.id == user.id))
+                    setSelectedUser(users.find(u => parseInt(u.id) === parseInt(user.id)))
                     setModalVisible(true)
                   }}
                   className='font-medium text-blue-600 hover:underline cursor-pointer'

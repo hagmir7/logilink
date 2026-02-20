@@ -75,7 +75,6 @@ function App() {
 
   useEffect(() => {
     const raw = localStorage.getItem('user')
-    console.log(raw);
     
 
     if (!raw || raw === 'undefined' || raw === 'null') {
