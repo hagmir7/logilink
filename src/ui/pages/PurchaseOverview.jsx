@@ -2,18 +2,22 @@ import { DatePicker } from "antd";
 import Chart from "react-apexcharts";
 import { Pie, Column } from "@ant-design/plots";
 import ServiceDistribution from "../components/charts/ServiceDistribution";
+import { api } from "../utils/api";
+import { useEffect, useState } from "react";
+import { BadgeEuro, ClockFading, Network, Users } from "lucide-react";
 const { RangePicker } = DatePicker;
 
 // Reusable StatCard
-const StatCard = ({ title, value, percentage, positive }) => (
+const StatCard = ({ title, value, percentage, positive, icon }) => (
   <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
     <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-      <div className="w-6 h-6 bg-gray-400 rounded-full" />
+      <div className="w-6 h-6 rounded-full"> {icon} </div>
     </div>
-    <div className="flex items-end justify-between mt-4">
+     <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-nowrap">{title}</div>
+    <div className="flex items-end justify-between">
       <div>
-        <span className="text-sm text-gray-500 dark:text-gray-400">{title}</span>
-        <h4 className="mt-1 font-bold text-gray-800 text-lg dark:text-white/90">{value}</h4>
+       
+        <h4 className="mt-1 font-bold text-gray-800 text-lg dark:text-white/90 text-nowrap">{value}</h4>
       </div>
       <span
         className={`inline-flex items-center px-2.5 py-0.5 rounded-full font-medium text-sm ${
@@ -67,14 +71,33 @@ const CountrySalesChart = () => {
   );
 };
 
-// Dashboard Section
 const DashboardSection = () => {
+  const [state, setState] = useState({
+    suppliers: 622,
+    expenditure: "39986.660000",
+    documents_in_progress: 19,
+    services: 3,
+  });
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const response = await api.get("purchase/states");
+        setState(response.data);
+      } catch (error) {
+        console.error("Failed to fetch purchase states:", error);
+      }
+    };
+
+    fetchStats();
+  }, []); // empty array = runs once on mount
+
   const stats = [
-    { title: "Demandes en cours", value: "3,782", percentage: "11.01%", positive: true },
-    { title: "Fournisseurs actifs", value: "5,359", percentage: "9.05%", positive: false },
-    { title: "Total Dépense", value: "$23,450", percentage: "5.2%", positive: true },
-    { title: "Refunds", value: "$1,234", percentage: "1.2%", positive: false },
-    { title: "Refunds", value: "$1,234", percentage: "1.2%", positive: false },
+    { title: "Demandes en cours", value: state.documents_in_progress, percentage: "11.01%", positive: true, icon: <ClockFading /> },
+    { title: "Fournisseurs actifs", value: state.suppliers, percentage: "9.05%", positive: false, icon: <Users /> },
+    { title: "Total Dépense", value: Math.round(state.expenditure) + " MAD", percentage: "5.2%", positive: true, icon: <BadgeEuro /> },
+    { title: "Service", value: state.services, percentage: "1.2%", positive: false,  icon: <Network />  },
+    { title: "Refunds", value: "$1,234", percentage: "1.2%", positive: false,  icon: <Network />  },
   ];
 
   const chartOptions = {
@@ -89,20 +112,18 @@ const DashboardSection = () => {
 
   return (
     <div className="">
-      {/* Stats Cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 xl:col-span-5 gap-4">
         {stats.map((stat, idx) => (
           <StatCard key={idx} {...stat} />
         ))}
       </div>
 
-      {/* Charts */}
       <div className="flex gap-2 mt-3">
         <div className="overflow-hidden rounded-2xl w-[60%] border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03]">
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white/90 mb-2 px-2 pt-2">
             Achats mensuels
           </h3>
-          <Chart options={chartOptions} series={chartSeries} type="bar"  />
+          <Chart options={chartOptions} series={chartSeries} type="bar" />
         </div>
 
         <ServiceDistribution />
