@@ -4,9 +4,10 @@ import { api } from '../utils/api'
 import { uppercaseFirst } from '../utils/config'
 import BackButton from '../components/ui/BackButton'
 import { Button, Input, message, Modal, Radio, Select, Switch } from 'antd'
-import { Building2, Package, Hash, AlertCircle, ArrowRightLeft, ArrowDown, Building } from 'lucide-react'
+import { Building2, Package, Hash, AlertCircle, ArrowRightLeft, ArrowDown, Building, List } from 'lucide-react'
 import { debounce } from 'lodash'
 import InputField from '../components/ui/InputField'
+import EmplacementArticles from './EmplacementArticles'
 
 export default function TransferStock() {
 
@@ -33,6 +34,8 @@ export default function TransferStock() {
     const [companies, setCompanies] = useState([])
     const [company, setCompany] = useState(null);
     const [showCompany, setShowCompany] = useState(false)
+
+    const [open, setOpen] = useState(false);
 
 
     const location = useLocation();
@@ -236,10 +239,10 @@ export default function TransferStock() {
                 condition: condition ? parseFloat(condition.replace(',', '.')) : null,
                 palettes: Number(quantity),
                 company: showCompany ? company : '',
-                second_emplacement_code: showCompany ? '' :  secondEmplacementCode
+                second_emplacement_code: showCompany ? '' : secondEmplacementCode
             }
 
-            
+
 
             const { data } = await api.post('stock/transfer', payload)
 
@@ -332,6 +335,28 @@ export default function TransferStock() {
                                 <ArrowRightLeft className="w-6 h-6 text-gray-600" />
                             </>
                         </h1>
+
+                        {
+                            emplacementCode && <>
+                                <Button
+                                    size={window.electron ? 'large' : 'small'}
+                                    onClick={() => setOpen(true)}
+                                    style={window.electron ? { float: 'right' } : {}}
+                                >
+                                    <List />
+                                </Button>
+
+                                <EmplacementArticles
+                                    emplacement_code={emplacementCode}
+                                    open={open}
+                                    onClose={() => setOpen(false)}
+                                    onArticleSelect={(articleCode) => {
+                                        setArticleCode(articleCode);
+                                        fetchArticleData(articleCode);
+                                    }}
+                                />
+                            </>
+                        }
                     </div>
                 </div>
             </div>
@@ -535,85 +560,85 @@ export default function TransferStock() {
                 />
             </div>
 
-<div className='px-5'>
-      <div className='flex items-center justify-between mb-4'>
-        <h2 className='text-xl font-semibold text-gray-700'>
-          {showCompany ? 'À Société' : "À Emplacement"}
-        </h2>
-        <div className='flex items-center gap-2'>
-          <span className='text-gray-600 text-xl'>
-            {showCompany ? 'Transférer vers Emplacement' : 'Transférer vers Société'}
-          </span>
-          <Switch
-            size='large'
-            checked={showCompany}
-            onChange={(checked) => setShowCompany(checked)}
-          />
-        </div>
-      </div>
-
-      {!showCompany ? (
-        // === EMPLACEMENT SECTION ===
-        <>
-          <div className='flex gap-2'>
-            <Input
-              placeholder='Saisir le code emplacement'
-              size='large'
-              className={is_electron && 'h-[60px]'}
-              style={is_electron ? { fontSize: '30px' } : {}}
-              autoFocus={true}
-              ref={secondEmplacemenInput}
-              value={secondEmplacementCode}
-              onChange={(e) => changeSecondEmplacement(e.target.value)}
-              allowClear={true}
-              suffix={
-                loadingSecondEmplacement ? (
-                  <span className='text-gray-400'>Chargement...</span>
-                ) : null
-              }
-            />
-            <InputField
-              value={secondEmplacementCode}
-              onChange={(e) => changeSecondEmplacement(e.target.value)}
-              onScan={(value) => changeSecondEmplacement(value)}
-            />
-          </div>
-
-          {secondEmplacementError && (
-            <div className='text-red-600 text-lg mb-3'>
-              {secondEmplacementError}
-            </div>
-          )}
-
-          {secondEmplacementData && (
-            <div className='bg-gray-100 p-3 rounded-md mt-2'>
-              <div className='grid grid-cols-2 gap-2 text-lg'>
-                <div className='font-medium'>Dépôt:</div>
-                <div className='font-bold'>
-                  {secondEmplacementData?.depot?.code ||
-                    secondEmplacementData.depot_id}
+            <div className='px-5'>
+                <div className='flex items-center justify-between mb-4'>
+                    <h2 className='text-xl font-semibold text-gray-700'>
+                        {showCompany ? 'À Société' : "À Emplacement"}
+                    </h2>
+                    <div className='flex items-center gap-2'>
+                        <span className='text-gray-600 text-xl'>
+                            {showCompany ? 'Transférer vers Emplacement' : 'Transférer vers Société'}
+                        </span>
+                        <Switch
+                            size='large'
+                            checked={showCompany}
+                            onChange={(checked) => setShowCompany(checked)}
+                        />
+                    </div>
                 </div>
-              </div>
+
+                {!showCompany ? (
+                    // === EMPLACEMENT SECTION ===
+                    <>
+                        <div className='flex gap-2'>
+                            <Input
+                                placeholder='Saisir le code emplacement'
+                                size='large'
+                                className={is_electron && 'h-[60px]'}
+                                style={is_electron ? { fontSize: '30px' } : {}}
+                                autoFocus={true}
+                                ref={secondEmplacemenInput}
+                                value={secondEmplacementCode}
+                                onChange={(e) => changeSecondEmplacement(e.target.value)}
+                                allowClear={true}
+                                suffix={
+                                    loadingSecondEmplacement ? (
+                                        <span className='text-gray-400'>Chargement...</span>
+                                    ) : null
+                                }
+                            />
+                            <InputField
+                                value={secondEmplacementCode}
+                                onChange={(e) => changeSecondEmplacement(e.target.value)}
+                                onScan={(value) => changeSecondEmplacement(value)}
+                            />
+                        </div>
+
+                        {secondEmplacementError && (
+                            <div className='text-red-600 text-lg mb-3'>
+                                {secondEmplacementError}
+                            </div>
+                        )}
+
+                        {secondEmplacementData && (
+                            <div className='bg-gray-100 p-3 rounded-md mt-2'>
+                                <div className='grid grid-cols-2 gap-2 text-lg'>
+                                    <div className='font-medium'>Dépôt:</div>
+                                    <div className='font-bold'>
+                                        {secondEmplacementData?.depot?.code ||
+                                            secondEmplacementData.depot_id}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    // === COMPANY SECTION ===
+                    (companies.length > 0 || company) && (
+                        <Select
+                            placeholder='Sélectionner une société'
+                            size='large'
+                            className={`w-full ${is_electron ? 'custom-select h-[60px]' : ''}`}
+                            style={is_electron ? { fontSize: '30px' } : {}}
+                            dropdownClassName={is_electron ? 'custom-select-dropdown' : ''}
+                            value={company}
+                            onChange={setCompany}
+                            options={companies}
+                            allowClear={true}
+                        />
+                    )
+                )}
             </div>
-          )}
-        </>
-      ) : (
-        // === COMPANY SECTION ===
-        (companies.length > 0 || company) && (
-          <Select
-            placeholder='Sélectionner une société'
-            size='large'
-            className={`w-full ${is_electron ? 'custom-select h-[60px]' : ''}`}
-            style={is_electron ? { fontSize: '30px' } : {}}
-            dropdownClassName={is_electron ? 'custom-select-dropdown' : ''}
-            value={company}
-            onChange={setCompany}
-            options={companies}
-            allowClear={true}
-          />
-        )
-      )}
-    </div>
 
 
 
@@ -670,12 +695,12 @@ export default function TransferStock() {
                                 <div className='text-xl font-medium text-gray-700 flex justify-between mt-4'>
                                     <span>Emplacement :</span> <span className='font-black text-2xl text-black'>{emplacementData?.code}</span>
                                 </div>
-                                 
+
                             </div>
                         </div>
 
                         <div className='flex justify-center '>
-                            <ArrowDown size={35} className='text-center text-green-600'/>
+                            <ArrowDown size={35} className='text-center text-green-600' />
                         </div>
 
                         {
@@ -699,14 +724,14 @@ export default function TransferStock() {
                                 </div>
                             </div>
                         }
-                        
+
 
                         {/* Article Summary */}
                         <div className='flex items-start gap-4 mb-4 mt-4'>
                             <Package className='w-7 h-7 text-green-600 mt-1 flex-shrink-0' />
                             <div className='space-y-2 w-full'>
                                 <div className='text-xl font-medium text-gray-700 flex justify-between'>
-                                    <span>Article :</span> 
+                                    <span>Article :</span>
                                     <span className='font-black text-black text-2xl'>{articleData?.code}</span>
                                 </div>
 
@@ -714,7 +739,7 @@ export default function TransferStock() {
                                     <div>{articleData?.name}</div>
                                     {uppercaseFirst(articleData?.description)}
                                 </div>
-        
+
                                 <div className='flex justify-between w-full mt-4'>
                                     <span className='text-xl'>Dimensions: </span>
                                     <span className='text-2xl font-bold text-black'> {articleData?.height} × {articleData?.width} ×{' '} {articleData?.depth}</span>
@@ -726,7 +751,7 @@ export default function TransferStock() {
                                         <strong className='text-2xl font-bold text-black'>{articleData?.color}</strong>
                                     </div> : ''
                                 }
-                               
+
 
                                 {
                                     articleData?.code_supplier || articleData?.code_supplier_2 ?

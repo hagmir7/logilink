@@ -33,7 +33,6 @@ export default function PurchaseForm() {
 
   let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api';
 
-
   const hasRole = (roleNames) => {
     const checkRoles = Array.isArray(roleNames) ? roleNames : [roleNames];
     
@@ -68,7 +67,7 @@ export default function PurchaseForm() {
     try {
       const [servicesRes, usersRes, unitsRes] = await Promise.all([
         api.get('services'),
-        api.get('users'),
+        api.get(`users/role/chef_service`),
         api.get('units')
       ]);
 

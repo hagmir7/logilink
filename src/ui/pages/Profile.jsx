@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Mail, Phone, Save, Loader2, Building, User } from "lucide-react";
+import { Mail, Phone, Save, Loader2, Building, User, Code, IdCard } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { api } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
@@ -95,6 +95,7 @@ export default function Profile() {
         roles: userRoleNames,
         company_id: data?.user?.company_id,
         service_id: data?.user?.service_id,
+        code: data?.user?.code,
       });
       
     } catch (err) {
@@ -246,7 +247,19 @@ export default function Profile() {
                   />
                 </Form.Item>
 
-                
+
+                <Form.Item label="Matricule"  tooltip="Matricule de Colaborater sur sage">
+                  <Input
+                    name="code"
+                    type="text"
+                    value={userData.code}
+                    onChange={(e) =>
+                      setUserData({ ...userData, code: e.target.value })
+                    }
+                    prefix={<IdCard size={16} />}
+                    placeholder=""
+                  />
+                </Form.Item>
             </Col>
           </Row>
 

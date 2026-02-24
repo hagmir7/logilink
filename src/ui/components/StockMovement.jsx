@@ -28,7 +28,7 @@ export default function StockMovement() {
   const [totalQuantity, setTotalQuantity] = useState(0)
   const [companies, setCompanies] = useState([])
   const [company, setCompany] = useState(null);
-  const [open, setOpen] = useState(false)
+  const [open, setOpen] = useState(false);
 
 
   const location = useLocation();

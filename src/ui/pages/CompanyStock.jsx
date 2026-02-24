@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react'
-import { Loader2, RefreshCcw, Eye, PlusCircle, Package } from 'lucide-react'
-import { Button, Empty, Input, Select, Pagination } from 'antd'
+import { Loader2, RefreshCcw, Eye, PlusCircle, Package, Trash, Edit } from 'lucide-react'
+import { Button, Empty, Input, Select, Pagination, Popconfirm, message } from 'antd'
 import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { categories, uppercaseFirst } from '../utils/config'
@@ -106,6 +106,21 @@ function CompanyStock({ company_id }) {
 
     } catch (error) {
       console.error('❌ Error navigating to article:', error);
+    }
+  };
+
+
+  const confirmDelete = async (id) => {
+    try {
+      await api.delete(`articles/${id}`);
+      message.success("Article supprimé avec succès");
+      fetchData();
+    } catch (error) {
+      if (error.response?.status === 403) {
+        message.error("Action non autorisée");
+      } else {
+        message.error("Erreur lors de la suppression de l'article");
+      }
     }
   };
 
@@ -232,13 +247,15 @@ function CompanyStock({ company_id }) {
                   <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Préparation
                   </th>
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                  </th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-gray-100 whitespace-nowrap'>
                 {articles?.data?.map((article, index) => (
                   <tr
                     key={article.id || index}
-                     onClick={() => handleShow(article.code)}
+                    
                     className='hover:bg-blue-50/50 transition-all duration-200 cursor-pointer group'
                   >
                     <td className='px-4 py-1'>
@@ -293,6 +310,21 @@ function CompanyStock({ company_id }) {
                       <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
                         {parseFloat(article.stock_prepartion)}
                       </span>
+                    </td>
+
+                    <td className='px-4 py-1 text-center flex gap-2'>
+                      <Button size='small' onClick={() => handleShow(article.code)} variant='solid' color='green'><Edit size={15} /></Button>
+                      <Popconfirm
+                        title="Delete the task"
+                        description="Are you sure to delete this task?"
+                        onConfirm={() => confirmDelete(article.code)}
+
+
+                        okText="Yes"
+                        cancelText="No"
+                      >
+                        <Button size='small' variant='solid' color='red'><Trash size={15} /></Button>
+                      </Popconfirm>
                     </td>
                   </tr>
                 ))}
