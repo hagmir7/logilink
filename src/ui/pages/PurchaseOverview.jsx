@@ -10,23 +10,22 @@ const { RangePicker } = DatePicker;
 // Reusable StatCard
 const StatCard = ({ title, value, percentage, positive, icon }) => (
   <div className="rounded-2xl border border-gray-200 bg-white p-4 dark:border-gray-800 dark:bg-white/[0.03]">
-    <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
-      <div className="w-6 h-6 rounded-full"> {icon} </div>
-    </div>
-     <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-nowrap">{title}</div>
-    <div className="flex items-end justify-between">
-      <div>
-       
-        <h4 className="mt-1 font-bold text-gray-800 text-lg dark:text-white/90 text-nowrap">{value}</h4>
+    <div className="flex justify-between">
+      <div className="flex items-center justify-center w-12 h-12 bg-gray-100 rounded-xl dark:bg-gray-800">
+        <div className="w-6 h-6 rounded-full"> {icon} </div>
       </div>
-      <span
-        className={`inline-flex items-center px-2.5 py-0.5 rounded-full font-medium text-sm ${
-          positive ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
-        }`}
-      >
-        {percentage}
-      </span>
+
+      <div>
+        <span
+          className={`inline-flex items-center px-2.5 py-0.5 rounded-full font-medium text-sm ${positive ? "bg-green-100 text-green-600" : "bg-red-100 text-red-600"
+            }`}
+        >
+          {percentage}
+        </span>
+      </div>
     </div>
+    <div className="text-sm text-gray-500 dark:text-gray-400 mt-2 text-nowrap">{title}</div>
+     <h4 className="mt-1 font-bold text-gray-800 text-lg dark:text-white/90 text-nowrap">{value}</h4>
   </div>
 );
 
@@ -96,19 +95,19 @@ const DashboardSection = () => {
     { title: "Demandes en cours", value: state.documents_in_progress, percentage: "11.01%", positive: true, icon: <ClockFading /> },
     { title: "Fournisseurs actifs", value: state.suppliers, percentage: "9.05%", positive: false, icon: <Users /> },
     { title: "Total Dépense", value: Math.round(state.expenditure) + " MAD", percentage: "5.2%", positive: true, icon: <BadgeEuro /> },
-    { title: "Service", value: state.services, percentage: "1.2%", positive: false,  icon: <Network />  },
-    { title: "Refunds", value: "$1,234", percentage: "1.2%", positive: false,  icon: <Network />  },
+    { title: "Service", value: state.services, percentage: "1.2%", positive: false, icon: <Network /> },
+    { title: "Refunds", value: "$1,234", percentage: "1.2%", positive: false, icon: <Network /> },
   ];
 
   const chartOptions = {
     chart: { type: "bar", toolbar: { show: false } },
     plotOptions: { bar: { borderRadius: 6, columnWidth: "40%" } },
     dataLabels: { enabled: false },
-    xaxis: { categories: ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"] },
+    xaxis: { categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov"] },
     yaxis: { max: 400 },
   };
 
-  const chartSeries = [{ name: "Sales", data: [168,385,201,298,187,195,291,110,215,390,250] }];
+  const chartSeries = [{ name: "Sales", data: [168, 385, 201, 298, 187, 195, 291, 110, 215, 390, 250] }];
 
   return (
     <div className="">
