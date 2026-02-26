@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Button, message, Select, Tag, DatePicker, Empty } from "antd";
+import { Button, message, Select, Tag, DatePicker, Empty, Tooltip } from "antd";
 import { RefreshCcw, PlusCircle, Filter } from "lucide-react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -215,7 +215,7 @@ export default function Purchase() {
         <table className="min-w-full text-sm">
           <thead className="bg-gray-100">
             <tr>
-              {["Code", "Référence", "Service", "Responsable", "Statut", "Date"].map(h => (
+              {["Code", "Référence", "Service", "Responsable", "Statut", "Date d'envoi", "Date"].map(h => (
                 <th key={h} className="px-3 py-2 text-left">{h}</th>
               ))}
             </tr>
@@ -234,12 +234,15 @@ export default function Purchase() {
                   <td className="px-3 py-2 flex gap-2">
                     {item.code}
                     {item.urgent && <Tag color="red">🚨</Tag>}
+                    {item.planned_at &&  <Tooltip title={formatDate(item.planned_at)}><Tag color="green">📅</Tag>  </Tooltip>}
                   </td>
                   <td className="px-3 py-2">{item.reference}</td>
                   <td className="px-3 py-2">{item.service?.name}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{item.user?.full_name}</td>
                   <td className="px-3 py-2">{renderStatus(item.status)}</td>
+                  <td className="px-3 py-2">{item.sended_at && formatDate(item.sended_at)}</td>
                   <td className="px-3 py-2">{formatDate(item.created_at)}</td>
+                  
                 </tr>
               ))
             ) : (

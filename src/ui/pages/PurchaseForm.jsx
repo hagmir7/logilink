@@ -15,7 +15,7 @@ const { Option } = Select;
 
 export default function PurchaseForm() {
   const [form] = Form.useForm();
-  const [priority, setPriority] = useState('urgent');
+  const [priority, setPriority] = useState('normal');
   const [uploadModalVisible, setUploadModalVisible] = useState(false);
   const [currentLineIndex, setCurrentLineIndex] = useState(null);
   const [lineFiles, setLineFiles] = useState({});
