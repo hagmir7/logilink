@@ -216,14 +216,14 @@ export default function Purchase() {
           <thead className="bg-gray-100">
             <tr>
               {["Code", "Référence", "Service", "Responsable", "Statut", "Date d'envoi", "Date"].map(h => (
-                <th key={h} className="px-3 py-2 text-left">{h}</th>
+                <th key={h} className="px-3 py-2 text-left whitespace-nowrap">{h}</th>
               ))}
             </tr>
           </thead>
 
           <tbody>
             {loading ? (
-              <TableSkeleton rows={3} columns={6} />
+              <TableSkeleton rows={3} columns={7} />
             ) : data.length ? (
               data.map(item => (
                 <tr
