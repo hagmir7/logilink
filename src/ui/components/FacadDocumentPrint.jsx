@@ -7,7 +7,7 @@ import { useAuth } from '../contexts/AuthContext';
 
 const { Option } = Select;
 
-export default function PrintDocumentTest({ docentete, doclignes, selectedRows = [], largeSize }) {
+export default function FacadDocumentPrint({ docentete, doclignes, selectedRows = [], largeSize }) {
 
   const [visible, setVisible] = useState(false);
   const [printers, setPrinters] = useState([]);
@@ -61,19 +61,19 @@ export default function PrintDocumentTest({ docentete, doclignes, selectedRows =
 
             body {
               font-family: Arial, sans-serif;
-              font-size: 14px;
+              font-size: 10px;
               color: #000;
               background: #fff;
               padding: 0;
             }
 
             @page {
-              size: A4;
+              size: A4 landscape;
               margin: 25;
             }
 
             @media print {
-              body { padding: 0; font-size: 14px;margin: 0 }
+              body { padding: 0; font-size: 10px; margin: 0; }
               .no-print { display: none !important; }
               .page-break { page-break-after: always; }
               .page-break:last-child { page-break-after: auto; }
@@ -82,76 +82,72 @@ export default function PrintDocumentTest({ docentete, doclignes, selectedRows =
             /* ── DOCUMENT WRAPPER ───────────────────────── */
             .document-wrap {
               width: 100%;
-          
               margin: 0 auto;
             }
 
-            /* ── TOP HEADER (logo | title | ref box) ────── */
-  /* ── TOP HEADER TABLE ───────────────────────── */
+            /* ── TOP HEADER TABLE ───────────────────────── */
             .header-table {
               width: 100%;
               border-collapse: collapse;
               border: 1px solid #000;
-              margin-bottom: 10px;
+              margin-bottom: 8px;
               table-layout: fixed;
             }
-
-          
 
             .header-table td {
               border: 1px solid #000;
             }
 
             .header-logo-cell {
-              width: 25%;
+              width: 20%;
               text-align: center;
               vertical-align: middle;
-              padding: 8px;
+              padding: 6px;
             }
 
             .header-logo-cell img {
-              width: 110px;
+              width: 100px;
               display: block;
               margin: 0 auto;
             }
 
             .header-syst-cell {
-              width: 50%;
+              width: 40%;
               font-weight: bold;
               text-align: center;
               vertical-align: middle;
-              padding: 6px 8px;
-              font-size: 14px;
+              padding: 4px 6px;
+              font-size: 12px;
             }
 
             .header-title-cell {
-              width: 50%;
+              width: 40%;
               font-weight: bold;
               text-align: center;
               vertical-align: middle;
               text-transform: uppercase;
-              padding: 8px;
-              font-size: 17px;
+              padding: 6px;
+              font-size: 14px;
             }
 
             .header-ref-cell {
-              width: 25%;
-              font-size: 14px;
+              width: 20%;
+              font-size: 11px;
               text-align: center;
               vertical-align: middle;
-              padding: 6px 8px;
+              padding: 4px 6px;
             }
 
             /* ── REF BPS / DATE LIVRAISON ROW ───────────── */
             .info-top-row {
               display: flex;
               justify-content: space-between;
-              margin-bottom: 10px;
-              padding: 0 4px;
+              margin-bottom: 8px;
+              padding: 0 2px;
             }
 
             .info-top-row span {
-              font-size: 14px;
+              font-size: 11px;
               font-weight: bold;
             }
 
@@ -159,76 +155,81 @@ export default function PrintDocumentTest({ docentete, doclignes, selectedRows =
             .client-table {
               width: 100%;
               border-collapse: collapse;
-              margin-bottom: 14px;
+              margin-bottom: 10px;
             }
 
             .client-table th {
-              background: #E8693A;
-              color: #fff;
+              background: #F4B083;
+              color: #000;
               font-weight: bold;
-              font-size: 13px;
+              font-size: 11px;
               text-align: center;
-              padding: 5px 8px;
+              padding: 4px 6px;
               border: 1px solid #333;
             }
 
             .client-table td {
               border: 1px solid #333;
-              padding: 5px 8px;
+              padding: 4px 6px;
               font-size: 11px;
-              height: 28px;
+              height: 24px;
             }
 
             /* ── MAIN DATA TABLE ─────────────────────────── */
             .main-table {
               width: 100%;
               border-collapse: collapse;
-              margin-bottom: 14px;
-              font-size: 14px;
+              margin-bottom: 10px;
+              font-size: 12px;
+              table-layout: fixed;
             }
 
             .main-table thead th {
               border: 1px solid #333;
-              padding: 5px 4px;
+              padding: 3px 2px;
               text-align: center;
               font-weight: bold;
-              font-size: 14px;
+              font-size: 12px;
+              background: #fff;
+              vertical-align: middle;
+            }
+
+            .main-table thead th.group-header {
+              background: #fff;
+              border-bottom: 1px solid #000;
             }
 
             .main-table tbody td {
               border: 1px solid #333;
-              padding: 4px 4px;
-              height: 24px;
-              font-size: 14px;
+              padding: 2px 2px;
+              height: 18px;
+              font-size: 12px;
             }
 
             .main-table tbody tr:nth-child(even) td {
               background-color: #e8e8e8;
             }
 
-            .main-table .col-ref { font-weight: bold; width: 9%; }
-            .main-table .col-qte { text-align: center; width: 5%; }
-            .main-table .col-piece { width: 14%; }
-            .main-table .col-dim { text-align: center; width: 5%; }
-            .main-table .col-col { text-align: center; width: 7%; }
-            .main-table .col-chant { text-align: center; width: 6%; }
-            .main-table .col-desc { width: auto; }
+            /* Column widths */
+            .col-piece   { width: 4%;  font-weight: bold; }
+            .col-refarticle { width: 7%; }
+            .col-dim     { width: 5%;  text-align: center; }
+            .col-col     { width: 5%;  text-align: center; }
+            .col-chant   { width: 4%;  text-align: center; }
+            .col-qte     { width: 4%;  text-align: center; }
+            .col-ctrl    { width: 3%;  text-align: center; font-size: 6px; }
 
             /* ── FOOTER SIGNATURES ───────────────────────── */
             .signature-footer {
               display: flex;
               justify-content: space-between;
-              margin-top: 20px;
+              margin-top: 16px;
               padding: 0 4px;
             }
 
             .signature-footer span {
-              font-size: 14px;
+              font-size: 11px;
               font-weight: bold;
-            }
-
-            td {
-              font-size: 14px;
             }
           </style>
         </head>
@@ -341,10 +342,10 @@ export default function PrintDocumentTest({ docentete, doclignes, selectedRows =
               </thead>
               <tbody>
                 <tr>
-                  <td style={{fontSize: 13, fontWeight: 'bold'}}>{docentete?.DO_Tiers || ''}</td>
-                  <td style={{fontSize: 13, fontWeight: 'bold'}}>{docentete?.DO_Piece || ''}</td>
-                  <td style={{fontSize: 13, fontWeight: 'bold'}}>{docentete?.DO_Ref || ''}</td>
-                  <td style={{fontSize: 13, fontWeight: 'bold'}}>☐ Caisson</td>
+                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Tiers || ''}</td>
+                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Piece || ''}</td>
+                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Ref || ''}</td>
+                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>☐ CUISINE</td>
                 </tr>
               </tbody>
             </table>
@@ -352,16 +353,38 @@ export default function PrintDocumentTest({ docentete, doclignes, selectedRows =
             {/* ── MAIN DATA TABLE ── */}
             <table className="main-table">
               <thead>
+                {/* Row 1: base columns (rowSpan=2) + group headers */}
                 <tr>
-                  <th className="col-ref">Piece</th>
-                  <th className="col-piece">Ref Article</th>
-                  <th className="col-dim">Hauteur</th>
-                  <th className="col-dim">Largeur</th>
-                  <th className="col-dim">Profondeur</th>
-                  <th className="col-col">Couleur</th>
-                  <th className="col-chant">Chant</th>
-                  <th className="col-dim">Epaisseur</th>
-                  <th className="col-qte">Quantité</th>
+                  <th className="col-piece"   rowSpan="2">Piece</th>
+                  <th className="col-refarticle" rowSpan="2">Ref Article</th>
+                  <th className="col-dim"     rowSpan="2">Hauteur</th>
+                  <th className="col-dim"     rowSpan="2">Largeur</th>
+                  <th className="col-col"     rowSpan="2">Couleur</th>
+                  <th className="col-chant"   rowSpan="2">Chant</th>
+                  <th className="col-dim"     rowSpan="2">Epaisseur</th>
+                  <th className="col-qte"     rowSpan="2">Qte</th>
+                  {/* Contrôle group headers */}
+                  <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Découpage</th>
+                  <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Placage</th>
+                  <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Autre</th>
+                </tr>
+                {/* Row 2: sub-column headers for each Contrôle group */}
+                <tr>
+                  {/* Découpage */}
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Machine</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Date</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Qnt</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Op</th>
+                  {/* Placage */}
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Machine</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Date</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Qnt</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Op</th>
+                  {/* Autre */}
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Machine</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Date</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Qnt</th>
+                  <th className="col-ctrl" style={{fontSize:'10px'}}>Op</th>
                 </tr>
               </thead>
               <tbody>
@@ -369,15 +392,30 @@ export default function PrintDocumentTest({ docentete, doclignes, selectedRows =
                   const art = item.article || {};
                   return (
                     <tr key={index}>
-                      <td className="col-ref">{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
-                      <td className="col-piece">{item.AR_Ref || ''}</td>
+                      {/* Base data columns */}
+                      <td className="col-piece">{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
+                      <td className="col-refarticle">{item.AR_Ref || ''}</td>
                       <td className="col-dim">{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
                       <td className="col-dim">{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
-                      <td className="col-dim">{Math.floor(item.Profondeur) || Math.floor(art.Profonduer) || ''}</td>
                       <td className="col-col">{item.Couleur || art.Couleur || ''}</td>
                       <td className="col-chant">{item.Chant || art.Chant || ''}</td>
                       <td className="col-dim">{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
                       <td className="col-qte">{Math.floor(item.EU_Qte || 0)}</td>
+                      {/* Découpage — empty fill-in cells */}
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      {/* Placage — empty fill-in cells */}
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      {/* Autre — empty fill-in cells */}
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
+                      <td className="col-ctrl">&nbsp;</td>
                     </tr>
                   );
                 })}

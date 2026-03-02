@@ -237,49 +237,47 @@ ipcMain.on('print', () => {
 
 
 ipcMain.on("print-content", (event, data) => {
-  const printWindow = new BrowserWindow({
-    show: false,
-    webPreferences: {
-      sandbox: false,
-    },
-  });
-
-  // Load HTML content
-  printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(data.htmlContent)}`);
-
-  printWindow.webContents.on("did-finish-load", () => {
-    const printOptions = {
-      silent: true,                  
-      printBackground: true,
-      deviceName: data?.printer || '',
-      color: true,
-      margins: {
-        marginType: 'none',
-        top: 0,
-        bottom: 0,
-        left: 0,
-        right: 0,
-      },
-      landscape: false,
-      pagesPerSheet: 1,
-      collate: true,
-      copies: 1,
-      dpi: {
-        horizontal: 600,
-        vertical: 600,
-      },
-      scaleFactor: 100,
-      pageSize: 'A4',
-    };
-
-    // Print directly
-    printWindow.webContents.print(printOptions, (success, failureReason) => {
-      if (!success) {
-        console.error("❌ Print failed:", failureReason);
-      }
-      printWindow.close();
+    const printWindow = new BrowserWindow({
+        show: false,
+        webPreferences: {
+            sandbox: false,
+        },
     });
-  });
+
+    // Load HTML content
+    printWindow.loadURL(`data:text/html;charset=utf-8,${encodeURIComponent(data.htmlContent)}`);
+    printWindow.webContents.on("did-finish-load", () => {
+        const printOptions = {
+            silent: true,
+            printBackground: true,
+            deviceName: data?.printer || '',
+            color: true,
+            margins: {
+                marginType: 'custom',
+                top: 10,
+                bottom: 10,
+                left: 10,
+                right: 10,
+            },
+            landscape: true,        // ← changed from false
+            pagesPerSheet: 1,
+            collate: true,
+            copies: 1,
+            dpi: {
+                horizontal: 600,
+                vertical: 600,
+            },
+            scaleFactor: 100,
+            pageSize: 'A4',         // stays A4 — Electron respects landscape: true
+        };
+
+        printWindow.webContents.print(printOptions, (success, failureReason) => {
+            if (!success) {
+                console.error("❌ Print failed:", failureReason);
+            }
+            printWindow.close();
+        });
+    });
 });
 
 // ---- Tiket

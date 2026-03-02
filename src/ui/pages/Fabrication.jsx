@@ -8,6 +8,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { RefreshCcw, ArrowRight, CheckCircle, Check } from 'lucide-react'
 import PrintDocument from '../components/PrintDocument'
 import PrintDocumentTest from '../components/PrintDocumentTest'
+import FacadDocumentPrint from '../components/FacadDocumentPrint'
 
 
 function Fabrication() {
@@ -144,7 +145,7 @@ function Fabrication() {
             }
           /> */}
 
-          <PrintDocumentTest
+          <FacadDocumentPrint
             docentete={data.docentete}
             doclignes={
               selected.length > 0
