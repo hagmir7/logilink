@@ -1,12 +1,13 @@
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
 import { getExped, getDocumentType, locale } from '../utils/config'
-import { useParams } from 'react-router-dom'
+import { useLocation, useParams } from 'react-router-dom'
 import { Button, Checkbox, DatePicker, Empty, message, Tag } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-import { RefreshCcw, ArrowRight } from 'lucide-react'
+import { RefreshCcw, ArrowRight, CheckCircle, Check } from 'lucide-react'
 import PrintDocument from '../components/PrintDocument'
+import PrintDocumentTest from '../components/PrintDocumentTest'
 
 
 function Fabrication() {
@@ -17,6 +18,11 @@ function Fabrication() {
   const [complationSpin, setComplationSpin] = useState(false)
   const currentItems = data?.doclignes || []
 
+    const location = useLocation();
+
+  const queryParams = new URLSearchParams(location.search);
+  const type = queryParams.get('type'); // "archive" if URL has ?type=archive
+
   // Fixed: Better filtering logic for selected rows
   const selectedRowsFull = data.doclignes.filter(line => 
     selected.includes(line.line?.id)
@@ -25,7 +31,7 @@ function Fabrication() {
   const fetchData = async () => {
     setLoading(true)
     try {
-      const response = await api.get(`docentetes/${id}`)
+      const response = await api.get(`docentetes/${id}${type ? `?type=${type}` : ''}`)
       setData(response.data)
     } catch (err) {
       message.error(err?.response?.data?.message)
@@ -81,7 +87,10 @@ function Fabrication() {
   }
 
   const complation = async () => {
-    if (selected.length === 0) return
+    if (selected.length === 0) {
+      message.warning("Aucun article sélectionné")
+      return;
+    }
 
     setComplationSpin(true)
     try {
@@ -113,7 +122,7 @@ function Fabrication() {
         <div className='flex items-center space-x-3'>
           <h1 className='text-lg font-bold text-gray-800'>
             {data.docentete.DO_Piece
-              ? `Commande ${data.docentete.DO_Piece}`
+              ? `Commande ${type === 'archive' ? id + " -> " + data.docentete.DO_Piece : data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
         </div>
@@ -126,7 +135,16 @@ function Fabrication() {
             )}
             Rafraîchir
           </Button>
-          <PrintDocument
+          {/* <PrintDocument
+            docentete={data.docentete}
+            doclignes={
+              selected.length > 0
+                ? selectedRowsFull
+                : data.doclignes
+            }
+          /> */}
+
+          <PrintDocumentTest
             docentete={data.docentete}
             doclignes={
               selected.length > 0
@@ -197,6 +215,7 @@ function Fabrication() {
                <Tr>
                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    <Checkbox
+                     
                      onChange={handleSelectAll}
                      checked={
                        selected.length === data.doclignes.length &&
@@ -249,10 +268,15 @@ function Fabrication() {
                  currentItems.map((item, index) => (
                    <Tr key={index} className='whitespace-nowrap'>
                      <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
-                       <Checkbox
-                         checked={selected.includes(item.line?.id)}
-                         onChange={() => handleSelect(item.line?.id)}
-                       />
+                       {
+                         item?.line?.fabricated_by ? <div className="bg-green-200 rounded-full py-1 flex items-center justify-center ml-2">
+                           <Check size={16} className="text-green-600" />
+                         </div> : <Checkbox
+                           disabled={item.line.fabricated_by}
+                           checked={selected.includes(item.line?.id)}
+                           onChange={() => handleSelect(item.line?.id)}
+                         />
+                       }
                      </td>
    
                 <td className='px-2 text-sm border-r border-gray-100'>
@@ -310,7 +334,7 @@ function Fabrication() {
                      </td>
                      <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                        <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                         {Math.floor(item.EU_Qte)}
+                         {Math.floor(type === 'archive' ? item.DL_QtePL : item.EU_Qte)}
                        </span>
                      </td>
                    </Tr>

@@ -4,7 +4,7 @@ import Spinner from './ui/Spinner'
 
 import { getExped, getStatus } from '../utils/config';
 import { useAuth } from '../contexts/AuthContext'
-import { useNavigate } from 'react-router-dom';
+import {useNavigate } from 'react-router-dom';
 
 const formatDate = (date) => {
   return new Date(date).toLocaleDateString('fr-FR')
@@ -13,6 +13,11 @@ const formatDate = (date) => {
 function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy, orderDir, setOrderDir }) {
   const { roles } = useAuth();
 
+  
+
+
+  
+
   const { user } = useAuth();
 
   const company = (data) => {
@@ -20,6 +25,8 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
   }
 
   const navigate = useNavigate();
+
+  
 
   const getExpeditionColor = (expedit) => {
     const colorMap = {
@@ -158,7 +165,7 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
                   </td>
 
                   <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-2 items-center'>
-                     <span>{formatDate(data?.docentete?.DO_DateLivr)}</span>
+                     <span>{formatDate(data?.docentete?.DO_DateLivr || data.delivery_date)}</span>
                     {/* {data.has_user_printer} */}
                     <span>{Number(data.has_user_printer) > 0 && <Printer />}</span>
                     <span className="text-md">

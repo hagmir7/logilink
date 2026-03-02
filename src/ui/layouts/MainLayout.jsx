@@ -94,7 +94,7 @@ const sideMenu = () => {
         {
           key: 'submenu-17',
           icon: <Archive size={19} />,
-          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
+          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition', 'fabrication', 'montage']),
           label: <Link to='/preparation/archive'>Archives</Link>,
         },
 

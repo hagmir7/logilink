@@ -190,7 +190,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
             ))}
 
             {
-              loading && <TableSkeleton rows={8} columns={7} />
+              loading && <TableSkeleton rows={8} columns={8} />
             }
           </tbody>
         </table>
