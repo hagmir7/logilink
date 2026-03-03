@@ -271,18 +271,18 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
 
     return (
       <tr key={index}>
-        <td className="col-piece">{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
-        <td className="col-refarticle">{item.AR_Ref || ''}</td>
-        <td className="col-dim">{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
-        <td className="col-dim">{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
-        <td className="col-col">{item.Couleur || art.Couleur || ''}</td>
+        <td className="col-piece" style={{fontSize:'12px'}}>{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
+        <td className="col-refarticle" style={{fontSize:'12px'}}>{item.AR_Ref || ''}</td>
+        <td className="col-dim" style={{fontSize:'12px'}}>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
+        <td className="col-dim" style={{fontSize:'12px'}}>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
+        <td className="col-col" style={{fontSize:'12px'}}>{item.Couleur || art.Couleur || ''}</td>
         {
-            isLandscape ? <td className="col-chant">{item.Chant || art.Chant || ''}</td> 
+            isLandscape ? <td className="col-chant"  style={{fontSize:'12px'}}>{item.Chant || art.Chant || ''}</td> 
             : <td className="col-chant">{Math.floor(item.Profondeur) || Math.floor(art.Profonduer) || ''}</td> 
         }
         
-        <td className="col-dim">{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
-        <td className="col-qte">{Math.floor(item.EU_Qte || 0)}</td>
+        <td className="col-dim" style={{fontSize:'12px'}}>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
+        <td className="col-qte" style={{fontSize:'12px'}}>{Math.floor(item.EU_Qte || 0)}</td>
         {isLandscape && (
           <>
             {/* Découpage */}
