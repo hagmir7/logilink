@@ -259,7 +259,7 @@ ipcMain.on("print-content", (event, data) => {
                 left: 10,
                 right: 10,
             },
-            landscape: true,        // ← changed from false
+            landscape: data.landscape,        // ← changed from false
             pagesPerSheet: 1,
             collate: true,
             copies: 1,

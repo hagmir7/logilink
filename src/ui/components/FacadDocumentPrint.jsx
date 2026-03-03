@@ -42,6 +42,15 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
 
   const printingLines = selectedRows.length > 0 ? selectedRows : doclignes;
 
+  // Group lines by family: CAI → portrait, everything else → landscape
+  const caiLines   = printingLines.filter(item => item?.article?.FA_CodeFamille === 'CAI');
+  const otherLines = printingLines.filter(item => item?.article?.FA_CodeFamille !== 'CAI');
+
+  // Build print groups: [{ lines, orientation }]
+  const printGroups = [];
+  if (caiLines.length > 0)   printGroups.push({ lines: caiLines,   orientation: 'portrait'  });
+  if (otherLines.length > 0) printGroups.push({ lines: otherLines, orientation: 'landscape' });
+
   const printEvent = async () => {
     try {
       await api.get(`documents/print/${docentete.document.id}`);
@@ -51,198 +60,251 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
     }
   };
 
+  const buildHtml = (content, orientation) => `
+    <html>
+      <head>
+        <style>
+          * { box-sizing: border-box; margin: 0; padding: 0; }
+
+          body {
+            font-family: Arial, sans-serif;
+            font-size: 10px;
+            color: #000;
+            background: #fff;
+            padding: 0;
+          }
+
+          @page {
+            size: A4 ${orientation};
+            margin: 25px;
+          }
+
+          @media print {
+            body { padding: 0; font-size: 10px; margin: 0; }
+            .no-print { display: none !important; }
+            .page-break { page-break-after: always; }
+            .page-break:last-child { page-break-after: auto; }
+          }
+
+          .document-wrap { width: 100%; margin: 0 auto; }
+
+          .header-table {
+            width: 100%; border-collapse: collapse; border: 1px solid #000;
+            margin-bottom: 8px; table-layout: fixed;
+          }
+          .header-table td { border: 1px solid #000; }
+          .header-logo-cell { width: 20%; text-align: center; vertical-align: middle; padding: 6px; }
+          .header-logo-cell img { width: 100px; display: block; margin: 0 auto; }
+          .header-syst-cell { width: 40%; font-weight: bold; text-align: center; vertical-align: middle; padding: 4px 6px; font-size: 12px; }
+          .header-title-cell { width: 40%; font-weight: bold; text-align: center; vertical-align: middle; text-transform: uppercase; padding: 6px; font-size: 14px; }
+          .header-ref-cell { width: 20%; font-size: 11px; text-align: center; vertical-align: middle; padding: 4px 6px; }
+
+          .info-top-row { display: flex; justify-content: space-between; margin-bottom: 8px; padding: 0 2px; }
+          .info-top-row span { font-size: 11px; font-weight: bold; }
+
+          .client-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+          .client-table th { background: #F4B083; color: #000; font-weight: bold; font-size: 11px; text-align: center; padding: 4px 6px; border: 1px solid #333; }
+          .client-table td { border: 1px solid #333; padding: 4px 6px; font-size: 11px; height: 24px; }
+
+          .main-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; font-size: 12px; table-layout: auto; }
+          .main-table thead th { border: 1px solid #333; padding: 3px 2px; text-align: center; font-weight: bold; font-size: 12px; background: #fff; vertical-align: middle; }
+          .main-table thead th.group-header { background: #fff; border-bottom: 1px solid #000; }
+          .main-table tbody td { border: 1px solid #333; padding: 2px 2px; height: 18px; font-size: 12px; }
+          .main-table tbody tr:nth-child(even) td { background-color: #e8e8e8; }
+
+          .col-piece      { font-weight: bold; }
+          .col-refarticle { }
+          .col-dim        { text-align: center; }
+          .col-col        { text-align: center; }
+          .col-chant      { text-align: center; }
+          .col-qte        { text-align: center; }
+          .col-ctrl       { text-align: center; font-size: 6px; }
+
+          .signature-footer { display: flex; justify-content: space-between; margin-top: 16px; padding: 0 4px; }
+          .signature-footer span { font-size: 11px; font-weight: bold; }
+        </style>
+      </head>
+      <body>${content}</body>
+    </html>
+  `;
+
   const handlePrint = () => {
-    const content = document.getElementById('print-section').innerHTML;
-    const styledHtml = `
-      <html>
-        <head>
-          <style>
-            * { box-sizing: border-box; margin: 0; padding: 0; }
+    printGroups.forEach(({ lines, orientation }) => {
+      const sectionId = orientation === 'portrait' ? 'print-section-cai' : 'print-section-other';
+      const content = document.getElementById(sectionId).innerHTML;
+      window.electron.ipcRenderer.send('print-content', {
+        htmlContent: buildHtml(content, orientation),
+        printer: selectedPrinter,
+        landscape: orientation === 'landscape',
+      });
+    });
 
-            body {
-              font-family: Arial, sans-serif;
-              font-size: 10px;
-              color: #000;
-              background: #fff;
-              padding: 0;
-            }
-
-            @page {
-              size: A4 landscape;
-              margin: 25;
-            }
-
-            @media print {
-              body { padding: 0; font-size: 10px; margin: 0; }
-              .no-print { display: none !important; }
-              .page-break { page-break-after: always; }
-              .page-break:last-child { page-break-after: auto; }
-            }
-
-            /* ── DOCUMENT WRAPPER ───────────────────────── */
-            .document-wrap {
-              width: 100%;
-              margin: 0 auto;
-            }
-
-            /* ── TOP HEADER TABLE ───────────────────────── */
-            .header-table {
-              width: 100%;
-              border-collapse: collapse;
-              border: 1px solid #000;
-              margin-bottom: 8px;
-              table-layout: fixed;
-            }
-
-            .header-table td {
-              border: 1px solid #000;
-            }
-
-            .header-logo-cell {
-              width: 20%;
-              text-align: center;
-              vertical-align: middle;
-              padding: 6px;
-            }
-
-            .header-logo-cell img {
-              width: 100px;
-              display: block;
-              margin: 0 auto;
-            }
-
-            .header-syst-cell {
-              width: 40%;
-              font-weight: bold;
-              text-align: center;
-              vertical-align: middle;
-              padding: 4px 6px;
-              font-size: 12px;
-            }
-
-            .header-title-cell {
-              width: 40%;
-              font-weight: bold;
-              text-align: center;
-              vertical-align: middle;
-              text-transform: uppercase;
-              padding: 6px;
-              font-size: 14px;
-            }
-
-            .header-ref-cell {
-              width: 20%;
-              font-size: 11px;
-              text-align: center;
-              vertical-align: middle;
-              padding: 4px 6px;
-            }
-
-            /* ── REF BPS / DATE LIVRAISON ROW ───────────── */
-            .info-top-row {
-              display: flex;
-              justify-content: space-between;
-              margin-bottom: 8px;
-              padding: 0 2px;
-            }
-
-            .info-top-row span {
-              font-size: 11px;
-              font-weight: bold;
-            }
-
-            /* ── CLIENT INFO TABLE ───────────────────────── */
-            .client-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 10px;
-            }
-
-            .client-table th {
-              background: #F4B083;
-              color: #000;
-              font-weight: bold;
-              font-size: 11px;
-              text-align: center;
-              padding: 4px 6px;
-              border: 1px solid #333;
-            }
-
-            .client-table td {
-              border: 1px solid #333;
-              padding: 4px 6px;
-              font-size: 11px;
-              height: 24px;
-            }
-
-            /* ── MAIN DATA TABLE ─────────────────────────── */
-            .main-table {
-              width: 100%;
-              border-collapse: collapse;
-              margin-bottom: 10px;
-              font-size: 12px;
-              table-layout: fixed;
-            }
-
-            .main-table thead th {
-              border: 1px solid #333;
-              padding: 3px 2px;
-              text-align: center;
-              font-weight: bold;
-              font-size: 12px;
-              background: #fff;
-              vertical-align: middle;
-            }
-
-            .main-table thead th.group-header {
-              background: #fff;
-              border-bottom: 1px solid #000;
-            }
-
-            .main-table tbody td {
-              border: 1px solid #333;
-              padding: 2px 2px;
-              height: 18px;
-              font-size: 12px;
-            }
-
-            .main-table tbody tr:nth-child(even) td {
-              background-color: #e8e8e8;
-            }
-
-            /* Column widths */
-            .col-piece   { width: 4%;  font-weight: bold; }
-            .col-refarticle { width: 7%; }
-            .col-dim     { width: 5%;  text-align: center; }
-            .col-col     { width: 5%;  text-align: center; }
-            .col-chant   { width: 4%;  text-align: center; }
-            .col-qte     { width: 4%;  text-align: center; }
-            .col-ctrl    { width: 3%;  text-align: center; font-size: 6px; }
-
-            /* ── FOOTER SIGNATURES ───────────────────────── */
-            .signature-footer {
-              display: flex;
-              justify-content: space-between;
-              margin-top: 16px;
-              padding: 0 4px;
-            }
-
-            .signature-footer span {
-              font-size: 11px;
-              font-weight: bold;
-            }
-          </style>
-        </head>
-        <body>${content}</body>
-      </html>
-    `;
-    window.electron.ipcRenderer.send('print-content', { htmlContent: styledHtml, printer: selectedPrinter });
     if (!roles('commercial')) {
       printEvent();
     }
   };
 
-  const pages = chunkLines(printingLines, 40);
+  // ── SHARED PAGE FRAGMENTS ────────────────────────────────────────────────
+  const renderPageHeader = (pageIndex, totalPages) => (
+    <>
+      <table className="header-table">
+        <tbody>
+          <tr>
+            <td rowSpan="3" className="header-logo-cell">
+              <img src="https://intercocina.com/assets/imgs/intercocina-logo.png" alt="StileMobili" />
+            </td>
+            <td className="header-syst-cell">SYSTEME DE MANAGEMENT DE LA QUALITE</td>
+            <td className="header-ref-cell">ENR.FAB.11</td>
+          </tr>
+          <tr>
+            <td rowSpan="2" className="header-title-cell">
+              Bon de commande des produits spéciaux
+            </td>
+            <td className="header-ref-cell"><strong>Version :</strong> 1.0</td>
+          </tr>
+          <tr>
+            <td className="header-ref-cell"><strong>Page :</strong> {pageIndex + 1} sur {totalPages}</td>
+          </tr>
+        </tbody>
+      </table>
+      <div className="info-top-row">
+        <span>Réf BPS : {docentete?.DO_Ref || '__'}</span>
+        <span>Date de livraison prévue : {doclignes[0]?.line.complation_date ? dateFormat(doclignes[0]?.line.complation_date) : '__'}</span>
+      </div>
+    </>
+  );
+
+  const renderClientTable = (categoryType) => (
+    <table className="client-table">
+      <thead>
+        <tr>
+          <th>N° CLIENT</th>
+          <th>N° PL</th>
+          <th>REF CLIENT</th>
+          <th>Catégorie de produit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Tiers || ''}</td>
+          <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Piece || ''}</td>
+          <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Ref || ''}</td>
+          <td style={{ fontSize: 11, fontWeight: 'bold' }}>☐ {categoryType}</td>
+        </tr>
+      </tbody>
+    </table>
+  );
+
+  const renderFooter = () => (
+    <div className="signature-footer">
+      <span>Date de libération : {doclignes[0]?.line?.fabircation_at ? dateFormat(doclignes[0]?.line?.fabircation_at) : ''}</span>
+      <span>VISA CHEF D'ATELIER : {user?.full_name}</span>
+    </div>
+  );
+
+  // ── TABLE HEADER: landscape (with rows2) vs portrait (no rows2) ──
+  const renderTableHead = (isLandscape) => {
+    if (isLandscape) {
+      return (
+        <>
+          <colgroup>
+            {/* 8 data columns → 50% total, ~6.25% each */}
+            <col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} />
+            <col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} />
+            {/* 12 control columns → 50% total, ~4.17% each */}
+            <col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} />
+            <col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} />
+            <col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.16%' }} />
+          </colgroup>
+          <thead style={{ tableLayout: 'fixed' }}>
+            <tr style={{ height: '50%' }}>
+              <th className="col-piece"      rowSpan="2">Piece</th>
+              <th className="col-refarticle" rowSpan="2">Ref</th>
+              <th className="col-dim"        rowSpan="2">H</th>
+              <th className="col-dim"        rowSpan="2">L</th>
+              <th className="col-col"        rowSpan="2">Couleur</th>
+              <th className="col-chant"      rowSpan="2">C</th>
+              <th className="col-dim"        rowSpan="2">Ep</th>
+              <th className="col-qte"        rowSpan="2">Qte</th>
+              <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Découpage</th>
+              <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Placage</th>
+              <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Autre</th>
+            </tr>
+            <tr style={{ height: '50%' }}>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Machine</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Date</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Qnt</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Op</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Machine</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Date</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Qnt</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Op</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Machine</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Date</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Qnt</th>
+              <th className="col-ctrl" style={{ fontSize: '7px', padding: '1px 1px' }}>Op</th>
+            </tr>
+          </thead>
+        </>
+      );
+    }
+
+    return (
+      <thead>
+        <tr>
+          <th className="col-piece">Piece</th>
+          <th className="col-refarticle">Ref</th>
+          <th className="col-dim">H</th>
+          <th className="col-dim">L</th>
+          <th className="col-col">Couleur</th>
+          <th className="col-chant">Prof</th>
+          <th className="col-dim">Ep</th>
+          <th className="col-qte">Qte</th>
+        </tr>
+      </thead>
+    );
+  };
+
+  // ── TABLE ROW: landscape includes empty control cells, portrait does not ──
+  const renderTableRow = (item, index, isLandscape) => {
+    const art = item.article || {};
+
+    return (
+      <tr key={index}>
+        <td className="col-piece">{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
+        <td className="col-refarticle">{item.AR_Ref || ''}</td>
+        <td className="col-dim">{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
+        <td className="col-dim">{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
+        <td className="col-col">{item.Couleur || art.Couleur || ''}</td>
+        {
+            isLandscape ? <td className="col-chant">{item.Chant || art.Chant || ''}</td> 
+            : <td className="col-chant">{Math.floor(item.Profondeur) || Math.floor(art.Profonduer) || ''}</td> 
+        }
+        
+        <td className="col-dim">{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
+        <td className="col-qte">{Math.floor(item.EU_Qte || 0)}</td>
+        {isLandscape && (
+          <>
+            {/* Découpage */}
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            {/* Placage */}
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            {/* Autre */}
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+            <td className="col-ctrl">&nbsp;</td>
+          </>
+        )}
+      </tr>
+    );
+  };
 
   return (
     <div>
@@ -289,150 +351,45 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
         </Button>
       )}
 
-      {/* ─────────────── HIDDEN PRINT SECTION ─────────────── */}
-      <div id="print-section" style={{ display: 'none' }}>
-        {pages.map((pageLines, pageIndex) => (
-          <div key={pageIndex} className="document-wrap page-break">
-
-            {/* ── TOP HEADER ── */}
-            <table className="header-table">
-              <tbody>
-                <tr>
-                  <td rowSpan="3" className="header-logo-cell">
-                    <img src="https://intercocina.com/storage/StileMobili-01.png" alt="StileMobili" />
-                  </td>
-                  <td className="header-syst-cell">
-                    SYSTEME DE MANAGEMENT DE LA QUALITE
-                  </td>
-                  <td className="header-ref-cell">
-                    ENR.FAB.11
-                  </td>
-                </tr>
-                <tr>
-                  <td rowSpan="2" className="header-title-cell">
-                    Bon de commande des produits spéciaux
-                  </td>
-                  <td className="header-ref-cell">
-                    <strong>Version :</strong> 1.0
-                  </td>
-                </tr>
-                <tr>
-                  <td className="header-ref-cell">
-                    <strong>Page :</strong> {pageIndex + 1} sur {pages.length}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-
-            {/* ── RÉF BPS / DATE DE LIVRAISON PRÉVUE ── */}
-            <div className="info-top-row">
-              <span>Réf BPS : {docentete?.DO_Ref || '__'}</span>
-              <span>Date de livraison prévue : {docentete?.DO_DateLivr ? dateFormat(docentete.DO_DateLivr) : '__'}</span>
-            </div>
-
-            {/* ── CLIENT INFO TABLE ── */}
-            <table className="client-table">
-              <thead>
-                <tr>
-                  <th>N° CLIENT</th>
-                  <th>N° PL</th>
-                  <th>REF CLIENT</th>
-                  <th>Catégorie de produit</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Tiers || ''}</td>
-                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Piece || ''}</td>
-                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>{docentete?.DO_Ref || ''}</td>
-                  <td style={{ fontSize: 11, fontWeight: 'bold' }}>☐ CUISINE</td>
-                </tr>
-              </tbody>
-            </table>
-
-            {/* ── MAIN DATA TABLE ── */}
-            <table className="main-table">
-              <thead>
-                {/* Row 1: base columns (rowSpan=2) + group headers */}
-                <tr>
-                  <th className="col-piece"   rowSpan="2">Piece</th>
-                  <th className="col-refarticle" rowSpan="2">Ref Article</th>
-                  <th className="col-dim"     rowSpan="2">Hauteur</th>
-                  <th className="col-dim"     rowSpan="2">Largeur</th>
-                  <th className="col-col"     rowSpan="2">Couleur</th>
-                  <th className="col-chant"   rowSpan="2">Chant</th>
-                  <th className="col-dim"     rowSpan="2">Epaisseur</th>
-                  <th className="col-qte"     rowSpan="2">Qte</th>
-                  {/* Contrôle group headers */}
-                  <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Découpage</th>
-                  <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Placage</th>
-                  <th className="group-header" colSpan="4" style={{ textAlign: 'center', borderBottom: '1px solid #000' }}>Autre</th>
-                </tr>
-                {/* Row 2: sub-column headers for each Contrôle group */}
-                <tr>
-                  {/* Découpage */}
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Machine</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Date</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Qnt</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Op</th>
-                  {/* Placage */}
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Machine</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Date</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Qnt</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Op</th>
-                  {/* Autre */}
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Machine</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Date</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Qnt</th>
-                  <th className="col-ctrl" style={{fontSize:'10px'}}>Op</th>
-                </tr>
-              </thead>
-              <tbody>
-                {pageLines.map((item, index) => {
-                  const art = item.article || {};
-                  return (
-                    <tr key={index}>
-                      {/* Base data columns */}
-                      <td className="col-piece">{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
-                      <td className="col-refarticle">{item.AR_Ref || ''}</td>
-                      <td className="col-dim">{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
-                      <td className="col-dim">{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
-                      <td className="col-col">{item.Couleur || art.Couleur || ''}</td>
-                      <td className="col-chant">{item.Chant || art.Chant || ''}</td>
-                      <td className="col-dim">{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
-                      <td className="col-qte">{Math.floor(item.EU_Qte || 0)}</td>
-                      {/* Découpage — empty fill-in cells */}
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      {/* Placage — empty fill-in cells */}
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      {/* Autre — empty fill-in cells */}
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                      <td className="col-ctrl">&nbsp;</td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-
-            {/* ── FOOTER ── */}
-            {pageIndex === pages.length - 1 && (
-              <div className="signature-footer">
-                <span>Date de libération :</span>
-                <span>VISA CHEF D'ATELIER :</span>
+      {/* ─────────────── HIDDEN PRINT SECTION — CAI (portrait) ─────────────── */}
+      {caiLines.length > 0 && (
+        <div id="print-section-cai" style={{ display: 'none' }}>
+          {chunkLines(caiLines, 40).map((pageLines, pageIndex) => {
+            const totalPages = chunkLines(caiLines, 40).length;
+            return (
+              <div key={pageIndex} className="document-wrap page-break">
+                {renderPageHeader(pageIndex, totalPages)}
+                {renderClientTable("Caisson")}
+                <table className="main-table">
+                  {renderTableHead(false)}
+                  <tbody>{pageLines.map((item, i) => renderTableRow(item, i, false))}</tbody>
+                </table>
+                {pageIndex === totalPages - 1 && renderFooter()}
               </div>
-            )}
+            );
+          })}
+        </div>
+      )}
 
-          </div>
-        ))}
-      </div>
+      {/* ─────────────── HIDDEN PRINT SECTION — OTHER (landscape) ─────────────── */}
+      {otherLines.length > 0 && (
+        <div id="print-section-other" style={{ display: 'none' }}>
+          {chunkLines(otherLines, 40).map((pageLines, pageIndex) => {
+            const totalPages = chunkLines(otherLines, 40).length;
+            return (
+              <div key={pageIndex} className="document-wrap page-break">
+                {renderPageHeader(pageIndex, totalPages)}
+                {renderClientTable("Autre")}
+                <table className="main-table">
+                  {renderTableHead(true)}
+                  <tbody>{pageLines.map((item, i) => renderTableRow(item, i, true))}</tbody>
+                </table>
+                {pageIndex === totalPages - 1 && renderFooter()}
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }

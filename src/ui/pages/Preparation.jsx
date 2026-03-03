@@ -487,7 +487,7 @@ export default function Preparation() {
         styles={{ padding: '24px' }}
       >
         <div style={{ padding: '16px 0' }}>
-           
+
           <Radio.Group
             onChange={changeSelectedLine}
             value={selectedOption}
@@ -549,7 +549,7 @@ export default function Preparation() {
       </div>
 
       <div className='mx-auto p-2 md:p-4 space-y-3 sm:space-y-8 max-w-7xl '>
-       
+
         {/* Scanner Section */}
         <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 relative'>
           <button className='absolute right-1 p-6 px-10' onClick={confirmAll}></button>

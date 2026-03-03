@@ -26,6 +26,8 @@ import {
   ChartSpline,
   Handshake,
   ChartCandlestick,
+  Building,
+  Square,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -59,6 +61,7 @@ const sideMenu = () => {
     {
       key: 'menu-1',
       icon: <ShoppingBag size={20} />,
+      hidden: roles(['production', 'production_operateur', 'fabrication']),
       label: <span className='text-base'>Commandes</span>,
       children: [
         {
@@ -81,6 +84,7 @@ const sideMenu = () => {
         },
         {
           key: 'submenu-15',
+
           icon: <Truck size={19} />,
           disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition', 'preparation']),
           label: <Link to='/shipping'>Expédition</Link>,
@@ -113,6 +117,49 @@ const sideMenu = () => {
         //   // disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
         //   label: <Link to='/sage'>Documents</Link>,
         // },
+      ],
+    },
+
+    {
+      key: 'menu-10',
+      hidden: !roles(['production', 'production_operateur', 'fabrication']),
+      icon: <Package size={20} />,
+      label: <span className='text-base'>Fabrication</span>,
+
+      children: [
+        {
+          key: 'submenu-101',
+          icon: <RefreshCcw size={19} />,
+          label: <Link to='/'> Commandes </Link>,
+        },
+        {
+
+          key: 'submenu-102',
+          icon: <ClipboardCheck size={19} />,
+          label: <Link to='/preparation/archive'>Archives</Link>,
+        },
+        {
+          key: 'submenu-103',
+          icon: <Layers size={19} />,
+          disabled: true,
+          label: <Link to='/fabrications/stock'>Stock</Link>,
+        },
+
+
+        {
+          key: 'submenu-104',
+          icon: <ArrowDownUp size={19} />,
+          disabled: true,
+          label: <Link to='/fabircations/movements'>Movements</Link>,
+        },
+
+
+        {
+          key: 'submenu-105',
+          icon: <Square size={19} />,
+          disabled: true,
+          label: <Link to='/fabrications/articles'>Articles</Link>,
+        },
       ],
     },
     {
@@ -176,13 +223,13 @@ const sideMenu = () => {
       disabled: !roles(['admin', 'chef_service']),
       label: (
         <div className="flex items-center justify-between w-full">
-            Achat
+          Achat
           {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
         </div>
       ),
 
       children: [
-         {
+        {
           key: 'submenu-101',
           // disabled: true,
           icon: <ChartSpline size={20} />,
@@ -364,8 +411,8 @@ const MainLayout = () => {
             <Menu
               mode='inline'
               className='space-y-2'
-              defaultSelectedKeys={['menu-1']}
-              defaultOpenKeys={['menu-1']}
+              defaultSelectedKeys={['menu-1', 'menu-10']}
+              defaultOpenKeys={['menu-1', 'menu-10']}
               style={{ borderRight: 0 }}
               items={sideMenu()}
             />
