@@ -144,7 +144,7 @@ export default function PurchaseOverview() {
             <DashboardSection dates={dates} />
             <div className="grid grid-cols-2 gap-2">
                 <ServiceExpenditures dates={dates} />
-                <ServiceExpenditures dates={dates} />
+                {/* <ServiceExpenditures dates={dates} /> */}
             </div>
         </div>
     );

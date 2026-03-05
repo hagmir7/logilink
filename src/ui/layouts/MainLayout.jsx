@@ -147,7 +147,7 @@ const sideMenu = () => {
 
 
         {
-          key: 'submenu-104',
+          key: 'submenu-109',
           icon: <ArrowDownUp size={19} />,
           disabled: true,
           label: <Link to='/fabircations/movements'>Movements</Link>,
@@ -233,7 +233,7 @@ const sideMenu = () => {
           key: 'submenu-101',
           // disabled: true,
           icon: <ChartSpline size={20} />,
-          label: <Link to='/purchase-overview'>Overview</Link>,
+          label: <Link to='/purchase-overview'>Tableau de bord</Link>,
         },
 
 

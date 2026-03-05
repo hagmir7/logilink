@@ -314,11 +314,11 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
             type="primary"
             onClick={() => setVisible(true)}
             size={largeSize}
-            color="cyan"
+            color="blue"
             variant="solid"
             icon={<Printer size={largeSize ? 40 : 16} />}
           >
-            Imprimer
+            {/* Imprimer */}
           </Button>
           <Modal
             title="Sélectionner l'imprimante"
@@ -343,11 +343,11 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
         <Button
           onClick={handlePrint}
           style={largeSize ? { height: 60, fontSize: 25 } : {}}
-          color="cyan"
+          color="blue"
           variant="solid"
           icon={<Printer size={largeSize ? 40 : 16} />}
         >
-          Imprimer
+          {/* Imprimer */}
         </Button>
       )}
 
@@ -374,8 +374,8 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
       {/* ─────────────── HIDDEN PRINT SECTION — OTHER (landscape) ─────────────── */}
       {otherLines.length > 0 && (
         <div id="print-section-other" style={{ display: 'none' }}>
-          {chunkLines(otherLines, 40).map((pageLines, pageIndex) => {
-            const totalPages = chunkLines(otherLines, 40).length;
+          {chunkLines(otherLines, 16).map((pageLines, pageIndex) => {
+            const totalPages = chunkLines(otherLines, 16).length;
             return (
               <div key={pageIndex} className="document-wrap page-break">
                 {renderPageHeader(pageIndex, totalPages)}
