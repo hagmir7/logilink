@@ -26,7 +26,7 @@ import {
   ChartSpline,
   Handshake,
   ChartCandlestick,
-  Building,
+  ZodiacCancer ,
   Square,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
@@ -123,7 +123,7 @@ const sideMenu = () => {
     {
       key: 'menu-10',
       hidden: !roles(['production', 'production_operateur', 'fabrication']),
-      icon: <Package size={20} />,
+      icon: <ZodiacCancer size={20} />,
       label: <span className='text-base'>Fabrication</span>,
 
       children: [
