@@ -100,9 +100,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   Document
                 </th>
               )}
-              <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
-                Préparation
-              </th>
+
               <th className='px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider whitespace-nowrap'>
                 Statut
               </th>
@@ -141,11 +139,6 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
                   </td>
                 )}
 
-                <td className='px-6 py-2 whitespace-nowrap'>
-                  <div className='text-sm font-bold text-gray-900'>
-                    {item?.document?.piece || '__'}
-                  </div>
-                </td>
                 <td className='px-6 py-2 whitespace-nowrap'>
                   <Tag
                     color={item?.document?.status?.color}
@@ -190,7 +183,7 @@ function ShippingTable({ documents = [], onSelectOrder, loading }) {
             ))}
 
             {
-              loading && <TableSkeleton rows={8} columns={8} />
+              loading && <TableSkeleton rows={7} columns={7} />
             }
           </tbody>
         </table>

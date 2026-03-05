@@ -1,170 +1,139 @@
-import { Loader2, RefreshCcw, ChevronRight } from 'lucide-react'
-import React, { useState, useEffect } from 'react'
+import { Loader2, RefreshCcw, Truck } from 'lucide-react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { api } from '../utils/api'
-import { data, useNavigate } from 'react-router-dom'
-import { Button, Select, DatePicker, Input } from 'antd'
-import { useAuth } from '../contexts/AuthContext'
+import { useNavigate } from 'react-router-dom'
+import { Button, Select, Input } from 'antd'
 import ShippingTable from '../components/ShippingTable'
 
 const { Search } = Input
-const { RangePicker } = DatePicker
 
-function Shipping() {
+const STATUS_OPTIONS = [
+  { value: '',   label: 'Tous les statuts' },
+  { value: '11', label: 'Validé' },
+  { value: '12', label: 'Livraison' },
+]
 
-  const [documents, setDocuments] = useState([])
-  const [loading, setLoading] = useState(false)
-  const [documenStatus, setDocumentStatus] = useState('')
-  const [page, setPage] = useState(1)
-  const [moreSpinner, setMoreSpinner] = useState(false)
-  const [searchSpinner, setSearchSpinner] = useState(false)
-  const navigate = useNavigate()
-  const [dateFilter, setDateFilter] = useState(null);
-  const [searchQuery, setSearchQuery] = useState('');
-  const { roles = [] } = useAuth()
+export default function Shipping() {
+  const [documents, setDocuments]     = useState([])
+  const [loading, setLoading]         = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [status, setStatus]           = useState('')
+  const [search, setSearch]           = useState('')
+  const [page, setPage]               = useState(1)
 
-  const fetchData = async () => {
-    setLoading(true)
+  const navigate   = useNavigate()
+  const isElectron = Boolean(window.electron)
+  const size       = isElectron ? 'large' : 'middle'
+
+  const fetchDocuments = useCallback(async (reset = true) => {
+    reset ? setLoading(true) : setLoadingMore(true)
     try {
-      const response = await api.get(`documents/livraison?status=${documenStatus}&search=${searchQuery}`);
-      setDocuments(response.data)
-
-      setLoading(false)
+      const response = await api.get('documents/livraison', {
+        params: { status, search, page: reset ? 1 : page },
+      })
+      setDocuments(prev =>
+        reset
+          ? response.data
+          : {
+              ...response.data,
+              data: [...(prev.data ?? []), ...(response.data.data ?? [])],
+            }
+      )
+      if (!reset) setPage(p => p + 1)
     } catch (err) {
-      console.error('Failed to fetch data:', err)
-      setLoading(false)
+      console.error('Failed to fetch documents:', err)
+    } finally {
+      reset ? setLoading(false) : setLoadingMore(false)
     }
-  }
-
+  }, [status, search, page])
 
   useEffect(() => {
-    fetchData();
-  }, [documenStatus, searchQuery]);
-
-  const handleSelectOrder = (orderId) => {
-    navigate(`/document/${orderId}`)
-  }
-
-
-  const loadMore = async () => {
-    setMoreSpinner(true)
-    setPage(page + 1)
-
-    const response = await api.get(`documents/livraison?page=${page}`)
-    setDocuments(prev => ({
-      ...prev,
-      data: response.data.data,
-      next_page_url: response.data.next_page_url,
-      total: response.data.total
-    }))
-    setMoreSpinner(false)
-
-    try {
-
-
-    } catch (err) {
-      console.error('Failed to fetch data:', err)
-      setMoreSpinner(false)
-    }
-  }
-
-  const handleSearch = async (e) => {
-    setSearchSpinner(true)
-    const { value: inputValue } = e.target
-
-    try {
-      const response = await api.get(`${url}&search=${inputValue}`)
-      setDocuments(response.data)
-      setSearchSpinner(false)
-    } catch (err) {
-      console.error('Failed to fetch data:', err)
-      setSearchSpinner(false)
-    }
-  }
-
-  const handleChangeDate = (dates, dateStrings) => {
-    setDateFilter(dates)
-  }
-
-
+    setPage(1)
+    fetchDocuments(true)
+  }, [status, search])
 
   return (
-    <div className='min-h-screen'>
-      {/* Header */}
-      <div
-        className={`
-    flex flex-wrap items-center justify-between gap-3 mb-4
-    ${window.electron ? 'p-5 text-2xl' : 'p-2 text-xl'}
-  `}
-      >
+    <div style={{ minHeight: '100vh', background: '#f5f6fa' }}>
 
-        {/* Title full width on mobile, inline on desktop */}
-        <h2 className="font-semibold text-gray-800 w-full sm:w-auto mb-0 pb-0" style={{marginBottom: '0'}}>
-          Gestion de Livraison
-        </h2>
+      {/* ── Header ── */}
+      <div style={{
+        background: '#fff',
+        borderBottom: '1px solid #e8e8e8',
+        padding: isElectron ? '14px 24px' : '10px 16px',
+      }}>
+        <div style={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 10,
+          flexWrap: 'wrap',
+        }}>
 
-        {/* Search ALWAYS full width on mobile */}
-        <div className="w-full sm:max-w-xs">
+          {/* Title — takes remaining space */}
+          <div style={{ display: 'flex', alignItems: 'center', gap: 8, flex: 1, minWidth: 160 }}>
+            <Truck size={isElectron ? 20 : 17} style={{ color: '#3b82f6', flexShrink: 0 }} />
+            <h2 style={{
+              margin: 0,
+              fontWeight: 600,
+              fontSize: isElectron ? 18 : 15,
+              color: '#1f2937',
+              whiteSpace: 'nowrap',
+            }}>
+              Gestion de Livraison
+            </h2>
+          </div>
+
+          {/* Search — fixed width */}
           <Search
-            placeholder="Rechercher"
-            loading={searchSpinner}
-            size={window.electron ? "large" : ""}
-            className="w-full"
-            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Rechercher…"
+            allowClear
+            size={size}
+            style={{ width: 220 }}
+            onSearch={val => setSearch(val)}
+            onChange={e => { if (!e.target.value) setSearch('') }}
           />
-        </div>
 
-        {/* Right actions — full width stacked on mobile */}
-        <div className="flex gap-3 w-full sm:w-auto flex-wrap sm:flex-nowrap">
-
+          {/* Status filter — fixed width */}
           <Select
-            defaultValue=""
-            size={window.electron ? "large" : ""}
-            className="min-w-[200px] w-full sm:w-auto"
-            onChange={(value) => setDocumentStatus(value)}
-            options={[
-              { value: "", label: "Tout" },
-              { value: "11", label: "Validé" },
-              { value: "12", label: "Livraison" },
-            ]}
+            value={status}
+            size={size}
+            style={{ width: 170 }}
+            onChange={setStatus}
+            options={STATUS_OPTIONS}
           />
 
+          {/* Refresh button */}
           <Button
-            size={window.electron ? "large" : ""}
-            className="w-full sm:w-auto"
-            onClick={fetchData}
+            size={size}
+            onClick={() => fetchDocuments(true)}
+            disabled={loading}
+            icon={loading
+              ? <Loader2 className="animate-spin" size={14} />
+              : <RefreshCcw size={14} />
+            }
           >
-            {loading ? (
-              <Loader2 className="animate-spin text-blue-500" size={17} />
-            ) : (
-              <RefreshCcw size={17} />
-            )}
-            <span className="hidden sm:inline ml-1">Rafraîchir</span>
+            Rafraîchir
           </Button>
 
         </div>
       </div>
 
+      {/* ── Content ── */}
+      <div>
+        <ShippingTable
+          loading={loading}
+          documents={documents}
+          onSelectOrder={id => navigate(`/document/${id}`)}
+        />
 
+        {documents.next_page_url && (
+          <div style={{ display: 'flex', justifyContent: 'center', paddingTop: 24 }}>
+            <Button type="primary" loading={loadingMore} onClick={() => fetchDocuments(false)}>
+              Charger plus
+            </Button>
+          </div>
+        )}
+      </div>
 
-      <ShippingTable
-        loading={loading}
-        documents={documents}
-        onSelectOrder={handleSelectOrder}
-      />
-      {documents.next_page_url && (
-        <div className='flex justify-center py-6'>
-          <Button
-            onClick={loadMore}
-            type='primary'
-            loading={moreSpinner}
-            iconPosition='end'
-          >
-            Charger Plus
-          </Button>
-        </div>
-      )}
     </div>
   )
 }
-
-export default Shipping;

@@ -76,12 +76,12 @@ const sideMenu = () => {
           icon: <CircleCheck size={19} />,
           label: <Link to='/validation'>Validation</Link>,
         },
-        {
-          key: 'submenu-21',
-          icon: <AudioWaveform size={19} />,
-          hidden: !roles(['commercial', 'expedition', 'admin']),
-          label: <Link to='/progress'>Progrès</Link>,
-        },
+        // {
+        //   key: 'submenu-21',
+        //   icon: <AudioWaveform size={19} />,
+        //   hidden: !roles(['commercial', 'expedition', 'admin']),
+        //   label: <Link to='/progress'>Progrès</Link>,
+        // },
         {
           key: 'submenu-15',
 
@@ -128,7 +128,7 @@ const sideMenu = () => {
 
       children: [
         {
-          key: 'submenu-101',
+          key: 'submenu-115',
           icon: <RefreshCcw size={19} />,
           label: <Link to='/'> Commandes </Link>,
         },
@@ -257,7 +257,7 @@ const sideMenu = () => {
         },
 
         {
-          key: 'submenu-102',
+          key: 'submenu-116',
           disabled: !roles(['admin', 'supper_admin'] || !parseInt(user.service_id) === 4),
           icon: <ChartCandlestick size={20} />,
           label: <Link to='/supplier-interviews'>F.Evaluations</Link>,

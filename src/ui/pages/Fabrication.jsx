@@ -79,7 +79,7 @@ function Fabrication() {
     try {
       await api.post('docentetes/start', requestData)
       message.success("Date modifiée avec succès")
-      setSelected([]); // Clear after successful request
+      setSelected([]); 
       fetchData();
     } catch (error) {
       message.error(error?.response?.data?.message);

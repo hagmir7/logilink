@@ -12,12 +12,6 @@ const formatDate = (date) => {
 
 function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy, orderDir, setOrderDir }) {
   const { roles } = useAuth();
-
-  
-
-
-  
-
   const { user } = useAuth();
 
   const company = (data) => {
