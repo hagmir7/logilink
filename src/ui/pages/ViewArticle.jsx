@@ -14,6 +14,8 @@ const ViewArticle = () => {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(false)
 
+
+
   // Load product if editing
   const getArticle = async () => {
     try {
@@ -249,12 +251,6 @@ const ViewArticle = () => {
             name='stock_min'
             label='Stock minimum'
             initialValue={1}
-            rules={[
-              {
-                min: 0,
-                message: 'Le stock minimum doit être positif'
-              }
-            ]}
           >
             <InputNumber
               className='w-full'

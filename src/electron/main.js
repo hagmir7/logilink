@@ -259,7 +259,7 @@ ipcMain.on("print-content", (event, data) => {
                 left: 10,
                 right: 10,
             },
-            landscape: data.landscape,        // ← changed from false
+            landscape: data.landscape,   
             pagesPerSheet: 1,
             collate: true,
             copies: 1,
@@ -268,7 +268,7 @@ ipcMain.on("print-content", (event, data) => {
                 vertical: 600,
             },
             scaleFactor: 100,
-            pageSize: 'A4',         // stays A4 — Electron respects landscape: true
+            pageSize: 'A4',  
         };
 
         printWindow.webContents.print(printOptions, (success, failureReason) => {

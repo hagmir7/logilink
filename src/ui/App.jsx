@@ -58,6 +58,9 @@ import { useEffect } from 'react'
 import ShowSupplierIntervew from './components/ShowSupplierIntervew'
 import { Button, Result } from 'antd'
 import PurchaseOverview from './pages/PurchaseOverview'
+import StockEmplacement from './pages/StockEmplacement'
+import FabricationArticles from './pages/FabricationArticles'
+import OFs from './pages/OFs'
 
 
 const NotFound = () => {
@@ -145,6 +148,9 @@ function App() {
           <Route path='documents' element={<Document />} />
           <Route path='preparation/:id' element={<Preparation />} />
           <Route path='fabrication/:id' element={<Fabrication />} />
+          <Route path='fabrication/stock' element={<StockEmplacement />} />
+          <Route path='fabrication/articles' element={<FabricationArticles />} />
+          <Route path='fabrication/orders' element={<OFs />} />
           <Route path='validation' element={<Validation />} />
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />

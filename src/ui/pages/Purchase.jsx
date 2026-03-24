@@ -19,7 +19,7 @@ const STATUS_OPTIONS = [
   { label: "Rejeté", value: 5 },
   { label: "Commandé", value: 6 },
   { label: "Reçu", value: 7 },
-  { label: "Annulé", value: 8 },
+  { label: "Reçu non conforme", value: 8 },
 ];
 
 const STATUS_MAP = {
@@ -30,7 +30,7 @@ const STATUS_MAP = {
   5: { label: "Rejeté", color: "bg-red-100 text-red-800 border-red-300" },
   6: { label: "Commandé", color: "bg-indigo-100 text-indigo-800 border-indigo-300" },
   7: { label: "Reçu", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
-  8: { label: "Annulé", color: "bg-rose-100 text-rose-800 border-rose-300" },
+  8: { label: "Reçu non conforme", color: "bg-rose-100 text-rose-800 border-rose-300" },
 };
 
 

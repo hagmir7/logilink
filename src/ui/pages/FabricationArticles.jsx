@@ -1,3 +1,5 @@
+
+
 import React, { useEffect, useState } from 'react'
 import { Loader2, RefreshCcw, Eye, PlusCircle, Package, Trash, Edit } from 'lucide-react'
 import { Button, Empty, Input, Select, Pagination, Popconfirm, message } from 'antd'
@@ -11,15 +13,15 @@ import OFModal from '../components/OFModal'
 
 const { Search } = Input
 
-function CompanyStock({ company_id }) {
+function FabricationArticles({ company_id }) {
   const [loading, setLoading] = useState(false)
   const [page, setPage] = useState(1)
   const [pageSize, setPageSize] = useState(100)
   const [searchQuery, setSearchQuery] = useState('')
-  const [selectedCategory, setSelectedCategory] = useState('panneaux')
+  const [selectedCategory, setSelectedCategory] = useState('semi-fini')
   const [selectedCompany, setSelectedCompany] = useState('')
   const { roles } = useAuth();
-  
+  const [selectedArticles, setSelectedArticles] = useState([]);
 
   const [articles, setArticles] = useState({
     data: [],
@@ -78,7 +80,7 @@ function CompanyStock({ company_id }) {
   }
 
   const handleShow = async (id = null) => {
-    if(!roles(['admin', 'supper_admin'])){
+    if (!roles(['admin', 'supper_admin'])) {
       return;
     }
 
@@ -148,7 +150,7 @@ function CompanyStock({ company_id }) {
               <Search
                 placeholder="Rechercher un article..."
                 allowClear
-                size="large"
+                size="middle"
                 className='flex-1 max-w-md'
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -156,7 +158,7 @@ function CompanyStock({ company_id }) {
               <Select
                 value={selectedCategory}
                 placeholder="Catégorie"
-                size="large"
+                size="middle"
                 className="min-w-[180px]"
                 options={categories}
                 onChange={setSelectedCategory}
@@ -165,21 +167,21 @@ function CompanyStock({ company_id }) {
               <Select
                 value={selectedCompany}
                 placeholder="Société"
-                size="large"
+                size="middle"
                 className="min-w-[180px]"
                 options={[
-                   {label: "Tout", value: ''},
-                  {label: "Intercocina", value: 1},
-                  {label: "Seriemoble", value: 2},
-                  {label: "AstiDkora", value: 3}
+                  { label: "Tout", value: '' },
+                  { label: "Intercocina", value: 1 },
+                  { label: "Seriemoble", value: 2 },
+                  { label: "AstiDkora", value: 3 }
                 ]}
                 onChange={setSelectedCompany}
               />
 
-              
+              <OFModal articles={selectedArticles} />
 
               <Button
-                size="large"
+                size="middle"
                 className="flex items-center gap-2"
                 onClick={() => fetchData(page, searchQuery, selectedCategory)}
                 disabled={loading}
@@ -194,7 +196,7 @@ function CompanyStock({ company_id }) {
                 <ImportArticle />
                 <Button
                   type="primary"
-                  size="large"
+                  size="middle"
                   className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                   onClick={handleShow}
                 >
@@ -220,7 +222,17 @@ function CompanyStock({ company_id }) {
           <div className='overflow-x-auto'>
             <table className='w-full overflow-x-auto'>
               <thead>
-                <tr className='bg-gradient-to-r from-gray-50 to-gray-100 border-b-2 border-gray-200'>
+                <tr className='bg-gradient-to-r from-gray-50 to-gray-100 border-b-1 border-gray-200'>
+
+                  <th className='px-4 py-2 text-left'>
+                    <input
+                      type="checkbox"
+                      checked={selectedArticles.length === articles.data.length && articles.data.length > 0}
+                      onChange={(e) =>
+                        setSelectedArticles(e.target.checked ? [...articles.data] : [])
+                      }
+                    />
+                  </th>
                   <th className='px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Référence
                   </th>
@@ -228,7 +240,7 @@ function CompanyStock({ company_id }) {
                   <th className='px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Désignation
                   </th>
-
+                  {/* 
                   {!roles(['commercial', 'admin']) && (
                     <>
                       <th className="px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
@@ -238,19 +250,32 @@ function CompanyStock({ company_id }) {
                         Dimensions
                       </th>
                     </>
-                  )}
+                  )} */}
 
-                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
-                    Disponible
+                  <th className='px-4 py-1 text-start text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                    Nom
                   </th>
 
                   <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
-                    Physique
+                    QTE Disponible
                   </th>
 
                   <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
-                    Préparation
+                    Capacite totale
                   </th>
+
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                    Ecart
+                  </th>
+
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                    Stock min
+                  </th>
+
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
+                    Stock moyenne
+                  </th>
+
                   <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                   </th>
                 </tr>
@@ -259,9 +284,23 @@ function CompanyStock({ company_id }) {
                 {articles?.data?.map((article, index) => (
                   <tr
                     key={article.id || index}
-                    
+
                     className='hover:bg-blue-50/50 transition-all duration-200 cursor-pointer group'
                   >
+
+                    <td className='px-4 py-1'>
+                      <input
+                        type="checkbox"
+                        checked={selectedArticles.some(a => a.id === article.id)}
+                        onChange={(e) => {
+                          setSelectedArticles(prev =>
+                            e.target.checked
+                              ? [...prev, article]
+                              : prev.filter(a => a.id !== article.id)
+                          )
+                        }}
+                      />
+                    </td>
                     <td className='px-4 py-1'>
                       <div className='flex items-center gap-2'>
                         <div className='w-1 h-8 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity'></div>
@@ -298,20 +337,38 @@ function CompanyStock({ company_id }) {
                       </>
                     )}
 
+                    <td className='px-4 py-1 text-start'>
+                      {article.name}
+                    </td>
+
                     <td className='px-4 py-1 text-center'>
-                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200'>
+                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200'>
                         {Math.floor(article.stock * 100) / 100}
                       </span>
                     </td>
 
                     <td className='px-4 py-1 text-center'>
-                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
-                        {Math.floor((parseFloat(article.stock) + parseFloat(article.stock_prepartion)) * 100) / 100}
+                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
+                        {parseFloat(article.max)}
                       </span>
                     </td>
 
                     <td className='px-4 py-1 text-center'>
-                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
+                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
+                        {(Math.floor(article.stock * 100) / 100) - parseFloat(article.max)}
+                      </span>
+                    </td>
+
+
+
+                    <td className='px-4 py-1 text-center'>
+                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
+                        {parseFloat(article.stock_min)}
+                      </span>
+                    </td>
+
+                    <td className='px-4 py-1 text-center'>
+                      <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
                         {parseFloat(article.stock_prepartion)}
                       </span>
                     </td>
@@ -381,4 +438,4 @@ function CompanyStock({ company_id }) {
   )
 }
 
-export default CompanyStock
+export default FabricationArticles

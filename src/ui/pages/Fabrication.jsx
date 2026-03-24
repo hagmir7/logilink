@@ -34,6 +34,8 @@ function Fabrication() {
     try {
       const response = await api.get(`docentetes/${id}${type ? `?type=${type}` : ''}`)
       setData(response.data)
+      console.log(response.data);
+      
     } catch (err) {
       message.error(err?.response?.data?.message)
       console.error('Failed to fetch data:', err)
@@ -122,7 +124,7 @@ function Fabrication() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-lg font-bold text-gray-800'>
-            {data.docentete.DO_Piece
+            {data?.docentete?.DO_Piece
               ? `Commande ${type === 'archive' ? id + " -> " + data.docentete.DO_Piece : data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
@@ -137,7 +139,7 @@ function Fabrication() {
             Rafraîchir
           </Button>
           <PrintDocument
-            docentete={data.docentete}
+            docentete={data?.docentete}
             doclignes={
               selected.length > 0
                 ? selectedRowsFull
@@ -161,19 +163,19 @@ function Fabrication() {
         {[
           {
             label: 'Client',
-            value: data.docentete.DO_Tiers,
+            value: data.docentete?.DO_Tiers,
           },
           {
             label: 'Référence',
-            value: data.docentete.DO_Ref,
+            value: data.docentete?.DO_Ref,
           },
           {
             label: 'Expédition',
-            value: getExped(data.docentete.DO_Expedit),
+            value: getExped(data.docentete?.DO_Expedit),
           },
           {
             label: 'Type de document',
-            value: data.docentete.DO_Piece && getDocumentType(data.docentete.DO_Piece),
+            value: data.docentete?.DO_Piece && getDocumentType(data.docentete?.DO_Piece),
           },
         ].map(({ label, value }, idx) => (
           <div key={idx} className="bg-white border border-gray-400 rounded-lg p-2 shadow-sm">

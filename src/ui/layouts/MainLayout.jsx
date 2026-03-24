@@ -28,6 +28,7 @@ import {
   ChartCandlestick,
   ZodiacCancer ,
   Square,
+  Factory,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -141,8 +142,8 @@ const sideMenu = () => {
         {
           key: 'submenu-103',
           icon: <Layers size={19} />,
-          disabled: true,
-          label: <Link to='/fabrications/stock'>Stock</Link>,
+          // disabled: true,
+          label: <Link to='/fabrication/stock'>Stock</Link>,
         },
 
 
@@ -150,15 +151,20 @@ const sideMenu = () => {
           key: 'submenu-109',
           icon: <ArrowDownUp size={19} />,
           disabled: true,
-          label: <Link to='/fabircations/movements'>Movements</Link>,
+          label: <Link to='/fabircation/movements'>Movements</Link>,
         },
 
 
         {
           key: 'submenu-105',
           icon: <Square size={19} />,
-          disabled: true,
-          label: <Link to='/fabrications/articles'>Articles</Link>,
+          label: <Link to='/fabrication/articles'>Articles</Link>,
+        },
+
+        {
+          key: 'submenu-106',
+          icon: <Factory size={19} />,
+          label: <Link to='/fabrication/orders'>OFs</Link>,
         },
       ],
     },
