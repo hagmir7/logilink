@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Loader2, RefreshCcw, Eye, PlusCircle, Package, Trash, Edit } from 'lucide-react'
+import { Loader2, RefreshCcw, PlusCircle, Package, Trash, Edit } from 'lucide-react'
 import { Button, Empty, Input, Select, Pagination, Popconfirm, message } from 'antd'
 import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
@@ -7,7 +7,6 @@ import { categories, uppercaseFirst } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
 import ImportArticle from '../components/ImportArticle'
 import TableSkeleton from '../components/ui/TableSkeleton'
-import OFModal from '../components/OFModal'
 
 const { Search } = Input
 

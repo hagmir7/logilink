@@ -1,11 +1,18 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useRef } from 'react'
 import { api } from '../utils/api'
-import { Factory, ChevronDown, RefreshCcw, } from 'lucide-react'
-import { Empty, Button, Tag, } from 'antd'
+import { Factory, ChevronDown, RefreshCcw, X } from 'lucide-react'
+import { Empty, Button, Tag, Input, Select, DatePicker } from 'antd'
 import OFCard from '../components/OfCard'
 
+const { RangePicker } = DatePicker
 
-
+const STATUS_OPTIONS = [
+    { value: 'brouillon', label: 'Brouillon' },
+    { value: 'lancé', label: 'Lancé' },
+    { value: 'en_cours', label: 'En cours' },
+    { value: 'terminé', label: 'Terminé' },
+    { value: 'annulé', label: 'Annulé' },
+]
 
 /* ─── Skeleton ───────────────────────────────────────────────── */
 function SkeletonCard() {
@@ -35,13 +42,34 @@ export default function OFs() {
     const [loading, setLoading] = useState(false)
     const [loadingMore, setLoadingMore] = useState(false)
 
-    const fetchOfs = useCallback(async (currentPage = 1, append = false) => {
+    const [filters, setFilters] = useState({
+        reference: '',
+        statut: '',
+        dateRange: null,
+    })
+
+    const debounceRef = useRef(null)
+
+    /* ── Fetch ── */
+    const fetchOfs = useCallback(async (currentPage = 1, append = false, activeFilters) => {
         append ? setLoadingMore(true) : setLoading(true)
         try {
-            const res = await api.get('ordres-fabrication', {
-                params: { page: currentPage, per_page: 15 }
-            })
+            const params = { page: currentPage, per_page: 15 }
+
+            if (activeFilters?.reference?.trim()) {
+                params.reference = activeFilters.reference.trim()
+            }
+            if (activeFilters?.statut) {
+                params.statut = activeFilters.statut          // ✅ statut
+            }
+            if (activeFilters?.dateRange?.[0] && activeFilters?.dateRange?.[1]) {
+                params.date_debut = activeFilters.dateRange[0].format('YYYY-MM-DD')
+                params.date_fin = activeFilters.dateRange[1].format('YYYY-MM-DD')
+            }
+
+            const res = await api.get('ordres-fabrication', { params })
             const { data, last_page, total } = res.data
+
             setOfs(prev => append ? [...prev, ...data] : data)
             setLastPage(last_page)
             setTotal(total)
@@ -54,7 +82,30 @@ export default function OFs() {
         }
     }, [])
 
-    useEffect(() => { fetchOfs(1) }, [fetchOfs])
+    /* ── Initial load ── */
+    useEffect(() => {
+        fetchOfs(1, false, filters)
+    }, [])
+
+    /* ── Re-fetch on filter change (debounce only for reference) ── */
+    useEffect(() => {
+        clearTimeout(debounceRef.current)
+        debounceRef.current = setTimeout(() => {
+            fetchOfs(1, false, filters)
+        }, filters.reference !== '' ? 400 : 0)
+
+        return () => clearTimeout(debounceRef.current)
+    }, [filters])
+
+    /* ── Helpers ── */
+    const setFilter = (key, value) =>
+        setFilters(prev => ({ ...prev, [key]: value }))
+
+    const resetFilters = () =>
+        setFilters({ reference: '', statut: '', dateRange: null }) // ✅ statut
+
+    const hasActiveFilters =
+        !!filters.reference || !!filters.statut || !!filters.dateRange // ✅ statut
 
     return (
         <div className="min-h-full bg-gray-50 px-2">
@@ -72,13 +123,52 @@ export default function OFs() {
                         <Tag color="blue" className="!m-0 !font-bold">{total}</Tag>
                     </div>
 
-                    <Button
-                        icon={<RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />}
-                        onClick={() => fetchOfs(1)}
-                        disabled={loading}
-                    >
-                        Actualiser
-                    </Button>
+                    <div className="flex gap-2">
+                        {hasActiveFilters && (
+                            <Button
+                                size="middle"
+                                icon={<X size={12} />}
+                                onClick={resetFilters}
+                                className="text-gray-500"
+                            />
+                        )}
+
+                        <Input
+                            placeholder="Rechercher par référence…"
+                            allowClear
+                            size="small"
+                            value={filters.reference}
+                            onChange={e => setFilter('reference', e.target.value)}
+                            style={{ width: '200px' }}
+                        />
+
+                        <RangePicker
+                            value={filters.dateRange}
+                            onChange={range => setFilter('dateRange', range)}
+                            format="DD/MM/YYYY"
+                            size="small"
+                            placeholder={['Date début', 'Date fin']}
+                            className="w-52"
+                        />
+
+                        <Select
+                            value={filters.statut || undefined}  // ✅ statut
+                            placeholder="Statut"
+                            allowClear
+                            size="middle"
+                            onChange={val => setFilter('statut', val ?? '')}  // ✅ statut
+                            options={STATUS_OPTIONS}
+                            className="w-40"
+                        />
+
+                        <Button
+                            icon={<RefreshCcw size={14} className={loading ? 'animate-spin' : ''} />}
+                            onClick={() => fetchOfs(1, false, filters)}
+                            disabled={loading}
+                        >
+                            Actualiser
+                        </Button>
+                    </div>
                 </div>
 
                 {/* ── List ── */}
@@ -90,7 +180,11 @@ export default function OFs() {
                                 <Empty
                                     image={Empty.PRESENTED_IMAGE_SIMPLE}
                                     description={
-                                        <span className="text-gray-400 text-sm">Aucun ordre de fabrication</span>
+                                        <span className="text-gray-400 text-sm">
+                                            {hasActiveFilters
+                                                ? 'Aucun résultat pour ces filtres'
+                                                : 'Aucun ordre de fabrication'}
+                                        </span>
                                     }
                                 />
                             </div>
@@ -102,7 +196,7 @@ export default function OFs() {
                 {!loading && page < lastPage && (
                     <div className="flex justify-center py-5">
                         <Button
-                            onClick={() => fetchOfs(page + 1, true)}
+                            onClick={() => fetchOfs(page + 1, true, filters)}
                             loading={loadingMore}
                             icon={!loadingMore && <ChevronDown size={14} />}
                             className="px-6"

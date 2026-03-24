@@ -1,20 +1,18 @@
 function printOf(of) {
   const PRINT_STYLE = `
-    @page { size: A4; margin: 0mm; }
+    @page { size: A4; margin: 5mm; }
     body { font-family: Arial, sans-serif; font-size: 12px; }
     table { border-collapse: collapse; width: 100%; }
     td { vertical-align: top; }
   `;
 
-  // Inject preview style (optional)
-//   if (!document.getElementById('of-print-style')) {
-//     const s = document.createElement('style');
-//     s.id = 'of-print-style';
-//     s.innerHTML = PRINT_STYLE;
-//     document.head.appendChild(s);
-//   }
+  if (!document.getElementById('of-print-style')) {
+    const s = document.createElement('style');
+    s.id = 'of-print-style';
+    s.innerHTML = PRINT_STYLE;
+    document.head.appendChild(s);
+  }
 
-  // Create container if not exists
   let el = document.getElementById('of-print-zone');
   if (!el) {
     el = document.createElement('div');
@@ -23,40 +21,55 @@ function printOf(of) {
     document.body.appendChild(el);
   }
 
-  const checked   = (v) => v ? '&#9745;' : '&#9744;';
-  const isStd     = of.type_commande === 'standard';
+  const checked = (v) => v ? '&#9745;' : '&#9744;';
+  const isStd = of.type_commande === 'standard';
   const isSpecial = of.type_commande === 'speciale';
 
   const formatDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : '';
 
-  // Pad lines to at least 13
-  const lines  = of.lines || [];
-  const padded = [...lines, ...Array(Math.max(0, 13 - lines.length)).fill(null)];
+
+  // Current date/time
+  const now = new Date();
+  const currentDateTime = now.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+
+  // ✅ Only real lines
+  const lines = of.lines || [];
 
   el.innerHTML = `
     <div style="font-family:Arial,sans-serif; font-size:12px; max-width:780px; margin:0 auto;">
 
-      <!-- ═══ HEADER ═══ -->
+      <!-- HEADER -->
       <table style="width:100%; border-collapse:collapse; margin-bottom:18px;">
         <tr>
           <td style="width:130px; border:0.5px solid #000; padding:6px 10px; vertical-align:middle;">
-            <div style="display:flex; align-items:center; gap:6px;">
-              <div style="display:flex; gap:2px;">
-                <div style="width:14px; height:18px; background:#e63312; clip-path:polygon(0 0,60% 0,100% 100%,0 100%);"></div>
-                <div style="width:14px; height:18px; background:#1a5fa8; clip-path:polygon(40% 0,100% 0,100% 100%,0 100%);"></div>
-              </div>
-              <span style="font-size:9px; font-weight:900; letter-spacing:-0.5px; color:#1a5fa8; line-height:1;">
-                INTER<span style="color:#e63312;">COCINA</span>
-              </span>
+            <div style="display:flex; align-items:center">
+              <img src="https://intercocina.com/assets/imgs/intercocina-logo.png" style="text-align:center" alt="StileMobili" width="100" />
             </div>
           </td>
           <td style="border:0.5px solid #000; border-left:none; padding:4px 10px; vertical-align:middle;">
-            <div style="font-size:9px; font-weight:700; text-align:center; letter-spacing:0.5px; margin-bottom:4px;">
-              SYSTEME DE MANAGEMENT DE LA QUALITE
-            </div>
-            <div style="font-size:18px; font-weight:900; text-align:center; letter-spacing:0.5px;">
-              ORDRE DE FABRICATION
-            </div>
+            
+            <table style="width:100%; border-collapse:collapse;">
+              <tr>
+                <td>
+                  <div style="font-size:9px; font-weight:700; text-align:center; letter-spacing:0.5px; margin-bottom:4px;">
+                    SYSTEME DE MANAGEMENT DE LA QUALITE
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding:0;">
+                  <div style="border-top:0.5px solid #000; width:100%;"></div>
+                </td>
+              </tr>
+              <tr>
+                <td>
+                  <div style="font-size:18px; font-weight:900; text-align:center; letter-spacing:0.5px;">
+                    ORDRE DE FABRICATION
+                  </div>
+                </td>
+              </tr>
+            </table>
+
           </td>
           <td style="width:120px; border:0.5px solid #000; border-left:none; padding:0; vertical-align:top;">
             <div style="border-bottom:0.5px solid #000; padding:4px 8px; font-size:10px; font-weight:700;">ENR.FAB.01</div>
@@ -66,7 +79,7 @@ function printOf(of) {
         </tr>
       </table>
 
-      <!-- ═══ INFORMATIONS GÉNÉRALES ═══ -->
+      <!-- INFORMATIONS -->
       <table style="width:100%; border-collapse:collapse; margin-bottom:12px;">
         <tr>
           <td colspan="4" style="background:#002060; color:#fff; font-size:14px; font-weight:700; text-align:center; padding:7px; border:0.5px solid #000; letter-spacing:0.3px;">
@@ -95,20 +108,20 @@ function printOf(of) {
         </tr>
       </table>
 
-      <!-- ═══ COMMANDE ═══ -->
+      <!-- COMMANDE -->
       <table style="width:100%; border-collapse:collapse; margin-bottom:14px;">
         <tr>
           <td style="background:#f4b083; font-weight:700; font-size:11px; padding:6px 10px; border:0.5px solid #000; width:18%;">Commande</td>
           <td style="border:0.5px solid #000; padding:6px 16px; width:41%; font-size:12px;">
-            ${checked(isStd)} standard
+            ${checked(isStd)} Standard
           </td>
           <td style="border:0.5px solid #000; padding:6px 16px; width:41%; font-size:12px;">
-            ${checked(isSpecial)} spéciale
+            ${checked(isSpecial)} Spéciale
           </td>
         </tr>
       </table>
 
-      <!-- ═══ ARTICLES TABLE ═══ -->
+      <!-- ARTICLES -->
       <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
         <tr>
           <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:22%;">Réf article</td>
@@ -116,7 +129,8 @@ function printOf(of) {
           <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:25%;">Nom</td>
           <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:25%;">Quantité à produire</td>
         </tr>
-        ${padded.map(line => `
+
+        ${lines.map(line => `
           <tr>
             <td style="border:0.5px solid #000; padding:7px 8px; font-family:monospace; font-size:11px; font-weight:700;">
               ${line?.article_code || ''}
@@ -128,35 +142,27 @@ function printOf(of) {
               ${line?.article?.name || ''}
             </td>
             <td style="border:0.5px solid #000; padding:7px 8px; text-align:center; font-weight:700; font-size:12px;">
-              ${line ? parseFloat(line.quantity).toFixed(2) : ''}
+              ${parseInt(line.quantity)}
             </td>
           </tr>
         `).join('')}
+
       </table>
 
-      <!-- ═══ SIGNATURES ═══ -->
+      <!-- SIGNATURE -->
       <table style="width:100%; border-collapse:collapse;">
         <tr>
-          <td style="width:33%; padding:4px 0; font-size:11px; font-weight:700; vertical-align:bottom;">
-            <span style="border-bottom:0.5px solid #000; padding-bottom:2px;">Date :</span>
-            <br/>
-            <span style="font-size:10px; font-weight:700; border-bottom:0.5px solid #000; padding-bottom:2px;">
-              Fabrication :
-            </span>
+          <td style="width:20%; padding:4px 0; font-size:11px; font-weight:700; vertical-align:bottom;">
+            Date : ${currentDateTime}
           </td>
-          <td style="width:33%; padding:4px 0; font-size:11px; font-weight:700; vertical-align:bottom; text-align:center;">
-            <span style="border-bottom:0.5px solid #000; padding-bottom:2px;">Visa Chef d'atelier :</span>
-          </td>
-          <td style="width:33%; padding:4px 0; font-size:11px; font-weight:700; vertical-align:bottom; text-align:center;">
-            <span style="border-bottom:0.5px solid #000; padding-bottom:2px;">Visa Responsable</span>
-          </td>
+          <td style="width:40%; text-align:center;">Visa Chef d'atelier : <strong>Ahmed El bayou</strong></td>
+          <td style="width:40%; text-align:center;">Visa Responsable Fabrication : <strong>${of?.user?.full_name}</strong></td>
         </tr>
       </table>
 
     </div>
   `;
 
-  // SEND FULL HTML TO ELECTRON
   const styledHtml = `
     <!DOCTYPE html>
     <html>
