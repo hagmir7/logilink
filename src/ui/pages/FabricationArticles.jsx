@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { Loader2, RefreshCcw, PlusCircle, Package, Trash, Edit } from 'lucide-react'
-import { Button, Empty, Input, Select, Popconfirm, message } from 'antd'
+import { Button, Empty, Input, Select, Popconfirm, message, Checkbox } from 'antd'
 import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { categories, uppercaseFirst } from '../utils/config'
@@ -200,13 +200,13 @@ function FabricationArticles({ company_id }) {
               <thead>
                 <tr className='bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200'>
                   <th className='px-4 py-2 text-left'>
-                    <input
-                      type="checkbox"
+                    <Checkbox
                       checked={selectedArticles.length === articles.length && articles.length > 0}
                       onChange={(e) =>
                         setSelectedArticles(e.target.checked ? [...articles] : [])
                       }
                     />
+                    
                   </th>
                   <th className='px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>Référence</th>
                   <th className='px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>Désignation</th>
@@ -226,8 +226,7 @@ function FabricationArticles({ company_id }) {
                     className='hover:bg-blue-50/50 transition-all duration-200 cursor-pointer group'
                   >
                     <td className='px-4 py-1'>
-                      <input
-                        type="checkbox"
+                      <Checkbox
                         checked={selectedArticles.some(a => a.id === article.id)}
                         onChange={(e) =>
                           setSelectedArticles(prev =>

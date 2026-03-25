@@ -1,23 +1,19 @@
 import { Button, Modal, Table, DatePicker, Input, Radio, message } from 'antd'
 import React, { useState } from 'react'
 import { api } from '../utils/api'
-import dayjs from 'dayjs'
 
 export default function OFModal({ articles = [] }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
-    // OF header fields
     const [dateLancement, setDateLancement] = useState(null);
     const [dateDemarrage, setDateDemarrage] = useState(null);
     const [referenceMachine, setReferenceMachine] = useState('');
-    const [typeCommande, setTypeCommande] = useState('standard'); 
+    const [typeCommande, setTypeCommande] = useState('standard');
 
-    // Per-article quantities (ecart as editable qte)
     const [quantities, setQuantities] = useState({});
 
     const handleOpen = () => {
-        // Pre-fill quantities from ecart (stock - max)
         const initial = {};
         articles.forEach(a => {
             const ecart = (Math.floor(a.stock * 100) / 100) - parseFloat(a.max);
@@ -80,30 +76,17 @@ export default function OFModal({ articles = [] }) {
             title: 'Désignation',
             dataIndex: 'description',
             key: 'description',
+            width: '45%',
+            render: (text, record) => record.description || text,
+        },
+
+        {
+            title: 'Nom',
+            dataIndex: 'name',
+            key: 'name',
             render: (text, record) => record.name || text,
         },
-        {
-            title: 'Stock dispo',
-            dataIndex: 'stock',
-            key: 'stock',
-            align: 'center',
-            render: (stock) => (
-                <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    {Math.floor(stock * 100) / 100}
-                </span>
-            ),
-        },
-        {
-            title: 'Capacité totale',
-            dataIndex: 'max',
-            key: 'max',
-            align: 'center',
-            render: (max) => (
-                <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                    {parseFloat(max)}
-                </span>
-            ),
-        },
+
         {
             title: 'Qté OF',
             key: 'qte',
