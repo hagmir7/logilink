@@ -42,9 +42,37 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
 
   const printingLines = selectedRows.length > 0 ? selectedRows : doclignes;
 
-  // Group lines by family: CAI → portrait, everything else → landscape
-  const caiLines   = printingLines.filter(item => item?.article?.FA_CodeFamille === 'CAI');
-  const otherLines = printingLines.filter(item => item?.article?.FA_CodeFamille !== 'CAI');
+  // 1. Sort ALL lines (including SP000001) by DL_Ligne ascending
+  const sortedLines = [...printingLines].sort((a, b) =>
+    (a.line?.DL_Ligne ?? a.DL_Ligne ?? 0) - (b.line?.DL_Ligne ?? b.DL_Ligne ?? 0)
+  );
+
+  // 2. Split into CAI (portrait) and Other (landscape) lists.
+  //    SP000001 is a divider — place it on whichever page the lines above it belong to.
+  const caiLines   = [];
+  const otherLines = [];
+  let lastFamily = null; // tracks family of the last real (non-SP) line
+
+  sortedLines.forEach(item => {
+    const isSeparator = item.AR_Ref === 'SP000001';
+
+    if (isSeparator) {
+      // Append separator to whichever list the previous real lines went into
+      if (lastFamily === 'CAI') {
+        caiLines.push(item);
+      } else if (lastFamily !== null) {
+        otherLines.push(item);
+      }
+      // If lastFamily is still null (SP000001 is the very first line), skip it
+    } else {
+      lastFamily = item?.article?.FA_CodeFamille;
+      if (lastFamily === 'CAI') {
+        caiLines.push(item);
+      } else {
+        otherLines.push(item);
+      }
+    }
+  });
 
   // Build print groups: [{ lines, orientation }]
   const printGroups = [];
@@ -119,6 +147,14 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
           .col-chant      { text-align: center; }
           .col-qte        { text-align: center; }
           .col-ctrl       { text-align: center; font-size: 6px; }
+
+          .separator-row td {
+            background: #d0d0d0 !important;
+            border-top: 2px solid #555 !important;
+            border-bottom: 2px solid #555 !important;
+            height: 6px !important;
+            padding: 0 !important;
+          }
 
           .signature-footer { display: flex; justify-content: space-between; margin-top: 16px; padding: 0 4px; }
           .signature-footer span { font-size: 11px; font-weight: bold; }
@@ -208,10 +244,8 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
       return (
         <>
           <colgroup>
-            {/* 8 data columns → 50% total, ~6.25% each */}
             <col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} />
             <col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} /><col style={{ width: '6.25%' }} />
-            {/* 12 control columns → 50% total, ~4.17% each */}
             <col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} />
             <col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} />
             <col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.17%' }} /><col style={{ width: '4.16%' }} />
@@ -265,37 +299,44 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
     );
   };
 
-  // ── TABLE ROW: landscape includes empty control cells, portrait does not ──
+  // ── TABLE ROW: separator row for SP000001, normal row otherwise ──
   const renderTableRow = (item, index, isLandscape) => {
     const art = item.article || {};
+    const isSeparator = item.AR_Ref === 'SP000001';
+    const colSpan = isLandscape ? 20 : 8;
+
+    if (isSeparator) {
+      return (
+        <tr key={index} className="separator-row">
+          <td colSpan={colSpan}>&nbsp;</td>
+        </tr>
+      );
+    }
 
     return (
       <tr key={index}>
-        <td className="col-piece" style={{fontSize:'12px'}}>{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
-        <td className="col-refarticle" style={{fontSize:'12px'}}>{item.AR_Ref || ''}</td>
-        <td className="col-dim" style={{fontSize:'12px'}}>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
-        <td className="col-dim" style={{fontSize:'12px'}}>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
-        <td className="col-col" style={{fontSize:'12px'}}>{item.Couleur || art.Couleur || ''}</td>
+        <td className="col-piece"      style={{ fontSize: '12px' }}>{item?.Nom || item.article?.Nom || item?.DL_Design || ''}</td>
+        <td className="col-refarticle" style={{ fontSize: '12px' }}>{item.AR_Ref || ''}</td>
+        <td className="col-dim"        style={{ fontSize: '12px' }}>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
+        <td className="col-dim"        style={{ fontSize: '12px' }}>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
+        <td className="col-col"        style={{ fontSize: '12px' }}>{item.Couleur || art.Couleur || ''}</td>
         {
-            isLandscape ? <td className="col-chant"  style={{fontSize:'12px'}}>{item.Chant || art.Chant || ''}</td> 
-            : <td className="col-chant">{Math.floor(item.Profondeur) || Math.floor(art.Profonduer) || ''}</td> 
+          isLandscape
+            ? <td className="col-chant" style={{ fontSize: '12px' }}>{item.Chant || art.Chant || ''}</td>
+            : <td className="col-chant">{Math.floor(item.Profondeur) || Math.floor(art.Profonduer) || ''}</td>
         }
-        
-        <td className="col-dim" style={{fontSize:'12px'}}>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
-        <td className="col-qte" style={{fontSize:'12px'}}>{Math.floor(item.EU_Qte || 0)}</td>
+        <td className="col-dim" style={{ fontSize: '12px' }}>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
+        <td className="col-qte" style={{ fontSize: '12px' }}>{Math.floor(item.EU_Qte || 0)}</td>
         {isLandscape && (
           <>
-            {/* Découpage */}
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
-            {/* Placage */}
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
-            {/* Autre */}
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
             <td className="col-ctrl">&nbsp;</td>
