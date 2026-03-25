@@ -1,41 +1,39 @@
 function printOf(of) {
-  const PRINT_STYLE = `
+    const PRINT_STYLE = `
     @page { size: A4; margin: 5mm; }
     body { font-family: Arial, sans-serif; font-size: 12px; }
     table { border-collapse: collapse; width: 100%; }
     td { vertical-align: top; }
   `;
 
-  if (!document.getElementById('of-print-style')) {
-    const s = document.createElement('style');
-    s.id = 'of-print-style';
-    s.innerHTML = PRINT_STYLE;
-    document.head.appendChild(s);
-  }
+    if (!document.getElementById('of-print-style')) {
+        const s = document.createElement('style');
+        s.id = 'of-print-style';
+        s.innerHTML = PRINT_STYLE;
+        document.head.appendChild(s);
+    }
 
-  let el = document.getElementById('of-print-zone');
-  if (!el) {
-    el = document.createElement('div');
-    el.id = 'of-print-zone';
-    el.classList = 'hidden';
-    document.body.appendChild(el);
-  }
+    let el = document.getElementById('of-print-zone');
+    if (!el) {
+        el = document.createElement('div');
+        el.id = 'of-print-zone';
+        el.classList = 'hidden';
+        document.body.appendChild(el);
+    }
 
-  const checked = (v) => v ? '&#9745;' : '&#9744;';
-  const isStd = of.type_commande === 'standard';
-  const isSpecial = of.type_commande === 'speciale';
+    const checked = (v) => v ? '&#9745;' : '&#9744;';
+    const isStd = of.type_commande === 'standard';
+    const isSpecial = of.type_commande === 'speciale';
 
-  const formatDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : '';
+    const formatDate = (d) => d ? new Date(d).toLocaleDateString('fr-FR') : '';
 
+    const now = new Date();
+    const currentDateTime = now.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
 
-  // Current date/time
-  const now = new Date();
-  const currentDateTime = now.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
+    // ✅ Only real lines
+    const lines = of.lines || [];
 
-  // ✅ Only real lines
-  const lines = of.lines || [];
-
-  el.innerHTML = `
+    el.innerHTML = `
     <div style="font-family:Arial,sans-serif; font-size:12px; max-width:780px; margin:0 auto;">
 
       <!-- HEADER -->
@@ -163,7 +161,7 @@ function printOf(of) {
     </div>
   `;
 
-  const styledHtml = `
+    const styledHtml = `
     <!DOCTYPE html>
     <html>
       <head>
@@ -176,7 +174,7 @@ function printOf(of) {
     </html>
   `;
 
-  window.electron.ipcRenderer.send("print-content", { htmlContent: styledHtml });
+    window.electron.ipcRenderer.send("print-content", { htmlContent: styledHtml });
 }
 
 export default printOf;
