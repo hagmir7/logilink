@@ -1,5 +1,5 @@
-import { Button, Modal, Table, DatePicker, Input, Radio, message } from 'antd'
-import React, { useState } from 'react'
+import { Button, Modal, Table, DatePicker, Input, Radio, message, Select } from 'antd'
+import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 
 export default function OFModal({ articles = [] }) {
@@ -12,6 +12,30 @@ export default function OFModal({ articles = [] }) {
     const [typeCommande, setTypeCommande] = useState('standard');
 
     const [quantities, setQuantities] = useState({});
+    const [machines, setMachines] = useState([]);
+
+
+    const getMachines = async () => {
+        try {
+            const response = await api.get('machines?per_page=100');
+            setMachines(
+                response.data.data.map(item => ({
+                    label: item.machine_name
+                        ? `${item.machine_id} — ${item.machine_name.trim()}`
+                        : `${item.machine_id}`,
+                    value: item.machine_id
+                }))
+            );
+        } catch (error) {
+            console.log(error);
+            message.error(error?.response?.data?.message || 'Erreur lors du chargement des machines');
+        }
+    };
+
+
+    useEffect(() => {
+        getMachines()
+    }, [])
 
     const handleOpen = () => {
         const initial = {};
@@ -178,12 +202,25 @@ export default function OFModal({ articles = [] }) {
                         <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
                             Référence Machine
                         </label>
-                        <Input
-                            value={referenceMachine}
-                            onChange={(e) => setReferenceMachine(e.target.value)}
+                        <Select
+                            showSearch
+                            value={referenceMachine || undefined}
+                            onChange={(value) => setReferenceMachine(value)}
                             placeholder="Ex: MACH-001"
                             className="w-full"
-                        />
+                            optionFilterProp="children"
+                            filterOption={(input, option) =>
+                                (option?.children ?? "")
+                                    .toLowerCase()
+                                    .includes(input.toLowerCase())
+                            }
+                        >
+                            {machines.map((machine) => (
+                                <Option key={machine.value} value={machine.value}>
+                                    {machine.label}
+                                </Option>
+                            ))}
+                        </Select>
                     </div>
 
                     {/* Type de commande */}
