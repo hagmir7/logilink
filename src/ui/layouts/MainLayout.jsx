@@ -216,60 +216,60 @@ const sideMenu = () => {
 
     {
       key: 'menu-66',
-      hidden: roles('admin'),
+      hidden: roles(['admin', 'dg']),
       icon: <BaggageClaim size={20} />,
       disabled: !roles(['admin', 'chef_service']),
       label: <Link to='/purchase'>Achat</Link>,
     },
 
+  {
+  key: 'menu-7',
+  icon: <BaggageClaim size={20} />,
+  hidden: !(roles(['admin', 'dg']) || !parseInt(user?.service_id)),
+  disabled: !roles(['admin', 'chef_service', 'dg']),
+  label: (
+    <div className="flex items-center justify-between w-full">
+      Achat
+      {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
+    </div>
+  ),
+
+  children: [
     {
-      key: 'menu-7',
-      icon: <BaggageClaim size={20} />,
-      hidden: !roles('admin') || !parseInt(user?.service_id),
-      disabled: !roles(['admin', 'chef_service']),
+      key: 'submenu-101',
+      icon: <ChartSpline size={20} />,
+      label: <Link to='/purchase-overview'>Tableau de bord</Link>,
+    },
+
+    {
+      key: 'submenu-100',
+      disabled: !(roles(['admin', 'supper_admin','dg']) || parseInt(user?.service_id) === 4),
+      icon: <UserCheck size={20} />,
       label: (
         <div className="flex items-center justify-between w-full">
-          Achat
+          <Link to="/purchase" className="flex-1">
+            Domands
+          </Link>
           {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
         </div>
       ),
-
-      children: [
-        {
-          key: 'submenu-101',
-          // disabled: true,
-          icon: <ChartSpline size={20} />,
-          label: <Link to='/purchase-overview'>Tableau de bord</Link>,
-        },
-
-
-        {
-          key: 'submenu-100',
-          disabled: !roles(['admin', 'supper_admin'] || !parseInt(user.service_id) === 4),
-          icon: <UserCheck size={20} />,
-          label: (<div className="flex items-center justify-between w-full">
-            <Link to="/purchase" className="flex-1">
-              Domands
-            </Link>
-            {purchaseStatus && roles('admin') ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
-          </div>),
-        },
-
-        {
-          key: 'submenu-104',
-          disabled: !roles(['admin', 'supper_admin'] || !parseInt(user.service_id) === 4),
-          icon: <Handshake size={20} />,
-          label: <Link to='/suppliers'>Fournisseurs</Link>,
-        },
-
-        {
-          key: 'submenu-116',
-          disabled: !roles(['admin', 'supper_admin'] || !parseInt(user.service_id) === 4),
-          icon: <ChartCandlestick size={20} />,
-          label: <Link to='/supplier-interviews'>F.Evaluations</Link>,
-        },
-      ],
     },
+
+    {
+      key: 'submenu-104',
+      disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+      icon: <Handshake size={20} />,
+      label: <Link to='/suppliers'>Fournisseurs</Link>,
+    },
+
+    {
+      key: 'submenu-116',
+      disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+      icon: <ChartCandlestick size={20} />,
+      label: <Link to='/supplier-interviews'>F.Evaluations</Link>,
+    },
+  ],
+},
     {
       key: 'menu-8',
       icon: <Users size={20} />,

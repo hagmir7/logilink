@@ -28,6 +28,11 @@ export default function PurchaseForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const authContext = useAuth();
+
+  const { user } = authContext;
+
+
+
   const [searchModal, setSearchModal] = useState({});
   const [units, setUnits] = useState([]);
 
@@ -35,7 +40,7 @@ export default function PurchaseForm() {
 
   const hasRole = (roleNames) => {
     const checkRoles = Array.isArray(roleNames) ? roleNames : [roleNames];
-    
+
     if (typeof authContext?.roles === 'function') {
       return authContext.roles(checkRoles);
     }
@@ -49,6 +54,20 @@ export default function PurchaseForm() {
     }
     return false;
   };
+
+const isAdmin = hasRole('admin');   // admin can always do everything
+const isDG = hasRole('dg');         // DG role
+const isOwner = user.id === initialData?.user_id; // document owner
+const status = Number(initialData?.status ?? 1); // default status 1 if new
+const isNew = !initialData;         // true when creating a new document
+
+// Who can edit or add lines
+const canEdit = isAdmin                      // admin always
+                || isNew                     // anyone can create new document
+                || ((isDG || isOwner) && status <= 1); // DG or owner can edit if status <= 1
+
+// Who can read only
+const isReadOnly = !canEdit;
 
   useEffect(() => {
     if (!id) {
@@ -116,8 +135,8 @@ export default function PurchaseForm() {
       setPriority('normal');
     }
 
-    
-    
+
+
 
     if (docData.planned_at) {
       form.setFieldsValue({
@@ -212,7 +231,7 @@ export default function PurchaseForm() {
     if (values.user_id) formData.append('user_id', values.user_id);
     formData.append('note', values.note || '');
 
-    
+
 
     // Handle priority
     if (priority === 'urgent') {
@@ -223,7 +242,7 @@ export default function PurchaseForm() {
       formData.set('planned_at', values.planned_at.format('YYYY-MM-DD'));
     }
 
-    
+
 
     // Selective transfer logic
     const lines = values.lines || [];
@@ -450,7 +469,7 @@ export default function PurchaseForm() {
                   defaultActiveFirstOption={false}
                   className="w-full"
                   name="service_id"
-                  disabled={(Number(initialData?.status) > 2) && hasRole('chef_service')}
+                  disabled={!canEdit}
                 >
                   {statusOptions
                     .filter(option => {
@@ -554,53 +573,54 @@ export default function PurchaseForm() {
 
               <div>
                 <span className='font-semibold'>Priorité</span>
-              <div className="mt-2.5 flex gap-1">
-              <Select
-                value={priority}
-                onChange={(value) => setPriority(value)}
-                  className={`font-medium ${ priority === 'planned' ? 'w-1/2' : 'w-full'}`}
-                  options={[
-                    {
-                      value: "normal",
-                      label: (
-                        <span className="flex items-center gap-2">
-                          ⚪ <span>Normale</span>
-                        </span>
-                      ),
-                    },
-                    {
-                      value: "urgent",
-                      label: (
-                        <span className="flex items-center gap-2 text-red-600 font-semibold">
-                          🚨 <span>Urgente</span>
-                        </span>
-                      ),
-                    },
-                    {
-                      value: "planned",
-                      label: (
-                        <span className="flex items-center gap-2 text-green-600 font-semibold">
-                          📅 <span>Planifiée</span>
-                        </span>
-                      ),
-                    },
-                  ]}
-                />
+                <div className="mt-2.5 flex gap-1">
+                  <Select
+                    value={priority}
+                    onChange={(value) => setPriority(value)}
+                    className={`font-medium ${priority === 'planned' ? 'w-1/2' : 'w-full'}`}
+                    disabled={!canEdit}
+                    options={[
+                      {
+                        value: "normal",
+                        label: (
+                          <span className="flex items-center gap-2">
+                            ⚪ <span>Normale</span>
+                          </span>
+                        ),
+                      },
+                      {
+                        value: "urgent",
+                        label: (
+                          <span className="flex items-center gap-2 text-red-600 font-semibold">
+                            🚨 <span>Urgente</span>
+                          </span>
+                        ),
+                      },
+                      {
+                        value: "planned",
+                        label: (
+                          <span className="flex items-center gap-2 text-green-600 font-semibold">
+                            📅 <span>Planifiée</span>
+                          </span>
+                        ),
+                      },
+                    ]}
+                  />
 
-                {priority === "planned" && (
-                  <div className="w-1/2">
-                    <Form.Item
-                      name={'planned_at'}
-                      rules={[{ required: true, message: 'Requis' }]}
-                      className="mb-0 col-span-2"
-                      style={{ marginBottom: 0 }}
-                    >
-                      <DatePicker className="w-full" placeholder="Choisir une date" />
-                    </Form.Item>
+                  {priority === "planned" && (
+                    <div className="w-1/2">
+                      <Form.Item
+                        name={'planned_at'}
+                        rules={[{ required: true, message: 'Requis' }]}
+                        className="mb-0 col-span-2"
+                        style={{ marginBottom: 0 }}
+                      >
+                        <DatePicker className="w-full" placeholder="Choisir une date" />
+                      </Form.Item>
 
-                  </div>
-                )}
-              </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
           </div>
@@ -721,7 +741,7 @@ export default function PurchaseForm() {
                               onClick={() => remove(field.name)}
                               className="flex-shrink-0"
                               title="Supprimer cette ligne"
-                              disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
+                              disabled={!canEdit}
                             />
 
                             {/* Checkbox */}
@@ -751,10 +771,10 @@ export default function PurchaseForm() {
                     <Form.Item className="mb-0 w-1/4">
                       <Button
                         type="dashed"
-                        onClick={() => add({ checked: false })} // Initialize new lines with checked: false
+                        onClick={() => add({ checked: false })}
                         block
                         icon={<PlusOutlined />}
-                        disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
+                        disabled={!canEdit} // <-- FIXED
                         className="border-2 border-dashed hover:border-blue-400 hover:text-blue-500 transition-colors"
                       >
                         Ajouter une ligne
@@ -773,7 +793,7 @@ export default function PurchaseForm() {
                 type="primary"
                 htmlType="submit"
                 size="middle"
-                disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
+                disabled={!canEdit}
               >
                 {initialData ? 'Mettre à jour' : 'Enregistrer'}
               </Button>
@@ -826,7 +846,7 @@ export default function PurchaseForm() {
 
               <Button
                 icon={<UploadOutlined />}
-                disabled={(Number(initialData?.status) > 2) && !hasRole('supper_admin')}
+                disabled={!canEdit}
                 block
                 size="large"
                 type="dashed"
