@@ -61,6 +61,7 @@ import PurchaseOverview from './pages/PurchaseOverview'
 import StockEmplacement from './pages/StockEmplacement'
 import FabricationArticles from './pages/FabricationArticles'
 import OFs from './pages/OFs'
+import EmplacementLimit from './components/EmplacementLimit'
 
 
 const NotFound = () => {
@@ -151,6 +152,7 @@ function App() {
           <Route path='fabrication/stock' element={<StockEmplacement />} />
           <Route path='fabrication/articles' element={<FabricationArticles />} />
           <Route path='fabrication/orders' element={<OFs />} />
+          <Route path='fabrication/capacit' element={<EmplacementLimit />} />
           <Route path='validation' element={<Validation />} />
           <Route path='progress' element={<Progress />} />
           <Route path='shipping' element={<Shipping />} />

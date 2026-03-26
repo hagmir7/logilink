@@ -55,19 +55,19 @@ export default function PurchaseForm() {
     return false;
   };
 
-const isAdmin = hasRole('admin');   // admin can always do everything
-const isDG = hasRole('dg');         // DG role
-const isOwner = user.id === initialData?.user_id; // document owner
-const status = Number(initialData?.status ?? 1); // default status 1 if new
-const isNew = !initialData;         // true when creating a new document
+  const isAdmin = hasRole('admin');   // admin can always do everything
+  const isDG = hasRole('dg');         // DG role
+  const isOwner = parseInt(user.id) === parseInt(initialData?.user_id); // document owner
+  const status = Number(initialData?.status ?? 1); // default status 1 if new
+  const isNew = !initialData;         // true when creating a new document
 
-// Who can edit or add lines
-const canEdit = isAdmin                      // admin always
-                || isNew                     // anyone can create new document
-                || ((isDG || isOwner) && status <= 1); // DG or owner can edit if status <= 1
+  // Who can edit or add lines
+  const canEdit = isAdmin                      // admin always
+    || isNew                     // anyone can create new document
+    || ((isDG || isOwner) && status <= 1); // DG or owner can edit if status <= 1
 
-// Who can read only
-const isReadOnly = !canEdit;
+  // Who can read only
+  const isReadOnly = !canEdit;
 
   useEffect(() => {
     if (!id) {
@@ -447,10 +447,14 @@ const isReadOnly = !canEdit;
               <Form.Item
                 name="reference"
                 label={<span className="font-semibold text-gray-700">Référence</span>}
-                rules={[{ required: true, message: 'Référence requise' }]}
+                rules={[
+                  { required: true, message: 'Référence requise' },
+                  { max: 17, message: 'Maximum 17 caractères' }
+                ]}
                 style={{ marginBottom: 0 }}
               >
                 <Input
+                  maxLength={17}
                   placeholder="Ex: BON-2025-001"
                   prefix={<span className="text-gray-400">#</span>}
                   className="hover:border-blue-400 transition-colors"
@@ -475,21 +479,26 @@ const isReadOnly = !canEdit;
                     .filter(option => {
                       const currentValue = String(initialData?.status);
 
-                      // Always keep current value (even if > 2)
+                      // Always keep current value
                       if (String(option.value) === currentValue) {
                         return true;
                       }
 
-                      // chef_service → only 1 & 2 selectable
-                      if (hasRole('chef_service')) {
+                      // chef_service → only 1 & 2
+                      if (hasRole('chef_service') && !hasRole('admin')) {
                         return ['1', '2'].includes(String(option.value));
                       }
 
                       return true;
                     })
                     .map(option => {
-                      const isCurrent = String(option.value) === String(initialData?.status);
-                      const isDisabled = hasRole('chef_service') && Number(option.value) > 2 && !isCurrent;
+                      const isCurrent =
+                        String(option.value) === String(initialData?.status);
+
+                      const isDisabled =
+                        (hasRole('chef_service') && !hasRole('admin')) &&
+                        Number(option.value) > 2 &&
+                        !isCurrent;
 
                       return (
                         <Select.Option

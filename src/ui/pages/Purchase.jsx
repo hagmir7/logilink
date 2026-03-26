@@ -33,6 +33,13 @@ const STATUS_MAP = {
   8: { label: "Reçu non conforme", color: "bg-rose-100 text-rose-800 border-rose-300" },
 };
 
+function truncate(str, maxLength = 20) {
+  if (!str) return ''; // handles null, undefined, empty
+
+  return str.length > maxLength
+    ? str.slice(0, maxLength) + '...'
+    : str;
+}
 
 export default function Purchase() {
   const navigate = useNavigate();
@@ -236,7 +243,7 @@ export default function Purchase() {
                     {item.urgent && <Tag color="red">🚨</Tag>}
                     {item.planned_at &&  <Tooltip title={formatDate(item.planned_at)}><Tag color="green">📅</Tag>  </Tooltip>}
                   </td>
-                  <td className="px-3 py-2">{item.reference}</td>
+                  <td className="px-3 py-2">{truncate(item.reference, 20)}</td>
                   <td className="px-3 py-2">{item.service?.name}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{item.user?.full_name}</td>
                   <td className="px-3 py-2">{renderStatus(item.status)}</td>

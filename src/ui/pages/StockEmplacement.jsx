@@ -106,6 +106,7 @@ export default function StockEmplacement() {
 
       const res = await api.get(`articles/stock?${params}`);
       setData(res.data);
+      
     } catch (e) {
       setError(e.message);
     } finally {
@@ -140,8 +141,7 @@ export default function StockEmplacement() {
     try {
       const response = await api('depots')
       setDepots(response.data.data)
-      // setFilteredDepots(response.data.data)
-      // setLoading(false)
+      
     } catch (error) {
       // setLoading(false);
       message.error(error.response.data.message)
@@ -164,11 +164,6 @@ export default function StockEmplacement() {
           className="max-w-xl"
           onChange={(e) => setSearch(e.target.value)}
         />
-
-
-
-
-
 
         <Select
           placeholder="Depot"
@@ -249,7 +244,7 @@ export default function StockEmplacement() {
                   <td className="px-4 py-1">
                     <StockBadge
                       quantity={item.total_quantity}
-                      limit={item.quantity_limit}
+                      limit={item.quantity_limit || 0}
                     />
                   </td>
 
@@ -261,7 +256,7 @@ export default function StockEmplacement() {
                   <td className="px-4 py-1">
                     {item.category ? (
                       <span className="px-2 text-sm rounded-full bg-blue-50 text-blue-600">
-                        {item.quantity_limit}
+                        {item.quantity_limit || 0}
                       </span>
                     ) : (
                       "—"

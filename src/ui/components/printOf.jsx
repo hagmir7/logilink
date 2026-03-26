@@ -153,8 +153,8 @@ function printOf(of) {
           <td style="width:20%; padding:4px 0; font-size:11px; font-weight:700; vertical-align:bottom;">
             Date : ${currentDateTime}
           </td>
-          <td style="width:40%; text-align:center;">Visa Chef d'atelier : <strong>Ahmed El bayou</strong></td>
-          <td style="width:40%; text-align:center;">Visa Responsable Fabrication : <strong>${of?.user?.full_name}</strong></td>
+          <td style="width:40%; text-align:center;">Visa Chef d'atelier : </td>
+          <td style="width:40%; text-align:center;">Visa Responsable Fabrication : </td>
         </tr>
       </table>
 

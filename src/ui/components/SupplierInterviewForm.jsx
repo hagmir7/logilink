@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Form, Input, DatePicker, Button, message, Select } from "antd";
 import dayjs from "dayjs";
 import { api } from "../utils/api";
+import { useAuth } from "../contexts/AuthContext";
 
 const SupplierInterviewForm = ({ onSuccess, company }) => {
     const [loading, setLoading] = useState(false);
@@ -9,6 +10,7 @@ const SupplierInterviewForm = ({ onSuccess, company }) => {
     const [suppliers, setSuppliers] = useState([]);
     const [loadingSuppliers, setLoadingSuppliers] = useState(false);
     const [currentCompany, setCurrentCompany] = useState(company);
+    const { roles, permissions } = useAuth() 
 
     const getSuppliers = async () => {
         if (!currentCompany) {
@@ -164,7 +166,7 @@ const SupplierInterviewForm = ({ onSuccess, company }) => {
             </Form.Item>
 
             <Form.Item>
-                <Button type="primary" htmlType="submit" loading={loading} block>
+                <Button type="primary" htmlType="submit" loading={loading} block disabled={!roles('admin')}>
                     Enregistrer
                 </Button>
             </Form.Item>
