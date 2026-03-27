@@ -56,10 +56,7 @@ export default function OFModal({ articles = [] }) {
             message.warning("Veuillez saisir la date de lancement prévue");
             return;
         }
-        if (!dateDemarrage) {
-            message.warning("Veuillez saisir la date de démarrage");
-            return;
-        }
+
 
         const payload = {
             date_lancement: dateLancement?.format('YYYY-MM-DD'),
@@ -116,8 +113,8 @@ export default function OFModal({ articles = [] }) {
             key: 'qte',
             align: 'center',
             render: (_, record) => {
-                const ecart = (Math.floor(record.stock * 100) / 100) - parseFloat(record.max);
-                const current = quantities[record.id] ?? ecart;
+                const ecart =  parseFloat(record.max) - (Math.floor(record.stock * 100) / 100);
+                const current = ecart;
                 const isNegative = current < 0;
                 return (
                     <Input
@@ -186,7 +183,7 @@ export default function OFModal({ articles = [] }) {
                     {/* Date de démarrage */}
                     <div className="flex flex-col gap-1">
                         <label className="text-xs font-semibold text-gray-600 uppercase tracking-wide">
-                            Date de démarrage <span className="text-red-500">*</span>
+                            Date de démarrage
                         </label>
                         <DatePicker
                             value={dateDemarrage}

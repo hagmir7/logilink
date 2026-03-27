@@ -34,7 +34,7 @@ const STATUS_MAP = {
 };
 
 function truncate(str, maxLength = 20) {
-  if (!str) return ''; // handles null, undefined, empty
+  if (!str) return '';
 
   return str.length > maxLength
     ? str.slice(0, maxLength) + '...'

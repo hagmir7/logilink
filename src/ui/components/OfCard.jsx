@@ -72,7 +72,7 @@ function OFCard({ of: initialOf }) {
             <span className="text-gray-300">·</span>
             <span className="flex items-center gap-1">
               <span className="text-gray-400">🚀</span>
-              {dayjs(of.date_demarrage).format('DD/MM/YY')}
+              {of.date_demarrage ? dayjs(of.date_demarrage).format('DD/MM/YY') : 'N/C' }
             </span>
             {of.reference_machine && (
               <>
