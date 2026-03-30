@@ -116,6 +116,8 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
                           <Settings size={12} />
                         </span>
                       )}
+
+                      
                       {parseInt(data?.urgent) ? (
                         <span className='ml-2 p-1 bg-red-100 text-red-600 rounded border border-red-300 shadow-sm'>
                           🚨
@@ -125,7 +127,21 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
                     </div>
                   </td>
 
-                  <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
+                  {/* <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
+                    <Tag
+                      color={company(data)?.pivot?.status_id
+                        ? getStatus(Number(company(data).pivot.status_id)).color
+                        : 'gray'}
+                      className='text-xs font-medium'
+                    >
+                      {company(data)?.pivot?.status_id
+                        ? getStatus(Number(company(data).pivot.status_id)).name
+                        : 'En attente'}
+                    </Tag>
+                  </td> */}
+
+
+                   <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
                     <Tag
                       color={company(data)?.pivot?.status_id
                         ? getStatus(Number(company(data).pivot.status_id)).color

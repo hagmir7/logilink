@@ -75,7 +75,7 @@ const ArticleEmpacement = ({ code }) => {
                   
                     columns={[
                       {
-                        title: 'Code Article',
+                        title: 'Ref Article',
                         dataIndex: 'code',
                         key: 'code',
                         render: (text) => <Tag color="geekblue">{text}</Tag>,

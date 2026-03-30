@@ -168,7 +168,7 @@ const sideMenu = () => {
           label: <Link to='/fabrication/orders'>OFs</Link>,
         },
 
-         {
+        {
           key: 'submenu-107',
           icon: <WeightTilde size={19} />,
           label: <Link to='/fabrication/capacit'>Capacité</Link>,
@@ -223,7 +223,7 @@ const sideMenu = () => {
 
     {
       key: 'menu-66',
-      hidden: roles(['admin', 'dg']),
+      hidden: (roles(['admin'])),
       icon: <BaggageClaim size={20} />,
       disabled: !roles(['admin', 'chef_service']),
       label: <Link to='/purchase'>Achat</Link>,
@@ -234,8 +234,8 @@ const sideMenu = () => {
     {
       key: 'menu-7',
       icon: <BaggageClaim size={20} />,
-      hidden: !(roles(['admin', 'dg']) || !parseInt(user?.service_id)),
-      disabled: !roles(['admin', 'chef_service', 'dg']),
+      hidden: !(roles(['admin'])),
+      disabled: !roles(['admin', 'chef_service']),
       label: (
         <div className="flex items-center justify-between w-full">
           Achat

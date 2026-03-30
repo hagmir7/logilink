@@ -27,10 +27,17 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
   }, []);
 
   const dateFormat = (date) => {
-    if (!date) return '__';
-    const inputDate = new Date(date);
-    return `${inputDate.getFullYear()}/${String(inputDate.getMonth() + 1).padStart(2, '0')}/${String(inputDate.getDate()).padStart(2, '0')}`;
-  };
+    if (!date) return '__'
+
+    const inputDate = new Date(date)
+
+    const day = inputDate.getDate()
+    const month = inputDate.getMonth() + 1
+    const year = inputDate.getFullYear()
+
+    return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`
+  }
+
 
   const chunkLines = (lines, size = 40) => {
     const chunks = [];
@@ -204,7 +211,7 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
         </tbody>
       </table>
       <div className="info-top-row">
-        <span>Réf BPS : {docentete?.DO_Ref || '__'}</span>
+        <span>Réf BPS : {docentete?.document?.code || '__'}</span>
         <span>Date de livraison prévue : {doclignes[0]?.line.complation_date ? dateFormat(doclignes[0]?.line.complation_date) : '__'}</span>
       </div>
     </>

@@ -1,17 +1,16 @@
 import React, { useState } from "react";
-import { Upload, Button, message, Card } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { Upload, Button, message, Modal } from "antd";
+import { UploadOutlined, InboxOutlined } from "@ant-design/icons";
 import { api } from "../utils/api";
 
-const ImportEmplacementLimit = () => {
+const ImportEmplacementLimit = ({ open, onClose }) => {
     const [fileList, setFileList] = useState([]);
     const [loading, setLoading] = useState(false);
 
-    const props = {
+    const uploadProps = {
         beforeUpload: (file) => {
             const isExcel =
-                file.type ===
-                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
+                file.type === "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" ||
                 file.type === "application/vnd.ms-excel";
 
             if (!isExcel) {
@@ -42,42 +41,57 @@ const ImportEmplacementLimit = () => {
             setLoading(true);
 
             const response = await api.post("/import-emplacement-limit", formData, {
-                headers: {
-                    "Content-Type": "multipart/form-data",
-                },
+                headers: { "Content-Type": "multipart/form-data" },
             });
 
             message.success(response.data.message || "Import réussi !");
             setFileList([]);
+            onClose();
         } catch (error) {
             console.error(error);
-            message.error(
-                error?.response?.data?.message || "Erreur lors de l'import"
-            );
+            message.error(error?.response?.data?.message || "Erreur lors de l'import");
         } finally {
             setLoading(false);
         }
     };
 
-    return (
-        <Card title="Importer Emplacement & Stock" className="shadow-md">
-            <div className="flex flex-col gap-4">
-                <Upload {...props}>
-                    <Button icon={<UploadOutlined />}>
-                        Sélectionner fichier Excel
-                    </Button>
-                </Upload>
+    const handleCancel = () => {
+        setFileList([]);
+        onClose();
+    };
 
+    return (
+        <Modal
+            title="Importer Emplacement & Stock"
+            open={open}
+            onCancel={handleCancel}
+            footer={[
+                <Button key="cancel" onClick={handleCancel} disabled={loading}>
+                    Annuler
+                </Button>,
                 <Button
+                    key="submit"
                     type="primary"
-                    onClick={handleUpload}
                     loading={loading}
                     disabled={fileList.length === 0}
+                    onClick={handleUpload}
                 >
                     Importer
-                </Button>
-            </div>
-        </Card>
+                </Button>,
+            ]}
+        >
+            <Upload.Dragger {...uploadProps} style={{ marginTop: 8 }}>
+                <p className="ant-upload-drag-icon">
+                    <InboxOutlined />
+                </p>
+                <p className="ant-upload-text">
+                    Cliquez ou glissez un fichier Excel ici
+                </p>
+                <p className="ant-upload-hint">
+                    Formats supportés : .xlsx, .xls
+                </p>
+            </Upload.Dragger>
+        </Modal>
     );
 };
 

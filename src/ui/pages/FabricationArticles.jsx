@@ -1,16 +1,15 @@
 import React, { useEffect, useState, useRef, useCallback } from 'react'
 import { Loader2, RefreshCcw, PlusCircle, Package, Trash, Edit } from 'lucide-react'
-import { Button, Empty, Input, Select, Popconfirm, message, Checkbox } from 'antd'
+import { Button, Empty, Input, Select, Popconfirm, message, Checkbox, Table, Tag } from 'antd'
 import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
 import { categories } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
-import TableSkeleton from '../components/ui/TableSkeleton'
 import OFModal from '../components/OFModal'
 
 const { Search } = Input
 
-// ─── Urgency helpers ───────────────────────────────────────────────────────────
+// ─── Urgency helpers ──────────────────────────────────────────────────────────
 
 const URGENCY_OPTIONS = [
   { value: 'tout', label: 'Tous les statuts' },
@@ -22,18 +21,13 @@ const URGENCY_OPTIONS = [
 
 const URGENCY_LABELS = { 1: 'Urgence 1', 2: 'Urgence 2', 3: 'Urgence 3', 4: 'Surstock' }
 
+const URGENCY_COLOR = { 1: 'red', 2: 'orange', 3: 'gold', 4: 'blue' }
+
 const URGENCY_BADGE = {
   1: 'bg-red-100 text-red-800 border border-red-300',
   2: 'bg-orange-100 text-orange-800 border border-orange-300',
   3: 'bg-yellow-100 text-yellow-800 border border-yellow-300',
   4: 'bg-blue-100 text-blue-800 border border-blue-300',
-}
-
-const URGENCY_ROW = {
-  1: 'bg-red-50',
-  2: 'bg-orange-50',
-  3: 'bg-yellow-50',
-  4: '',
 }
 
 function getUrgencyLevel(stock, min, max) {
@@ -44,111 +38,114 @@ function getUrgencyLevel(stock, min, max) {
   return 4
 }
 
-// ─── Sort icon (pure SVG, no extra dependency) ────────────────────────────────
-
-function SortIcon({ col, sortBy, sortOrder }) {
-  const active = sortBy === col
-  const color  = active ? '#2563eb' : '#9ca3af'
-  const upOp   = active && sortOrder === 'asc'  ? 1 : 0.35
-  const downOp = active && sortOrder === 'desc' ? 1 : 0.35
-  return (
-    <svg
-      width="10" height="12" viewBox="0 0 10 12"
-      style={{ display: 'inline', marginLeft: 3, verticalAlign: 'middle' }}
-    >
-      <path d="M5 1L9 5H1Z"  fill={color} opacity={upOp} />
-      <path d="M5 11L1 7H9Z" fill={color} opacity={downOp} />
-    </svg>
-  )
-}
-
 // ─── Component ────────────────────────────────────────────────────────────────
 
-const SORTABLE = ['code', 'stock', 'ecart', 'stock_min', 'urgency_level']
-
 function FabricationArticles({ company_id }) {
-  const [loading, setLoading]           = useState(false)
-  const [loadingMore, setLoadingMore]   = useState(false)
-  const [page, setPage]                 = useState(1)
-  const [pageSize]                      = useState(50)
-  const [searchQuery, setSearchQuery]   = useState('')
+  const [loading, setLoading]         = useState(false)
+  const [loadingMore, setLoadingMore] = useState(false)
+  const [articles, setArticles]       = useState([])
+  const [total, setTotal]             = useState(0)
+  const [hasMore, setHasMore]         = useState(true)
+  const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('semi-fini')
   const [selectedCompany, setSelectedCompany]   = useState('')
   const [selectedUrgency, setSelectedUrgency]   = useState('tout')
   const [selectedColor, setSelectedColor]       = useState('tout')
-  const [sortBy, setSortBy]             = useState('urgency_level')
-  const [sortOrder, setSortOrder]       = useState('asc')
-  const [hasMore, setHasMore]           = useState(true)
-  const [total, setTotal]               = useState(0)
-  const [articles, setArticles]         = useState([])
+  const [sortBy, setSortBy]           = useState('urgency_level')
+  const [sortOrder, setSortOrder]     = useState('asc')
   const [colorOptions, setColorOptions] = useState([{ value: 'tout', label: 'Toutes les couleurs' }])
   const [selectedArticles, setSelectedArticles] = useState([])
 
+  const pageRef     = useRef(1)
+  const loaderRef   = useRef(null)
+  const filtersRef  = useRef({})
+
+  const PAGE_SIZE = 50
+
   const { roles } = useAuth()
   const navigate  = useNavigate()
-  const loaderRef = useRef(null)
 
-  // ── Fetch ─────────────────────────────────────────────────────────────────────
+  // keep filtersRef in sync so fetchMore always reads latest values
+  useEffect(() => {
+    filtersRef.current = { searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder }
+  }, [searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder])
 
-  const fetchInitial = useCallback(async (
-    search   = searchQuery,
-    category = selectedCategory,
-    company  = selectedCompany,
-    urgency  = selectedUrgency,
-    color    = selectedColor,
-    sb       = sortBy,
-    so       = sortOrder
-  ) => {
+  // ── Fetch ─────────────────────────────────────────────────────────────────
+
+const fetchInitial = useCallback(async (overrides = {}) => {
+    const f = { ...filtersRef.current, ...overrides }
     setLoading(true)
     setArticles([])
-    setPage(1)
     setHasMore(true)
+    pageRef.current = 1  // ← reset page
     try {
-      const response = await api.get('articles', {
-        params: { page: 1, per_page: pageSize, search, category, company, urgency, color, sort_by: sb, sort_order: so }
+      const res = await api.get('articles', {
+        params: {
+          page:       1,
+          per_page:   PAGE_SIZE,
+          search:     f.searchQuery,
+          category:   f.selectedCategory,
+          company:    f.selectedCompany,
+          urgency:    f.selectedUrgency,
+          color:      f.selectedColor,
+          sort_by:    f.sortBy,
+          sort_order: f.sortOrder,
+        },
       })
-      const { data, total, last_page } = response.data
+      const { data, total, last_page } = res.data
       setArticles(data)
       setTotal(total)
       setHasMore(1 < last_page)
-      setPage(2)
-
-      const colors = [...new Set(data.map(a => a.color).filter(Boolean))]
-      if (colors.length) {
-        setColorOptions([
-          { value: 'tout', label: 'Toutes les couleurs' },
-          ...colors.map(c => ({ value: c, label: c })),
-        ])
-      }
+      pageRef.current = 2  // ← next page to load is 2
     } catch (err) {
-      console.error('Failed to fetch data:', err)
+      console.error('Failed to fetch:', err)
     } finally {
       setLoading(false)
     }
-  }, [searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder, pageSize])
+  }, [])
 
   const fetchMore = useCallback(async () => {
     if (loadingMore || !hasMore) return
+    const f = filtersRef.current
+    const nextPage = pageRef.current  // ← snapshot before async call
+    pageRef.current += 1              // ← increment immediately to prevent double calls
     setLoadingMore(true)
     try {
-      const response = await api.get('articles', {
-        params: { page, per_page: pageSize, search: searchQuery, category: selectedCategory, company: selectedCompany, urgency: selectedUrgency, color: selectedColor, sort_by: sortBy, sort_order: sortOrder }
+      const res = await api.get('articles', {
+        params: {
+          page:       nextPage,
+          per_page:   PAGE_SIZE,
+          search:     f.searchQuery,
+          category:   f.selectedCategory,
+          company:    f.selectedCompany,
+          urgency:    f.selectedUrgency,
+          color:      f.selectedColor,
+          sort_by:    f.sortBy,
+          sort_order: f.sortOrder,
+        },
       })
-      const { data, last_page } = response.data
-      setArticles(prev => [...prev, ...data])
-      setHasMore(page < last_page)
-      setPage(prev => prev + 1)
+      const { data, last_page } = res.data
+      setArticles(prev => {
+        // dedupe by id just in case
+        const existingIds = new Set(prev.map(a => a.id || a.code))
+        const newItems = data.filter(a => !existingIds.has(a.id || a.code))
+        return [...prev, ...newItems]
+      })
+      setHasMore(nextPage < last_page)
     } catch (err) {
+      pageRef.current -= 1  // ← roll back on error
       console.error('Failed to load more:', err)
     } finally {
       setLoadingMore(false)
     }
-  }, [loadingMore, hasMore, page, pageSize, searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder])
+  }, [loadingMore, hasMore])
 
-  // ── Effects ───────────────────────────────────────────────────────────────────
+
+
+  // ── Effects ───────────────────────────────────────────────────────────────
 
   useEffect(() => {
-    fetchInitial(searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder)
+    fetchInitial()
   }, [searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder])
 
   useEffect(() => {
@@ -161,15 +158,22 @@ function FabricationArticles({ company_id }) {
     return () => { if (el) observer.unobserve(el) }
   }, [fetchMore, hasMore, loadingMore])
 
-  // ── Handlers ──────────────────────────────────────────────────────────────────
+  // ── Handlers ──────────────────────────────────────────────────────────────
 
   const handleSort = (col) => {
-    if (!SORTABLE.includes(col)) return
     if (sortBy === col) {
       setSortOrder(o => o === 'asc' ? 'desc' : 'asc')
     } else {
       setSortBy(col)
       setSortOrder('asc')
+    }
+  }
+
+  const handleTableChange = (_, __, sorter) => {
+    if (sorter && sorter.field) {
+      const order = sorter.order === 'ascend' ? 'asc' : 'desc'
+      setSortBy(sorter.field)
+      setSortOrder(order)
     }
   }
 
@@ -185,7 +189,7 @@ function FabricationArticles({ company_id }) {
         navigate(url)
       }
     } catch (error) {
-      console.error('Error navigating to article:', error)
+      console.error('Error navigating:', error)
     }
   }
 
@@ -204,27 +208,165 @@ function FabricationArticles({ company_id }) {
     }
   }
 
-  // ── Sortable th helper ────────────────────────────────────────────────────────
+  // ── Columns ───────────────────────────────────────────────────────────────
 
-  const Th = ({ col, label, align = 'left' }) => (
-    <th
-      onClick={() => SORTABLE.includes(col) && handleSort(col)}
-      className={`px-4 py-2 text-${align} text-xs font-bold text-gray-700 uppercase tracking-wider
-        ${SORTABLE.includes(col) ? 'cursor-pointer hover:bg-gray-200 select-none' : ''}`}
-    >
-      {label}
-      {SORTABLE.includes(col) && <SortIcon col={col} sortBy={sortBy} sortOrder={sortOrder} />}
-    </th>
-  )
+  const columns = [
+    {
+      title: (
+        <Checkbox
+          checked={selectedArticles.length === articles.length && articles.length > 0}
+          indeterminate={selectedArticles.length > 0 && selectedArticles.length < articles.length}
+          onChange={(e) => setSelectedArticles(e.target.checked ? [...articles] : [])}
+        />
+      ),
+      key: 'select',
+      width: 48,
+      render: (_, article) => (
+        <Checkbox
+          checked={selectedArticles.some(a => a.id === article.id)}
+          onChange={(e) =>
+            setSelectedArticles(prev =>
+              e.target.checked ? [...prev, article] : prev.filter(a => a.id !== article.id)
+            )
+          }
+        />
+      ),
+    },
+    {
+      title: 'Référence',
+      dataIndex: 'code',
+      key: 'code',
+      sorter: true,
+      render: (code) => (
+        <code className="bg-gray-100 px-2 py-0.5 rounded text-xs font-mono font-bold text-gray-800">
+          {code}
+        </code>
+      ),
+    },
+    {
+      title: 'Désignation',
+      dataIndex: 'description',
+      key: 'description',
+      ellipsis: true,
+      render: (desc) => <span className="text-sm text-gray-700">{desc}</span>,
+    },
+    {
+      title: 'Nom',
+      dataIndex: 'name',
+      key: 'name',
+      ellipsis: true,
+      render: (name) => <span className="text-sm text-gray-600">{name}</span>,
+    },
+    {
+      title: 'QTE Disponible',
+      dataIndex: 'stock',
+      key: 'stock',
+      sorter: true,
+      align: 'center',
+      render: (stock) => (
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+          {Math.floor(stock * 100) / 100}
+        </span>
+      ),
+    },
+    {
+      title: 'Capacité max',
+      dataIndex: 'max',
+      key: 'max',
+      align: 'center',
+      render: (max) => (
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+          {parseFloat(max)}
+        </span>
+      ),
+    },
+    {
+      title: 'Écart',
+      key: 'ecart',
+      sorter: true,
+      align: 'center',
+      render: (_, a) => {
+        const ecart = parseFloat(a.max) - Math.floor(a.stock * 100) / 100
+        return (
+          <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+            {ecart}
+          </span>
+        )
+      },
+    },
+    {
+      title: 'Stock min',
+      dataIndex: 'stock_min',
+      key: 'stock_min',
+      sorter: true,
+      align: 'center',
+      render: (min) => (
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          {parseFloat(min)}
+        </span>
+      ),
+    },
+    {
+      title: 'Stock moy.',
+      key: 'moyenne',
+      align: 'center',
+      render: (_, a) => (
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          {parseFloat(a.max) / 2}
+        </span>
+      ),
+    },
+    {
+      title: 'Statut',
+      key: 'urgency_level',
+      sorter: true,
+      align: 'center',
+      render: (_, a) => {
+        const level = a.urgency_level ?? getUrgencyLevel(
+          Math.floor(a.stock * 100) / 100,
+          parseFloat(a.stock_min),
+          parseFloat(a.max)
+        )
+        return (
+          <Tag color={URGENCY_COLOR[level]} className="rounded-full text-xs font-semibold">
+            {URGENCY_LABELS[level]}
+          </Tag>
+        )
+      },
+    },
+    {
+      title: '',
+      key: 'actions',
+      width: 90,
+      render: (_, article) => (
+        <div className="flex gap-1 justify-center">
+          <Button size="small" variant="solid" color="green" onClick={() => handleShow(article.code)}>
+            <Edit size={14} />
+          </Button>
+          <Popconfirm
+            title="Supprimer l'article"
+            description="Êtes-vous sûr de vouloir supprimer cet article ?"
+            onConfirm={() => confirmDelete(article.code)}
+            okText="Oui"
+            cancelText="Non"
+          >
+            <Button size="small" variant="solid" color="red">
+              <Trash size={14} />
+            </Button>
+          </Popconfirm>
+        </div>
+      ),
+    },
+  ]
 
-  // ── Render ────────────────────────────────────────────────────────────────────
+  // ── Render ────────────────────────────────────────────────────────────────
 
   return (
-    <div className='w-full h-full bg-gray-50 p-0 md:px-2'>
-      <div className='max-w-[1600px] mx-auto'>
+    <div className="w-full h-full bg-gray-50 p-0 md:px-2">
+      <div className="max-w-[1600px] mx-auto space-y-3 pt-2">
 
-        {/* Header */}
-        <div className="mb-3 bg-white md:rounded-lg md:shadow-sm border border-gray-200 py-2 px-3 mt-2">
+        {/* Header card */}
+        <div className="bg-white md:rounded-lg md:shadow-sm border border-gray-200 py-2 px-3">
 
           {/* Title */}
           <div className="flex items-center gap-3 mb-3">
@@ -300,18 +442,21 @@ function FabricationArticles({ company_id }) {
             <div className="flex gap-2 items-center flex-wrap">
               <OFModal articles={selectedArticles} />
               <Button size="middle" onClick={() => fetchInitial()} disabled={loading}>
-                {loading ? <Loader2 className="animate-spin" size={18} /> : <RefreshCcw size={18} />}
+                {loading
+                  ? <Loader2 className="animate-spin" size={18} />
+                  : <RefreshCcw size={18} />
+                }
               </Button>
               {selectedUrgency !== 'tout' && (
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${URGENCY_BADGE[Number(selectedUrgency)]}`}>
                   {URGENCY_LABELS[Number(selectedUrgency)]}
-                  <button onClick={() => setSelectedUrgency('tout')} className="font-bold hover:opacity-70 leading-none">×</button>
+                  <button onClick={() => setSelectedUrgency('tout')} className="font-bold hover:opacity-70">×</button>
                 </span>
               )}
               {selectedColor !== 'tout' && (
                 <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
                   {selectedColor}
-                  <button onClick={() => setSelectedColor('tout')} className="font-bold hover:opacity-70 leading-none">×</button>
+                  <button onClick={() => setSelectedColor('tout')} className="font-bold hover:opacity-70">×</button>
                 </span>
               )}
             </div>
@@ -319,10 +464,10 @@ function FabricationArticles({ company_id }) {
               <Button
                 type="primary"
                 size="middle"
-                className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
+                icon={<PlusCircle size={18} />}
                 onClick={() => handleShow()}
               >
-                <PlusCircle size={18} /> Créer Article
+                Créer Article
               </Button>
             )}
           </div>
@@ -337,122 +482,27 @@ function FabricationArticles({ company_id }) {
         </div>
 
         {/* Table */}
-        <div className='bg-white md:rounded-lg border border-gray-200 overflow-hidden'>
-          <div className='overflow-x-auto'>
-            <table className='w-full'>
-              <thead>
-                <tr className='bg-gradient-to-r from-gray-50 to-gray-100 border-b border-gray-200'>
-                  <th className='px-4 py-2 text-left'>
-                    <Checkbox
-                      checked={selectedArticles.length === articles.length && articles.length > 0}
-                      onChange={(e) => setSelectedArticles(e.target.checked ? [...articles] : [])}
-                    />
-                  </th>
-                  <Th col="code"          label="Référence"      align="left"   />
-                  <th className='px-4 py-1 text-left   text-xs font-bold text-gray-700 uppercase tracking-wider'>Désignation</th>
-                  <th className='px-4 py-1 text-left   text-xs font-bold text-gray-700 uppercase tracking-wider'>Nom</th>
-                  <Th col="stock"         label="QTE Disponible" align="center" />
-                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>Capacité max</th>
-                  <Th col="ecart"         label="Écart"          align="center" />
-                  <Th col="stock_min"     label="Stock min"      align="center" />
-                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>Stock moy.</th>
-                  <Th col="urgency_level" label="Statut"         align="center" />
-                  <th className='px-4 py-1'></th>
-                </tr>
-              </thead>
-              <tbody className='divide-y divide-gray-100 whitespace-nowrap'>
-                {articles.map((article, index) => {
-                  const stock   = Math.floor(article.stock * 100) / 100
-                  const max     = parseFloat(article.max)
-                  const min     = parseFloat(article.stock_min)
-                  const moyenne = max / 2
-                  const ecart   = max - stock
-                  const level   = article.urgency_level ?? getUrgencyLevel(stock, min, max)
-
-                  return (
-                    <tr
-                      key={article.id || index}
-                      className={`hover:bg-blue-50 transition-colors duration-150 cursor-pointer group ${URGENCY_ROW[level]}`}
-                    >
-                      <td className='px-4 py-1'>
-                        <Checkbox
-                          checked={selectedArticles.some(a => a.id === article.id)}
-                          onChange={(e) =>
-                            setSelectedArticles(prev =>
-                              e.target.checked ? [...prev, article] : prev.filter(a => a.id !== article.id)
-                            )
-                          }
-                        />
-                      </td>
-                      <td className='px-4 py-1'>
-                        <div className='flex items-center gap-2'>
-                          <div className='w-1 h-8 bg-blue-600 rounded-full opacity-0 group-hover:opacity-100 transition-opacity' />
-                          <span className='text-sm font-mono font-bold text-gray-900'>{article.code}</span>
-                        </div>
-                      </td>
-                      <td className='px-4 py-1'>
-                        <div className='text-sm text-gray-900 font-medium max-w-xs truncate'>{article.description}</div>
-                      </td>
-                      <td className='px-4 py-1 text-sm text-gray-700'>{article.name}</td>
-                      <td className='px-4 py-1 text-center'>
-                        <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200'>
-                          {stock}
-                        </span>
-                      </td>
-                      <td className='px-4 py-1 text-center'>
-                        <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
-                          {max}
-                        </span>
-                      </td>
-                      <td className='px-4 py-1 text-center'>
-                        <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
-                          {ecart}
-                        </span>
-                      </td>
-                      <td className='px-4 py-1 text-center'>
-                        <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
-                          {min}
-                        </span>
-                      </td>
-                      <td className='px-4 py-1 text-center'>
-                        <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200'>
-                          {moyenne}
-                        </span>
-                      </td>
-                      <td className='px-4 py-1 text-center'>
-                        <span className={`inline-flex items-center justify-center px-3 py-0.5 rounded-lg text-xs font-semibold ${URGENCY_BADGE[level]}`}>
-                          {URGENCY_LABELS[level]}
-                        </span>
-                      </td>
-                      <td className='px-4 py-1'>
-                        <div className='flex gap-2 justify-center'>
-                          <Button size='small' onClick={() => handleShow(article.code)} variant='solid' color='green'>
-                            <Edit size={15} />
-                          </Button>
-                          <Popconfirm
-                            title="Supprimer l'article"
-                            description="Êtes-vous sûr de vouloir supprimer cet article ?"
-                            onConfirm={() => confirmDelete(article.code)}
-                            okText="Oui"
-                            cancelText="Non"
-                          >
-                            <Button size='small' variant='solid' color='red'>
-                              <Trash size={15} />
-                            </Button>
-                          </Popconfirm>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-
-                {loading && <TableSkeleton rows={10} columns={11} />}
-              </tbody>
-            </table>
-          </div>
-
-          {!loading && articles.length === 0 && (
-            <div className='py-16'>
+        <Table
+          rowKey={(r) => r.id || r.code}
+          columns={columns}
+          dataSource={articles}
+          loading={loading}
+          onChange={handleTableChange}
+          pagination={false}
+          size="small"
+          scroll={{ x: 1200 }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+          rowClassName={(record) => {
+            const level = record.urgency_level ?? getUrgencyLevel(
+              Math.floor(record.stock * 100) / 100,
+              parseFloat(record.stock_min),
+              parseFloat(record.max)
+            )
+            const map = { 1: 'bg-red-50', 2: 'bg-orange-50', 3: 'bg-yellow-50', 4: '' }
+            return map[level] || ''
+          }}
+          locale={{
+            emptyText: (
               <Empty
                 image={Empty.PRESENTED_IMAGE_SIMPLE}
                 description={
@@ -462,25 +512,26 @@ function FabricationArticles({ company_id }) {
                   </div>
                 }
               />
+            ),
+          }}
+        />
+
+        {/* Load more / infinite scroll trigger */}
+        <div ref={loaderRef} className="py-4 flex items-center justify-center">
+          {loadingMore && (
+            <div className="flex items-center gap-2 text-sm text-gray-500">
+              <Loader2 className="animate-spin" size={16} />
+              Chargement...
             </div>
           )}
-
-          <div ref={loaderRef} className='py-4 flex items-center justify-center'>
-            {loadingMore && (
-              <div className='flex items-center gap-2 text-sm text-gray-500'>
-                <Loader2 className='animate-spin' size={16} />
-                Chargement...
-              </div>
-            )}
-            {!loadingMore && hasMore && articles.length > 0 && (
-              <Button size='small' onClick={fetchMore} className='text-gray-400 border-gray-200'>
-                Charger plus
-              </Button>
-            )}
-            {!hasMore && articles.length > 0 && (
-              <p className='text-sm text-gray-400'>Tous les articles sont chargés ({total})</p>
-            )}
-          </div>
+          {!loadingMore && hasMore && articles.length > 0 && (
+            <Button size="small" onClick={fetchMore} className="text-gray-400 border-gray-200">
+              Charger plus
+            </Button>
+          )}
+          {!hasMore && articles.length > 0 && (
+            <p className="text-sm text-gray-400">Tous les articles sont chargés ({total})</p>
+          )}
         </div>
 
       </div>

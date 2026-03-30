@@ -7,7 +7,6 @@ import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { RefreshCcw, ArrowRight, CheckCircle, Check } from 'lucide-react'
 import PrintDocument from '../components/PrintDocument'
-import PrintDocumentTest from '../components/PrintDocumentTest'
 import FacadDocumentPrint from '../components/FacadDocumentPrint'
 
 
@@ -22,9 +21,9 @@ function Fabrication() {
     const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
-  const type = queryParams.get('type'); // "archive" if URL has ?type=archive
+  const type = queryParams.get('type');
 
-  // Fixed: Better filtering logic for selected rows
+
   const selectedRowsFull = data.doclignes.filter(line => 
     selected.includes(line.line?.id)
   );
@@ -70,21 +69,24 @@ function Fabrication() {
       setSelected([])
     }
   }
-
   const onDateChange = async (date, dateString) => {
     if (selected.length === 0) return
+
     const requestData = {
-      complation_date: date,
+      complation_date: dateString, // ✅ FIX (YYYY-MM-DD)
       lines: selected,
     }
-    
+
     try {
       await api.post('docentetes/start', requestData)
+
+      console.log(requestData)
+
       message.success("Date modifiée avec succès")
-      setSelected([]); 
-      fetchData();
+      setSelected([])
+      fetchData()
     } catch (error) {
-      message.error(error?.response?.data?.message);
+      message.error(error?.response?.data?.message)
       console.error(error)
     }
   }
@@ -110,13 +112,15 @@ function Fabrication() {
   }
 
   const dateFormat = (date) => {
+    if (!date) return '__'
+
     const inputDate = new Date(date)
 
-    const formattedDate = `${inputDate.getFullYear()}/${String(
-      inputDate.getMonth() + 1
-    ).padStart(2, '0')}/${Number(String(inputDate.getDate()).padStart(2, '0')) + 1
-      }`
-    return formattedDate
+    const day = inputDate.getDate()
+    const month = inputDate.getMonth() + 1
+    const year = inputDate.getFullYear()
+
+    return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`
   }
 
   return (
@@ -155,6 +159,7 @@ function Fabrication() {
                 : data.doclignes
             }
           />
+
         </div>
       </div>
 
@@ -195,9 +200,8 @@ function Fabrication() {
         <div>
           <DatePicker
             onChange={onDateChange}
+            format="YYYY-MM-DD" // ✅ IMPORTANT
             locale={locale}
-            translate='y'
-            lang='fr'
             className='border-2'
             placeholder='Date de livraison'
           />
@@ -270,6 +274,8 @@ function Fabrication() {
                ) : data.doclignes?.length > 0 ? (
                  currentItems.map((item, index) => (
                    <Tr key={index} className='whitespace-nowrap'>
+
+
                      <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
                        {
                          item?.line?.fabricated_by ? <div className="bg-green-200 rounded-full py-1 flex items-center justify-center ml-2">

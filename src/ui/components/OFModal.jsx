@@ -109,7 +109,7 @@ export default function OFModal({ articles = [] }) {
         },
 
         {
-            title: 'Qté OF',
+            title: 'Ecart',
             key: 'qte',
             align: 'center',
             render: (_, record) => {
