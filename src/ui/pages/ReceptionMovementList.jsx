@@ -1,10 +1,11 @@
-import { Loader2, RefreshCcw, Settings } from "lucide-react";
+import { Loader2, PlusCircle, RefreshCcw, Settings, Truck } from "lucide-react";
 import React, { useState, useEffect } from "react";
 import { api } from "../utils/api";
 import { useNavigate } from "react-router-dom";
 import { Button, Empty, Badge, Tooltip } from "antd";
 import Spinner from "../components/ui/Spinner";
 import { formatDate, getExped } from "../utils/config";
+import TravelModal from "../components/TravelModal";
 
 function ReceptionMovementList() {
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
@@ -92,6 +93,8 @@ function ReceptionMovementList() {
           )}
           <span className="hidden sm:inline ml-2">Rafraîchir</span>
         </Button>
+
+          <TravelModal />
       </div>
 
       {/* Cards */}
