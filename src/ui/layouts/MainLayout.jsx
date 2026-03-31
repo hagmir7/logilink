@@ -30,6 +30,8 @@ import {
   Square,
   Factory,
   WeightTilde,
+  PlaneLanding,
+  Van,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -214,9 +216,22 @@ const sideMenu = () => {
 
     {
       key: 'menu-6',
-      icon: <FileDown size={20} />,
+      icon: <PlaneLanding size={20} />,
       disabled: !roles(['logistique', 'admin']),
-      label: <Link to='/reception'>Reception</Link>,
+      label: 'Arrivage',
+      children: [
+
+        {
+          key: 'submenu-105',
+          icon: <FileDown size={20} />,
+          label: <Link to='/reception'>Reception</Link>,
+        },
+        {
+          key: 'submenu-106',
+          icon: <Van size={20} />,
+          label: <Link to='/travels'>Voyage</Link>,
+        },
+      ]
 
     },
 
@@ -227,6 +242,7 @@ const sideMenu = () => {
       icon: <BaggageClaim size={20} />,
       disabled: !roles(['admin', 'chef_service']),
       label: <Link to='/purchase'>Achat</Link>,
+    
     },
 
   

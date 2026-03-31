@@ -1,13 +1,16 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import {
     Modal, Button, Form, Input, Steps, Alert, Spin, Tag, Divider,
-    message
+    message,
+    Select
 } from 'antd'
 import { PlusCircle, User, CheckCircle2, AlertCircle, Car, FileText} from 'lucide-react'
 import { api } from '../utils/api'
 
 
 const { Step } = Steps
+
+ const is_electron = window?.electron;
 
 /* ─── tiny status badge ─────────────────────────────────────────────────── */
 function DriverTag({ found }) {
@@ -17,7 +20,7 @@ function DriverTag({ found }) {
 }
 
 /* ─── Step 0 – CIN lookup ────────────────────────────────────────────────── */
-function StepCin({ onFound, onNotFound, loading, setLoading }) {
+function StepCin({ onFound, onNotFound, loading, setLoading, companies }) {
     const [form] = Form.useForm()
 
     const handleCheck = async () => {
@@ -75,7 +78,7 @@ function StepCin({ onFound, onNotFound, loading, setLoading }) {
 }
 
 /* ─── Step 1a – Driver found → create reception only ────────────────────── */
-function StepReceptionOnly({ cin, onSubmit, loading }) {
+function StepReceptionOnly({ cin, onSubmit, loading, companies }) {
     const [form] = Form.useForm()
 
     const handleSubmit = async () => {
@@ -90,7 +93,7 @@ function StepReceptionOnly({ cin, onSubmit, loading }) {
                 showIcon
                 icon={<CheckCircle2 size={16} />}
                 message="Chauffeur existant détecté"
-                description={`CIN ${cin} correspond à un chauffeur enregistré. Créez directement sa réception de voyage.`}
+                // description={`CIN ${cin} correspond à un chauffeur enregistré. Créez directement sa réception de voyage.`}
                 className="mb-6 rounded-lg"
             />
             <Form form={form} layout="vertical">
@@ -106,6 +109,27 @@ function StepReceptionOnly({ cin, onSubmit, loading }) {
                         className="rounded-lg"
                     />
                 </Form.Item>
+
+               
+
+                <Form.Item
+                    name="company_id"
+                    label={<span className="font-semibold text-gray-700">Société</span>}
+                    rules={[{ required: true, message: "L'ID société est requis" }]}
+                >
+
+
+                    <Select
+                        placeholder='Sélectionner une société'
+                        size='large'
+                        options={companies}
+                        // className={`w-full ${is_electron ? 'custom-select h-[60px]' : ''}`}
+                        // style={is_electron ? { fontSize: '30px' } : {}}
+                        // dropdownClassName={is_electron ? 'custom-select-dropdown' : ''}
+                        allowClear={true}
+                    />
+                </Form.Item>
+
 
                 <Button
                     type="primary"
@@ -124,7 +148,7 @@ function StepReceptionOnly({ cin, onSubmit, loading }) {
 }
 
 
-function StepDriverAndReception({ cin, onSubmit, loading }) {
+function StepDriverAndReception({ cin, onSubmit, loading, companies }) {
     const [form] = Form.useForm()
 
     const handleSubmit = async () => {
@@ -181,6 +205,24 @@ function StepDriverAndReception({ cin, onSubmit, loading }) {
                     />
                 </Form.Item>
 
+                <Form.Item
+                    name="company_id"
+                    label={<span className="font-semibold text-gray-700">Société</span>}
+                    rules={[{ required: true, message: "L'ID société est requis" }]}
+                >
+
+
+                    <Select
+                        placeholder='Sélectionner une société'
+                        size='large'
+                        options={companies}
+                        // className={`w-full ${is_electron ? 'custom-select h-[60px]' : ''}`}
+                        // style={is_electron ? { fontSize: '30px' } : {}}
+                        // dropdownClassName={is_electron ? 'custom-select-dropdown' : ''}
+                        allowClear={true}
+                    />
+                </Form.Item>
+
                 <Button
                     type="primary"
                     size="large"
@@ -221,6 +263,7 @@ export default function TravelModal() {
     const [driverFound, setDriverFound] = useState(null)
     const [cin, setCin] = useState('')
     const [loading, setLoading] = useState(false)
+    const [companies, setCompanies] = useState([]);
 
     const reset = () => {
         setCurrent(0)
@@ -247,6 +290,24 @@ export default function TravelModal() {
         setDriverFound(false)
         setCurrent(1)
     }
+
+      const getCompanies = async () => {
+        try {
+          const { data } = await api.get('companies')
+          const options = data.map((company) => ({
+            label: company.name,
+            value: company.id,
+          }))
+          setCompanies(options)
+        } catch (error) {
+          console.error(error)
+          message.error('Erreur lors du chargement des sociétés')
+        }
+      }
+
+      useEffect(() =>{
+        getCompanies();
+      }, [])
 
 
     const handleSubmit = async (values) => {
@@ -331,13 +392,14 @@ export default function TravelModal() {
                             onNotFound={handleNotFound}
                             loading={loading}
                             setLoading={setLoading}
+                            companies={companies}
                         />
                     )}
                     {current === 1 && driverFound === true && (
-                        <StepReceptionOnly cin={cin} onSubmit={handleSubmit} loading={loading} />
+                        <StepReceptionOnly companies={companies} cin={cin} onSubmit={handleSubmit} loading={loading} />
                     )}
                     {current === 1 && driverFound === false && (
-                        <StepDriverAndReception cin={cin} onSubmit={handleSubmit} loading={loading} />
+                        <StepDriverAndReception companies={companies} cin={cin} onSubmit={handleSubmit} loading={loading} />
                     )}
                     {current === 2 && (
                         <>

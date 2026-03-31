@@ -62,6 +62,7 @@ import StockEmplacement from './pages/StockEmplacement'
 import FabricationArticles from './pages/FabricationArticles'
 import OFs from './pages/OFs'
 import EmplacementLimit from './components/EmplacementLimit'
+import TravelReceptionTable from './pages/TravelReceptionTable'
 
 
 const NotFound = () => {
@@ -158,6 +159,7 @@ function App() {
           <Route path='shipping' element={<Shipping />} />
           <Route path='chargement/:id' element={<Chargement />} />
           <Route path='preparation/archive' element={<PreparationArchive />} />
+          <Route path='travels' element={<TravelReceptionTable />} />
 
           <Route path='stock/out' element={<StockMovement />} />
           <Route path='stock/in' element={<StockMovement />} />
