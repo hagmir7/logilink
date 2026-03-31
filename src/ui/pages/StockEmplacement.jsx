@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import { api } from "../utils/api";
 import { uppercaseFirst } from "../utils/config";
-import { Input, Select, Table, Tag, message } from "antd";
+import { Input, Select, Table, Button, message } from "antd";
 
 /* ---------- Helpers ---------- */
 
@@ -33,83 +33,119 @@ function StockBadge({ quantity, limit }) {
 
 /* ---------- Component ---------- */
 
-export default function StockEmplacement() {
-  const [items, setItems]       = useState([])
-  const [loading, setLoading]   = useState(true)
-  const [total, setTotal]       = useState(0)
-  const [page, setPage]         = useState(1)
-  const [pageSize, setPageSize] = useState(50)
-  const [search, setSearch]     = useState("")
-  const [depotCode, setDepotCode] = useState("")
-  const [category, setCategory] = useState("")
-  const [depots, setDepots]     = useState([])
-  const [categoryOptions, setCategoryOptions] = useState([])
+const PAGE_SIZE = 50;
 
-  const debouncedSearch = useRef("")
-  const searchTimer     = useRef(null)
+export default function StockEmplacement() {
+  const [items, setItems]         = useState([]);
+  const [loading, setLoading]     = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
+  const [total, setTotal]         = useState(0);
+  const [page, setPage]           = useState(1);
+  const [hasMore, setHasMore]     = useState(false);
+  const [search, setSearch]       = useState("");
+  const [depotCode, setDepotCode] = useState("");
+  const [category, setCategory]   = useState("");
+  const [depots, setDepots]       = useState([]);
+  const [categoryOptions, setCategoryOptions] = useState([]);
+
+  const debouncedSearch = useRef("");
+  const searchTimer     = useRef(null);
 
   /* ---------- Fetch depots ---------- */
 
-  const fetchDepots = async () => {
-    try {
-      const res = await api("depots")
-      setDepots(res.data.data)
-    } catch (err) {
-      message.error(err.response?.data?.message || "Erreur depots")
-      console.error(err)
-    }
-  }
-
-  useEffect(() => { fetchDepots() }, [])
-
-  /* ---------- Fetch data ---------- */
-
-  const fetchData = useCallback(async (pg = 1) => {
-    setLoading(true)
-    try {
-      const params = new URLSearchParams({ page: pg, per_page: pageSize })
-      if (debouncedSearch.current) params.set("search",     debouncedSearch.current)
-      if (depotCode)               params.set("depot_code", depotCode)
-      if (category)                params.set("category",   category)
-
-      const res = await api.get(`articles/stock?${params}`)
-      setItems(res.data.data)
-      setTotal(res.data.total)
-      setPage(res.data.current_page)
-
-      // build category options from response
-      const cats = [...new Set(res.data.data.map(i => i.category).filter(Boolean))]
-      if (cats.length) setCategoryOptions(cats)
-    } catch (err) {
-      message.error("Erreur lors du chargement")
-      console.error(err)
-    } finally {
-      setLoading(false)
-    }
-  }, [depotCode, category, pageSize])
-
-  // reset to page 1 when filters change
   useEffect(() => {
-    fetchData(1)
-  }, [fetchData])
+    const fetchDepots = async () => {
+      try {
+        const res = await api("depots");
+        setDepots(res.data.data);
+      } catch (err) {
+        message.error(err.response?.data?.message || "Erreur depots");
+        console.error(err);
+      }
+    };
+    fetchDepots();
+  }, []);
+
+  /* ---------- Fetch first page (reset) ---------- */
+
+  const fetchFirstPage = useCallback(async () => {
+    setLoading(true);
+    try {
+      const params = new URLSearchParams({ page: 1, per_page: PAGE_SIZE });
+      if (debouncedSearch.current) params.set("search",     debouncedSearch.current);
+      if (depotCode)               params.set("depot_code", depotCode);
+      if (category)                params.set("category",   category);
+
+      const res = await api.get(`articles/stock?${params}`);
+      const data = res.data.data;
+
+      setItems(data);
+      setTotal(res.data.total);
+      setPage(1);
+      setHasMore(data.length < res.data.total);
+
+      const cats = [...new Set(data.map((i) => i.category).filter(Boolean))];
+      if (cats.length) setCategoryOptions(cats);
+    } catch (err) {
+      message.error("Erreur lors du chargement");
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
+  }, [depotCode, category]);
+
+  // Reset to first page whenever filters change
+  useEffect(() => {
+    fetchFirstPage();
+  }, [fetchFirstPage]);
+
+  /* ---------- Load more ---------- */
+
+  const loadMore = async () => {
+    const nextPage = page + 1;
+    setLoadingMore(true);
+    try {
+      const params = new URLSearchParams({ page: nextPage, per_page: PAGE_SIZE });
+      if (debouncedSearch.current) params.set("search",     debouncedSearch.current);
+      if (depotCode)               params.set("depot_code", depotCode);
+      if (category)                params.set("category",   category);
+
+      const res = await api.get(`articles/stock?${params}`);
+      const newData = res.data.data;
+
+      setItems((prev) => [...prev, ...newData]);
+      setPage(nextPage);
+      setHasMore(items.length + newData.length < res.data.total);
+
+      const cats = [...new Set(newData.map((i) => i.category).filter(Boolean))];
+      if (cats.length) {
+        setCategoryOptions((prev) => [...new Set([...prev, ...cats])]);
+      }
+    } catch (err) {
+      message.error("Erreur lors du chargement");
+      console.error(err);
+    } finally {
+      setLoadingMore(false);
+    }
+  };
 
   /* ---------- Search debounce ---------- */
 
   const handleSearchChange = (e) => {
-    const value = e.target.value
-    setSearch(value)
-    clearTimeout(searchTimer.current)
+    const value = e.target.value;
+    setSearch(value);
+    clearTimeout(searchTimer.current);
     searchTimer.current = setTimeout(() => {
-      debouncedSearch.current = value
-      fetchData(1)
-    }, 300)
-  }
+      debouncedSearch.current = value;
+      fetchFirstPage();
+    }, 300);
+  };
 
   const handleSearchClear = () => {
-    setSearch("")
-    debouncedSearch.current = ""
-    fetchData(1)
-  }
+    setSearch("");
+    debouncedSearch.current = "";
+    fetchFirstPage();
+  };
 
   /* ---------- Columns ---------- */
 
@@ -184,21 +220,22 @@ export default function StockEmplacement() {
       key: "ecart",
       align: "center",
       render: (_, item) => {
-        const ecart = (item.quantity_limit || 0) - parseInt(item.total_quantity)
-        const isNeg = ecart < 0
+        const ecart = (item.quantity_limit || 0) - parseInt(item.total_quantity);
+        const isNeg = ecart < 0;
         return (
-          <span className={`inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold border
-            ${isNeg
-              ? "bg-red-50 text-red-700 border-red-200"
-              : "bg-amber-50 text-amber-700 border-amber-200"
-            }`}
+          <span
+            className={`inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold border
+              ${isNeg
+                ? "bg-red-50 text-red-700 border-red-200"
+                : "bg-amber-50 text-amber-700 border-amber-200"
+              }`}
           >
             {ecart}
           </span>
-        )
+        );
       },
     },
-  ]
+  ];
 
   /* ---------- Render ---------- */
 
@@ -231,10 +268,12 @@ export default function StockEmplacement() {
             value={category || undefined}
             onChange={(val) => setCategory(val || "")}
             allowClear
-            options={[
-              ...categoryOptions.map((c) => ({ label: c, value: c })),
-            ]}
+            options={categoryOptions.map((c) => ({ label: c, value: c }))}
           />
+
+          <span className="ml-auto text-sm text-gray-400">
+            {items.length} / {total} résultats
+          </span>
         </div>
       </div>
 
@@ -247,19 +286,23 @@ export default function StockEmplacement() {
         size="small"
         scroll={{ x: 900 }}
         className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
-        pagination={{
-          current:         page,
-          pageSize:        pageSize,
-          total:           total,
-          showSizeChanger: true,
-          pageSizeOptions: [25, 50, 100, 200],
-          showTotal:       (t, range) => `${range[0]}–${range[1]} sur ${t} résultats`,
-          onChange:        (pg, ps) => {
-            setPageSize(ps)
-            fetchData(pg)
-          },
-        }}
+        pagination={false}
+        footer={
+          hasMore
+            ? () => (
+                <div className="flex justify-center py-2">
+                  <Button
+                    onClick={loadMore}
+                    loading={loadingMore}
+                    type="default"
+                  >
+                    Charger plus ({total - items.length} restants)
+                  </Button>
+                </div>
+              )
+            : null
+        }
       />
     </div>
-  )
+  );
 }

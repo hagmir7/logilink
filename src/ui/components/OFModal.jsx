@@ -2,6 +2,8 @@ import { Button, Modal, Table, DatePicker, Input, Radio, message, Select } from 
 import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api'
 
+const { Option } = Select;
+
 export default function OFModal({ articles = [] }) {
     const [open, setOpen] = useState(false);
     const [loading, setLoading] = useState(false);
@@ -40,7 +42,7 @@ export default function OFModal({ articles = [] }) {
     const handleOpen = () => {
         const initial = {};
         articles.forEach(a => {
-            const ecart = (Math.floor(a.stock * 100) / 100) - parseFloat(a.max);
+            const ecart = parseFloat(a.max) - (Math.floor(a.stock * 100) / 100); // ✅ fixed sign
             initial[a.id] = ecart;
         });
         setQuantities(initial);
@@ -56,7 +58,6 @@ export default function OFModal({ articles = [] }) {
             message.warning("Veuillez saisir la date de lancement prévue");
             return;
         }
-
 
         const payload = {
             date_lancement: dateLancement?.format('YYYY-MM-DD'),
@@ -76,8 +77,7 @@ export default function OFModal({ articles = [] }) {
             message.success("Ordre de fabrication enregistré avec succès");
             setOpen(false);
         } catch (err) {
-            message.error(err.response.data.message)
-            message.error("Erreur lors de l'enregistrement");
+            message.error(err?.response?.data?.message || "Erreur lors de l'enregistrement");
             console.error(err);
         } finally {
             setLoading(false);
@@ -100,21 +100,19 @@ export default function OFModal({ articles = [] }) {
             width: '45%',
             render: (text, record) => record.description || text,
         },
-
         {
             title: 'Nom',
             dataIndex: 'name',
             key: 'name',
             render: (text, record) => record.name || text,
         },
-
         {
             title: 'Ecart',
             key: 'qte',
             align: 'center',
             render: (_, record) => {
-                const ecart =  parseFloat(record.max) - (Math.floor(record.stock * 100) / 100);
-                const current = ecart;
+                const ecart = parseFloat(record.max) - (Math.floor(record.stock * 100) / 100);
+                const current = quantities[record.id] ?? ecart; // ✅ use state, fallback to calculated
                 const isNegative = current < 0;
                 return (
                     <Input
@@ -205,19 +203,14 @@ export default function OFModal({ articles = [] }) {
                             onChange={(value) => setReferenceMachine(value)}
                             placeholder="Ex: MACH-001"
                             className="w-full"
-                            optionFilterProp="children"
+                            optionFilterProp="label"
                             filterOption={(input, option) =>
-                                (option?.children ?? "")
+                                (option?.label ?? "")
                                     .toLowerCase()
                                     .includes(input.toLowerCase())
                             }
-                        >
-                            {machines.map((machine) => (
-                                <Option key={machine.value} value={machine.value}>
-                                    {machine.label}
-                                </Option>
-                            ))}
-                        </Select>
+                            options={machines}
+                        />
                     </div>
 
                     {/* Type de commande */}
