@@ -5,7 +5,8 @@ import {
 } from 'antd'
 import {
     Search, RefreshCw, Car, User, Hash,
-    Building2, CalendarDays, RotateCcw
+    Building2, CalendarDays, RotateCcw,
+    Download
 } from 'lucide-react'
 import dayjs from 'dayjs'
 import { api } from '../utils/api'
@@ -21,6 +22,58 @@ const currentYear = dayjs().year()
 const YEARS = Array.from({ length: currentYear - 2018 }, (_, i) => currentYear - i)
 
 
+
+const ExportExcel = () => {
+  const [loading, setLoading] = useState(false);
+
+  const handleExport = async () => {
+    setLoading(true);
+
+    try {
+      const response = await api.get('travel-receptions/export',
+        {
+          responseType: "blob", // IMPORTANT for file download
+        }
+      );
+
+      // Create a blob URL
+      const url = window.URL.createObjectURL(new Blob([response.data]));
+
+      // Create temporary link
+      const link = document.createElement("a");
+      link.href = url;
+
+      // File name (you can customize or get from headers)
+      link.setAttribute("download", "travel_receptions.xlsx");
+
+      document.body.appendChild(link);
+      link.click();
+
+      // Cleanup
+      link.remove();
+      window.URL.revokeObjectURL(url);
+
+      message.success("Export réussi !");
+    } catch (error) {
+      console.error(error);
+      message.error("Erreur lors de l'export !");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <Button
+        color="cyan" variant="solid"
+      icon={<Download size={17} />}
+      size='large'
+      loading={loading}
+      onClick={handleExport}
+    >
+      Export Excel
+    </Button>
+  );
+};
 
 /* ── main component ─────────────────────────────────────────────────────── */
 export default function TravelReceptionTable() {
@@ -171,6 +224,7 @@ export default function TravelReceptionTable() {
                             className="rounded-lg"
                         />
                     </Tooltip>
+                    <ExportExcel />
 
                     <TravelModal />
                 </div>
