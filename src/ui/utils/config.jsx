@@ -197,3 +197,17 @@ export const handleShow = async (navigate, path, width=1400, height=800) => {
     console.error('Error navigating:', error);
   }
 };
+
+
+ export const dateFormat = (date) => {
+    if (!date) return '__'
+
+    const inputDate = new Date(date)
+
+    const day = inputDate.getDate()
+    const month = inputDate.getMonth() + 1
+    const year = inputDate.getFullYear()
+
+    return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`
+  }
+

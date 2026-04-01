@@ -312,7 +312,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       align: 'center',
       render: (_, a) => (
         <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
-          {parseFloat(a.max) / 2}
+          {parseInt(parseInt(a.max) / 2)}
         </span>
       ),
     },

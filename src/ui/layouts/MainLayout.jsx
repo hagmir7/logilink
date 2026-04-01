@@ -159,13 +159,13 @@ const sideMenu = () => {
 
 
         {
-          key: 'submenu-105',
+          key: 'submenu-108',
           icon: <Square size={19} />,
           label: <Link to='/fabrication/articles'>Articles</Link>,
         },
 
         {
-          key: 'submenu-106',
+          key: 'submenu-1010',
           icon: <Factory size={19} />,
           label: <Link to='/fabrication/orders'>OFs</Link>,
         },

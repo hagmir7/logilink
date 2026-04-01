@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { getExped, getDocumentType, locale } from '../utils/config'
+import { getExped, getDocumentType, locale, formatDate } from '../utils/config'
 import { useLocation, useParams } from 'react-router-dom'
 import { Button, Checkbox, DatePicker, Empty, message, Tag } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
@@ -197,7 +197,7 @@ function Fabrication() {
       </div>
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <div>
+        <div className='flex items-center gap-2'>
           <DatePicker
             onChange={onDateChange}
             format="YYYY-MM-DD" // ✅ IMPORTANT
@@ -205,6 +205,8 @@ function Fabrication() {
             className='border-2'
             placeholder='Date de livraison'
           />
+
+          {data?.docentete?.document?.complation_date &&  ' Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}
         </div>
         <div className='flex gap-3'>
           <Button onClick={complation} color="green" variant="solid" loading={complationSpin}>

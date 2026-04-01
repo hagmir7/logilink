@@ -9,7 +9,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
-import { getExped, uppercaseFirst } from '../utils/config';
+import { formatDate, getExped, uppercaseFirst } from '../utils/config';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Button, Checkbox, Empty, message, Popconfirm, Select, Tag, Tooltip } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
@@ -275,7 +275,7 @@ function Commercial() {
 
           {/* Table Header Controls */}
           <div className='flex justify-between items-center'>
-            <h2 className='text-md font-semibold text-gray-800'>Articles</h2>
+              <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date &&  '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
             <div className='flex gap-3'>
               <ResetPrinter
                 document={data?.docentete?.document}

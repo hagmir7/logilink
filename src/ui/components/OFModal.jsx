@@ -20,17 +20,24 @@ export default function OFModal({ articles = [] }) {
     const getMachines = async () => {
         try {
             const response = await api.get('machines?per_page=100');
-            setMachines(
-                response.data.data.map(item => ({
-                    label: item.machine_name
-                        ? `${item.machine_id} — ${item.machine_name.trim()}`
-                        : `${item.machine_id}`,
+
+            
+            const machines = response.data.data
+                .filter(m => m.is_active == true)
+                .map(item => ({
+                    label: item.ref_machine
+                        ? `${item.ref_machine} — ${item.group_code}`
+                        : `${item.ref_machine}`,
                     value: item.machine_id
-                }))
-            );
+                }));
+
+            setMachines(machines);
+
         } catch (error) {
-            console.log(error);
-            message.error(error?.response?.data?.message || 'Erreur lors du chargement des machines');
+            message.error(
+                error?.response?.data?.message ||
+                'Erreur lors du chargement des machines'
+            );
         }
     };
 

@@ -7,7 +7,7 @@ import {
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
-import { getExped, getStatus } from '../utils/config'
+import { formatDate, getExped, getStatus } from '../utils/config'
 import { useParams } from 'react-router-dom'
 import {
   Button,
@@ -26,6 +26,10 @@ import { useAuth } from '../contexts/AuthContext'
 import PrintDocument from '../components/PrintDocument'
 import TicketPrinter from '../components/TicketPrinter'
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal'
+
+
+
+
 
 function Controller() {
   const { id } = useParams()
@@ -399,7 +403,7 @@ useEffect(() => {
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-lg font-semibold text-gray-800'>Articles</h2>
+        <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date &&  '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
 
         <div className='flex gap-3 items-center'>
           {documentCompany?.pivot && (

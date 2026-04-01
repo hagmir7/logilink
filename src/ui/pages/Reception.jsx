@@ -13,7 +13,7 @@ const { RangePicker } = DatePicker;
 function Reception() {
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
-  const [documenType, setDocumentType] = useState(12); // default Laravel filter
+  const [documenType, setDocumentType] = useState(12);
   const [documenStatus, setDocumentStatus] = useState('');
   const [company, setCompany] = useState('sqlsrv_inter');
   const [page, setPage] = useState(1);
@@ -105,7 +105,6 @@ function Reception() {
     navigate(`/layout/document/${orderId}`);
   };
 
-  // Auto fetch + refresh every 40s
   useEffect(() => {
     const fetchAndNotify = async () => {
       await fetchData();
@@ -120,7 +119,7 @@ function Reception() {
   return (
     <div className="min-h-screen">
       {/* Title */}
-      <h2 className="text-lg font-semibold text-gray-800 mb-1 p-2 md:p-1">
+      <h2 className="text-lg font-semibold text-gray-800 mb-1 p-2 md:p-1 mx-3">
         Gestion de la réception
       </h2>
 
