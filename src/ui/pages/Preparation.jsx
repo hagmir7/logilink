@@ -1,38 +1,26 @@
 import { useState, useEffect, useRef } from 'react'
-import {
-  ArrowLeftCircle,
-  ArrowRightCircle,
-  X,
-  Loader2,
-  Package,
-  Plus,
-  Minus,
-  List,
-} from 'lucide-react'
-import QScanner from '../components/QScanner'
+import { List } from 'lucide-react'
 import { api } from '../utils/api'
 import { useParams } from 'react-router-dom'
 import BackButton from '../components/ui/BackButton'
-import { uppercaseFirst } from '../utils/config'
-import { Alert, Button, Input, message, Modal, Radio, Space, notification } from 'antd'
-import { PalettesModal } from '../components/PalettesModal';
-import { CloseOutlined } from '@ant-design/icons';
+import { Button, message, notification } from 'antd'
+import { PalettesModal } from '../components/PalettesModal'
 import { useAuth } from '../contexts/AuthContext'
 import TicketPrinter from '../components/TicketPrinter'
 
+import ScannerSection from '../components/ScannerSection'
+import PaletteNavigator from '../components/PaletteNavigator'
+import PreparationActions from '../components/PreparationActions'
+import LinesList from '../components/LinesList'
+import ArticleSelectModal from './ArticleSelectModal'
+
+const EMPTY_ARTICLE = {
+  ref: '', design: '', profondeur: '', epaisseur: '',
+  chant: '', qte: 0, color: '', height: '', width: '',
+}
 
 export default function Preparation() {
-  const [article, setArticle] = useState({
-    ref: '',
-    design: '',
-    profondeur: '',
-    episseur: '',
-    chant: '',
-    qte: '',
-    color: '',
-    height: '',
-    width: '',
-  })
+  const [article, setArticle] = useState(EMPTY_ARTICLE)
 
   const { id } = useParams()
   const [palette, setPalette] = useState(null)
@@ -40,131 +28,73 @@ export default function Preparation() {
   const [lines, setLines] = useState([])
   const [palettes, setPalettes] = useState([])
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [lineError, setLineError] = useState('');
-  const quantityInput = useRef();
-  const lineInput = useRef();
+  const [lineError, setLineError] = useState('')
+  const quantityInput = useRef()
+  const lineInput = useRef()
   const [loadingCreate, setLoadingCreate] = useState(false)
   const [checkedPalette, setCheckedPalette] = useState(null)
-  const { roles, user } = useAuth();
+  const { roles, user } = useAuth()
 
+  const [empalcementCode, setEmpalcementCode] = useState('')
+  const [empalcementCodeLoading, setEmpalcementCodeLoading] = useState(false)
+  const [empalcementCodeError, setEmpalcementCodeError] = useState('')
+  const [scannedEmplacement, setScannedEmplacement] = useState(null)
+  const paletteCodeInput = useRef()
 
-  const [empalcementCode, setEmpalcementCode] = useState("");
-  const [empalcementCodeLoading, setEmpalcementCodeLoading] = useState(false);
-  const [empalcementCodeError, setEmpalcementCodeError] = useState('');
-  const [scannedEmplacement, setScannedEmplacement] = useState(null);
-  const paletteCodeInput = useRef();
+  const [modalOptions, setModalOptions] = useState([])
+  const [selectedOption, setSelectedOption] = useState({})
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [defaultOptions, setDefaultOptions] = useState([])
 
-
-  const [modalOptions, setModalOptions] = useState([]);
-  const [selectedOption, setSelectedOption] = useState({});
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [defaultOptions, setDefaultOptins] = useState([]);
-
-  const handleOk = () => {
-    setIsModalOpen(false);
-  };
-  const handleCancel = () => {
-    setIsModalOpen(false);
-  };
-
-
-
+  const [docenteteData, setDocenteteData] = useState(null)
 
   const [loadingStates, setLoadingStates] = useState({
-    createPalette: false,
-    scan: false,
-    submit: false,
-    remove: false,
-    create: false,
+    createPalette: false, scan: false, submit: false, remove: false, create: false,
   })
 
   const currentPalette = palettes[currentIndex]
 
-  const setLoading = (key, value) => {
+  const setLoading = (key, value) =>
     setLoadingStates((prev) => ({ ...prev, [key]: value }))
+
+  const [notificationApi, contextHolder] = notification.useNotification()
+
+  const openNotificationWithIcon = (type) => {
+    notificationApi[type]({
+      description: (
+        <strong className='text-md'>Cet élément est en cours d'utilisation</strong>
+      ),
+    })
   }
 
-
-  const handleScanEmplacement = async (value) => {
-    setEmpalcementCodeLoading(true)
-
-    if (value === '') {
-      setScannedEmplacement(null)
-      setEmpalcementCodeLoading(false)
-      return
-    }
-
-    try {
-      const { data } = await api.get(`emplacement/${value}`)
-      setScannedEmplacement(data)
-      quantityInput.current.focus();
-      setEmpalcementCodeError(null)
-    } catch (error) {
-      console.error(error)
-      setEmpalcementCodeError(
-        error.response?.data?.message || 'An error occurred'
-      )
-    }
-
-    setEmpalcementCodeLoading(false)
-  }
-
-
-
-
-  const goNext = () => {
-    const nextIndex = currentIndex === palettes.length - 1 ? 0 : currentIndex + 1
-    const nextPalette = palettes[nextIndex]
-    setCurrentIndex(nextIndex)
-    setPalette(nextPalette)
-    createPalette(nextPalette?.code)
-  }
-
-  const selectPalette = (selectedPalette) => {
-    const index = palettes.findIndex((p) => p.code === selectedPalette.code)
-    if (index !== -1) {
-      setCurrentIndex(index)
-      setPalette(palettes[index])
-      setCheckedPalette(palettes[index])
-    } else {
-      setPalette(selectedPalette);
-      setCheckedPalette(selectedPalette)
-    }
-  }
-
-  const [docenteteData, setDocenteteData] = useState(null);
+  // ─── Data Fetching ───────────────────────────────────────────────────────────
 
   useEffect(() => {
+    if (!id) return
     const fetchData = async () => {
       try {
-        const res = await api.get(`documents/${id}`);
-        setDocenteteData(res.data);
+        const res = await api.get(`documents/${id}`)
+        setDocenteteData(res.data)
       } catch (error) {
-        console.error('Error fetching document:', error);
+        console.error('Error fetching document:', error)
       }
-    };
-
-    if (id) {
-      fetchData();
     }
-  }, [id]);
+    fetchData()
+  }, [id])
 
-  const goPrevious = () => {
-    const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
-    const prevPalette = palettes[prevIndex]
-    setCurrentIndex(prevIndex)
-    setPalette(prevPalette)
-    createPalette(prevPalette?.code)
-  }
+  useEffect(() => {
+    if (id) createPalette()
+  }, [id, checkedPalette])
 
-  const createPalette = async (EmpalcementCode = null) => {
+  // ─── Palette Helpers ─────────────────────────────────────────────────────────
+
+  const createPalette = async (emplacementCode = null) => {
     setLoading('createPalette', true)
     try {
       const { data } = await api.post('palettes/generate', {
         document_id: id,
-        palette: EmpalcementCode ?? currentPalette?.code,
+        palette: emplacementCode ?? currentPalette?.code,
       })
-
       setPalette(data.palette)
       setLines(data.palette.lines || [])
       setPalettes(data.palettes)
@@ -176,39 +106,93 @@ export default function Preparation() {
     }
   }
 
-  useEffect(() => {
-    if (id) createPalette()
-  }, [id, checkedPalette])
+  const goNext = () => {
+    const nextIndex = currentIndex === palettes.length - 1 ? 0 : currentIndex + 1
+    const nextPalette = palettes[nextIndex]
+    setCurrentIndex(nextIndex)
+    setPalette(nextPalette)
+    createPalette(nextPalette?.code)
+  }
 
+  const goPrevious = () => {
+    const prevIndex = currentIndex === 0 ? palettes.length - 1 : currentIndex - 1
+    const prevPalette = palettes[prevIndex]
+    setCurrentIndex(prevIndex)
+    setPalette(prevPalette)
+    createPalette(prevPalette?.code)
+  }
+
+  const selectPalette = (selectedPalette) => {
+    const index = palettes.findIndex((p) => p.code === selectedPalette.code)
+    if (index !== -1) {
+      setCurrentIndex(index)
+      setPalette(palettes[index])
+      setCheckedPalette(palettes[index])
+    } else {
+      setPalette(selectedPalette)
+      setCheckedPalette(selectedPalette)
+    }
+  }
+
+  const create = async () => {
+    setLoadingCreate(true)
+    try {
+      const { data } = await api.post('palettes/create', { document_id: id })
+      if (!data || !Array.isArray(data.palettes) || data.palettes.length === 0) {
+        message.warning("La nouvelle palette n'a pas été récupérée.")
+        return
+      }
+      setPalettes(data.palettes)
+      const lastPalette = data.palettes[data.palettes.length - 1]
+      setPalette(lastPalette)
+      setCheckedPalette(lastPalette)
+      setCurrentIndex(data.palettes.length - 1)
+      setLines(lastPalette.lines || [])
+      message.success(`Palette ${lastPalette.code} créée avec succès.`)
+    } catch (error) {
+      console.error('Erreur lors de la création de la palette:', error)
+      message.error(error?.response?.data?.message || 'Erreur lors de la création.')
+    } finally {
+      setLoadingCreate(false)
+      lineInput.current.focus()
+    }
+  }
+
+  // ─── Scan ────────────────────────────────────────────────────────────────────
 
   const lineNameGenerator = (data) => {
-    const height = Math.floor(data?.docligne?.Hauteur) || Math.floor(data?.docligne?.article?.Hauteur) || 0;
-    const width = Math.floor(data?.docligne?.Largeur) || Math.floor(data?.docligne?.article?.Largeur) || 0;
+    console.log(data);
+    
+    const height =
+      Math.floor(data?.docligne?.Hauteur) ||
+      Math.floor(data?.docligne?.article?.Hauteur) ||
+      0
+    const width =
+      Math.floor(data?.docligne?.Largeur) ||
+      Math.floor(data?.docligne?.article?.Largeur) ||
+      0
 
-    let dimensions = '';
-    if (height && width) {
-      dimensions = `${height} × ${width}`;
-    } else if (height) {
-      dimensions = `${height}`;
-    } else if (width) {
-      dimensions = `${width}`;
-    }
+    let dimensions = ''
+    if (height && width) dimensions = `${height} × ${width}`
+    else if (height) dimensions = `${height}`
+    else if (width) dimensions = `${width}`
 
-    const pickColor = (c) => (c !== '' && c !== 0 ? c : null);
-    const color = pickColor(data?.docligne?.Couleur)
-      ?? pickColor(data?.docligne?.article?.Couleur)
-      ?? '';
+    const pickColor = (c) => (c !== '' && c !== 0 ? c : null)
+    const color =
+      pickColor(data?.docligne?.Couleur) ??
+      pickColor(data?.docligne?.article?.Couleur) ??
+      ''
 
-    const depth = Math.floor(data.docligne?.Profondeur ?? data?.docligne?.article?.Profonduer ?? "")
+    const depth = Math.floor(
+      data.docligne?.Profondeur ?? data?.docligne?.article?.Profonduer ?? ''
+    )
 
-
-    let arName;
-    if (data?.docligne?.article?.Nom && data?.docligne?.article?.Nom !== "NULL") {
-      arName = `${data.docligne.article.Nom} ${dimensions} ${color}`.trim();
+    let arName
+    if (data?.docligne?.article?.Nom && data?.docligne?.article?.Nom !== 'NULL') {
+      arName = `${data.docligne.article.Nom} ${dimensions} ${color}`.trim()
     } else {
-      arName = data?.docligne?.article?.AR_Design ?? '';
+      arName = data?.docligne?.article?.AR_Design ?? ''
     }
-
 
     return {
       label: arName,
@@ -218,153 +202,130 @@ export default function Preparation() {
         ref: data.ref ?? '',
         design: arName,
         profondeur: depth,
-        epaisseur: Math.floor(data.docligne?.Epaisseur || data?.docligne?.article?.Episseur || 0) || '',
+        epaisseur:
+          Math.floor(data.docligne?.Epaisseur || data?.docligne?.article?.Episseur || 0) || '',
         chant: data.docligne?.Chant || data?.docligne?.article?.Chant || '',
         qte: data.quantity ? Math.floor(data.quantity) : 0,
         color: data.article?.Couleur || '',
         height: height || '',
         width: width || '',
       },
-    };
-  };
+    }
+  }
 
-
-
-  const debouncedScanRef = useRef(null);
+  const debouncedScanRef = useRef(null)
 
   const handleScan = async (value, all = false) => {
-    setLine(value);
-    if (!palette || value === '') return;
+    setLine(value)
+    if (!palette || value === '') return
 
-    // Clear previous timeout
-    if (debouncedScanRef.current) {
-      clearTimeout(debouncedScanRef.current);
-    }
+    if (debouncedScanRef.current) clearTimeout(debouncedScanRef.current)
 
-    // Set new timeout
     debouncedScanRef.current = setTimeout(async () => {
-      const payload = { line: value, document: id, palette: palette.code };
-      setLoading('scan', true);
-      setLineError('');
+      const payload = { line: value, document: id, palette: palette.code }
+      setLoading('scan', true)
+      setLineError('')
 
       try {
-        const url = all ? 'palettes/scan?all=true' : 'palettes/scan';
-        let { data } = await api.post(url, payload);
-        setDefaultOptins(data);
+        const url = all ? 'palettes/scan?all=true' : 'palettes/scan'
+        const { data } = await api.post(url, payload)
+        setDefaultOptions(data)
 
         if (data.length === 0) {
-          message.warning("L'article pas valid ou déjà préparé");
-          return;
+          message.warning("L'article pas valid ou déjà préparé")
+          return
         }
 
         if (data.length === 1) {
-          const line = lineNameGenerator(data[0]);
-          setArticle(line.details);
+          setArticle(lineNameGenerator(data[0]).details)
         } else if (data.length > 1) {
-          const options = data.map(item => lineNameGenerator(item));
-          setModalOptions(options);
-          setIsModalOpen(true);
+          setModalOptions(data.map((item) => lineNameGenerator(item)))
+          setIsModalOpen(true)
         }
 
-        paletteCodeInput.current?.focus();
+        paletteCodeInput.current?.focus()
       } catch (err) {
-        console.error('Error scanning:', err);
-        setArticle({
-          ref: '', design: '', profondeur: '', epaisseur: '',
-          chant: '', qte: 0, color: '', height: '', width: '',
-        });
-        setLineError(err.response?.data?.message || 'Erreur lors du scan');
+        console.error('Error scanning:', err)
+        setArticle(EMPTY_ARTICLE)
+        setLineError(err.response?.data?.message || 'Erreur lors du scan')
       } finally {
-        setLoading('scan', false);
+        setLoading('scan', false)
       }
-    }, 600);
-  };
+    }, 600)
+  }
 
+  const handleScanEmplacement = async (value) => {
+    setEmpalcementCodeLoading(true)
+    if (value === '') {
+      setScannedEmplacement(null)
+      setEmpalcementCodeLoading(false)
+      return
+    }
+    try {
+      const { data } = await api.get(`emplacement/${value}`)
+      setScannedEmplacement(data)
+      quantityInput.current.focus()
+      setEmpalcementCodeError(null)
+    } catch (error) {
+      console.error(error)
+      setEmpalcementCodeError(error.response?.data?.message || 'An error occurred')
+    }
+    setEmpalcementCodeLoading(false)
+  }
 
-  const [notificationApi, contextHolder] = notification.useNotification();
-
-  const openNotificationWithIcon = type => {
-    notificationApi[type]({
-      description: <strong className='text-md'>Cet élément est en cours d'utilisation</strong>,
-    });
-  };
-
-
-
+  // ─── Submit / Remove ─────────────────────────────────────────────────────────
 
   const handleSubmit = async () => {
     setLoading('submit', true)
 
-    if ((roles(['magasinier', 'preparation_cuisine']) && !scannedEmplacement) && 1 === Number(user?.company_id)) {
-      setEmpalcementCodeError('Emplacement requis');
+    if (
+      roles(['magasinier', 'preparation_cuisine']) &&
+      !scannedEmplacement &&
+      1 === Number(user?.company_id)
+    ) {
+      setEmpalcementCodeError('Emplacement requis')
       message.error('Emplacement requis')
       setLoading('submit', false)
-      return;
+      return
     }
 
     try {
-      const { data } = await api.post('palettes/confirm', {
+      await api.post('palettes/confirm', {
         quantity: article.qte,
         palette: palette?.code,
         line: article.id,
-        emplacement: scannedEmplacement?.code || false
+        emplacement: scannedEmplacement?.code || false,
       })
-
       createPalette()
-
-      setArticle({
-        ref: '',
-        design: '',
-        profondeur: '',
-        episseur: '',
-        chant: '',
-        qte: 0,
-        color: '',
-        height: '',
-        width: '',
-      })
-
+      setArticle(EMPTY_ARTICLE)
       setLine('')
       message.success('Article ajouté avec succès')
       lineInput.current.focus()
     } catch (err) {
       console.error('Error confirming:', err)
-      const errorMessage = err?.response?.data?.message ?? '';
-
+      const errorMessage = err?.response?.data?.message ?? ''
       if (errorMessage.includes('en cours')) {
         openNotificationWithIcon('warning')
       } else {
-        message.error(errorMessage || "Une erreur est survenue");
+        message.error(errorMessage || 'Une erreur est survenue')
       }
-
     } finally {
       setLoading('submit', false)
     }
   }
 
-  const remove = async (line, pivot_id) => {
+  const remove = async (lineId, pivot_id) => {
     setLoading('remove', true)
     try {
-      const { data } = await api.post('palettes/detach', {
-        line,
+      await api.post('palettes/detach', {
+        line: lineId,
         palette: palette.code,
-        pivot_id
+        pivot_id,
       })
-      createPalette();
-      setArticle({
-        ref: '',
-        design: '',
-        profondeur: '',
-        episseur: '',
-        chant: '',
-        qte: 0,
-        color: '',
-        height: '',
-        width: '',
-      })
-
+      createPalette()
+      setArticle(EMPTY_ARTICLE)
       setLine('')
-      message.success('Article ajouté avec succès')
+      message.success('Article supprimé avec succès')
     } catch (err) {
       console.error('Error removing line:', err)
     } finally {
@@ -372,151 +333,90 @@ export default function Preparation() {
     }
   }
 
-  const create = async () => {
-    setLoadingCreate(true)
-
+  const confirmAll = async () => {
     try {
-      const { data } = await api.post('palettes/create', { document_id: id })
-
-      if (!data || !Array.isArray(data.palettes) || data.palettes.length === 0) {
-        message.warning("La nouvelle palette n'a pas été récupérée.")
-        return
-      }
-      setPalettes(data.palettes)
-
-
-      const lastPalette = data.palettes[data.palettes.length - 1]
-
-
-      setPalette(lastPalette)
-      setCheckedPalette(lastPalette)
-      setCurrentIndex(data.palettes.length - 1)
-      setLines(lastPalette.lines || [])
-
-      message.success(`Palette ${lastPalette.code} créée avec succès.`)
+      await api.get(`palettes/stock/confirm/${id}`)
+      message.success('Préparation réussie')
     } catch (error) {
-      console.error('Erreur lors de la création de la palette:', error)
-      message.error(
-        error?.response?.data?.message || 'Erreur lors de la création.'
-      )
-    } finally {
-      setLoadingCreate(false);
-      lineInput.current.focus()
+      console.error('Error confirming all:', error)
+      const errorMessage = error?.response?.data?.message ?? ''
+      if (errorMessage.includes('en cours')) {
+        openNotificationWithIcon('warning')
+      } else {
+        message.error(errorMessage || 'Une erreur est survenue')
+      }
     }
   }
 
-
+  // ─── Modal ───────────────────────────────────────────────────────────────────
 
   const changeSelectedLine = (e) => {
-    const selectedId = e.target.value;
-    setSelectedOption(selectedId);
-    const selected = defaultOptions.find(opt => opt.id === selectedId);
+    const selectedId = e.target.value
+    setSelectedOption(selectedId)
+    const selected = defaultOptions.find((opt) => opt.id === selectedId)
 
-    const height = Math.floor(selected.docligne?.Hauteur) || Math.floor(selected?.docligne?.article?.Hauteur) || 0;
+    const height =
+      Math.floor(selected.docligne?.Hauteur) ||
+      Math.floor(selected?.docligne?.article?.Hauteur) ||
+      0
+    const width =
+      Math.floor(selected.docligne?.Largeur) ||
+      Math.floor(selected?.docligne?.article?.Largeur) ||
+      0
 
-    const width = Math.floor(selected.docligne?.Largeur) || Math.floor(selected?.docligne?.article?.Largeur) || 0;
+    const dimensions = height && width ? `${height} * ${width}` : height || width || ''
 
+    const pickColor = (c) => (c !== '' && c !== 0 ? c : null)
+    const color =
+      pickColor(selected?.docligne?.Couleur) ??
+      pickColor(selected?.docligne?.article?.Couleur) ??
+      ''
 
-    const dimensions = height && width ? `${height} * ${width}` : height || width || '';
-
-    const pickColor = (c) => (c !== '' && c !== 0 ? c : null);
-    const color = pickColor(selected?.docligne?.Couleur)
-      ?? pickColor(selected?.docligne?.article?.Couleur)
-      ?? '';
-
-    let arName;
-
-
-    if (selected.docligne?.article?.Nom && selected?.docligne?.article?.Nom !== "NULL") {
-      arName = `${selected?.docligne?.article?.Nom} ${dimensions} ${color}`.trim();
+    let arName
+    if (selected.docligne?.article?.Nom && selected?.docligne?.article?.Nom !== 'NULL') {
+      arName = `${selected?.docligne?.article?.Nom} ${dimensions} ${color}`.trim()
     } else {
-      arName = selected?.docligne?.article?.AR_Design ?? '';
+      arName = selected?.docligne?.article?.AR_Design ?? ''
     }
 
     setLine(selected.ref)
-
     setArticle({
       id: selected.id,
       ref: selected.ref ?? '',
       design: arName,
-      profondeur: Math.floor(selected.docligne?.Profondeur ?? selected?.docligne?.article?.Profondeur ?? 0) || '',
-      epaisseur: Math.floor(selected.docligne?.Epaisseur || selected?.docligne?.article?.Epaisseur || 0) || '',
+      profondeur:
+        Math.floor(
+          selected.docligne?.Profondeur ?? selected?.docligne?.article?.Profondeur ?? 0
+        ) || '',
+      epaisseur:
+        Math.floor(
+          selected.docligne?.Epaisseur || selected?.docligne?.article?.Epaisseur || 0
+        ) || '',
       chant: selected.docligne?.Chant || selected?.docligne?.article?.Chant || '',
       qte: selected.quantity ? Math.floor(selected.quantity) : 0,
       color,
       height: height || '',
       width: width || '',
-    });
-
+    })
     setIsModalOpen(false)
-
-  };
-
-
-  const confirmAll = async () => {
-    try {
-      const response = await api.get(`palettes/stock/confirm/${id}`)
-      message.success("Préparation réussie");
-    } catch (error) {
-      console.error('Error confirming:', err)
-      const errorMessage = err?.response?.data?.message ?? '';
-
-      if (errorMessage.includes('en cours')) {
-        openNotificationWithIcon('warning')
-      } else {
-        message.error(errorMessage || "Une erreur est survenue");
-      }
-    }
   }
 
-
+  // ─── Render ──────────────────────────────────────────────────────────────────
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 pb-10'>
-      {/* Header */}
       {contextHolder}
-      <Modal
-        title="Sélectionnez une option"
-        closable={true}
-        closeIcon={<CloseOutlined aria-label="Close Modal" />}
-        open={isModalOpen}
-        onOk={handleOk}
-        onCancel={handleCancel}
-        footer={false}
-        width={600}
-        styles={{ padding: '24px' }}
-      >
-        <div style={{ padding: '16px 0' }}>
 
-          <Radio.Group
-            onChange={changeSelectedLine}
-            value={selectedOption}
+      <ArticleSelectModal
+        isOpen={isModalOpen}
+        modalOptions={modalOptions}
+        selectedOption={selectedOption}
+        onSelect={changeSelectedLine}
+        onOk={() => setIsModalOpen(false)}
+        onCancel={() => setIsModalOpen(false)}
+      />
 
-            size="large"
-            style={{ width: '100%' }}
-          >
-            <Space direction="vertical" size="large" style={{ width: '100%' }}>
-              {modalOptions.map((option) => (
-                <Radio.Button
-                  key={option.value}
-                  value={option.value}
-                  style={{
-                    height: '60px',
-                    lineHeight: '60px',
-                    fontSize: '20px',
-                    fontWeight: '500',
-                    width: '100%',
-                    border: '2px solid #d9d9d9',
-                    borderRadius: '8px',
-                  }}
-                >
-                  {option.label}
-                </Radio.Button>
-              ))}
-            </Space>
-          </Radio.Group>
-        </div>
-      </Modal>
+      {/* Header */}
       <div className='bg-white border-b border-gray-200'>
         <div className='mx-auto px-4 py-3 sm:py-4'>
           <div className='flex justify-between'>
@@ -524,449 +424,76 @@ export default function Preparation() {
               <BackButton className='w-8 h-8' />
               <div className='w-px h-6 bg-gray-300' />
               <h1 className='text-xl font-bold text-gray-900 truncate'>
-                Préparation des Palettes
+                Préparation
               </h1>
             </div>
 
             <div className='flex gap-3'>
-              <Button color="cyan" variant="solid" size='large' onClick={() => handleScan(1, true)}>
+              <Button color='cyan' variant='solid' size='large' onClick={() => handleScan(1, true)}>
                 <List />
               </Button>
-
               <PalettesModal
                 countPalettes={palettes.length}
                 documentPiece={id}
                 selectPalette={selectPalette}
                 checkedPalette={palette}
               />
-              <TicketPrinter docentete={{ DO_Piece: id, DO_Tiers: docenteteData?.document.client_id }} palettes={[{ code: palette?.code }]} btnSize="large" />
+              <TicketPrinter
+                docentete={{ DO_Piece: id, DO_Tiers: docenteteData?.document.client_id }}
+                palettes={[{ code: palette?.code }]}
+                btnSize='large'
+              />
             </div>
-
-
-
           </div>
         </div>
       </div>
 
-      <div className='mx-auto p-2 md:p-4 space-y-3 sm:space-y-8 max-w-7xl '>
+      {/* Body */}
+      <div className='mx-auto p-2 md:p-4 space-y-3 sm:space-y-8 max-w-7xl'>
+        <ScannerSection
+          line={line}
+          setLine={setLine}
+          handleScan={handleScan}
+          lineError={lineError}
+          loadingStates={loadingStates}
+          empalcementCode={empalcementCode}
+          setEmpalcementCode={setEmpalcementCode}
+          handleScanEmplacement={handleScanEmplacement}
+          empalcementCodeLoading={empalcementCodeLoading}
+          empalcementCodeError={empalcementCodeError}
+          scannedEmplacement={scannedEmplacement}
+          paletteCodeInput={paletteCodeInput}
+          lineInput={lineInput}
+          onConfirmAll={confirmAll}
+        />
 
-        {/* Scanner Section */}
-        <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6 relative'>
-          <button className='absolute right-1 p-6 px-10' onClick={confirmAll}></button>
-          <div className='flex justify-center items-center gap-3 mb-4 sm:mb-6 '>
-            <div className='p-2 bg-blue-100 rounded-lg'>
-              <QScanner onScan={handleScan} />
-            </div>
-          </div>
+        <PaletteNavigator
+          palette={palette}
+          currentPalette={currentPalette}
+          currentIndex={currentIndex}
+          palettes={palettes}
+          article={article}
+          setArticle={setArticle}
+          loadingStates={loadingStates}
+          quantityInput={quantityInput}
+          onNext={goNext}
+          onPrevious={goPrevious}
+        />
 
-          <div className='flex-row gap-3'>
-            <Input
-              type='text'
-              value={line}
-              onChange={(e) => {
-                const newValue = e.target.value
-                setLine(newValue)
-                handleScan(newValue)
-              }}
-              autoFocus={true}
-              ref={lineInput}
+        <PreparationActions
+          palette={palette}
+          article={article}
+          loadingStates={loadingStates}
+          loadingCreate={loadingCreate}
+          onSubmit={handleSubmit}
+          onCreate={create}
+        />
 
-              // className={window.electron && 'h-[600px]'}
-              style={{ fontSize: "30px", fontWeight: 600 }}
-              placeholder='Article Code...'
-              allowClear
-              suffix={
-                loadingStates.scan ? (
-                  <Loader2 className='w-8 h-8 animate-spin' />
-                ) : null
-              }
-            />
-            {lineError && lineError !== '' && line !== '' ? (
-              <Alert
-                message={lineError}
-                type='error'
-                className='mt-2 p-2'
-                style={{ fontSize: '18px', color: 'red' }}
-              />
-            ) : (
-              ''
-            )}
-          </div>
-
-          <div className='flex-row gap-3 mt-4'>
-            <Input
-              type='text'
-              value={empalcementCode}
-              onChange={(e) => {
-                const newValue = e.target.value
-                setEmpalcementCode(newValue)
-                handleScanEmplacement(e.target.value)
-              }}
-              ref={paletteCodeInput}
-              className={window.electron && 'h-[60px]'}
-              style={{ fontSize: "30px", fontWeight: 600 }}
-              placeholder='Emplacement code...'
-              allowClear
-              suffix={
-                empalcementCodeLoading ? (
-                  <Loader2 className='w-8 h-8 animate-spin' />
-                ) : null
-              }
-            />
-            {empalcementCodeError &&
-              empalcementCodeError !== '' &&
-              line !== '' ? (
-              <Alert
-                message={empalcementCodeError}
-                type='error'
-                className='mt-2 p-2'
-                style={{ fontSize: '18px', color: 'red' }}
-              />
-            ) : (
-              ''
-            )}
-          </div>
-
-          {scannedEmplacement && (
-            <div className='bg-gray-100 p-3 rounded-md mt-2'>
-              <div className='grid grid-cols-2 gap-2 text-lg'>
-                <div className='font-medium'>Dépôt:</div>
-                <div className='font-bold'>
-                  {scannedEmplacement?.depot?.code ||
-                    scannedEmplacement.depot_id}
-                </div>
-              </div>
-            </div>
-          )}
-        </div>
-
-        {/* Palette Navigation */}
-        <div className='bg-white rounded-xl sm:rounded-2xl border border-gray-200 p-4 sm:p-6'>
-          <div className='flex items-center justify-between mb-4 sm:mb-6'>
-            <button
-              onClick={goPrevious}
-              disabled={loadingStates.createPalette}
-              className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
-            >
-              <ArrowLeftCircle className='w-10 h-10 text-gray-600' />
-            </button>
-
-            <div className='text-center flex-1 px-2'>
-              {loadingStates.createPalette ? (
-                <div className='flex items-center justify-center gap-2'>
-                  <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin text-blue-600' />
-                  <span className='text-sm sm:text-lg font-semibold text-gray-900'>
-                    Chargement...
-                  </span>
-                </div>
-              ) : (
-                <>
-                  <h3 className='text-3xl font-bold text-gray-900 truncate'>
-                    {palette ? currentPalette?.code : 'Aucune palette'}
-                  </h3>
-                  <p className='text-3xl text-gray-500'>
-                    {currentIndex + 1} sur {palettes.length}
-                  </p>
-                </>
-              )}
-            </div>
-
-            <button
-              onClick={goNext}
-              disabled={loadingStates.createPalette}
-              className='p-2 sm:p-3 hover:bg-gray-100 rounded-full transition-colors disabled:opacity-50'
-            >
-              <ArrowRightCircle className='w-10 h-10 text-gray-600' />
-            </button>
-          </div>
-
-          {/* Article Details */}
-          <div className='space-y-3 sm:space-y-4'>
-            <div>
-              <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
-                Désignation
-              </label>
-              <input
-                type='text'
-                value={article.design}
-                style={{ fontSize: "30px", fontWeight: 500 }}
-                readOnly
-                className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14 text-gray-900'
-                placeholder='Aucun article scanné'
-              />
-            </div>
-
-            <div className='grid grid-cols-3 gap-2 sm:gap-4'>
-              <div>
-                <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
-                  Profondeur
-                </label>
-                <input
-                  type='text'
-                  value={article.profondeur}
-                  style={{ fontSize: "30px", fontWeight: 500 }}
-                  readOnly
-                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
-                  placeholder='-'
-                />
-              </div>
-              <div>
-                <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
-                  Chant
-                </label>
-                <input
-                  type='text'
-                  value={article?.chant}
-                  style={{ fontSize: "30px", fontWeight: 500 }}
-                  readOnly
-                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
-                  placeholder='-'
-                />
-              </div>
-              <div>
-                <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
-                  Épaisseur
-                </label>
-                <input
-                  type='text'
-                  value={article.epaisseur}
-                  style={{ fontSize: "30px", fontWeight: 500 }}
-                  readOnly
-                  className='w-full px-3 py-2 sm:px-4 sm:py-3 bg-gray-50 border border-gray-200 rounded-lg sm:rounded-xl text-2xl h-14'
-                  placeholder='-'
-                />
-              </div>
-            </div>
-
-            {/* Quantity Controls */}
-            <div>
-              <label className='block text-lg font-medium text-gray-700 mb-1 sm:mb-2'>
-                Quantité
-              </label>
-              <div className='flex items-center gap-2 sm:gap-3 w-full'>
-                <button
-                  style={{ fontSize: "30px", fontWeight: 500 }}
-                  onClick={() =>
-                    setArticle((prev) => ({
-                      ...prev,
-                      qte: Math.max(prev.qte - 1, 0),
-                    }))
-                  }
-                  disabled={article.qte <= 0}
-                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex-1 text-2xl h-14'
-                >
-                  <Minus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
-                </button>
-
-                <input
-                  type='number'
-                  value={article.qte}
-                  min={0}
-                  ref={quantityInput}
-                  style={{ fontSize: "30px", fontWeight: 600 }}
-                  onChange={(e) =>
-                    setArticle((prev) => ({
-                      ...prev,
-                      qte: Math.max(0, Number(e.target.value)),
-                    }))
-                  }
-                  className='w-full max-w-[100px] px-3 py-2 text-center border border-gray-300 rounded-lg sm:rounded-xl focus:ring-2 focus:ring-blue-500 focus:border-transparent text-2xl h-14'
-                />
-
-                <button
-                  onClick={() =>
-                    setArticle((prev) => ({
-                      ...prev,
-                      qte: prev.qte + 1,
-                    }))
-                  }
-                  style={{ fontSize: "30px", fontWeight: 600 }}
-                  className='p-2 sm:p-3 border border-gray-300 rounded-lg sm:rounded-xl hover:bg-gray-50 flex-1 text-2xl h-14'
-                >
-                  <Plus className='w-4 h-5 sm:w-5 sm:h-5 mx-auto' />
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Action Buttons */}
-        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'>
-          <button
-            onClick={handleSubmit}
-            style={{ fontSize: "30px", fontWeight: 500 }}
-            disabled={!palette || !article.id || loadingStates.submit}
-            className='px-4 py-3 sm:px-6 text-white sm:py-4 bg-emerald-600 text-white rounded-xl hover:bg-emerald-700 disabled:bg-gray-300 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl '
-          >
-            {loadingStates.submit ? (
-              <div className='text-white flex gap-2 items-center'>
-                <Loader2 className='w-8 h-8 sm:w-5 sm:h-5 animate-spin' />{' '}
-                <span>Validation...</span>
-              </div>
-            ) : (
-              "Valider l'article"
-            )}
-          </button>
-          <button
-            onClick={create}
-            disabled={loadingStates.create}
-            style={{ fontSize: "25px", fontWeight: 500 }}
-            className='px-4 py-3 sm:px-6 sm:py-4 bg-white border-2 border-gray-300 rounded-xl hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 text-xl'
-          >
-            {loadingStates.create || loadingCreate ? (
-              <>
-                <Loader2 className='w-4 h-4 sm:w-5 sm:h-5 animate-spin' />
-                Création...
-              </>
-            ) : (
-              <>
-                <Package className='w-8 h-8 sm:w-5 sm:h-5' />
-                Nouvelle Palette
-              </>
-            )}
-          </button>
-        </div>
-
-        {/* Lines List */}
-        <div className='space-y-4'>
-          <div className='flex items-center gap-3'>
-            <div className='p-2 bg-emerald-100 rounded-lg'>
-              <Package className='w-6 h-6 sm:w-6 sm:h-6 text-emerald-600' />
-            </div>
-            <h2 className='text-2xl font-semibold text-gray-900 mb-0 pb-0'>
-              Articles ({lines.length})
-            </h2>
-          </div>
-
-          {loadingStates.remove && (
-            <div className='flex items-center justify-center py-8'>
-              <div className='flex items-center gap-2 text-gray-600'>
-                <Loader2 className='w-5 h-5 animate-spin' />
-                <span>Suppression en cours...</span>
-              </div>
-            </div>
-          )}
-
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-3">
-            {lines?.map((item, index) => {
-              const lineHeight =
-                Math.floor(item.docligne?.Hauteur) ||
-                Math.floor(item.docligne?.article?.Hauteur) ||
-                false;
-
-              const lineWidth =
-                Math.floor(item.docligne?.Largeur) ||
-                Math.floor(item.docligne?.article?.Largeur) ||
-                false;
-
-              return (
-                <div key={item.id || index} className="relative">
-                  {/* Badge Reference */}
-                  <div className="absolute -top-2 -right-2 z-20">
-                    <span className="px-3 py-1 bg-cyan-600 text-white text-base font-semibold rounded-full shadow">
-                      {item.ref}
-                    </span>
-                  </div>
-
-                  {/* Card */}
-                  <div className="bg-white rounded-2xl border border-gray-200 shadow-sm hover:shadow-xl transition-all overflow-hidden">
-                    <div className="p-5 bg-gradient-to-r from-amber-50 to-orange-50">
-
-                      {/* Title & Qty */}
-                      <div className="flex justify-between items-start mb-4">
-                        <div className="flex-1 pr-4">
-                          <h3 className="text-2xl font-semibold text-gray-900 leading-snug break-words">
-                            {uppercaseFirst(
-                              item?.docligne?.Nom ||
-                              item?.docligne?.article?.Nom ||
-                              item?.docligne?.article?.AR_Design ||
-                              "__"
-                            )}{" "}
-                            {item?.docligne?.Poignée} {item?.docligne?.Rotation}{" "}
-                            {item?.docligne?.Description}
-                          </h3>
-
-                          {/* Dimensions */}
-                          <p className="text-2xl text-gray-700 mt-2">
-                            {lineHeight ? `${lineHeight}` : "__"}
-                            {lineHeight && lineWidth ? " × " : ""}
-                            {lineWidth ? `${lineWidth}` : "__"} mm
-                          </p>
-
-                          {/* Color */}
-                          {(item.docligne?.Couleur || item.docligne?.article?.Couleur) && (
-                            <span className="inline-block mt-2 px-3 py-1 bg-gray-200 rounded-full text-gray-700 text-base font-medium">
-                              {item.docligne?.Couleur ||
-                                item.docligne?.article?.Couleur}
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Quantity */}
-                        <div className="text-right">
-                          <div className="text-2xl font-bold text-gray-900">
-                            {item.pivot?.quantity
-                              ? Math.floor(item.pivot.quantity)
-                              : 0}
-                          </div>
-                          <div className="text-sm text-gray-500">Unités</div>
-                        </div>
-                      </div>
-
-                      {/* Divider */}
-                      <div className="pt-4 mt-3 border-t border-gray-300 flex items-center justify-between">
-                        <div className="flex-1 flex justify-between text-lg text-gray-700 pr-4">
-
-                          {/* Thickness */}
-                          <div>
-                            Ép:{" "}
-                            <strong className="font-semibold text-gray-900">
-                              {Math.floor(
-                                item.docligne?.Episseur > 0
-                                  ? item.docligne?.Episseur
-                                  : item.docligne?.article?.Episseur ?? "__"
-                              ) || "__"}
-                            </strong>
-                          </div>
-
-                          {/* Chant */}
-                          <div>
-                            Chant:{" "}
-                            <strong className="font-semibold text-gray-900">
-                              {item.docligne?.Chant || item.docligne?.article?.Chant || "__"}
-                            </strong>
-                          </div>
-                        </div>
-
-                        {/* Remove Button */}
-                        <button
-                          onClick={() => remove(item.id, item.pivot.id)}
-                          disabled={loadingStates.remove}
-                          className="p-2 bg-red-500 hover:bg-red-600 text-white rounded-full transition disabled:opacity-50"
-                        >
-                          <X className="w-6 h-6 text-white" />
-                        </button>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-
-
-          {lines?.length === 0 && !loadingStates.remove && (
-            <div className='text-center py-12'>
-              <Package className='w-16 h-16 text-gray-300 mx-auto mb-4' />
-              <p className='text-gray-500 text-lg'>
-                Aucun article dans cette palette
-              </p>
-              <p className='text-gray-400 text-sm'>
-                Scannez un code-barres pour ajouter des articles
-              </p>
-            </div>
-          )}
-        </div>
+        <LinesList
+          lines={lines}
+          loadingStates={loadingStates}
+          onRemove={remove}
+        />
       </div>
     </div>
   )
