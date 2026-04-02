@@ -29,10 +29,17 @@ const StatusBadge = ({ complationDate }) => {
 }
 
 const FabricationStatusBadge = ({ fabricatedAt, complationDate }) => {
-  if (!fabricatedAt || !complationDate) return <span className="text-gray-300 text-xs">—</span>
+  if (!fabricatedAt || !complationDate) {
+    return <span className="text-gray-300 text-xs">—</span>
+  }
 
   const fabDate = new Date(fabricatedAt)
   const compDate = new Date(complationDate)
+
+  // Normalize to date only (remove time)
+  fabDate.setHours(0, 0, 0, 0)
+  compDate.setHours(0, 0, 0, 0)
+
   const isLate = fabDate > compDate
 
   if (isLate) {
@@ -43,6 +50,7 @@ const FabricationStatusBadge = ({ fabricatedAt, complationDate }) => {
       </span>
     )
   }
+
   return (
     <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium bg-green-50 text-green-600 border border-green-200">
       <CheckCircle size={11} />
