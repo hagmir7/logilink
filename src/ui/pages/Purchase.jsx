@@ -20,6 +20,7 @@ const STATUS_OPTIONS = [
   { label: "Commandé", value: 6 },
   { label: "Reçu", value: 7 },
   { label: "Reçu non conforme", value: 8 },
+  { label: "En stock", value: 9 },
 ];
 
 const STATUS_MAP = {
@@ -31,6 +32,7 @@ const STATUS_MAP = {
   6: { label: "Commandé", color: "bg-indigo-100 text-indigo-800 border-indigo-300" },
   7: { label: "Reçu", color: "bg-emerald-100 text-emerald-800 border-emerald-300" },
   8: { label: "Reçu non conforme", color: "bg-rose-100 text-rose-800 border-rose-300" },
+  9: { label: "En stock", color: "bg-teal-100 text-teal-800 border-teal-300" },
 };
 
 function truncate(str, maxLength = 20) {
@@ -243,12 +245,12 @@ export default function Purchase() {
                     {item.urgent && <Tag color="red">🚨</Tag>}
                     {item.planned_at &&  <Tooltip title={formatDate(item.planned_at)}><Tag color="green">📅</Tag>  </Tooltip>}
                   </td>
-                  <td className="px-3 py-2">{truncate(item.reference, 20)}</td>
-                  <td className="px-3 py-2">{item.service?.name}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{truncate(item.reference, 20)}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{item.service?.name}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{item.user?.full_name}</td>
-                  <td className="px-3 py-2">{renderStatus(item.status)}</td>
-                  <td className="px-3 py-2">{item.sended_at && formatDate(item.sended_at)}</td>
-                  <td className="px-3 py-2">{formatDate(item.created_at)}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{renderStatus(item.status)}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{item.sended_at && formatDate(item.sended_at)}</td>
+                  <td className="px-3 py-2 whitespace-nowrap">{formatDate(item.created_at)}</td>
                   
                 </tr>
               ))

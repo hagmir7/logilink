@@ -158,6 +158,7 @@ export default function PurchaseForm() {
         quantity: line.quantity,
         unit: line.unit,
         estimated_price: line.estimated_price,
+        status: line.status ? String(line.status) : '1',
         checked: false,
       })) || []
     };
@@ -261,6 +262,7 @@ export default function PurchaseForm() {
       formData.append(`lines[${index}][quantity]`, line.quantity || '0');
       formData.append(`lines[${index}][unit]`, line.unit || '');
       formData.append(`lines[${index}][estimated_price]`, line.estimated_price || '0');
+      formData.append(`lines[${index}][status]`, line.status || '1');
 
       // Attach files
       const originalIndex = values.lines.indexOf(line);
@@ -320,6 +322,7 @@ export default function PurchaseForm() {
     { value: "6", label: "Commandé", color: "bg-purple-400" },
     { value: "7", label: "Reçu", color: "bg-teal-400" },
     { value: "8", label: "Reçu non conforme", color: "bg-gray-600" },
+    { value: "9", label: "En stock", color: "bg-cyan-500" }
   ];
 
   const handleKeyDown = (event, lineIndex, field) => {
@@ -382,6 +385,7 @@ export default function PurchaseForm() {
         quantity: 1,
         unit: '',
         estimated_price: 0,
+        status: '1',
         checked: false,
       }));
 
@@ -645,7 +649,7 @@ export default function PurchaseForm() {
                       {fields.map((field, index) => (
                         <div
                           key={field.key}
-                          className="relative grid grid-cols-1 md:grid-cols-6 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
+                          className="relative grid grid-cols-1 md:grid-cols-7 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
                         >
                           {/* Hidden ID field for updates */}
                           <Form.Item
@@ -725,6 +729,29 @@ export default function PurchaseForm() {
                             </Form.Item>
                           </div>
 
+                          {/* Line Status */}
+                          <Form.Item
+                            {...field}
+                            name={[field.name, 'status']}
+                            className="mb-0"
+                            style={{ marginBottom: 0 }}
+                          >
+                            <Select
+                              placeholder="Statut"
+                              className="w-full"
+                              disabled={!isAdmin}
+                            >
+                              {statusOptions.map(option => (
+                                <Select.Option key={option.value} value={option.value}>
+                                  <span className="flex items-center gap-2">
+                                    <span className={`w-2 h-2 rounded-full ${option.color}`}></span>
+                                    {option.label}
+                                  </span>
+                                </Select.Option>
+                              ))}
+                            </Select>
+                          </Form.Item>
+
                           {/* Action Buttons */}
                           <div className="flex gap-2 justify-between">
                             {/* Upload Files Button */}
@@ -780,10 +807,10 @@ export default function PurchaseForm() {
                     <Form.Item className="mb-0 w-1/4">
                       <Button
                         type="dashed"
-                        onClick={() => add({ checked: false })}
+                        onClick={() => add({ checked: false, status: '1' })}
                         block
                         icon={<PlusOutlined />}
-                        disabled={!canEdit} // <-- FIXED
+                        disabled={!canEdit}
                         className="border-2 border-dashed hover:border-blue-400 hover:text-blue-500 transition-colors"
                       >
                         Ajouter une ligne
@@ -849,10 +876,6 @@ export default function PurchaseForm() {
                 showPreviewIcon: false,
               }}
             >
-              {/* 🔥 Existing images preview */}
-              {/* <PurchaseImages imageList={getImagesList(currentLineIndex)} /> */}
-
-
               <Button
                 icon={<UploadOutlined />}
                 disabled={!canEdit}
