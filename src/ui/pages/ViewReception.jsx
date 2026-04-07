@@ -148,7 +148,13 @@ function ViewReception() {
     } catch (error) {
       setTransferSpin(false);
       console.error(error);
-      message.error(error.response?.data?.message || "Erreur de transfert");
+      const errMsg = error.response?.data?.message || "Erreur de transfert";
+
+      if (errMsg.includes("Cet élément est en cours d'utilisation")) {
+        message.error("Cet élément est en cours d'utilisation");
+      } else {
+        message.error(errMsg);
+      }
     }
 
   };
@@ -201,7 +207,7 @@ function ViewReception() {
             </h1>
             <div className='flex gap-3 items-center'><Clock size={17} className='text-gray-500' />
               {loading ? <Skeleton /> : formatDate(data.DO_Date)}
-              <ReceptionMovmentsModal piece={id} company={company} />
+              <ReceptionMovmentsModal piece={id} company={company} reload={()=> fetchData(new AbortController())} />
             </div>
           </div>
 
@@ -273,7 +279,7 @@ function ViewReception() {
                     okText="Réinitialiser"
                     cancelText="Annuler"
                   >
-                    <Button danger disabled={Number(data?.document?.status_id) > 1} className="flex items-center gap-2 hover:shadow-md transition-shadow">
+                    <Button danger  className="flex items-center gap-2 hover:shadow-md transition-shadow">
                       Réinitialiser <Undo2 size={18} />
                     </Button>
                   </Popconfirm>

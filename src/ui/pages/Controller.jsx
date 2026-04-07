@@ -28,9 +28,6 @@ import TicketPrinter from '../components/TicketPrinter'
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal'
 
 
-
-
-
 function Controller() {
   const { id } = useParams()
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
@@ -429,6 +426,7 @@ useEffect(() => {
                   </Button>
                 </Popconfirm>
               )}
+
 
               {Number(documentCompany.pivot.status_id) < 8 && (
                 <>
