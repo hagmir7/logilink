@@ -4,7 +4,10 @@
   "version": "0.10.0",
   "description": "Logilink App",
   "title": "LOGILINK PRO",
-  "author": "Intercocina",
+  "author": {
+    "name": "Intercocina",
+    "email": "helpdesk@intercocina.com"
+  },
   "type": "module",
   "repository": {
     "type": "git",
