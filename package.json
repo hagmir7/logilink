@@ -19,6 +19,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "transpile:electron": "echo skipping",
     "dist:mac": "npm run transpile:electron && npm run build && electron-builder --mac --arm64",
     "dist:win": "npm run build && electron-builder --win --x64",
     "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64",
@@ -76,6 +77,15 @@
       "target": "nsis",
       "executableName": "LOGILINK",
       "icon": "build/inter.png"
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "executableName": "logilink",
+      "icon": "build/inter.png",
+      "category": "Office"
     }
   }
 }

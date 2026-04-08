@@ -293,6 +293,13 @@ const sideMenu = () => {
           icon: <ChartCandlestick size={20} />,
           label: <Link to='/supplier-interviews'>F.Evaluations</Link>,
         },
+
+         {
+          key: 'submenu-117',
+          disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+          icon: <ChartCandlestick size={20} />,
+          label: <Link to='/quote-comparison'>Comparatif des devis</Link>,
+        },
       ],
     },
     {

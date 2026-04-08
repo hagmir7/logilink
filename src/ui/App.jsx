@@ -63,6 +63,7 @@ import FabricationArticles from './pages/FabricationArticles'
 import OFs from './pages/OFs'
 import EmplacementLimit from './components/EmplacementLimit'
 import TravelReceptionTable from './pages/TravelReceptionTable'
+import QuoteComparison from './pages/QuoteComparison'
 
 
 const NotFound = () => {
@@ -102,6 +103,8 @@ function App() {
         <Route path='document/:piece/progress' element={<DocumentProgress />} />
         <Route path='reception/:id/:company' element={<ViewReception />} />
 
+        
+
         <Route path='document/palettes/:piece' element={<DocumentPalettes />} />
         <Route path='palette/controle/:code' element={<PaletteControle />} />
         <Route path='/user-archive/:id' element={<ViewUserArchive />} />
@@ -138,6 +141,8 @@ function App() {
             element={<ViewUserArchive />}
           />
           <Route path='/purchase' element={<Purchase />} />
+
+          <Route path='quote-comparison' element={<QuoteComparison />} />
 
           <Route path='/users' element={<Users />} />
           <Route path='/users/actions' element={<UsersActions />} />
