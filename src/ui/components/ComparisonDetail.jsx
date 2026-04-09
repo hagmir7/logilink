@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { Descriptions, Table, Card, Button, Space, Tag, Popconfirm, message, Empty } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, TrophyOutlined, ArrowLeftOutlined, StarOutlined, FilePdfOutlined } from '@ant-design/icons';
-import { getComparison, deleteOffer, getPdfUrl } from '../utils/api';
+import { Descriptions, Table, Card, Button, Space, Tag, Popconfirm, message, Empty, Spin } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined, TrophyOutlined, ArrowLeftOutlined, StarOutlined, FilePdfOutlined, LoadingOutlined } from '@ant-design/icons';
+import { getComparison, deleteOffer, api } from '../utils/api';
 import OfferForm from './OfferForm';
 import EvaluationForm from './EvaluationForm';
 import ResultForm from './ResultForm';
@@ -11,11 +11,12 @@ const STATUS_COLORS = { brouillon: 'default', soumis: 'processing', valide: 'suc
 export default function ComparisonDetail({ comparisonId, onBack }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [pdfLoading, setPdfLoading] = useState(false);
   const [offerModal, setOfferModal] = useState({ open: false, offer: null });
   const [evalModal, setEvalModal] = useState({ open: false, evaluation: null });
   const [resultModal, setResultModal] = useState(false);
 
-  const fetch = async () => {
+  const fetchData = async () => {
     setLoading(true);
     try {
       const res = await getComparison(comparisonId);
@@ -25,12 +26,35 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
     }
   };
 
-  useEffect(() => { fetch(); }, [comparisonId]);
+  useEffect(() => { fetchData(); }, [comparisonId]);
 
   const handleDeleteOffer = async (offerId) => {
     await deleteOffer(comparisonId, offerId);
     message.success('Offre supprimée.');
-    fetch();
+    fetchData();
+  };
+
+  const handleDownloadPdf = async () => {
+    setPdfLoading(true);
+    try {
+      const res = await api.get(`/quote-comparisons/${comparisonId}/pdf`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `comparatif-${data.reference || comparisonId}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      message.success('PDF téléchargé avec succès.');
+    } catch(error) {
+      console.log(error)
+      message.error('Erreur lors du téléchargement du PDF.');
+    } finally {
+      setPdfLoading(false);
+    }
   };
 
   const offerColumns = [
@@ -71,7 +95,15 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
     },
   ];
 
-  if (loading || !data) return null;
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+        <Spin size="large" tip="Chargement du comparatif..." />
+      </div>
+    );
+  }
+
+  if (!data) return null;
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
@@ -83,13 +115,9 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
 
         <Space>
           <Button
-            icon={<FilePdfOutlined />}
-            onClick={async () => {
-              const url = await getPdfUrl(comparisonId);
-              if (url) {
-                window.open(url, '_blank');
-              }
-            }}
+            icon={pdfLoading ? <LoadingOutlined /> : <FilePdfOutlined />}
+            onClick={handleDownloadPdf}
+            loading={pdfLoading}
             style={{ color: '#cf1322' }}
           >
             Télécharger PDF
@@ -174,20 +202,20 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
         offer={offerModal.offer}
         open={offerModal.open}
         onClose={() => setOfferModal({ open: false, offer: null })}
-        onSuccess={() => { setOfferModal({ open: false, offer: null }); fetch(); }}
+        onSuccess={() => { setOfferModal({ open: false, offer: null }); fetchData(); }}
       />
       <EvaluationForm
         comparisonId={comparisonId}
         evaluation={evalModal.evaluation}
         open={evalModal.open}
         onClose={() => setEvalModal({ open: false, evaluation: null })}
-        onSuccess={() => { setEvalModal({ open: false, evaluation: null }); fetch(); }}
+        onSuccess={() => { setEvalModal({ open: false, evaluation: null }); fetchData(); }}
       />
       <ResultForm
         comparison={data}
         open={resultModal}
         onClose={() => setResultModal(false)}
-        onSuccess={() => { setResultModal(false); fetch(); }}
+        onSuccess={() => { setResultModal(false); fetchData(); }}
       />
     </div>
   );

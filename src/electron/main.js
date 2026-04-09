@@ -67,7 +67,10 @@ const createMainWindow = () => {
     } else {
         mainWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'));
         mainWindow.setMenu(null)
-        autoUpdater.checkForUpdatesAndNotify();
+        
+        if (process.platform === 'win32' || process.env.APPIMAGE) {
+            autoUpdater.checkForUpdatesAndNotify();
+        }
         
     }
 
