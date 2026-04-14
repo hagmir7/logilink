@@ -297,8 +297,8 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
           <th className="col-refarticle">Ref</th>
           <th className="col-dim">H</th>
           <th className="col-dim">L</th>
-          <th className="col-col">Couleur</th>
           <th className="col-chant">Prof</th>
+          <th className="col-col">Couleur</th>
           <th className="col-dim">Ep</th>
           <th className="col-qte">Qte</th>
         </tr>
@@ -326,12 +326,14 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
         <td className="col-refarticle" style={{ fontSize: '12px' }}>{item.AR_Ref || ''}</td>
         <td className="col-dim"        style={{ fontSize: '12px' }}>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(art.Hauteur) || ''}</td>
         <td className="col-dim"        style={{ fontSize: '12px' }}>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(art.Largeur) || ''}</td>
-        <td className="col-col"        style={{ fontSize: '12px' }}>{item.Couleur || art.Couleur || ''}</td>
-        {
+         {
           isLandscape
             ? <td className="col-chant" style={{ fontSize: '12px' }}>{item.Chant || art.Chant || ''}</td>
             : <td className="col-chant">{Math.floor(item.Profondeur) || Math.floor(art.Profonduer) || ''}</td>
         }
+
+        <td className="col-col"        style={{ fontSize: '12px' }}>{item.Couleur || art.Couleur || ''}</td>
+       
         <td className="col-dim" style={{ fontSize: '12px' }}>{item.Episseur > 0 ? Math.floor(item.Episseur) : Math.floor(art.Episseur) || ''}</td>
         <td className="col-qte" style={{ fontSize: '12px' }}>{Math.floor(item.EU_Qte || 0)}</td>
         {isLandscape && (

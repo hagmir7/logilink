@@ -409,7 +409,7 @@ const MainLayout = () => {
           <div>
             <Link to={'/'}>
               <img
-                src='https://intercocina.com/public/logo.png'
+                src='https://intercocina.com/logo.png'
                 alt='Intercocina logo'
                 className='w-40 md:w-60'
               />

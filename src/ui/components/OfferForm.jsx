@@ -1,9 +1,12 @@
-import React from 'react';
-import { Modal, Form, Input, InputNumber, DatePicker, message } from 'antd';
-import { createOffer, updateOffer } from '../utils/api';
+import React, { useEffect, useState } from 'react';
+import { Modal, Form, Input, InputNumber, DatePicker, message, Select } from 'antd';
+import { api, createOffer, updateOffer } from '../utils/api';
 import dayjs from 'dayjs';
 
 export default function OfferForm({ comparisonId, offer, open, onClose, onSuccess }) {
+
+  const [suppliers, setSuppliers] = useState([]);
+  
   const [form] = Form.useForm();
   const isEdit = !!offer?.id;
 
@@ -27,6 +30,36 @@ export default function OfferForm({ comparisonId, offer, open, onClose, onSucces
     }
   };
 
+
+    const fetchSuppliers = async (reset = false) => {
+    // setLoading(true);
+
+    try {
+      const response = await api.get("client/suppliers", {
+        params: { company_db: 'sqlsrv_inter' },
+      });
+      setSuppliers(
+        response.data.map(item => ({
+          label: item.CT_Intitule + " " + item.CT_Num,
+          value: item.CT_Intitule + " " + item.CT_Num,
+        }))
+      );
+    } catch (error) {
+      console.error(error);
+      message.warning(
+        error?.response?.data?.message ||
+        "Erreur lors du chargement des fournisseurs."
+      );
+    } finally {
+      // setLoading(false);
+    }
+  };
+
+
+  useEffect(()=>{
+    fetchSuppliers();
+  }, []);
+
   return (
     <Modal
       title={isEdit ? 'Modifier l\'offre' : 'Ajouter une offre'}
@@ -44,7 +77,15 @@ export default function OfferForm({ comparisonId, offer, open, onClose, onSucces
         initialValues={isEdit ? { ...offer, quote_date: offer.quote_date ? dayjs(offer.quote_date) : null } : undefined}
       >
         <Form.Item label="Nom du prestataire" name="provider_name" rules={[{ required: true, message: 'Obligatoire' }]}>
-          <Input placeholder="Fournisseur ABC" />
+          <Select
+            options={suppliers}
+            placeholder="Fournisseur"
+            showSearch
+            allowClear
+            filterOption={(input, option) =>
+              option.label.toLowerCase().includes(input.toLowerCase())
+            }
+          />
         </Form.Item>
 
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>

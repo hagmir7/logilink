@@ -5,6 +5,7 @@ import { getComparison, deleteOffer, api } from '../utils/api';
 import OfferForm from './OfferForm';
 import EvaluationForm from './EvaluationForm';
 import ResultForm from './ResultForm';
+import { upperFirst } from 'lodash';
 
 const STATUS_COLORS = { brouillon: 'default', soumis: 'processing', valide: 'success', rejete: 'error' };
 
@@ -49,24 +50,33 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
       link.remove();
       window.URL.revokeObjectURL(url);
       message.success('PDF téléchargé avec succès.');
-    } catch(error) {
-      console.log(error)
+    } catch (error) {
+      console.log(error);
       message.error('Erreur lors du téléchargement du PDF.');
     } finally {
       setPdfLoading(false);
     }
   };
 
-  const offerColumns = [
-    { title: 'Prestataire', dataIndex: 'provider_name', key: 'name', fixed: 'left', width: 150 },
-    { title: 'Réf. devis', dataIndex: 'quote_reference', key: 'ref' },
-    { title: 'Désignation', dataIndex: 'product_designation', key: 'design', ellipsis: true },
-    { title: 'Qté', dataIndex: 'quantity', key: 'qty', align: 'right' },
-    { title: 'P.U (MAD)', dataIndex: 'unit_price', key: 'pu', align: 'right', render: (v) => Number(v).toLocaleString('fr-FR') },
-    { title: 'Total (MAD)', dataIndex: 'total_price', key: 'total', align: 'right', render: (v) => <strong>{Number(v).toLocaleString('fr-FR')}</strong> },
-    { title: 'Délai', dataIndex: 'delivery_delay', key: 'delay' },
-    { title: 'Paiement', dataIndex: 'payment_conditions', key: 'pay' },
-    { title: 'Garantie', dataIndex: 'warranty', key: 'warranty' },
+const offerColumns = [
+    { title: 'Prestataire', dataIndex: 'provider_name', key: 'name', fixed: 'left', width: 150,
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{v}</span> },
+    { title: 'Réf. devis', dataIndex: 'quote_reference', key: 'ref',
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{v}</span> },
+    { title: 'Désignation', dataIndex: 'product_designation', key: 'design',
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{v}</span> },  // ← removed ellipsis
+    { title: 'Qté', dataIndex: 'quantity', key: 'qty', align: 'right',
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{v}</span> },
+    { title: 'P.U (MAD)', dataIndex: 'unit_price', key: 'pu', align: 'right',
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{Number(v).toLocaleString('fr-FR')}</span> },
+    { title: 'Total (MAD)', dataIndex: 'total_price', key: 'total', align: 'right',
+      render: (v) => <strong style={{ whiteSpace: 'nowrap' }}>{Number(v).toLocaleString('fr-FR')}</strong> },
+    { title: 'Délai', dataIndex: 'delivery_delay', key: 'delay',
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{v}</span> },
+    { title: 'Paiement', dataIndex: 'payment_conditions', key: 'pay',
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{v}</span> },
+    { title: 'Garantie', dataIndex: 'warranty', key: 'warranty',
+      render: (v) => <span style={{ whiteSpace: 'nowrap' }}>{v}</span> },
     {
       title: '', key: 'actions', width: 80, fixed: 'right',
       render: (_, r) => (
@@ -89,7 +99,7 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
     { title: 'Paiement (10%)', dataIndex: 'payment_score', key: 'pm', align: 'center' },
     {
       title: 'Note finale', dataIndex: 'weighted_total', key: 'total', align: 'center',
-      render: (v) => <Tag color="blue" style={{ fontWeight: 600 }}>{v} / 10</Tag>,
+      render: (v) => <Tag color="blue" className="font-semibold">{v} / 10</Tag>,
       sorter: (a, b) => a.weighted_total - b.weighted_total,
       defaultSortOrder: 'descend',
     },
@@ -97,7 +107,7 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
 
   if (loading) {
     return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
+      <div className="flex justify-center items-center min-h-[400px]">
         <Spin size="large" tip="Chargement du comparatif..." />
       </div>
     );
@@ -106,9 +116,9 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
   if (!data) return null;
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+    <div className="flex flex-col gap-5 px-3 py-2">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+      <div className="flex justify-between items-center">
         <Button icon={<ArrowLeftOutlined />} onClick={onBack}>
           Retour
         </Button>
@@ -118,16 +128,16 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
             icon={pdfLoading ? <LoadingOutlined /> : <FilePdfOutlined />}
             onClick={handleDownloadPdf}
             loading={pdfLoading}
-            style={{ color: '#cf1322' }}
+            className="!text-red-700"
           >
             Télécharger PDF
           </Button>
 
           <Tag
             color={STATUS_COLORS[data.status]}
-            style={{ fontSize: 14, padding: '4px 12px' }}
+            className="!text-sm !px-3 !py-1"
           >
-            {data.status}
+            {upperFirst(data.status)}
           </Tag>
         </Space>
       </div>
@@ -153,7 +163,14 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
         }
       >
         {data.offers?.length ? (
-          <Table rowKey="id" columns={offerColumns} dataSource={data.offers} pagination={false} scroll={{ x: 1000 }} size="small" />
+          <Table
+            rowKey="id"
+            columns={offerColumns}
+            dataSource={data.offers}
+            pagination={false}
+            scroll={{ x: 'max-content' }} 
+            size="small"
+          />
         ) : (
           <Empty description="Aucune offre ajoutée" />
         )}
@@ -188,7 +205,7 @@ export default function ComparisonDetail({ comparisonId, onBack }) {
             <Descriptions.Item label="Directeur Général">{data.general_director} — {data.general_director_date?.slice(0, 10)}</Descriptions.Item>
           </Descriptions>
         ) : (
-          <div style={{ textAlign: 'center', padding: 24 }}>
+          <div className="text-center py-6">
             <Button type="primary" icon={<TrophyOutlined />} onClick={() => setResultModal(true)}>
               Sélectionner le prestataire retenu
             </Button>

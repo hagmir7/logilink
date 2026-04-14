@@ -58,13 +58,15 @@ export default function ComparisonList({ onAdd, onView }) {
   ];
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 16 }}>
-        <h2 style={{ margin: 0 }}>Comparatifs des devis</h2>
+    <div className='bg-white '>
+      <div className='flex justify-between px-3 py-2'>
+        <h2 className='text-xl'>Comparatifs des devis</h2>
         <Button type="primary" icon={<PlusOutlined />} onClick={onAdd}>Nouveau comparatif</Button>
       </div>
       <Table
         rowKey="id"
+        size='small'
+        className='border-t border-b border-gray-100'
         columns={columns}
         dataSource={data}
         loading={loading}
