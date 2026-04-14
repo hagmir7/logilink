@@ -189,7 +189,7 @@ export default function OFs() {
                                 />
                             </div>
                         )
-                        : ofs.map(of => <OFCard key={of.id} of={of} />)
+                        : ofs.map(of => <OFCard key={of.id} of={of} refresh={fetchOfs} />)
                 }
 
                 {/* ── Load more ── */}

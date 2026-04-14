@@ -64,6 +64,8 @@ import OFs from './pages/OFs'
 import EmplacementLimit from './components/EmplacementLimit'
 import TravelReceptionTable from './pages/TravelReceptionTable'
 import QuoteComparison from './pages/QuoteComparison'
+import NcfStepForm from './components/NcfStepFormPreview'
+import NcfApp from './components/NcfApp'
 
 
 const NotFound = () => {
@@ -134,6 +136,8 @@ function App() {
           <Route path='/find-article' element={<FindArticleEmplacement />} />
           <Route path='/suppliers' element={<Suppliers />} />
           <Route path='/supplier-interviews' element={<SupplierInterviews />} />
+
+          <Route path='/supplier-ncf' element={<NcfApp />} />
          
           <Route path='/user-archive' element={<UserArchive />} />
           <Route

@@ -1,6 +1,9 @@
-import { Button, Select, Tag, Tooltip, message } from "antd"
-import { Check, ChevronDown, Loader2, Pencil, Printer, X } from "lucide-react"
-import { useState } from "react"
+import { Button, Select, Tag, Tooltip, message, Modal, InputNumber } from "antd"
+import { Check, ChevronDown, Copy, Loader2, Pencil, Printer, Trash, X } from "lucide-react"
+import { ExclamationCircleOutlined, DeleteOutlined } from '@ant-design/icons';
+
+const { confirm } = Modal;
+import { useState, useEffect } from "react"
 import dayjs from 'dayjs'
 import printOf from '../components/printOf'
 import { api } from "../utils/api"
@@ -18,16 +21,28 @@ const STATUTS = [
 const STATUT_MAP = Object.fromEntries(STATUTS.map(s => [s.value, s]))
 
 
-function OFCard({ of: initialOf }) {
+function OFCard({ of: initialOf, refresh }) {
   const [of, setOf]                   = useState(initialOf)
   const [expanded, setExpanded]       = useState(false)
   const [editStatus, setEditStatus]   = useState(false)
   const [newStatus, setNewStatus]     = useState(of.statut)
   const [savingStatus, setSavingStatus] = useState(false)
+  const [duplicateStatus, setDuplicateStatus] = useState(false)
+
+  // Duplicate modal state
+  const [duplicateModalOpen, setDuplicateModalOpen] = useState(false)
+  const [machines, setMachines]                     = useState([])
+  const [loadingMachines, setLoadingMachines]       = useState(false)
+  const [selectedMachine, setSelectedMachine]       = useState(null)
+
+  // Track which line is being edited for quantity
+  const [editingLineId, setEditingLineId]     = useState(null)
+  const [editingQty, setEditingQty]           = useState(null)
+  const [savingLineQty, setSavingLineQty]     = useState(false)
 
   const cfg      = STATUT_MAP[of.statut] || STATUT_MAP.brouillon
-  const totalQte = of.lines?.reduce((s, l) => s + parseFloat(l.quantity  || 0), 0) ?? 0
-  const totalProd= of.lines?.reduce((s, l) => s + parseFloat(l.quantity_produite || 0), 0) ?? 0
+  const totalQte = of.lines?.reduce((s, l) => s + parseInt(l.quantity  || 0), 0) ?? 0
+  const totalProd= of.lines?.reduce((s, l) => s + parseInt(l.quantity_produite || 0), 0) ?? 0
   const pct      = totalQte > 0 ? Math.min((totalProd / totalQte) * 100, 100) : 0
 
   const handleSaveStatus = async () => {
@@ -38,13 +53,149 @@ function OFCard({ of: initialOf }) {
       setOf(prev => ({ ...prev, statut: newStatus }))
       message.success(response.data.message)
       setEditStatus(false)
-      console.log(of.id);
       
     } catch(err) {
       
       message.error('Erreur lors de la mise à jour')
     } finally {
       setSavingStatus(false)
+    }
+  }
+
+  const getMachines = async () => {
+    setLoadingMachines(true)
+    try {
+      const response = await api.get('machines?per_page=100');
+      const machinesList = response.data.data
+        .filter(m => m.is_active == true)
+        .map(item => ({
+          label: item.ref_machine
+            ? `${item.ref_machine} — ${item.group_code}`
+            : `${item.ref_machine}`,
+          value: item.machine_id
+        }));
+      setMachines(machinesList);
+    } catch (error) {
+      message.error(
+        error?.response?.data?.message ||
+        'Erreur lors du chargement des machines'
+      );
+    } finally {
+      setLoadingMachines(false)
+    }
+  };
+
+  const openDuplicateModal = () => {
+    setSelectedMachine(null)
+    setDuplicateModalOpen(true)
+    getMachines()
+  }
+
+  const handleDuplicate = async () => {
+    if (!selectedMachine) {
+      message.warning('Veuillez sélectionner une machine')
+      return
+    }
+    setDuplicateStatus(true)
+    try {
+      await api.get(`ordres-fabrication/${of.id}/duplicate`, {
+        params: { reference_machine: selectedMachine }
+      });
+      message.success('OF dupliqué avec succès');
+      setDuplicateModalOpen(false)
+      refresh(1, false, [])
+    } catch (error) {
+      message.error('Erreur lors de la duplication');
+      console.error(error);
+    } finally {
+      setDuplicateStatus(false)
+    }
+  };
+
+  const handleDelete = (id) => {
+    confirm({
+        title: 'Êtes-vous sûr de vouloir supprimer cet OF ?',
+        icon: <ExclamationCircleOutlined />,
+        content: 'Cette action est irréversible.',
+        okText: 'Supprimer',
+        okType: 'danger',
+        cancelText: 'Annuler',
+        onOk: async () => {
+            try {
+                await api.delete(`ordres-fabrication/${id}`);
+
+                message.success('OF supprimé avec succès');
+                refresh(1, false, [])
+            } catch (error) {
+                message.error('Erreur lors de la suppression');
+                console.error(error);
+            }
+        },
+    });
+  };
+
+
+  const handleDeleteLine = (id) => {
+    confirm({
+      title: 'Êtes-vous sûr de vouloir supprimer cet Article ?',
+      icon: <ExclamationCircleOutlined />,
+      content: 'Cette action est irréversible.',
+      okText: 'Supprimer',
+      okType: 'danger',
+      cancelText: 'Annuler',
+      onOk: async () => {
+        try {
+          await api.delete(`of-line/${id}`);
+
+          message.success('Article supprimé avec succès');
+          // Update local state to remove the line immediately
+          setOf(prev => ({
+            ...prev,
+            lines: prev.lines.filter(l => l.id !== id)
+          }))
+          refresh(1, false, [])
+        } catch (error) {
+          message.error('Erreur lors de la suppression');
+          console.error(error);
+        }
+      },
+    });
+  };
+
+  const handleStartEditQty = (line) => {
+    setEditingLineId(line.id)
+    setEditingQty(parseFloat(line.quantity))
+  }
+
+  const handleCancelEditQty = () => {
+    setEditingLineId(null)
+    setEditingQty(null)
+  }
+
+  const handleSaveLineQty = async (lineId) => {
+    if (editingQty === null || editingQty < 0) {
+      message.warning('Veuillez saisir une quantité valide')
+      return
+    }
+
+    setSavingLineQty(true)
+    try {
+      await api.put(`of-line/${lineId}`, { quantity: editingQty })
+      // Update local state
+      setOf(prev => ({
+        ...prev,
+        lines: prev.lines.map(l =>
+          l.id === lineId ? { ...l, quantity: editingQty } : l
+        )
+      }))
+      message.success('Quantité mise à jour avec succès')
+      setEditingLineId(null)
+      setEditingQty(null)
+    } catch (error) {
+      message.error('Erreur lors de la mise à jour de la quantité')
+      console.error(error)
+    } finally {
+      setSavingLineQty(false)
     }
   }
 
@@ -135,6 +286,8 @@ function OFCard({ of: initialOf }) {
                   className="!px-2"
                 />
               </Tooltip>
+
+             
             </div>
           ) : (
             <div className="flex items-center gap-0.5">
@@ -150,11 +303,32 @@ function OFCard({ of: initialOf }) {
             </div>
           )}
 
+           <Tooltip title="Dupliquer">
+                <Button
+                  size="small"
+                  type="primary"
+                  icon={duplicateStatus ? <Loader2 size={12} className="animate-spin" /> : <Copy size={12} />}
+                  onClick={openDuplicateModal}
+                  disabled={duplicateStatus}
+                  className="!px-2"
+                />
+              </Tooltip>
+
           <Tooltip title="Imprimer">
             <Button
               size="small"
               icon={<Printer size={13} />}
               onClick={() => printOf(of)}
+              className="!px-2"
+            />
+          </Tooltip>
+
+            <Tooltip title="Supprimer">
+            <Button
+            danger
+              size="small"
+              icon={<Trash size={13} />}
+               onClick={()=> handleDelete(of.id)}
               className="!px-2"
             />
           </Tooltip>
@@ -167,10 +341,10 @@ function OFCard({ of: initialOf }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                {['Réf article ', 'Désignation', 'Nom', 'Qté a produite'].map(h => (
+                {['Réf article', 'Désignation', 'Nom', 'Qté a produite', 'Actions'].map(h => (
                   <th
                     key={h}
-                    className={`px-4 py-2 text-sm  text-gray-500 uppercase tracking-wide text-start`}
+                    className={`px-4 py-2 text-sm text-gray-500 uppercase tracking-wide text-start`}
                   >
                     {h}
                   </th>
@@ -180,6 +354,7 @@ function OFCard({ of: initialOf }) {
             <tbody className="divide-y divide-gray-50">
               {of.lines?.map((line, i) => {
                 const lineCfg = STATUT_MAP[line.statut] || STATUT_MAP.brouillon
+                const isEditingThisLine = editingLineId === line.id
                 return (
                   <tr
                     key={line.id}
@@ -202,11 +377,71 @@ function OFCard({ of: initialOf }) {
                       )}
                     </td>
                     <td className="px-4 py-2 text-start">
-                      <span className="inline-flex items-center justify-center min-w-[52px] px-2.5 py-0.5 rounded-md text-sm bg-blue-50 text-blue-700 border border-blue-200">
-                        {parseFloat(line.quantity).toFixed(2)}
-                      </span>
+                      {isEditingThisLine ? (
+                        <div className="flex items-center gap-1">
+                          <InputNumber
+                            size="small"
+                            min={0}
+                            step={0.01}
+                            value={editingQty}
+                            onChange={setEditingQty}
+                            style={{ width: 100 }}
+                            autoFocus
+                            onPressEnter={() => handleSaveLineQty(line.id)}
+                          />
+                          <Tooltip title="Confirmer">
+                            <Button
+                              size="small"
+                              type="primary"
+                              icon={savingLineQty ? <Loader2 size={12} className="animate-spin" /> : <Check size={12} />}
+                              onClick={() => handleSaveLineQty(line.id)}
+                              disabled={savingLineQty}
+                              className="!px-1.5"
+                            />
+                          </Tooltip>
+                          <Tooltip title="Annuler">
+                            <Button
+                              size="small"
+                              danger
+                              icon={<X size={12} />}
+                              onClick={handleCancelEditQty}
+                              className="!px-1.5"
+                            />
+                          </Tooltip>
+                        </div>
+                      ) : (
+                        <span
+                          className="inline-flex items-center justify-center min-w-[52px] px-2.5 py-0.5 rounded-md text-sm bg-blue-50 text-blue-700 border border-blue-200 cursor-pointer hover:bg-blue-100 transition-colors"
+                          onClick={() => handleStartEditQty(line)}
+                        >
+                          {parseInt(line.quantity)}
+                        </span>
+                      )}
                     </td>
-     
+
+                    <td className="px-4 py-2">
+                      <div className="flex items-center gap-1">
+                        {!isEditingThisLine && (
+                          <Tooltip title="Modifier la quantité">
+                            <Button
+                              size="small"
+                              icon={<Pencil size={12} />}
+                              onClick={() => handleStartEditQty(line)}
+                              className="!px-1.5"
+                            />
+                          </Tooltip>
+                        )}
+                        <Tooltip title="Supprimer l'article">
+                          <Button
+                            size="small"
+                            danger
+                            icon={<Trash size={12} />}
+                            onClick={() => handleDeleteLine(line.id)}
+                            className="!px-1.5"
+                          />
+                        </Tooltip>
+                      </div>
+                    </td>
                   </tr>
                 )
               })}
@@ -214,6 +449,34 @@ function OFCard({ of: initialOf }) {
           </table>
         </div>
       )}
+      {/* ── Duplicate modal ── */}
+      <Modal
+        title="Dupliquer l'OF"
+        open={duplicateModalOpen}
+        onCancel={() => { setDuplicateModalOpen(false); setSelectedMachine(null) }}
+        onOk={handleDuplicate}
+        okText="Dupliquer"
+        cancelText="Annuler"
+        confirmLoading={duplicateStatus}
+        okButtonProps={{ disabled: !selectedMachine }}
+      >
+        <div className="py-4">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Sélectionner une machine
+          </label>
+          <Select
+            showSearch
+            placeholder="Rechercher une machine..."
+            value={selectedMachine}
+            onChange={setSelectedMachine}
+            loading={loadingMachines}
+            options={machines}
+            optionFilterProp="label"
+            style={{ width: '100%' }}
+            size="large"
+          />
+        </div>
+      </Modal>
     </div>
   )
 }

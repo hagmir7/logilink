@@ -38,7 +38,8 @@ function getUrgencyLevel(stock, min, max) {
   return 4
 }
 
-// ─── Component ────────────────────────────────────────────────────────────────
+// ─── Component ─────────────────────────────────────────────────────────────
+// ───
 
 function FabricationArticles({ company_id }) {
   const [loading, setLoading]         = useState(false)
@@ -50,10 +51,8 @@ function FabricationArticles({ company_id }) {
   const [selectedCategory, setSelectedCategory] = useState('semi-fini')
   const [selectedCompany, setSelectedCompany]   = useState('')
   const [selectedUrgency, setSelectedUrgency]   = useState('tout')
-  const [selectedColor, setSelectedColor]       = useState('tout')
   const [sortBy, setSortBy]           = useState('urgency_level')
   const [sortOrder, setSortOrder]     = useState('asc')
-  const [colorOptions, setColorOptions] = useState([{ value: 'tout', label: 'Toutes les couleurs' }])
   const [selectedArticles, setSelectedArticles] = useState([])
 
   const pageRef     = useRef(1)
@@ -67,8 +66,8 @@ function FabricationArticles({ company_id }) {
 
   // keep filtersRef in sync so fetchMore always reads latest values
   useEffect(() => {
-    filtersRef.current = { searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder }
-  }, [searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder])
+    filtersRef.current = { searchQuery, selectedCategory, selectedCompany, selectedUrgency, sortBy, sortOrder }
+  }, [searchQuery, selectedCategory, selectedCompany, selectedUrgency, sortBy, sortOrder])
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
 
@@ -87,7 +86,6 @@ const fetchInitial = useCallback(async (overrides = {}) => {
           category:   f.selectedCategory,
           company:    f.selectedCompany,
           urgency:    f.selectedUrgency,
-          color:      f.selectedColor,
           sort_by:    f.sortBy,
           sort_order: f.sortOrder,
         },
@@ -119,7 +117,6 @@ const fetchInitial = useCallback(async (overrides = {}) => {
           category:   f.selectedCategory,
           company:    f.selectedCompany,
           urgency:    f.selectedUrgency,
-          color:      f.selectedColor,
           sort_by:    f.sortBy,
           sort_order: f.sortOrder,
         },
@@ -146,7 +143,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
 
   useEffect(() => {
     fetchInitial()
-  }, [searchQuery, selectedCategory, selectedCompany, selectedUrgency, selectedColor, sortBy, sortOrder])
+  }, [searchQuery, selectedCategory, selectedCompany, selectedUrgency, sortBy, sortOrder])
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -238,7 +235,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       key: 'code',
       sorter: true,
       render: (code) => (
-        <code className="bg-gray-100 px-2 py-0.5 rounded text-xs font-mono font-bold text-gray-800">
+        <code className="bg-gray-100 px-2 py-0.5 rounded text-xs font-mono font-bold text-gray-800 whitespace-nowrap">
           {code}
         </code>
       ),
@@ -247,15 +244,13 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       title: 'Désignation',
       dataIndex: 'description',
       key: 'description',
-      ellipsis: true,
-      render: (desc) => <span className="text-sm text-gray-700">{desc}</span>,
+      render: (desc) => <span className="text-sm text-gray-700 whitespace-nowrap">{desc}</span>,
     },
     {
       title: 'Nom',
       dataIndex: 'name',
       key: 'name',
-      ellipsis: true,
-      render: (name) => <span className="text-sm text-gray-600">{name}</span>,
+      render: (name) => <span className="text-sm text-gray-600 whitespace-nowrap">{name}</span>,
     },
     {
       title: 'QTE Disponible',
@@ -264,7 +259,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       sorter: true,
       align: 'center',
       render: (stock) => (
-        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
           {Math.floor(stock * 100) / 100}
         </span>
       ),
@@ -275,7 +270,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       key: 'max',
       align: 'center',
       render: (max) => (
-        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200 whitespace-nowrap">
           {parseFloat(max)}
         </span>
       ),
@@ -288,7 +283,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       render: (_, a) => {
         const ecart = parseFloat(a.max) - Math.floor(a.stock * 100) / 100
         return (
-          <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+          <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
             {ecart}
           </span>
         )
@@ -301,7 +296,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       sorter: true,
       align: 'center',
       render: (min) => (
-        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
           {parseFloat(min)}
         </span>
       ),
@@ -311,7 +306,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       key: 'moyenne',
       align: 'center',
       render: (_, a) => (
-        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200">
+        <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-amber-50 text-amber-700 border border-amber-200 whitespace-nowrap">
           {parseInt(parseInt(a.max) / 2)}
         </span>
       ),
@@ -328,7 +323,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
           parseFloat(a.max)
         )
         return (
-          <Tag color={URGENCY_COLOR[level]} className="rounded-full text-xs font-semibold">
+          <Tag color={URGENCY_COLOR[level]} className="rounded-full text-xs font-semibold whitespace-nowrap">
             {URGENCY_LABELS[level]}
           </Tag>
         )
@@ -339,7 +334,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       key: 'actions',
       width: 90,
       render: (_, article) => (
-        <div className="flex gap-1 justify-center">
+        <div className="flex gap-1 justify-center whitespace-nowrap">
           <Button size="small" variant="solid" color="green" onClick={() => handleShow(article.code)}>
             <Edit size={14} />
           </Button>
@@ -380,29 +375,22 @@ const fetchInitial = useCallback(async (overrides = {}) => {
           </div>
 
           {/* Urgency quick-filter pills */}
-          {!loading && articles.length > 0 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {[1, 2, 3, 4].map(lvl => {
-                const count = articles.filter(a => {
-                  const s = Math.floor(a.stock * 100) / 100
-                  return getUrgencyLevel(s, parseFloat(a.stock_min), parseFloat(a.max)) === lvl
-                }).length
-                if (!count) return null
-                const active = selectedUrgency === String(lvl)
-                return (
-                  <button
-                    key={lvl}
-                    onClick={() => setSelectedUrgency(active ? 'tout' : String(lvl))}
-                    className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all
-                      ${URGENCY_BADGE[lvl]}
-                      ${active ? 'ring-2 ring-offset-1 ring-current' : 'opacity-70 hover:opacity-100'}`}
-                  >
-                    {URGENCY_LABELS[lvl]} — {count}
-                  </button>
-                )
-              })}
-            </div>
-          )}
+          <div className="flex flex-wrap gap-2 mb-3">
+            {[1, 2, 3, 4].map(lvl => {
+              const active = selectedUrgency === String(lvl)
+              return (
+                <button
+                  key={lvl}
+                  onClick={() => setSelectedUrgency(active ? 'tout' : String(lvl))}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold border transition-all
+                    ${URGENCY_BADGE[lvl]}
+                    ${active ? 'ring-2 ring-offset-1 ring-current' : 'opacity-70 hover:opacity-100'}`}
+                >
+                  {URGENCY_LABELS[lvl]}
+                </button>
+              )
+            })}
+          </div>
 
           {/* Filters */}
           <div className="flex flex-wrap gap-3 items-center mb-2">
@@ -428,13 +416,13 @@ const fetchInitial = useCallback(async (overrides = {}) => {
               options={URGENCY_OPTIONS}
               onChange={setSelectedUrgency}
             />
-            <Select
+            {/* <Select
               value={selectedColor}
               size="middle"
               className="min-w-[150px]"
               options={colorOptions}
               onChange={setSelectedColor}
-            />
+            /> */}
           </div>
 
           {/* Actions */}
@@ -451,12 +439,6 @@ const fetchInitial = useCallback(async (overrides = {}) => {
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold border ${URGENCY_BADGE[Number(selectedUrgency)]}`}>
                   {URGENCY_LABELS[Number(selectedUrgency)]}
                   <button onClick={() => setSelectedUrgency('tout')} className="font-bold hover:opacity-70">×</button>
-                </span>
-              )}
-              {selectedColor !== 'tout' && (
-                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold bg-blue-100 text-blue-800 border border-blue-200">
-                  {selectedColor}
-                  <button onClick={() => setSelectedColor('tout')} className="font-bold hover:opacity-70">×</button>
                 </span>
               )}
             </div>
@@ -490,8 +472,8 @@ const fetchInitial = useCallback(async (overrides = {}) => {
           onChange={handleTableChange}
           pagination={false}
           size="small"
-          scroll={{ x: 1200 }}
-          className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
+          scroll={{ x: 'max-content' }}
+          className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden [&_.ant-table-cell]:whitespace-nowrap"
           rowClassName={(record) => {
             const level = record.urgency_level ?? getUrgencyLevel(
               Math.floor(record.stock * 100) / 100,

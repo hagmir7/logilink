@@ -32,6 +32,7 @@ import {
   WeightTilde,
   PlaneLanding,
   Van,
+  BadgeX,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -299,6 +300,13 @@ const sideMenu = () => {
           disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
           icon: <ChartCandlestick size={20} />,
           label: <Link to='/quote-comparison'>Comparatif des devis</Link>,
+        },
+
+         {
+          key: 'submenu-118',
+          disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+          icon: <BadgeX size={20} />,
+          label: <Link to='/supplier-ncf'>NC Fournisseur</Link>,
         },
       ],
     },

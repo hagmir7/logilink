@@ -127,14 +127,14 @@ export default function EmplacementLimit() {
         <code className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-mono whitespace-nowrap">{code}</code>
       ),
     },
+
     {
-      title: 'Description',
-      dataIndex: ['article', 'description'],
-      key: 'description',
-      width: "30%",
-      ellipsis: true,
-      render: (desc) => <span className="text-gray-500 text-sm whitespace-nowrap">{desc}</span>,
+      title: 'Nom',
+      dataIndex: ['article', 'name'],
+      key: 'name',
+      render: (name) => <span className='whitespace-nowrap'>{name ? name : '—'}</span>,
     },
+
     {
       title: 'Dimensions',
       key: 'dimensions',
@@ -157,6 +157,17 @@ export default function EmplacementLimit() {
         )
       },
     },
+
+
+    {
+      title: 'Description',
+      dataIndex: ['article', 'description'],
+      key: 'description',
+      width: "30%",
+      ellipsis: true,
+      render: (desc) => <span className="text-gray-500 text-sm whitespace-nowrap">{desc}</span>,
+    },
+
     {
       title: 'Color',
       dataIndex: ['article', 'color'],
@@ -171,12 +182,7 @@ export default function EmplacementLimit() {
         <span className="font-semibold ">{Number(qty).toLocaleString()}</span>
       ),
     },
-    {
-      title: 'Nom',
-      dataIndex: ['article', 'name'],
-      key: 'name',
-      render: (name) => <span className='whitespace-nowrap'>{name ? name : '—'}</span>,
-    },
+
   ]
 
   const hasMore = currentPage < lastPage
@@ -194,24 +200,24 @@ export default function EmplacementLimit() {
         <div className="flex gap-2">
 
 
-       
-        <Button
-          type="primary"
-          icon={<UploadOutlined />}
-          onClick={() => setModalOpen(true)}
-        >
-          Importer
-        </Button>
 
-        <Button type="primary" onClick={() => {
-          setEditData(null);
-          setOpen(true);
-        }}>
-          Créer ou modifier
-        </Button>
+          <Button
+            type="primary"
+            icon={<UploadOutlined />}
+            onClick={() => setModalOpen(true)}
+          >
+            Importer
+          </Button>
 
-        {/* Example Edit */}
-        {/* <Button
+          <Button type="primary" onClick={() => {
+            setEditData(null);
+            setOpen(true);
+          }}>
+            Créer ou modifier
+          </Button>
+
+          {/* Example Edit */}
+          {/* <Button
           className="ml-2"
           onClick={() => {
             setEditData({
@@ -226,15 +232,15 @@ export default function EmplacementLimit() {
           Edit Example
         </Button> */}
 
-        <EmplacementLimitForm
-          open={open}
-          onClose={() => setOpen(false)}
-          initialValues={editData}
-          emplacements={emplacements}
-          articles={articles}
-          onSuccess={() => console.log("refresh table")}
-        />
-         </div>
+          <EmplacementLimitForm
+            open={open}
+            onClose={() => setOpen(false)}
+            initialValues={editData}
+            emplacements={emplacements}
+            articles={articles}
+            onSuccess={() => console.log("refresh table")}
+          />
+        </div>
       </div>
 
       {/* Filters */}

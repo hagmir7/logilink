@@ -30,8 +30,8 @@ function printOf(of) {
     const now = new Date();
     const currentDateTime = now.toLocaleString('fr-FR', { dateStyle: 'short', timeStyle: 'short' });
 
-    // ✅ Only real lines
-    const lines = of.lines || [];
+
+    const lines = (of.lines || []).filter(line => parseInt(line.quantity) > 0);
 
     el.innerHTML = `
     <div style="font-family:Arial,sans-serif; font-size:12px; max-width:780px; margin:0 auto;">
@@ -92,7 +92,7 @@ function printOf(of) {
         </tr>
         <tr>
           <td style="border:0.5px solid #000; padding:8px; text-align:center; font-weight:700; font-size:12px;">
-            ${of.reference || ''}
+   
           </td>
           <td style="border:0.5px solid #000; padding:8px; text-align:center;">
             ${formatDate(of.date_lancement)}
@@ -123,8 +123,8 @@ function printOf(of) {
       <table style="width:100%; border-collapse:collapse; margin-bottom:16px;">
         <tr>
           <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:22%;">Réf article</td>
-          <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:28%;">Désignation</td>
           <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:25%;">Nom</td>
+          <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:28%;">Mesures</td>
           <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:25%;">Quantité à produire</td>
         </tr>
 
@@ -133,12 +133,23 @@ function printOf(of) {
             <td style="border:0.5px solid #000; padding:7px 8px; font-family:monospace; font-size:11px; font-weight:700;">
               ${line?.article_code || ''}
             </td>
-            <td style="border:0.5px solid #000; padding:7px 8px; font-size:11px;">
-              ${line?.article?.description || line?.article?.name || ''}
-            </td>
-            <td style="border:0.5px solid #000; padding:7px 8px; font-size:11px;">
+
+             <td style="border:0.5px solid #000; padding:7px 8px; font-size:11px;">
               ${line?.article?.name || ''}
             </td>
+
+              <td style="border:0.5px solid #000; padding:7px 8px; font-size:11px;">
+              ${
+                (() => {
+                  const h = parseFloat(line?.article?.height) || 0;
+                  const w = parseFloat(line?.article?.width) || 0;
+                  const d = parseFloat(line?.article?.depth) || 0;
+                  const dim2 = w > 0 ? w : d > 0 ? d : 0;
+                  return (h > 0 && dim2 > 0) ? `${h} * ${dim2}` : '--';
+                })()
+              }
+              </td>
+           
             <td style="border:0.5px solid #000; padding:7px 8px; text-align:center; font-weight:700; font-size:12px;">
               ${parseInt(line.quantity)}
             </td>
@@ -175,6 +186,7 @@ function printOf(of) {
   `;
 
     window.electron.ipcRenderer.send("print-content", { htmlContent: styledHtml });
+    
 }
 
 export default printOf;

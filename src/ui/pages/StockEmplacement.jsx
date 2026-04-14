@@ -6,20 +6,26 @@ import { Input, Select, Table, Button, message } from "antd";
 /* ---------- Helpers ---------- */
 
 function StockBadge({ quantity, limit }) {
-  if (!limit) {
-    return <span className="font-medium text-gray-800">{quantity}</span>;
-  }
+  const qty = parseInt(quantity) || 0;
+  const cap = parseInt(limit) || 0;
 
-  const pct = Math.min((quantity / limit) * 100, 100);
+  // Always show progress bar; if no limit, bar is full green
+  const pct = cap > 0 ? Math.min((qty / cap) * 100, 100) : 100;
 
   const color =
-    pct >= 90 ? "bg-red-500" : pct >= 60 ? "bg-yellow-400" : "bg-green-500";
+    cap === 0
+      ? "bg-green-500"
+      : pct >= 90
+        ? "bg-red-500"
+        : pct >= 60
+          ? "bg-yellow-400"
+          : "bg-green-500";
 
   return (
     <div className="min-w-[90px]">
       <div className="flex justify-between text-sm">
-        <span className="font-medium text-gray-800">{quantity}</span>
-        <span className="text-gray-400">/ {limit}</span>
+        <span className="font-medium text-gray-800">{qty}</span>
+        {cap > 0 && <span className="text-gray-400">/ {cap}</span>}
       </div>
       <div className="h-1.5 bg-gray-200 rounded-full mt-1 overflow-hidden">
         <div
@@ -43,7 +49,7 @@ export default function StockEmplacement() {
   const [page, setPage]           = useState(1);
   const [hasMore, setHasMore]     = useState(false);
   const [search, setSearch]       = useState("");
-  const [depotCode, setDepotCode] = useState("");
+  const [depotCodes, setDepotCodes] = useState([]);
   const [category, setCategory]   = useState("");
   const [depots, setDepots]       = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
@@ -72,9 +78,11 @@ export default function StockEmplacement() {
     setLoading(true);
     try {
       const params = new URLSearchParams({ page: 1, per_page: PAGE_SIZE });
-      if (debouncedSearch.current) params.set("search",     debouncedSearch.current);
-      if (depotCode)               params.set("depot_code", depotCode);
-      if (category)                params.set("category",   category);
+      if (debouncedSearch.current) params.set("search", debouncedSearch.current);
+      if (depotCodes.length) {
+        depotCodes.forEach((code) => params.append("depot_code[]", code));
+      }
+      if (category) params.set("category", category);
 
       const res = await api.get(`articles/stock?${params}`);
       const data = res.data.data;
@@ -92,7 +100,7 @@ export default function StockEmplacement() {
     } finally {
       setLoading(false);
     }
-  }, [depotCode, category]);
+  }, [depotCodes, category]);
 
   // Reset to first page whenever filters change
   useEffect(() => {
@@ -106,9 +114,11 @@ export default function StockEmplacement() {
     setLoadingMore(true);
     try {
       const params = new URLSearchParams({ page: nextPage, per_page: PAGE_SIZE });
-      if (debouncedSearch.current) params.set("search",     debouncedSearch.current);
-      if (depotCode)               params.set("depot_code", depotCode);
-      if (category)                params.set("category",   category);
+      if (debouncedSearch.current) params.set("search", debouncedSearch.current);
+      if (depotCodes.length) {
+        depotCodes.forEach((code) => params.append("depot_code[]", code));
+      }
+      if (category) params.set("category", category);
 
       const res = await api.get(`articles/stock?${params}`);
       const newData = res.data.data;
@@ -149,11 +159,14 @@ export default function StockEmplacement() {
 
   /* ---------- Columns ---------- */
 
+  const noWrap = { whiteSpace: "nowrap" };
+
   const columns = [
     {
       title: "Référence",
       dataIndex: "article_code",
       key: "article_code",
+      onCell: () => ({ style: noWrap }),
       render: (code) => (
         <code className="bg-gray-100 px-2 py-0.5 rounded text-xs font-mono font-bold text-gray-800">
           {code}
@@ -164,8 +177,7 @@ export default function StockEmplacement() {
       title: "Désignation",
       dataIndex: "description",
       key: "description",
-      width: "20%",
-      ellipsis: true,
+      onCell: () => ({ style: noWrap }),
       render: (desc) => (
         <span className="text-sm text-gray-700">{uppercaseFirst(desc)}</span>
       ),
@@ -174,9 +186,9 @@ export default function StockEmplacement() {
       title: "Nom",
       dataIndex: "name",
       key: "name",
-      ellipsis: true,
+      onCell: () => ({ style: noWrap }),
       render: (name) => (
-        <span className="text-sm font-medium text-gray-800 whitespace-nowrap">
+        <span className="text-sm font-medium text-gray-800">
           {uppercaseFirst(name)}
         </span>
       ),
@@ -184,6 +196,7 @@ export default function StockEmplacement() {
     {
       title: "Quantité",
       key: "quantity",
+      onCell: () => ({ style: noWrap }),
       render: (_, item) => (
         <StockBadge
           quantity={item.total_quantity}
@@ -195,6 +208,7 @@ export default function StockEmplacement() {
       title: "Emplacement",
       dataIndex: "emplacement_code",
       key: "emplacement_code",
+      onCell: () => ({ style: noWrap }),
       render: (code) => (
         <code className="bg-blue-50 text-blue-700 px-2 py-0.5 rounded text-xs font-mono">
           {code}
@@ -206,6 +220,7 @@ export default function StockEmplacement() {
       dataIndex: "quantity_limit",
       key: "quantity_limit",
       align: "center",
+      onCell: () => ({ style: noWrap }),
       render: (limit, item) =>
         item.category ? (
           <span className="inline-flex items-center justify-center min-w-[60px] px-3 py-0.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200">
@@ -219,6 +234,7 @@ export default function StockEmplacement() {
       title: "Écart",
       key: "ecart",
       align: "center",
+      onCell: () => ({ style: noWrap }),
       render: (_, item) => {
         const ecart = (item.quantity_limit || 0) - parseInt(item.total_quantity);
         const isNeg = ecart < 0;
@@ -246,7 +262,7 @@ export default function StockEmplacement() {
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
         <div className="flex flex-wrap gap-3 items-center">
           <Input
-            placeholder="Recherche..."
+            placeholder="Recherche par Article, Nom,Emplacment..."
             value={search}
             onChange={handleSearchChange}
             allowClear
@@ -255,21 +271,20 @@ export default function StockEmplacement() {
           />
 
           <Select
-            placeholder="Dépôt"
-            style={{ width: 180 }}
-            onChange={(val) => setDepotCode(val || "")}
+            mode="multiple"
+            placeholder="Dépôts"
+            style={{ minWidth: 220 }}
+            maxTagCount="responsive"
+            value={depotCodes}
+            onChange={(vals) => setDepotCodes(vals || [])}
             allowClear
             options={depots.map((d) => ({ label: d.code, value: d.code }))}
           />
 
-          <Select
-            placeholder="Catégorie"
-            style={{ width: 180 }}
-            value={category || undefined}
-            onChange={(val) => setCategory(val || "")}
-            allowClear
-            options={categoryOptions.map((c) => ({ label: c, value: c }))}
-          />
+
+          <Button onClick={fetchFirstPage}>
+              Actualiser
+          </Button>
 
           <span className="ml-auto text-sm text-gray-400">
             {items.length} / {total} résultats
@@ -284,7 +299,7 @@ export default function StockEmplacement() {
         dataSource={items}
         loading={loading}
         size="small"
-        scroll={{ x: 900 }}
+        scroll={{ x: "max-content" }}
         className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
         pagination={false}
         footer={
