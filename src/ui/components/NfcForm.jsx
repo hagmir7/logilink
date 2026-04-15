@@ -1,14 +1,16 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
 import {
   Steps, Form, Input, InputNumber, DatePicker, Select, Radio, Checkbox,
-  Button, Card, message, Divider, ConfigProvider, Space, Result,
+  Button, Card, message, Divider, ConfigProvider, Space, Result, Spin,
 } from "antd";
 import {
   FileTextOutlined, SearchOutlined, ToolOutlined, ExperimentOutlined,
   AuditOutlined, CheckCircleOutlined, PlusOutlined, MinusCircleOutlined,
   ArrowLeftOutlined, ArrowRightOutlined, CheckOutlined, UnorderedListOutlined,
+  LoadingOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
+import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
 
 const { TextArea } = Input;
@@ -306,12 +308,12 @@ const Step6 = () => (
 );
 
 const STEPS = [
-  { title: "Informations", desc: "Générales",      icon: <FileTextOutlined />,   C: Step1 },
-  { title: "Description",  desc: "Non-conformité", icon: <SearchOutlined />,     C: Step2 },
-  { title: "Traitement",   desc: "Immédiat",        icon: <ToolOutlined />,       C: Step3 },
-  { title: "Analyse",      desc: "Des causes",      icon: <ExperimentOutlined />, C: Step4 },
-  { title: "Suivi",        desc: "Efficacité",      icon: <AuditOutlined />,      C: Step5 },
-  { title: "Décision",     desc: "Finale",          icon: <CheckCircleOutlined />,C: Step6 },
+  { title: "Informations", desc: "Générales",      icon: <FileTextOutlined />,    C: Step1 },
+  { title: "Description",  desc: "Non-conformité", icon: <SearchOutlined />,      C: Step2 },
+  { title: "Traitement",   desc: "Immédiat",        icon: <ToolOutlined />,        C: Step3 },
+  { title: "Analyse",      desc: "Des causes",      icon: <ExperimentOutlined />,  C: Step4 },
+  { title: "Suivi",        desc: "Efficacité",      icon: <AuditOutlined />,       C: Step5 },
+  { title: "Décision",     desc: "Finale",          icon: <CheckCircleOutlined />, C: Step6 },
 ];
 
 /* ══════════════════════════════════════════════════════════════
@@ -332,27 +334,44 @@ const THEME = {
 };
 
 /* ══════════════════════════════════════════════════════════════
-   NCF FORM PAGE
-   Props:
-     editingRecord  – full record object when editing, null when creating
-     onBack         – callback: go back to list
-     onCompleted    – callback(savedRef): called after final save
+   MAIN COMPONENT
+   Works for both routes:
+     /supplier-ncf/create      → id param is undefined → create mode
+     /supplier-ncf/:id/edit    → id param is present   → edit mode
    ══════════════════════════════════════════════════════════════ */
-export default function NcfForm({ editingRecord = null, onBack, onCompleted }) {
+export default function NcfForm() {
+  const { id } = useParams();            // undefined on create route
+  const navigate = useNavigate();
+
   const [form] = Form.useForm();
-  const [current, setCurrent] = useState(() =>
-    editingRecord ? Math.max(0, (editingRecord.current_step || 1) - 1) : 0
-  );
-  const [editingId, setEditingId] = useState(editingRecord?.id ?? null);
-  const [savedRef, setSavedRef] = useState(editingRecord?.reference ?? "");
-  const [saving, setSaving] = useState(false);
-  const [done, setDone] = useState(false);
 
-  /* Seed form when editing */
-  useState(() => {
-    if (editingRecord) form.setFieldsValue(toFormValues(editingRecord));
-  });
+  /* ── Edit-mode bootstrap ── */
+  const [fetching, setFetching]   = useState(!!id);   // show spinner while loading record
+  const [editingId, setEditingId] = useState(id ?? null);
+  const [savedRef, setSavedRef]   = useState("");
+  const [current, setCurrent]     = useState(0);
+  const [saving, setSaving]       = useState(false);
+  const [done, setDone]           = useState(false);
 
+  /* Fetch record when in edit mode */
+  useEffect(() => {
+    if (!id) return;
+    setFetching(true);
+    api.get(`/ncf/${id}`)
+      .then(({ data: res }) => {
+        const record = res.data || res;
+        form.setFieldsValue(toFormValues(record));
+        setSavedRef(record.reference ?? "");
+        setCurrent(Math.max(0, (record.current_step || 1) - 1));
+      })
+      .catch(() => {
+        message.error("Impossible de charger la fiche");
+        navigate("/supplier-ncf");
+      })
+      .finally(() => setFetching(false));
+  }, [id]);  // eslint-disable-line react-hooks/exhaustive-deps
+
+  /* ── Save step ── */
   const handleNext = useCallback(async () => {
     try {
       const values = await form.validateFields();
@@ -361,6 +380,7 @@ export default function NcfForm({ editingRecord = null, onBack, onCompleted }) {
       const step = current + 1;
 
       if (step === 1 && !editingId) {
+        // First step of a brand-new record
         const { data: res } = await api.post("/ncf", payload);
         const created = res.data || res;
         setEditingId(created.id);
@@ -378,9 +398,8 @@ export default function NcfForm({ editingRecord = null, onBack, onCompleted }) {
       }
     } catch (err) {
       if (err?.response?.data?.errors) {
-        const serverErrors = err.response.data.errors;
         form.setFields(
-          Object.entries(serverErrors).map(([name, messages]) => ({
+          Object.entries(err.response.data.errors).map(([name, messages]) => ({
             name,
             errors: Array.isArray(messages) ? messages : [messages],
           }))
@@ -397,6 +416,22 @@ export default function NcfForm({ editingRecord = null, onBack, onCompleted }) {
     }
   }, [current, form, editingId]);
 
+  const goBack = () => navigate("/supplier-ncf");
+
+  /* ── Loading screen (edit fetch) ── */
+  if (fetching) {
+    return (
+      <ConfigProvider theme={THEME}>
+        <div
+          className="min-h-screen flex items-center justify-center"
+          style={{ background: "linear-gradient(160deg, #f0f4f8, #e2e8f0)" }}
+        >
+          <Spin indicator={<LoadingOutlined style={{ fontSize: 36, color: "#1e3a5f" }} />} />
+        </div>
+      </ConfigProvider>
+    );
+  }
+
   /* ── Completed screen ── */
   if (done) {
     return (
@@ -412,7 +447,7 @@ export default function NcfForm({ editingRecord = null, onBack, onCompleted }) {
               subTitle={savedRef ? `Référence : ${savedRef}` : "Fiche mise à jour avec succès"}
               extra={
                 <Space>
-                  <Button size="large" onClick={onBack} icon={<UnorderedListOutlined />}>
+                  <Button size="large" onClick={goBack} icon={<UnorderedListOutlined />}>
                     Liste
                   </Button>
                   <Button
@@ -425,6 +460,7 @@ export default function NcfForm({ editingRecord = null, onBack, onCompleted }) {
                       setEditingId(null);
                       setSavedRef("");
                       setDone(false);
+                      navigate("/supplier-ncf/create");
                     }}
                   >
                     Nouvelle
@@ -449,30 +485,25 @@ export default function NcfForm({ editingRecord = null, onBack, onCompleted }) {
       >
         <div className="max-w-5xl mx-auto">
 
-          {/* Back link */}
-          <button
-            onClick={onBack}
-            className="flex items-center gap-2 text-sm mb-5 bg-transparent border-0 cursor-pointer"
-            style={{ color: "#64748b" }}
-          >
-            <ArrowLeftOutlined /> Retour à la liste
-          </button>
 
           {/* Page title */}
-          <div className="text-center mb-6">
+          <div className="flex items-center mb-4 gap-2">
+            <h1
+              className="text-2xl font-bold tracking-tight"
+              style={{ color: "#1e3a5f" }}
+            >
+              Fiche NC Fournisseur
+            </h1>
+
+
             <div
-              className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold uppercase mb-3"
+              className="inline-flex items-center gap-2 px-2 py-1 rounded-full text-[12px] font-semibold uppercase"
               style={{ background: "#1e3a5f", color: "#fff" }}
             >
               <FileTextOutlined />
               {editingId ? `Modifier — ${savedRef || `#${editingId}`}` : "Nouvelle fiche"}
             </div>
-            <h1
-              className="text-2xl md:text-3xl font-bold tracking-tight"
-              style={{ color: "#1e3a5f" }}
-            >
-              Fiche NC Fournisseur
-            </h1>
+            
           </div>
 
           {/* Stepper */}

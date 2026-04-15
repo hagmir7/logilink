@@ -129,6 +129,7 @@ function App() {
         />
 
          <Route path='/supplier-ncf/create' element={<NcfForm />} />
+         <Route path='/supplier-ncf/:id/edit' element={<NcfForm />} />
 
         <Route element={<MainLayout />}>
           <Route path='/sage' element={<Sage />} />

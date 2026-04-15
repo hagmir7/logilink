@@ -140,6 +140,31 @@ export default function NcfApp() {
     }
   };
 
+
+    const download = async (id) => {
+      // setPdfLoading(true);
+      try {
+        const res = await api.get(`ncf/download/${id}/pdf`, {
+          responseType: 'blob',
+        });
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `comparatif-${data.reference || comparisonId}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        message.success('PDF téléchargé avec succès.');
+      } catch (error) {
+        console.log(error);
+        message.error('Erreur lors du téléchargement du PDF.');
+      } finally {
+        // setPdfLoading(false);
+      }
+    };
+  
+
   /* ── Stats ── */
   const stats = useMemo(() => ({
     total:    pagination.total || data.length,
@@ -233,6 +258,7 @@ export default function NcfApp() {
           menu={{
             items: [
               { key: "view",   icon: <EyeOutlined />,    label: "Voir détails", onClick: () => fetchDetail(record.id) },
+              { key: "view",   icon: <EyeOutlined />,    label: "Voir détails", onClick: () => download(record.id) },
               { key: "edit",   icon: <EditOutlined />,   label: "Continuer",    onClick: () => goToEditForm(record) },
               { type: "divider" },
               { key: "delete", icon: <DeleteOutlined />, label: "Supprimer", danger: true, onClick: () => handleDelete(record.id) },
@@ -274,14 +300,6 @@ export default function NcfApp() {
             </Button>
           </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-5 gap-2 mb-3">
-            <StatCard label="Total"      value={stats.total}    color="#1e3a5f" bg="#eef2f7" icon={<AppstoreOutlined />}          active={!filterStatus}              onClick={() => setFilterStatus(null)} />
-            <StatCard label="Brouillons" value={stats.draft}    color="#64748b" bg="#f8fafc" icon={<EditOutlined />}              active={filterStatus === "draft"}    onClick={() => toggleFilter("draft")} />
-            <StatCard label="En cours"   value={stats.pending}  color="#d97706" bg="#fffbeb" icon={<ClockCircleOutlined />}       active={filterStatus === "pending"}  onClick={() => toggleFilter("pending")} />
-            <StatCard label="Clôturées"  value={stats.closed}   color="#16a34a" bg="#f0fdf4" icon={<CheckCircleOutlined />}       active={filterStatus === "closed"}   onClick={() => toggleFilter("closed")} />
-            <StatCard label="Critiques"  value={stats.critique} color="#dc2626" bg="#fef2f2" icon={<ExclamationCircleOutlined />} active={filterStatus === "critique"} onClick={() => toggleFilter("critique")} />
-          </div>
 
           {/* Search */}
           <Card

@@ -92,6 +92,7 @@ const UsersActions = () => {
         rowKey="id"
         columns={columns.map(col => ({ ...col, className: 'whitespace-nowrap' }))}
         dataSource={data}
+        size="small"
         pagination={{ pageSize: 30 }}
       />
     </div>
