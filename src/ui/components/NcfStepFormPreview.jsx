@@ -310,7 +310,7 @@ export default function NcfStepForm() {
     return (
       <ConfigProvider theme={theme}>
         <div className="min-h-screen flex items-center justify-center p-4" style={{ background: "linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)" }}>
-          <Card className="w-full max-w-lg" style={{ borderRadius: 16, boxShadow: "0 8px 32px rgba(30,58,95,0.08)" }}>
+          <Card className="w-full max-w-lg">
             <Result
               status="success"
               title="Fiche NCF Complétée"
@@ -331,15 +331,11 @@ export default function NcfStepForm() {
 
   return (
     <ConfigProvider theme={theme}>
-      <div className="min-h-screen p-3 md:p-8" style={{ background: "linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)" }}>
+      <div className="min-h-screen p-3" style={{ background: "linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)" }}>
         <div className="max-w-7xl mx-auto">
           {/* Header */}
-          <div className="text-center mb-6">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-semibold tracking-wide uppercase mb-3"
-              style={{ background: "#1e3a5f", color: "#ffffff" }}>
-              <FileTextOutlined /> ENR_ACH_07
-            </div>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight" style={{ color: "#1e3a5f" }}>
+          <div className="text-center mb-2">
+            <h1 className="text-xl font-bold tracking-tight" style={{ color: "#1e3a5f" }}>
               Fiche NC Fournisseur
             </h1>
             <p className="text-sm mt-1" style={{ color: "#64748b" }}>Gestion des non-conformités fournisseur</p>
@@ -362,11 +358,6 @@ export default function NcfStepForm() {
                 } />
               ))}
             </Steps>
-          </div>
-
-          {/* Progress bar */}
-          <div className="w-full h-1 rounded-full mb-6" style={{ background: "#e2e8f0" }}>
-            <div className="h-full rounded-full transition-all duration-500" style={{ width: `${((current + 1) / STEPS.length) * 100}%`, background: "linear-gradient(90deg, #1e3a5f, #2d5a8e)" }} />
           </div>
 
           {/* Form */}
@@ -400,10 +391,6 @@ export default function NcfStepForm() {
               </Button>
             </div>
           </Card>
-
-          <p className="text-center mt-4 text-xs" style={{ color: "#94a3b8" }}>
-            Formulaire interactif — Aperçu de la digitalisation du document ENR_ACH_07
-          </p>
         </div>
       </div>
     </ConfigProvider>

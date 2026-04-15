@@ -66,6 +66,7 @@ import TravelReceptionTable from './pages/TravelReceptionTable'
 import QuoteComparison from './pages/QuoteComparison'
 import NcfStepForm from './components/NcfStepFormPreview'
 import NcfApp from './components/NcfApp'
+import NcfForm from './components/NfcForm'
 
 
 const NotFound = () => {
@@ -127,6 +128,8 @@ function App() {
           element={<InventoryDepotEmplacmentList />}
         />
 
+         <Route path='/supplier-ncf/create' element={<NcfForm />} />
+
         <Route element={<MainLayout />}>
           <Route path='/sage' element={<Sage />} />
           <Route path='/layout/create-document' element={<CreateDocument />} />
@@ -138,6 +141,8 @@ function App() {
           <Route path='/supplier-interviews' element={<SupplierInterviews />} />
 
           <Route path='/supplier-ncf' element={<NcfApp />} />
+         
+
          
           <Route path='/user-archive' element={<UserArchive />} />
           <Route
