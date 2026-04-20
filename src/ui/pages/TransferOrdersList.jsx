@@ -190,7 +190,7 @@ const TransferOrdersList = () => {
 
   return (
     <div className='bg-gray-50 min-h-screen'>
-      <div className='flex justify-between items-center mb-6 px-2 pt-2'>
+      <div className='flex justify-between items-center mb-2 px-2 pt-2'>
         <div>
           <h1 className='text-xl font-bold text-gray-900'>
             Transferts des commandes

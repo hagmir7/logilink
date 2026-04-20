@@ -269,7 +269,7 @@ const sideMenu = () => {
 
         {
           key: 'submenu-100',
-          disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
           icon: <UserCheck size={20} />,
           label: (
             <div className="flex items-center justify-between w-full">
@@ -283,28 +283,28 @@ const sideMenu = () => {
 
         {
           key: 'submenu-104',
-          disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
           icon: <Handshake size={20} />,
           label: <Link to='/suppliers'>Fournisseurs</Link>,
         },
 
         {
           key: 'submenu-116',
-          disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
           icon: <ChartCandlestick size={20} />,
           label: <Link to='/supplier-interviews'>F.Evaluations</Link>,
         },
 
          {
           key: 'submenu-117',
-          disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
           icon: <ChartCandlestick size={20} />,
           label: <Link to='/quote-comparison'>Comparatif des devis</Link>,
         },
 
          {
           key: 'submenu-118',
-          disabled: !(roles(['admin', 'supper_admin', 'dg']) || parseInt(user?.service_id) === 4),
+          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
           icon: <BadgeX size={20} />,
           label: <Link to='/supplier-ncf'>NC Fournisseur</Link>,
         },

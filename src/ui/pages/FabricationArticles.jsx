@@ -175,7 +175,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
   }
 
   const handleShow = async (id = null) => {
-    if (!roles(['admin', 'supper_admin'])) return
+    if (!roles(['admin', 'super_admin'])) return
     try {
       const url = id
         ? `/articles/${typeof id === 'object' ? id.id || id.code : id}`

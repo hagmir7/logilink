@@ -77,7 +77,7 @@ function CompanyStock({ company_id }) {
   }
 
   const handleShow = async (id = null) => {
-    if(!roles(['admin', 'supper_admin'])){
+    if(!roles(['admin', 'super_admin'])){
       return;
     }
 

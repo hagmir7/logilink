@@ -30,6 +30,7 @@ function Commercial() {
   const [isUrgent, setIsUrgent] = useState(false);
   const [open, setOpen] = useState(false);
   const [selectedLine, setSelectedLine] = useState(null);
+  const [validationSpin, setValidationSpin] = useState(false);
   const { roles = [], user } = useAuth()
   const navigate = useNavigate()
 
@@ -114,6 +115,7 @@ function Commercial() {
         }
         setSelectedCompany(null)
         setSelected([])
+        fetchData();
         message.success("Articles transférés avec succès")
         fetchData(response?.data?.piece)
       } catch (error) {
@@ -152,6 +154,32 @@ function Commercial() {
     setOpen(true)
     setSelectedLine(line_id);
   }
+
+
+  const fullValidation = async (piece) => {
+    setValidationSpin(true);
+    try {
+      const response = await api.post('docentetes/validate-full', {
+        piece: piece,
+      });
+
+      message.success('Validation successful!'); 
+      setValidationSpin(false);
+      return response.data;
+
+    } catch (error) {
+      setValidationSpin(false);
+      if (error.response) {
+        message.error(error.response.data.message);
+        console.error('Error:', error.response.data.message);
+        return error.response.data;
+      } else {
+        message.error('Network error: ' + error.message);
+        console.error('Network error:', error.message);
+        return { message: 'Network error' };
+      }
+    }
+  };
 
 
 
@@ -283,7 +311,7 @@ function Commercial() {
               />
 
               {data.docentete.document &&
-                (Number(data.docentete.document.status_id) < 8 || roles('supper_admin')) && (
+                (Number(data.docentete.document.status_id) < 8 || roles('super_admin')) && (
                   <Popconfirm
                     title='Réinitialiser la commande'
                     description='Êtes-vous sûr de vouloir réinitialiser cette tâche ?'
@@ -300,6 +328,27 @@ function Commercial() {
                   </Popconfirm>
                 )}
 
+              {roles('super_admin') && (id.includes('PL') || id.includes('BC')) && (
+                <Popconfirm
+                  title="Valider la commande"
+                  description="Êtes-vous sûr de vouloir valider cette tâche ?"
+                  onConfirm={() => fullValidation(data.docentete.DO_Piece)}
+                  okText="Valider"
+                  cancelText="Annuler"
+                >
+                  <Button
+                    variant="solid"
+                    color="green"
+                    disabled={validationSpin}
+                    loading={validationSpin}
+                    className="flex items-center gap-2 hover:shadow-md transition-shadow"
+                  >
+                    Valider <CheckCircle size={18} />
+                  </Button>
+                </Popconfirm>
+              )}
+
+              
               <Tooltip title="Vente de comptoir">
                 <Button
                   type={isUrgent ? 'primary' : 'default'}

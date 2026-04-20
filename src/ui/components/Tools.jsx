@@ -35,7 +35,7 @@ const Tools = () => {
             <Flex vertical gap="middle" align="flex-start" >
 
                 {
-                    roles(['admin', 'supper_admin', 'expedition', 'commercial']) ?
+                    roles(['admin', 'super_admin', 'expedition', 'commercial']) ?
                         <FloatButton
 
                             style={{ height: 50, width: 50 }}
@@ -65,7 +65,7 @@ const Tools = () => {
 
                     </div>
                     {
-                        roles(['admin', 'supper_admin']) && <Card
+                        roles(['admin', 'super_admin']) && <Card
                             size="small" className='cursor-pointer hover:shadow-sm mt-5'
                             onClick={() => handleShow("update-article-ref")}
                         >
@@ -79,7 +79,7 @@ const Tools = () => {
 
                     <div className='mt-4'></div>
                     {
-                        roles(['admin', 'supper_admin', 'expedition', 'commercial']) && (
+                        roles(['admin', 'super_admin', 'expedition', 'commercial']) && (
                             <Card
                                 size="small" className='cursor-pointer hover:shadow-sm mt-5'
                                 onClick={() => handleShow("duplicate-invoice")}
@@ -94,7 +94,7 @@ const Tools = () => {
 
                     <div className='mt-4'></div>
                     {
-                        roles(['admin', 'supper_admin']) && <Card
+                        roles(['admin', 'super_admin']) && <Card
                             size="small" className='cursor-pointer hover:shadow-sm mt-5'
                             onClick={() => handleShow("import-movements")}
                         >
@@ -107,7 +107,7 @@ const Tools = () => {
                     }
                     <div className='mt-4'></div>
                     {
-                        roles(['admin', 'supper_admin']) && <Card
+                        roles(['admin', 'super_admin']) && <Card
                             size="small" className='cursor-pointer hover:shadow-sm mt-5'
                             onClick={() => handleShow("import-stock")}
                         >

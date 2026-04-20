@@ -89,7 +89,7 @@ const InventoryOverview = () => {
 
 
   const resetStock = async () => {
-    if (!roles('supper_admin')) {
+    if (!roles('super_admin')) {
       return;
     }
     try {
@@ -114,7 +114,7 @@ const InventoryOverview = () => {
           </div>
           <div className="flex flex-col sm:flex-row gap-2">
             {
-          roles('supper_admin') && (
+          roles('super_admin') && (
             <Popconfirm
               title="Réinitialisation du Stock"
               description="Êtes-vous sûr de vouloir réinitialiser le stock ? Cette action est irréversible."

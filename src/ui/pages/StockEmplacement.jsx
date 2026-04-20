@@ -9,7 +9,6 @@ function StockBadge({ quantity, limit }) {
   const qty = parseInt(quantity) || 0;
   const cap = parseInt(limit) || 0;
 
-  // Always show progress bar; if no limit, bar is full green
   const pct = cap > 0 ? Math.min((qty / cap) * 100, 100) : 100;
 
   const color =
@@ -42,49 +41,50 @@ function StockBadge({ quantity, limit }) {
 const PAGE_SIZE = 50;
 
 export default function StockEmplacement() {
-  const [items, setItems]         = useState([]);
-  const [loading, setLoading]     = useState(true);
+  const [items, setItems]             = useState([]);
+  const [loading, setLoading]         = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [total, setTotal]         = useState(0);
-  const [page, setPage]           = useState(1);
-  const [hasMore, setHasMore]     = useState(false);
-  const [search, setSearch]       = useState("");
-  const [depotCodes, setDepotCodes] = useState([]);
-  const [category, setCategory]   = useState("");
-  const [depots, setDepots]       = useState([]);
+  const [total, setTotal]             = useState(0);
+  const [page, setPage]               = useState(1);
+  const [hasMore, setHasMore]         = useState(false);
+  const [search, setSearch]           = useState("");
+  const [depotCodes, setDepotCodes]   = useState([]);
+  const [category, setCategory]       = useState("");
+  const [depots, setDepots]           = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
+  const [sortBy, setSortBy]           = useState("");
+  const [sortDir, setSortDir]         = useState("asc");
 
   const debouncedSearch = useRef("");
   const searchTimer     = useRef(null);
 
+  /* ---------- Build shared params ---------- */
+
+  const buildParams = useCallback((pageNum) => {
+    const params = new URLSearchParams({ page: pageNum, per_page: PAGE_SIZE });
+    if (debouncedSearch.current) params.set("search", debouncedSearch.current);
+    if (depotCodes.length) depotCodes.forEach((c) => params.append("depot_code[]", c));
+    if (category) params.set("category", category);
+    if (sortBy) {
+      params.set("sort_by", sortBy);
+      params.set("sort_dir", sortDir);
+    }
+    return params;
+  }, [depotCodes, category, sortBy, sortDir]);
+
   /* ---------- Fetch depots ---------- */
 
   useEffect(() => {
-    const fetchDepots = async () => {
-      try {
-        const res = await api("depots");
-        setDepots(res.data.data);
-      } catch (err) {
-        message.error(err.response?.data?.message || "Erreur depots");
-        console.error(err);
-      }
-    };
-    fetchDepots();
+    api("depots")
+      .then((res) => setDepots(res.data.data))
+      .catch((err) => message.error(err.response?.data?.message || "Erreur depots"));
   }, []);
 
   /* ---------- Fetch first page (reset) ---------- */
-
   const fetchFirstPage = useCallback(async () => {
     setLoading(true);
     try {
-      const params = new URLSearchParams({ page: 1, per_page: PAGE_SIZE });
-      if (debouncedSearch.current) params.set("search", debouncedSearch.current);
-      if (depotCodes.length) {
-        depotCodes.forEach((code) => params.append("depot_code[]", code));
-      }
-      if (category) params.set("category", category);
-
-      const res = await api.get(`articles/stock?${params}`);
+      const res  = await api.get(`articles/stock?${buildParams(1)}`);
       const data = res.data.data;
 
       setItems(data);
@@ -100,9 +100,8 @@ export default function StockEmplacement() {
     } finally {
       setLoading(false);
     }
-  }, [depotCodes, category]);
+  }, [buildParams]);
 
-  // Reset to first page whenever filters change
   useEffect(() => {
     fetchFirstPage();
   }, [fetchFirstPage]);
@@ -113,14 +112,7 @@ export default function StockEmplacement() {
     const nextPage = page + 1;
     setLoadingMore(true);
     try {
-      const params = new URLSearchParams({ page: nextPage, per_page: PAGE_SIZE });
-      if (debouncedSearch.current) params.set("search", debouncedSearch.current);
-      if (depotCodes.length) {
-        depotCodes.forEach((code) => params.append("depot_code[]", code));
-      }
-      if (category) params.set("category", category);
-
-      const res = await api.get(`articles/stock?${params}`);
+      const res     = await api.get(`articles/stock?${buildParams(nextPage)}`);
       const newData = res.data.data;
 
       setItems((prev) => [...prev, ...newData]);
@@ -128,12 +120,9 @@ export default function StockEmplacement() {
       setHasMore(items.length + newData.length < res.data.total);
 
       const cats = [...new Set(newData.map((i) => i.category).filter(Boolean))];
-      if (cats.length) {
-        setCategoryOptions((prev) => [...new Set([...prev, ...cats])]);
-      }
+      if (cats.length) setCategoryOptions((prev) => [...new Set([...prev, ...cats])]);
     } catch (err) {
       message.error("Erreur lors du chargement");
-      console.error(err);
     } finally {
       setLoadingMore(false);
     }
@@ -155,6 +144,25 @@ export default function StockEmplacement() {
     setSearch("");
     debouncedSearch.current = "";
     fetchFirstPage();
+  };
+
+  /* ---------- Sort toggle ---------- */
+
+  const handleSortChange = (field) => {
+    if (sortBy === field) {
+      // Same field → flip direction
+      setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
+    } else {
+      setSortBy(field);
+      setSortDir("asc");
+    }
+  };
+
+  const SortIcon = ({ field }) => {
+    if (sortBy !== field) return <span className="text-gray-300 ml-1">↕</span>;
+    return (
+      <span className="text-blue-500 ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
+    );
   };
 
   /* ---------- Columns ---------- */
@@ -198,10 +206,7 @@ export default function StockEmplacement() {
       key: "quantity",
       onCell: () => ({ style: noWrap }),
       render: (_, item) => (
-        <StockBadge
-          quantity={item.total_quantity}
-          limit={item.quantity_limit || 0}
-        />
+        <StockBadge quantity={item.total_quantity} limit={item.quantity_limit || 0} />
       ),
     },
     {
@@ -216,7 +221,14 @@ export default function StockEmplacement() {
       ),
     },
     {
-      title: "Capacité",
+      title: (
+        <button
+          className="flex items-center gap-1 hover:text-blue-600 transition-colors cursor-pointer"
+          onClick={() => handleSortChange("quantity_limit")}
+        >
+          Capacité <SortIcon field="quantity_limit" />
+        </button>
+      ),
       dataIndex: "quantity_limit",
       key: "quantity_limit",
       align: "center",
@@ -262,7 +274,7 @@ export default function StockEmplacement() {
       <div className="bg-white rounded-lg border border-gray-200 shadow-sm p-3">
         <div className="flex flex-wrap gap-3 items-center">
           <Input
-            placeholder="Recherche par Article, Nom,Emplacment..."
+            placeholder="Recherche par Article, Nom, Emplacement..."
             value={search}
             onChange={handleSearchChange}
             allowClear
@@ -281,10 +293,33 @@ export default function StockEmplacement() {
             options={depots.map((d) => ({ label: d.code, value: d.code }))}
           />
 
+          {/* Sort control */}
+          <Select
+            placeholder="Trier par"
+            style={{ minWidth: 160 }}
+            allowClear
+            value={sortBy || undefined}
+            onChange={(val) => {
+              setSortBy(val || "");
+              setSortDir("asc");
+            }}
+            options={[
+              { label: "Capacité", value: "quantity_limit" },
+            ]}
+          />
+          {sortBy && (
+            <Select
+              style={{ minWidth: 110 }}
+              value={sortDir}
+              onChange={(val) => setSortDir(val)}
+              options={[
+                { label: "↑ Croissant",  value: "asc"  },
+                { label: "↓ Décroissant", value: "desc" },
+              ]}
+            />
+          )}
 
-          <Button onClick={fetchFirstPage}>
-              Actualiser
-          </Button>
+          <Button onClick={fetchFirstPage}>Actualiser</Button>
 
           <span className="ml-auto text-sm text-gray-400">
             {items.length} / {total} résultats
@@ -306,11 +341,7 @@ export default function StockEmplacement() {
           hasMore
             ? () => (
                 <div className="flex justify-center py-2">
-                  <Button
-                    onClick={loadMore}
-                    loading={loadingMore}
-                    type="default"
-                  >
+                  <Button onClick={loadMore} loading={loadingMore} type="default">
                     Charger plus ({total - items.length} restants)
                   </Button>
                 </div>

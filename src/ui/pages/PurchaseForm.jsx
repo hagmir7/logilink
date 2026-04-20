@@ -531,7 +531,7 @@ export default function PurchaseForm() {
                   className="w-full"
                   showSearch
                   optionFilterProp="children"
-                  disabled={!hasRole('supper_admin')}
+                  disabled={!hasRole('super_admin')}
                   filterOption={(input, option) =>
                     option.children.toLowerCase().includes(input.toLowerCase())
                   }
@@ -551,7 +551,7 @@ export default function PurchaseForm() {
                 <Select
                   placeholder="Sélectionner un utilisateur"
                   className="w-full"
-                  disabled={!hasRole('supper_admin')}
+                  disabled={!hasRole('super_admin')}
                   showSearch
                   optionFilterProp="children"
                   filterOption={(input, option) =>

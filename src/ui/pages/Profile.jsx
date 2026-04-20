@@ -263,7 +263,7 @@ export default function Profile() {
             </Col>
           </Row>
 
-          {(permissions("view:roles") || roles("supper_admin")) && (
+          {(permissions("view:roles") || roles("super_admin")) && (
             <div className="mt-6">
               <div className="flex items-center mb-2">
                 <Title level={5} className="!mb-0">
