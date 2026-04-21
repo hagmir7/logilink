@@ -41,19 +41,19 @@ function StockBadge({ quantity, limit }) {
 const PAGE_SIZE = 50;
 
 export default function StockEmplacement() {
-  const [items, setItems]             = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [total, setTotal]             = useState(0);
-  const [page, setPage]               = useState(1);
-  const [hasMore, setHasMore]         = useState(false);
-  const [search, setSearch]           = useState("");
-  const [depotCodes, setDepotCodes]   = useState([]);
-  const [category, setCategory]       = useState("");
-  const [depots, setDepots]           = useState([]);
+  const [items, setItems]                     = useState([]);
+  const [loading, setLoading]                 = useState(true);
+  const [loadingMore, setLoadingMore]         = useState(false);
+  const [total, setTotal]                     = useState(0);
+  const [page, setPage]                       = useState(1);
+  const [hasMore, setHasMore]                 = useState(false);
+  const [search, setSearch]                   = useState("");
+  const [depotCodes, setDepotCodes]           = useState([]);
+  const [category, setCategory]               = useState("");
+  const [depots, setDepots]                   = useState([]);
   const [categoryOptions, setCategoryOptions] = useState([]);
-  const [sortBy, setSortBy]           = useState("");
-  const [sortDir, setSortDir]         = useState("asc");
+  const [sortBy, setSortBy]                   = useState("");
+  const [sortDir, setSortDir]                 = useState("asc");
 
   const debouncedSearch = useRef("");
   const searchTimer     = useRef(null);
@@ -81,6 +81,7 @@ export default function StockEmplacement() {
   }, []);
 
   /* ---------- Fetch first page (reset) ---------- */
+
   const fetchFirstPage = useCallback(async () => {
     setLoading(true);
     try {
@@ -146,11 +147,10 @@ export default function StockEmplacement() {
     fetchFirstPage();
   };
 
-  /* ---------- Sort toggle ---------- */
+  /* ---------- Sort toggle (column header click) ---------- */
 
   const handleSortChange = (field) => {
     if (sortBy === field) {
-      // Same field → flip direction
       setSortDir((prev) => (prev === "asc" ? "desc" : "asc"));
     } else {
       setSortBy(field);
@@ -160,9 +160,7 @@ export default function StockEmplacement() {
 
   const SortIcon = ({ field }) => {
     if (sortBy !== field) return <span className="text-gray-300 ml-1">↕</span>;
-    return (
-      <span className="text-blue-500 ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>
-    );
+    return <span className="text-blue-500 ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>;
   };
 
   /* ---------- Columns ---------- */
@@ -221,14 +219,7 @@ export default function StockEmplacement() {
       ),
     },
     {
-      title: (
-        <button
-          className="flex items-center gap-1 hover:text-blue-600 transition-colors cursor-pointer"
-          onClick={() => handleSortChange("quantity_limit")}
-        >
-          Capacité <SortIcon field="quantity_limit" />
-        </button>
-      ),
+      title: "Capacité",
       dataIndex: "quantity_limit",
       key: "quantity_limit",
       align: "center",
@@ -243,7 +234,14 @@ export default function StockEmplacement() {
         ),
     },
     {
-      title: "Écart",
+      title: (
+        <button
+          className="flex items-center gap-1 hover:text-blue-600 transition-colors cursor-pointer"
+          onClick={() => handleSortChange("ecart")}
+        >
+          Écart <SortIcon field="ecart" />
+        </button>
+      ),
       key: "ecart",
       align: "center",
       onCell: () => ({ style: noWrap }),
@@ -293,27 +291,14 @@ export default function StockEmplacement() {
             options={depots.map((d) => ({ label: d.code, value: d.code }))}
           />
 
-          {/* Sort control */}
-          <Select
-            placeholder="Trier par"
-            style={{ minWidth: 160 }}
-            allowClear
-            value={sortBy || undefined}
-            onChange={(val) => {
-              setSortBy(val || "");
-              setSortDir("asc");
-            }}
-            options={[
-              { label: "Capacité", value: "quantity_limit" },
-            ]}
-          />
-          {sortBy && (
+          {/* Sort direction — only shown when ecart sort is active */}
+          {sortBy === "ecart" && (
             <Select
-              style={{ minWidth: 110 }}
+              style={{ minWidth: 130 }}
               value={sortDir}
               onChange={(val) => setSortDir(val)}
               options={[
-                { label: "↑ Croissant",  value: "asc"  },
+                { label: "↑ Croissant",   value: "asc"  },
                 { label: "↓ Décroissant", value: "desc" },
               ]}
             />

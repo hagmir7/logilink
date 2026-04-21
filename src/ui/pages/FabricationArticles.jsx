@@ -38,8 +38,7 @@ function getUrgencyLevel(stock, min, max) {
   return 4
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────
-// ───
+// ─── Component ────────────────────────────────────────────────────────────────
 
 function FabricationArticles({ company_id }) {
   const [loading, setLoading]         = useState(false)
@@ -71,12 +70,12 @@ function FabricationArticles({ company_id }) {
 
   // ── Fetch ─────────────────────────────────────────────────────────────────
 
-const fetchInitial = useCallback(async (overrides = {}) => {
+  const fetchInitial = useCallback(async (overrides = {}) => {
     const f = { ...filtersRef.current, ...overrides }
     setLoading(true)
     setArticles([])
     setHasMore(true)
-    pageRef.current = 1  // ← reset page
+    pageRef.current = 1
     try {
       const res = await api.get('articles', {
         params: {
@@ -94,7 +93,7 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       setArticles(data)
       setTotal(total)
       setHasMore(1 < last_page)
-      pageRef.current = 2  // ← next page to load is 2
+      pageRef.current = 2
     } catch (err) {
       console.error('Failed to fetch:', err)
     } finally {
@@ -105,8 +104,8 @@ const fetchInitial = useCallback(async (overrides = {}) => {
   const fetchMore = useCallback(async () => {
     if (loadingMore || !hasMore) return
     const f = filtersRef.current
-    const nextPage = pageRef.current  // ← snapshot before async call
-    pageRef.current += 1              // ← increment immediately to prevent double calls
+    const nextPage = pageRef.current
+    pageRef.current += 1
     setLoadingMore(true)
     try {
       const res = await api.get('articles', {
@@ -123,21 +122,18 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       })
       const { data, last_page } = res.data
       setArticles(prev => {
-        // dedupe by id just in case
         const existingIds = new Set(prev.map(a => a.id || a.code))
         const newItems = data.filter(a => !existingIds.has(a.id || a.code))
         return [...prev, ...newItems]
       })
       setHasMore(nextPage < last_page)
     } catch (err) {
-      pageRef.current -= 1  // ← roll back on error
+      pageRef.current -= 1
       console.error('Failed to load more:', err)
     } finally {
       setLoadingMore(false)
     }
   }, [loadingMore, hasMore])
-
-
 
   // ── Effects ───────────────────────────────────────────────────────────────
 
@@ -166,10 +162,14 @@ const fetchInitial = useCallback(async (overrides = {}) => {
     }
   }
 
+  // FIX: use columnKey as primary field identifier — Ant Design uses `key`
+  // for computed columns that have no dataIndex, so sorter.field may be
+  // undefined. Falling back to columnKey ensures we always get the right value.
   const handleTableChange = (_, __, sorter) => {
-    if (sorter && sorter.field) {
+    const field = sorter?.columnKey || sorter?.field
+    if (field) {
       const order = sorter.order === 'ascend' ? 'asc' : 'desc'
-      setSortBy(sorter.field)
+      setSortBy(field)
       setSortOrder(order)
     }
   }
@@ -276,7 +276,11 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       ),
     },
     {
+      // FIX: added dataIndex: 'ecart' so Ant Design passes 'ecart' as
+      // sorter.field in handleTableChange. The render still uses the full
+      // record (second arg) so computed display is unaffected.
       title: 'Écart',
+      dataIndex: 'ecart',
       key: 'ecart',
       sorter: true,
       align: 'center',
@@ -312,7 +316,10 @@ const fetchInitial = useCallback(async (overrides = {}) => {
       ),
     },
     {
+      // FIX: added dataIndex: 'urgency_level' so Ant Design passes
+      // 'urgency_level' as sorter.field in handleTableChange.
       title: 'Statut',
+      dataIndex: 'urgency_level',
       key: 'urgency_level',
       sorter: true,
       align: 'center',
@@ -416,13 +423,6 @@ const fetchInitial = useCallback(async (overrides = {}) => {
               options={URGENCY_OPTIONS}
               onChange={setSelectedUrgency}
             />
-            {/* <Select
-              value={selectedColor}
-              size="middle"
-              className="min-w-[150px]"
-              options={colorOptions}
-              onChange={setSelectedColor}
-            /> */}
           </div>
 
           {/* Actions */}
