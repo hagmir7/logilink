@@ -1,8 +1,8 @@
 import React from 'react';
-import { Modal, Form, Input, Slider, Typography, message } from 'antd';
+import { Modal, Form, Input, Slider, Typography, message, Select } from 'antd';
 import { saveEvaluation } from '../utils/api';
 
-const CRITERIA = [
+const CRITERIA = [ 
   { name: 'price_score',       label: 'Prix et conditions commerciales', weight: '30%' },
   { name: 'delivery_score',    label: 'Délai de livraison',              weight: '25%' },
   { name: 'technical_score',   label: 'Conformité technique',            weight: '25%' },
@@ -10,8 +10,10 @@ const CRITERIA = [
   { name: 'payment_score',     label: 'Conditions de paiement',          weight: '10%' },
 ];
 
-export default function EvaluationForm({ comparisonId, evaluation, open, onClose, onSuccess }) {
+export default function EvaluationForm({ comparisonId, evaluation, open, onClose, onSuccess, offers }) {
   const [form] = Form.useForm();
+
+  
 
   const onFinish = async (values) => {
     try {
@@ -36,7 +38,7 @@ export default function EvaluationForm({ comparisonId, evaluation, open, onClose
     >
       <Form form={form} layout="vertical" onFinish={onFinish} initialValues={evaluation}>
         <Form.Item label="Nom du prestataire" name="provider_name" rules={[{ required: true }]}>
-          <Input placeholder="Fournisseur ABC" />
+          <Select placeholder="Fournisseur" options={offers.map(item => ({lable: item.provider_name, value: item.provider_name}))} />
         </Form.Item>
 
         {CRITERIA.map(({ name, label, weight }) => (

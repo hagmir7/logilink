@@ -33,7 +33,7 @@ export default function RegisterForm({ fetchData }) {
 
     const fetchCompanies = async () => {
         try {
-            const response = await api.get('companies');
+            const response = await api.get('companies'); 
             setCompanies(response.data.map(c => ({
                 label: c.name,
                 value: c.id

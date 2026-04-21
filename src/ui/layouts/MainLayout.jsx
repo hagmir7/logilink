@@ -33,6 +33,7 @@ import {
   PlaneLanding,
   Van,
   BadgeX,
+  GitCompare,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -298,7 +299,7 @@ const sideMenu = () => {
          {
           key: 'submenu-117',
           disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
-          icon: <ChartCandlestick size={20} />,
+          icon: <GitCompare size={20} />,
           label: <Link to='/quote-comparison'>Comparatif des devis</Link>,
         },
 

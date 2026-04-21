@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Form, Input, DatePicker, Select, Button, message } from 'antd';
-import { createComparison, updateComparison } from '../utils/api';
+import { api, createComparison, updateComparison } from '../utils/api';
 import dayjs from 'dayjs';
 
 const DEPARTMENTS = [
@@ -11,6 +11,7 @@ const DEPARTMENTS = [
 export default function ComparisonForm({ initialData, onSuccess }) {
   const [form] = Form.useForm();
   const isEdit = !!initialData?.id;
+  const [services, setServices] = useState([]);
 
   const onFinish = async (values) => {
     try {
@@ -37,6 +38,26 @@ export default function ComparisonForm({ initialData, onSuccess }) {
     }
   };
 
+
+  const fetchServices = async () => {
+    try {
+      const response = await api.get('services');
+      
+      setServices(response.data.map(c => ({
+        label: c.name,
+        value: c.name
+      })))
+    } catch (error) {
+      console.error(error);
+      message.error(error?.response?.data?.message || "Une erreur s'est produite")
+    }
+  }
+
+  useEffect(()=>{
+    fetchServices()
+  }, [])
+
+
   return (
     <Form
       form={form}
@@ -56,9 +77,7 @@ export default function ComparisonForm({ initialData, onSuccess }) {
       </Form.Item>
 
       <Form.Item label="Service demandeur" name="department" rules={[{ required: true, message: 'Le service est obligatoire.' }]}>
-        <Select placeholder="Sélectionner un service" allowClear showSearch>
-          {DEPARTMENTS.map((d) => <Select.Option key={d} value={d}>{d}</Select.Option>)}
-        </Select>
+        <Select options={services} placeholder="Sélectionner un service" allowClear showSearch />
       </Form.Item>
 
       <Form.Item label="Objet de l'achat" name="purchase_object" rules={[{ required: true, message: "L'objet est obligatoire." }]}>

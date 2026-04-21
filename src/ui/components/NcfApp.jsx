@@ -11,6 +11,8 @@ import {
   ExclamationCircleOutlined, ClockCircleOutlined, MoreOutlined,
   AppstoreOutlined, LoadingOutlined,
   ExperimentOutlined,
+  PrinterFilled,
+  PrinterOutlined,
 } from "@ant-design/icons";
 import dayjs from "dayjs";
 import { api } from "../utils/api";
@@ -144,13 +146,13 @@ export default function NcfApp() {
     const download = async (id) => {
       // setPdfLoading(true);
       try {
-        const res = await api.get(`ncf/download/${id}/pdf`, {
+        const res = await api.get(`ncf/download/${id}`, {
           responseType: 'blob',
         });
         const url = window.URL.createObjectURL(new Blob([res.data]));
         const link = document.createElement('a');
         link.href = url;
-        link.setAttribute('download', `comparatif-${data.reference || comparisonId}.pdf`);
+        link.setAttribute('download', `comparatif-${data.reference || id}.pdf`);
         document.body.appendChild(link);
         link.click();
         link.remove();
@@ -258,7 +260,7 @@ export default function NcfApp() {
           menu={{
             items: [
               { key: "view",   icon: <EyeOutlined />,    label: "Voir détails", onClick: () => fetchDetail(record.id) },
-              { key: "view",   icon: <EyeOutlined />,    label: "Voir détails", onClick: () => download(record.id) },
+              { key: "print",   icon: <PrinterFilled />,    label: "Imprimer", onClick: () => download(record.id) },
               { key: "edit",   icon: <EditOutlined />,   label: "Continuer",    onClick: () => goToEditForm(record) },
               { type: "divider" },
               { key: "delete", icon: <DeleteOutlined />, label: "Supprimer", danger: true, onClick: () => handleDelete(record.id) },
@@ -282,12 +284,6 @@ export default function NcfApp() {
           {/* Header */}
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-4">
             <div>
-              <div
-                className="inline-flex items-center gap-2 px-2 py-1 rounded-full text-xs font-semibold uppercase mb-1"
-                style={{ background: "#1e3a5f", color: "#fff" }}
-              >
-                <FileTextOutlined /> ENR_ACH_07
-              </div>
               <h1 className="text-xl font-bold tracking-tight m-0" style={{ color: "#1e3a5f" }}>
                 Fiches NC Fournisseur
               </h1>
@@ -295,7 +291,7 @@ export default function NcfApp() {
                 Gestion des non-conformités fournisseur
               </p>
             </div>
-            <Button type="primary" size="large" icon={<PlusOutlined />} onClick={goToNewForm} style={{ borderRadius: 12 }}>
+            <Button type="primary" size="middle" icon={<PlusOutlined />} onClick={goToNewForm} style={{ borderRadius: 12 }}>
               Nouvelle Fiche
             </Button>
           </div>
@@ -332,6 +328,7 @@ export default function NcfApp() {
             <Table
               dataSource={data}
               columns={columns}
+              className="whitespace-nowrap"
               rowKey="id"
               loading={{ spinning: loading, indicator: <LoadingOutlined style={{ fontSize: 24, color: "#1e3a5f" }} /> }}
               pagination={{
@@ -442,6 +439,14 @@ export default function NcfApp() {
                 style={{ borderRadius: 10 }}
               >
                 Supprimer
+              </Button>
+
+              <Button
+                block size="large" color="success" icon={<PrinterOutlined />}
+                onClick={() => download(detailModal.id)}
+                style={{ borderRadius: 10 }}
+              >
+                Imprimer
               </Button>
             </div>
           </div>

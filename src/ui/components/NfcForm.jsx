@@ -480,7 +480,7 @@ export default function NcfForm() {
   return (
     <ConfigProvider theme={THEME}>
       <div
-        className="min-h-screen p-3 md:p-8"
+        className="min-h-screen p-3"
         style={{ background: "linear-gradient(160deg, #f0f4f8, #e2e8f0)" }}
       >
         <div className="max-w-5xl mx-auto">
@@ -489,7 +489,7 @@ export default function NcfForm() {
           {/* Page title */}
           <div className="flex items-center mb-4 gap-2">
             <h1
-              className="text-2xl font-bold tracking-tight"
+              className="text-xl font-bold tracking-tight"
               style={{ color: "#1e3a5f" }}
             >
               Fiche NC Fournisseur
@@ -581,7 +581,7 @@ export default function NcfForm() {
               style={{ borderTop: "2px solid #f1f5f9" }}
             >
               <Button
-                size="large"
+                size="middle"
                 disabled={current === 0}
                 onClick={() => setCurrent((c) => c - 1)}
                 icon={<ArrowLeftOutlined />}
@@ -591,7 +591,7 @@ export default function NcfForm() {
               </Button>
               <Button
                 type="primary"
-                size="large"
+                size="middle"
                 loading={saving}
                 onClick={handleNext}
                 style={{ borderRadius: 10, minWidth: 160 }}

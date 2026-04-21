@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Form, Input, InputNumber, DatePicker, message, Select } from 'antd';
+import { Modal, Form, Input, InputNumber, DatePicker, message, AutoComplete } from 'antd';
 import { api, createOffer, updateOffer } from '../utils/api';
 import dayjs from 'dayjs';
 
@@ -31,9 +31,7 @@ export default function OfferForm({ comparisonId, offer, open, onClose, onSucces
   };
 
 
-    const fetchSuppliers = async (reset = false) => {
-    // setLoading(true);
-
+  const fetchSuppliers = async (reset = false) => {
     try {
       const response = await api.get("client/suppliers", {
         params: { company_db: 'sqlsrv_inter' },
@@ -50,8 +48,6 @@ export default function OfferForm({ comparisonId, offer, open, onClose, onSucces
         error?.response?.data?.message ||
         "Erreur lors du chargement des fournisseurs."
       );
-    } finally {
-      // setLoading(false);
     }
   };
 
@@ -77,10 +73,9 @@ export default function OfferForm({ comparisonId, offer, open, onClose, onSucces
         initialValues={isEdit ? { ...offer, quote_date: offer.quote_date ? dayjs(offer.quote_date) : null } : undefined}
       >
         <Form.Item label="Nom du prestataire" name="provider_name" rules={[{ required: true, message: 'Obligatoire' }]}>
-          <Select
+          <AutoComplete
             options={suppliers}
             placeholder="Fournisseur"
-            showSearch
             allowClear
             filterOption={(input, option) =>
               option.label.toLowerCase().includes(input.toLowerCase())

@@ -227,6 +227,7 @@ const offerColumns = [
         open={evalModal.open}
         onClose={() => setEvalModal({ open: false, evaluation: null })}
         onSuccess={() => { setEvalModal({ open: false, evaluation: null }); fetchData(); }}
+        offers={data.offers}
       />
       <ResultForm
         comparison={data}
