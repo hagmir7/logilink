@@ -1,6 +1,7 @@
 import React from 'react';
 import { Modal, Form, Select, Input, DatePicker, message } from 'antd';
 import { updateComparison } from '../utils/api';
+import { locale } from '../utils/config';
 
 export default function ResultForm({ comparison, open, onClose, onSuccess }) {
   const [form] = Form.useForm();
@@ -47,7 +48,7 @@ export default function ResultForm({ comparison, open, onClose, onSuccess }) {
             <Input />
           </Form.Item>
           <Form.Item label="Date" name="purchasing_manager_date">
-            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+            <DatePicker locale={locale} style={{ width: '100%' }} format="DD/MM/YYYY" />
           </Form.Item>
         </div>
 
@@ -56,7 +57,7 @@ export default function ResultForm({ comparison, open, onClose, onSuccess }) {
             <Input />
           </Form.Item>
           <Form.Item label="Date" name="general_director_date">
-            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+            <DatePicker locale={locale} style={{ width: '100%' }} format="DD/MM/YYYY" />
           </Form.Item>
         </div>
       </Form>

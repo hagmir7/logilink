@@ -3,6 +3,7 @@ import { Form, Input, DatePicker, Button, message, Select } from "antd";
 import dayjs from "dayjs";
 import { api } from "../utils/api";
 import { useAuth } from "../contexts/AuthContext";
+import { locale } from "../utils/config";
 
 const SupplierInterviewForm = ({ onSuccess, company }) => {
     const [loading, setLoading] = useState(false);
@@ -149,6 +150,7 @@ const SupplierInterviewForm = ({ onSuccess, company }) => {
                 <DatePicker
                     className="w-full"
                     format="DD/MM/YYYY"
+                    locale={locale}
                     placeholder="Sélectionnez une date"
                 />
             </Form.Item>

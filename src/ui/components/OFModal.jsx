@@ -1,6 +1,7 @@
 import { Button, Modal, Table, DatePicker, Input, Radio, message, Select } from 'antd'
 import React, { useEffect, useState } from 'react'
 import { api } from '../utils/api'
+import { locale } from '../utils/config';
 
 const { Option } = Select;
 
@@ -181,6 +182,7 @@ export default function OFModal({ articles = [] }) {
                             onChange={setDateLancement}
                             format="DD/MM/YYYY"
                             placeholder="JJ/MM/AAAA"
+                            locale={locale}
                             className="w-full"
                         />
                     </div>
@@ -194,6 +196,7 @@ export default function OFModal({ articles = [] }) {
                             value={dateDemarrage}
                             onChange={setDateDemarrage}
                             format="DD/MM/YYYY"
+                            locale={locale}
                             placeholder="JJ/MM/AAAA"
                             className="w-full"
                         />

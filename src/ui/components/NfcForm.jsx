@@ -12,6 +12,7 @@ import {
 import dayjs from "dayjs";
 import { useParams, useNavigate } from "react-router-dom";
 import { api } from "../utils/api";
+import { locale } from "../utils/config";
 
 const { TextArea } = Input;
 
@@ -107,7 +108,7 @@ const Step1 = ({ form }) => {
         <Input placeholder="N° BL" />
       </Form.Item>
       <Form.Item label="Date de réception" name="date_reception">
-        <DatePicker className="w-full" format="DD/MM/YYYY" />
+        <DatePicker locale={locale} className="w-full" format="DD/MM/YYYY" />
       </Form.Item>
       <Form.Item label="Code article / Lot" name="code_article">
         <Input placeholder="Code article" />
@@ -130,7 +131,7 @@ const Step1 = ({ form }) => {
         </Form.Item>
       )}
       <Form.Item label="Date de détection" name="date_detection" rules={[{ required: true }]}>
-        <DatePicker className="w-full" format="DD/MM/YYYY" />
+        <DatePicker locale={locale} className="w-full" format="DD/MM/YYYY" />
       </Form.Item>
     </div>
   );
@@ -199,7 +200,7 @@ const Step3 = () => (
       <Input placeholder="Nom & prénom" />
     </Form.Item>
     <Form.Item label="Date d'exécution" name="date_execution" rules={[{ required: true }]}>
-      <DatePicker className="w-full" format="DD/MM/YYYY" />
+      <DatePicker locale={locale} className="w-full" format="DD/MM/YYYY" />
     </Form.Item>
   </div>
 );
@@ -219,7 +220,7 @@ const Step4 = () => (
       <Input />
     </Form.Item>
     <Form.Item label="Date prévisionnelle" name="date_previsionnelle" rules={[{ required: true }]}>
-      <DatePicker className="w-full" format="DD/MM/YYYY" />
+      <DatePicker locale={locale}  className="w-full" format="DD/MM/YYYY" />
     </Form.Item>
   </div>
 );
@@ -230,7 +231,7 @@ const Step5 = () => (
       <Input />
     </Form.Item>
     <Form.Item label="Date de vérification" name="date_verification" rules={[{ required: true }]}>
-      <DatePicker className="w-full" format="DD/MM/YYYY" />
+      <DatePicker locale={locale} className="w-full" format="DD/MM/YYYY" />
     </Form.Item>
     <Form.Item label="Action réalisée ?" name="action_realisee" rules={[{ required: true }]}>
       <Radio.Group buttonStyle="solid">
@@ -248,7 +249,7 @@ const Step5 = () => (
       <Input />
     </Form.Item>
     <Form.Item label="Date de clôture" name="date_cloture">
-      <DatePicker className="w-full" format="DD/MM/YYYY" />
+      <DatePicker locale={locale} className="w-full" format="DD/MM/YYYY" />
     </Form.Item>
   </div>
 );
@@ -281,7 +282,7 @@ const Step6 = () => (
                 <Input />
               </Form.Item>
               <Form.Item {...rest} name={[name, "date"]} label="Date" rules={[{ required: true }]}>
-                <DatePicker className="w-full" format="DD/MM/YYYY" />
+                <DatePicker locale={locale} className="w-full" format="DD/MM/YYYY" />
               </Form.Item>
               <div className="flex items-end gap-1">
                 <Form.Item {...rest} name={[name, "visa"]} label="Visa" className="flex-1">

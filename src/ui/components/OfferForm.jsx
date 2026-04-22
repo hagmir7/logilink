@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Modal, Form, Input, InputNumber, DatePicker, message, AutoComplete } from 'antd';
 import { api, createOffer, updateOffer } from '../utils/api';
 import dayjs from 'dayjs';
+import { locale } from '../utils/config';
 
 export default function OfferForm({ comparisonId, offer, open, onClose, onSuccess }) {
 
@@ -88,7 +89,7 @@ export default function OfferForm({ comparisonId, offer, open, onClose, onSucces
             <Input />
           </Form.Item>
           <Form.Item label="Date du devis" name="quote_date">
-            <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+            <DatePicker locale={locale} style={{ width: '100%' }} format="DD/MM/YYYY" />
           </Form.Item>
         </div>
 

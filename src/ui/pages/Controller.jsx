@@ -4,6 +4,10 @@ import {
   CircleCheckBig,
   ListTodo,
   Settings,
+  CheckCheck,
+  CircleCheck,
+  RefreshCw,
+  ListCheck,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
@@ -26,6 +30,7 @@ import { useAuth } from '../contexts/AuthContext'
 import PrintDocument from '../components/PrintDocument'
 import TicketPrinter from '../components/TicketPrinter'
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal'
+import CheckListModal from '../components/CheckListModal'
 
 
 function Controller() {
@@ -40,7 +45,8 @@ function Controller() {
   const { roles = [], user } = useAuth()
   const [open, setOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
-  const [status, setStatus] = useState({})
+  const [status, setStatus] = useState({});
+  const [openCheckList, setOpencheckList] = useState(false);
 
 
   const selectedRowsFull = Object.values(selected)
@@ -311,12 +317,17 @@ useEffect(() => {
 
           <Button onClick={()=> fetchData()}>
             {loading ? (
-              <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
+              <RefreshCw className='animate-spin h-4 w-4 mr-2' />
             ) : (
-              <RefreshCcw className='h-4 w-4 mr-2' />
+              <RefreshCw className='h-4 w-4 mr-2' />
             )}
             Rafraîchir
           </Button>
+
+         
+         
+
+          
           <PrintDocument
             docentete={data.docentete}
             doclignes={
@@ -339,9 +350,12 @@ useEffect(() => {
 
 
           {
-            parseInt(user?.company_id) == 1 && <Button onClick={validate} loading={validatePartialLoading} className='btn'>
-              <ListTodo /> Validate
-            </Button>
+            (parseInt(user?.company_id) === 1 &&
+              parseInt(data?.docentete?.document?.status_id) !== 11) && (
+              <Button onClick={validate} loading={validatePartialLoading} className='btn'>
+                <ListTodo /> Validate
+              </Button>
+            )
           }
 
           
@@ -396,6 +410,8 @@ useEffect(() => {
             </div>
           </div>
         ))}
+
+        
       </div>
 
       {/* Table Header */}
@@ -403,6 +419,21 @@ useEffect(() => {
         <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date &&  '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
 
         <div className='flex gap-3 items-center'>
+           <div>
+            {Number(data?.docentete?.document?.status_id) === 11 && (
+              data?.docentete?.document?.shipping
+                ? <Button color="green" variant="solid" icon={<CircleCheck size={18} />}>
+                  Check-list
+                </Button>
+                : <Button onClick={() => setOpencheckList(true)} icon={<ListCheck size={18} />}>Check-list</Button>
+            )}
+            <CheckListModal
+              document_id={data?.docentete?.document?.id}
+              open={openCheckList}
+              setOpen={setOpencheckList}
+            />
+          </div>
+
           {documentCompany?.pivot && (
             <>
               {Number(documentCompany.pivot.status_id) === 10 && (

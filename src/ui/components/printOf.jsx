@@ -140,13 +140,27 @@ function printOf(of) {
 
               <td style="border:0.5px solid #000; padding:7px 8px; font-size:11px;">
               ${
-                (() => {
-                  const h = parseFloat(line?.article?.height) || 0;
-                  const w = parseFloat(line?.article?.width) || 0;
-                  const d = parseFloat(line?.article?.depth) || 0;
-                  const dim2 = w > 0 ? w : d > 0 ? d : 0;
-                  return (h > 0 && dim2 > 0) ? `${h} * ${dim2}` : '--';
-                })()
+              (() => {
+                const h = parseFloat(line?.article?.height) || 0;
+                const w = parseFloat(line?.article?.width) || 0;
+                const d = parseFloat(line?.article?.depth) || 0;
+
+                const dims = [
+                  { val: h, label: 'Hauteur' },
+                  { val: w, label: 'Largeur' },
+                  { val: d, label: 'Profondeur' },
+                ];
+
+                const nonZero = dims.filter(d => d.val > 0);
+
+                if (nonZero.length >= 2) {
+                  return `${nonZero[0].val} * ${nonZero[1].val}`;
+                } else if (nonZero.length === 1) {
+                  return `${nonZero[0].label}: ${nonZero[0].val}`;
+                } else {
+                  return '--';
+                }
+              })()
               }
               </td>
            

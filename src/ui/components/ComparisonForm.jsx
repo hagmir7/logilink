@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Form, Input, DatePicker, Select, Button, message } from 'antd';
 import { api, createComparison, updateComparison } from '../utils/api';
 import dayjs from 'dayjs';
+import { locale } from '../utils/config';
 
 const DEPARTMENTS = [
   'Production', 'Maintenance', 'Qualité', 'Logistique', 'Administratif',
@@ -73,7 +74,7 @@ export default function ComparisonForm({ initialData, onSuccess }) {
       </Form.Item>
 
       <Form.Item label="Date du comparatif" name="comparison_date" rules={[{ required: true, message: 'La date est obligatoire.' }]}>
-        <DatePicker style={{ width: '100%' }} format="DD/MM/YYYY" />
+        <DatePicker locale={locale} style={{ width: '100%' }} format="DD/MM/YYYY" />
       </Form.Item>
 
       <Form.Item label="Service demandeur" name="department" rules={[{ required: true, message: 'Le service est obligatoire.' }]}>

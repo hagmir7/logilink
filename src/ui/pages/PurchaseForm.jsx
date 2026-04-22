@@ -10,6 +10,7 @@ import TransferPurchaseDocument from '../components/TransferPurchaseDocument';
 import FormListSkeleton from '../components/ui/FormListSkeleton';
 import PurchaseImages from '../components/ui/PurchaseImages';
 import dayjs from 'dayjs';
+import { locale } from '../utils/config';
 
 const { Option } = Select;
 
@@ -628,7 +629,7 @@ export default function PurchaseForm() {
                         className="mb-0 col-span-2"
                         style={{ marginBottom: 0 }}
                       >
-                        <DatePicker className="w-full" placeholder="Choisir une date" />
+                        <DatePicker className="w-full" locale={locale} placeholder="Choisir une date" />
                       </Form.Item>
 
                     </div>
