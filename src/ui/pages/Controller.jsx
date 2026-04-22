@@ -88,11 +88,33 @@ const fetchData = async (silent = false) => {
   }
 }
 
+const downloadCheckList = async (id) => {
+      // setPdfLoading(true);
+      try {
+        const res = await api.get(`shippings/${id}/print`, {
+          responseType: 'blob',
+        });
+        const url = window.URL.createObjectURL(new Blob([res.data]));
+        const link = document.createElement('a');
+        link.href = url;
+        link.setAttribute('download', `comparatif-${data.reference || id}.pdf`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+        window.URL.revokeObjectURL(url);
+        message.success('PDF téléchargé avec succès.');
+      } catch (error) {
+        console.log(error);
+        message.error('Erreur lors du téléchargement du PDF.');
+      } finally {
+        // setPdfLoading(false);
+      }
+    };
+
+
 
 useEffect(() => {
   if (!user?.company_id) return
-
-  // First load → with loader
   fetchData(false)
 
   // Interval → silent refresh (no loader)
@@ -422,7 +444,7 @@ useEffect(() => {
            <div>
             {Number(data?.docentete?.document?.status_id) === 11 && (
               data?.docentete?.document?.shipping
-                ? <Button color="green" variant="solid" icon={<CircleCheck size={18} />}>
+                ? <Button onClick={() => downloadCheckList(data?.docentete?.document?.shipping?.id)} color="green" variant="solid" icon={<CircleCheck size={18} />}>
                   Check-list
                 </Button>
                 : <Button onClick={() => setOpencheckList(true)} icon={<ListCheck size={18} />}>Check-list</Button>

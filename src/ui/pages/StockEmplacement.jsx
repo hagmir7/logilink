@@ -163,6 +163,8 @@ export default function StockEmplacement() {
     return <span className="text-blue-500 ml-1">{sortDir === "asc" ? "↑" : "↓"}</span>;
   };
 
+  
+
   /* ---------- Columns ---------- */
 
   const noWrap = { whiteSpace: "nowrap" };
