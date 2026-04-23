@@ -42,7 +42,7 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
           resizable: true
         })
       } else {
-        navigate(`/document/${id}`)
+        navigate(`/layout/document/${id}`)
       }
     } catch (error) {
       console.error('Error navigating to article:', error)
@@ -203,8 +203,7 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
         {documents.map((data, index) => (
           <div
             key={index}
-            // onClick={() => handleShow(data.docentete.DO_Piece)}
-            onClick={()=> navigate(`/document/${data.id}`)}
+            onClick={()=> navigate(`/layout/document/${data.id}`)}
             className='bg-white rounded-xl border border-gray-200 p-4 cursor-pointer active:border-blue-400 active:bg-blue-50/30 transition-all duration-150 shadow-sm'
           >
             {/* Top Row: Piece + Status */}
