@@ -357,7 +357,7 @@ ipcMain.handle('print-palette-tickets', async (event, { printerName, data }) => 
                     <div class="barcode">
                         <img src="${barcodeImage}" />
                     </div>
-                    <div class="line">${data.docentete.DO_Piece} = ${data.docentete.DO_Tiers}</div>
+                    <div class="line">${data.docentete.DO_Piece} = ${data?.docentete?.DO_Tiers}</div>
                     <div class="line">${palette.code}</div>
                 </div>
             </body>

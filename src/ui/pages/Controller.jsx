@@ -50,80 +50,80 @@ function Controller() {
 
 
   const selectedRowsFull = Object.values(selected)
-  .map(sel => data.doclignes.find(line =>
-    line.id === sel.line_id || line.line?.id === sel.line_id
-  ))
-  .filter(Boolean);
+    .map(sel => data.doclignes.find(line =>
+      line.id === sel.line_id || line.line?.id === sel.line_id
+    ))
+    .filter(Boolean);
 
-const fetchData = async (silent = false) => {
-  if (!silent) {
-    setLoading(true)
-  }
-
-  try {
-    const response = await api.get(`docentetes/${id}`)
-    setData(response.data)
-
-    const companies = response.data?.docentete?.document?.companies || []
-    const company = companies.find(
-      (item) => item.id === Number(user?.company_id)
-    )
-
-    if (company) {
-      setDocumentCompany(company)
-      if (company.pivot?.status_id) {
-        setStatus(getStatus(Number(company.pivot.status_id)))
-      }
-    } else {
-      setDocumentCompany({})
-      setStatus({})
-    }
-  } catch (err) {
-    console.error('Failed to fetch data:', err)
-    message.error('Erreur lors du chargement des données')
-  } finally {
+  const fetchData = async (silent = false) => {
     if (!silent) {
-      setLoading(false)
+      setLoading(true)
+    }
+
+    try {
+      const response = await api.get(`docentetes/${id}`)
+      setData(response.data)
+
+      const companies = response.data?.docentete?.document?.companies || []
+      const company = companies.find(
+        (item) => item.id === Number(user?.company_id)
+      )
+
+      if (company) {
+        setDocumentCompany(company)
+        if (company.pivot?.status_id) {
+          setStatus(getStatus(Number(company.pivot.status_id)))
+        }
+      } else {
+        setDocumentCompany({})
+        setStatus({})
+      }
+    } catch (err) {
+      console.error('Failed to fetch data:', err)
+      message.error('Erreur lors du chargement des données')
+    } finally {
+      if (!silent) {
+        setLoading(false)
+      }
     }
   }
-}
 
-const downloadCheckList = async (id) => {
-      // setPdfLoading(true);
-      try {
-        const res = await api.get(`shippings/${id}/print`, {
-          responseType: 'blob',
-        });
-        const url = window.URL.createObjectURL(new Blob([res.data]));
-        const link = document.createElement('a');
-        link.href = url;
-        link.setAttribute('download', `comparatif-${data.reference || id}.pdf`);
-        document.body.appendChild(link);
-        link.click();
-        link.remove();
-        window.URL.revokeObjectURL(url);
-        message.success('PDF téléchargé avec succès.');
-      } catch (error) {
-        console.log(error);
-        message.error('Erreur lors du téléchargement du PDF.');
-      } finally {
-        // setPdfLoading(false);
-      }
-    };
-
+  const downloadCheckList = async (id) => {
+    // setPdfLoading(true);
+    try {
+      const res = await api.get(`shippings/${id}/print`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `comparatif-${data.reference || id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      message.success('PDF téléchargé avec succès.');
+    } catch (error) {
+      console.log(error);
+      message.error('Erreur lors du téléchargement du PDF.');
+    } finally {
+      // setPdfLoading(false);
+    }
+  };
 
 
-useEffect(() => {
-  if (!user?.company_id) return
-  fetchData(false)
 
-  // Interval → silent refresh (no loader)
-  const interval = setInterval(() => {
-    fetchData(true)
-  }, 50000)
+  useEffect(() => {
+    if (!user?.company_id) return
+    fetchData(false)
 
-  return () => clearInterval(interval)
-}, [id, user?.company_id])
+    // Interval → silent refresh (no loader)
+    const interval = setInterval(() => {
+      fetchData(true)
+    }, 50000)
+
+    return () => clearInterval(interval)
+  }, [id, user?.company_id])
 
 
   const currentItems = data?.doclignes || []
@@ -133,13 +133,13 @@ useEffect(() => {
       const newSelected = { ...prev }
 
       if (newSelected[lineId]) {
-        
+
         delete newSelected[lineId]
       } else {
-       
+
         newSelected[lineId] = {
           line_id: lineId,
-          quantity: Math.floor(item.EU_Qte), 
+          quantity: Math.floor(item.EU_Qte),
         }
       }
 
@@ -150,7 +150,7 @@ useEffect(() => {
   const validate = async () => {
     setValidatePartialLoading(true)
     const selectedItems = Object.values(selected)
-    if(selectedItems.length == 0){
+    if (selectedItems.length == 0) {
       message.warning("Aucun article sélectionné");
       setValidatePartialLoading(false)
       return;
@@ -160,11 +160,11 @@ useEffect(() => {
         lines: selectedItems
       })
       message.success("document validated successfully")
-        fetchData(true)
+      fetchData(true)
       setValidatePartialLoading(false)
     } catch (error) {
       setValidatePartialLoading(false)
-       message.error(error.response.data.message);
+      message.error(error.response.data.message);
     }
   }
 
@@ -279,18 +279,18 @@ useEffect(() => {
 
 
   const getLineColor = (color, role_id, status) => {
-  const colors = {
-    4: "#059669", // Blue
-    5: "#DC2626", // Red
-    8: "#06B6D4", // Orange
-  }
+    const colors = {
+      4: "#059669", // Blue
+      5: "#DC2626", // Red
+      8: "#06B6D4", // Orange
+    }
 
-  if ([4, 5, 8].includes(Number(role_id)) && Number(status) === 7) {
-    return colors[Number(role_id)]
-  }
+    if ([4, 5, 8].includes(Number(role_id)) && Number(status) === 7) {
+      return colors[Number(role_id)]
+    }
 
-  return color
-}
+    return color
+  }
 
 
   function strClean(str) {
@@ -304,14 +304,14 @@ useEffect(() => {
 
   }
 
-  
+
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
             <span>
-              {data.docentete.DO_Piece
+              {data?.docentete?.DO_Piece
                 ? data.docentete.DO_Piece
                 : 'Chargement...'}
             </span>
@@ -331,13 +331,13 @@ useEffect(() => {
         </div>
 
         <div className='flex gap-2'>
-          {roles('controleur') && (Number(documentCompany?.pivot?.status_id) === 8 || (Number(documentCompany?.pivot?.status_id) === 9 )) && (
+          {roles('controleur') && (Number(documentCompany?.pivot?.status_id) === 8 || (Number(documentCompany?.pivot?.status_id) === 9)) && (
             <Button href={`#/document/palettes/${id}`} className='btn'>
               <ListTodo /> Contrôler
             </Button>
           )}
 
-          <Button onClick={()=> fetchData()}>
+          <Button onClick={() => fetchData()}>
             {loading ? (
               <RefreshCw className='animate-spin h-4 w-4 mr-2' />
             ) : (
@@ -346,10 +346,10 @@ useEffect(() => {
             Rafraîchir
           </Button>
 
-         
-         
 
-          
+
+
+
           <PrintDocument
             docentete={data.docentete}
             doclignes={
@@ -363,7 +363,7 @@ useEffect(() => {
             docentete={data.docentete}
           />
 
-          {data.docentete.document && (
+          {data?.docentete?.document && (
             <DocumentPalettesModal
               countPalettes={data?.docentete?.document?.palettes?.length}
               documentPiece={data.docentete.DO_Piece}
@@ -380,26 +380,26 @@ useEffect(() => {
             )
           }
 
-          
+
         </div>
       </div>
 
       {/* Document Info */}
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-4'>
+      <div className='grid grid-cols-1 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-5 gap-4 mb-4'>
         {[
           {
             label: 'Client',
-            value: data.docentete.DO_Tiers,
+            value: data?.docentete?.DO_Tiers,
           },
           {
             label: 'Référence',
-            value: data.docentete.DO_Ref,
+            value: data?.docentete?.DO_Ref,
           },
           {
             label: 'Expédition',
-            value: getExped(data.docentete.DO_Expedit),
+            value: getExped(data?.docentete?.DO_Expedit),
           },
-           {
+          {
             label: 'Bon de commande',
             value: data?.docentete?.document?.piece_bc,
           },
@@ -408,7 +408,7 @@ useEffect(() => {
             value: (
               <div>
                 {data?.docentete?.document?.companies?.length > 0 ? (
-                  data.docentete.document.companies
+                  data?.docentete?.document?.companies
                     .map((company) => `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''}`)
                     .join(' & ')
                 ) : (
@@ -433,15 +433,15 @@ useEffect(() => {
           </div>
         ))}
 
-        
+
       </div>
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date &&  '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
+        <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date && '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
 
         <div className='flex gap-3 items-center'>
-           <div>
+          <div>
             {Number(data?.docentete?.document?.status_id) === 11 && (
               data?.docentete?.document?.shipping
                 ? <Button onClick={() => downloadCheckList(data?.docentete?.document?.shipping?.id)} color="green" variant="solid" icon={<CircleCheck size={18} />}>
@@ -453,6 +453,7 @@ useEffect(() => {
               document_id={data?.docentete?.document?.id}
               open={openCheckList}
               setOpen={setOpencheckList}
+              reload={fetchData}
             />
           </div>
 
@@ -514,9 +515,9 @@ useEffect(() => {
                   onChange={handleSelectAll}
                   checked={
                     Object.keys(selected).length ===
-                      data.doclignes.filter(
-                        (item) => item.line?.validated !== '1'
-                      ).length &&
+                    data.doclignes.filter(
+                      (item) => item.line?.validated !== '1'
+                    ).length &&
                     data.doclignes.filter(
                       (item) => item.line?.validated !== '1'
                     ).length > 0
@@ -553,10 +554,10 @@ useEffect(() => {
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
                 QTE CMD
               </th>
-               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
+              <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
                 QTE Prp
               </th>
-  
+
             </Tr>
           </Thead>
           <tbody className='bg-white'>
@@ -665,25 +666,24 @@ useEffect(() => {
                       </span>
                     </td>
 
-                      <td className="px-4 py-2">
-                        <span
-                          className={`inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold border
-                            ${
-                              (item?.line?.quantity_prepare
-                                ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
-                                : Math.floor(item.DL_QteBL)) <
-                              (item?.line?.quantity_prepare
-                                ? Math.floor(item.EU_Qte) - item.line.quantity_prepare
-                                : Math.floor(item.EU_Qte))
-                                ? 'bg-red-50 text-red-700 border-red-200'
-                                : 'bg-green-50 text-green-700 border-green-200'
-                            }`}
-                        >
-                          {item?.line?.quantity_prepare
+                    <td className="px-4 py-2">
+                      <span
+                        className={`inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold border
+                            ${(item?.line?.quantity_prepare
                             ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
-                            : Math.floor(item.DL_QteBL)}
-                        </span>
-                      </td>
+                            : Math.floor(item.DL_QteBL)) <
+                            (item?.line?.quantity_prepare
+                              ? Math.floor(item.EU_Qte) - item.line.quantity_prepare
+                              : Math.floor(item.EU_Qte))
+                            ? 'bg-red-50 text-red-700 border-red-200'
+                            : 'bg-green-50 text-green-700 border-green-200'
+                          }`}
+                      >
+                        {item?.line?.quantity_prepare
+                          ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
+                          : Math.floor(item.DL_QteBL)}
+                      </span>
+                    </td>
                   </tr>
                 )
               })
@@ -701,24 +701,43 @@ useEffect(() => {
       </div>
 
       {/* Mobile Cards */}
-      <div className='block md:hidden'>
+
+
+
+      <div className='block md:hidden space-y-3'>
+        <label className='flex items-center justify-between bg-white border-2 border-gray-200 rounded-xl px-4 py-3 cursor-pointer mb-2'>
+          <div className='flex items-center gap-3'>
+            <Checkbox
+              onChange={handleSelectAll}
+              checked={
+                Object.keys(selected).length ===
+                data.doclignes.filter((item) => item.line?.validated !== '1').length &&
+                data.doclignes.filter((item) => item.line?.validated !== '1').length > 0
+              }
+              className='scale-125'
+            />
+            <span className='text-base font-semibold text-gray-700'>Tout sélectionner</span>
+          </div>
+
+          {Object.keys(selected).length > 0 && (
+            <span className='bg-blue-100 text-blue-700 text-sm font-bold px-3 py-1 rounded-full'>
+              {Object.keys(selected).length} sélectionné{Object.keys(selected).length > 1 ? 's' : ''}
+            </span>
+          )}
+        </label>
         {loading ? (
-          <div className='space-y-4'>
+          <div className='space-y-3'>
             {[1, 2, 3].map((i) => (
-              <div
-                key={i}
-                className='bg-white border-1 border-gray-200 p-4 space-y-3 animate-pulse'
-              >
+              <div key={i} className='bg-white rounded-xl border border-gray-200 p-4 space-y-3 animate-pulse'>
                 <div className='flex justify-between'>
-                  <div className='h-4 bg-gray-200 rounded w-1/3'></div>
-                  <div className='h-4 bg-gray-200 rounded w-16'></div>
+                  <div className='h-5 bg-gray-200 rounded w-2/5'></div>
+                  <div className='h-6 bg-gray-200 rounded-full w-14'></div>
                 </div>
-                <div className='h-px bg-gray-200'></div>
-                <div className='grid grid-cols-2 gap-2'>
-                  <div className='h-4 bg-gray-200 rounded'></div>
-                  <div className='h-4 bg-gray-200 rounded'></div>
-                  <div className='h-4 bg-gray-200 rounded'></div>
-                  <div className='h-4 bg-gray-200 rounded'></div>
+                <div className='h-4 bg-gray-100 rounded w-1/3'></div>
+                <div className='grid grid-cols-3 gap-2'>
+                  <div className='h-10 bg-gray-100 rounded-lg'></div>
+                  <div className='h-10 bg-gray-100 rounded-lg'></div>
+                  <div className='h-10 bg-gray-100 rounded-lg'></div>
                 </div>
               </div>
             ))}
@@ -726,106 +745,97 @@ useEffect(() => {
         ) : data.doclignes?.length > 0 ? (
           currentItems.map((item, index) => {
             const lineId = item.line?.id || item.id
+            const isSelected = isItemSelected(lineId)
+            const isValidated = item.line?.validated === '1'
+
             return (
               <div
                 key={index}
-                className='bg-white rounded-xl shadow-md border border-gray-200 p-6 mb-6 hover:shadow-lg transition-all duration-200'
+                onClick={() => !isValidated && handleSelect(lineId, item)}
+                className={`
+            bg-white rounded-xl border-2 p-4 transition-all duration-150 cursor-pointer
+            ${isValidated
+                    ? 'border-green-200 bg-green-50/30 cursor-default'
+                    : isSelected
+                      ? 'border-blue-400 bg-blue-50/40 shadow-sm'
+                      : 'border-gray-200 active:border-gray-300'}
+          `}
               >
-                <div className='flex justify-between items-start mb-4'>
-                  <div className='space-y-1'>
-                    <h2 className='text-lg font-semibold text-gray-900 flex gap-3 items-center'>
-                      <span>
-                        <Checkbox
-                          checked={isItemSelected(lineId)}
-                          onChange={() => handleSelect(lineId, item)}
-                          style={{
-                            transform: 'scale(1.5)',
-                            transformOrigin: 'top left',
-                            fontSize: '18px',
-                            display: 'flex',
-                            alignItems: 'center',
-                          }}
-                        />
-                      </span>
-
-                      <span>
-                        {item?.Nom ||
-                          item.article?.Nom ||
-                          item?.DL_Design ||
-                          '__'}
-                      </span>
-                    </h2>
-                    <p className='text-sm text-gray-500'>
-                      {item?.Description || ''} {item?.Rotation || ''}{' '}
-                      {item?.Poignee || ''}
-                    </p>
+                {/* Top Row */}
+                <div className='flex justify-between items-start gap-2 mb-2'>
+                  <div className='flex items-center gap-3 min-w-0'>
+                    {isValidated ? (
+                      <svg className='w-6 h-6 text-green-500 shrink-0' fill='currentColor' viewBox='0 0 20 20'>
+                        <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
+                      </svg>
+                    ) : (
+                      <Checkbox
+                        checked={isSelected}
+                        onChange={() => handleSelect(lineId, item)}
+                        onClick={(e) => e.stopPropagation()}
+                        className='shrink-0 scale-125'
+                      />
+                    )}
+                    <span className='text-base font-bold text-gray-900 leading-snug'>
+                      {item?.Nom || item.article?.Nom || item?.DL_Design || '—'}
+                    </span>
                   </div>
-                  <div className='flex items-center space-x-3'>
-                    <span className='px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800'>
+
+                  <div className='flex items-center gap-2 shrink-0'>
+                    <Tag
+                      color={getLineColor(item.line?.status?.color, item.line?.role_id, item.line?.status?.id)}
+                      className='!m-0 !text-sm !px-2 !py-0.5'
+                    >
+                      {item.line?.status?.name}
+                    </Tag>
+                    <span className='bg-green-100 text-green-800 text-sm font-extrabold px-3 py-1 rounded-full'>
                       {Math.floor(item.EU_Qte)}
                     </span>
                   </div>
                 </div>
 
-                {isItemSelected(lineId) && (
-                  <div className='mb-4 p-3 bg-blue-50 rounded-lg'>
-                    <label className='block text-sm font-medium text-gray-700 mb-2'>
-                      Quantité à transférer:
-                    </label>
-                    <InputNumber
-                      min={0.1}
-                      max={Math.floor(item.EU_Qte)}
-                      value={getSelectedQuantity(lineId)}
-                      onChange={(value) => handleQuantityChange(lineId, value)}
-                      style={{ width: '100%' }}
-                    />
-                  </div>
+                {/* Sub info */}
+                {(item?.Description || item?.Rotation || item?.Poignee || item?.AR_Ref) && (
+                  <p className='text-sm text-gray-500 mb-3 ml-9 truncate'>
+                    {[item?.AR_Ref, item?.Description, item?.Rotation, item?.Poignee].filter(Boolean).join(' · ')}
+                  </p>
                 )}
 
-                <div className='border-t border-gray-200 pt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm text-gray-700'>
-                  <div>
-                    <span className='block text-gray-500'>Hauteur</span>
-                    {item.Hauteur > 0
-                      ? Math.floor(item.Hauteur)
-                      : Math.floor(item.article?.Hauteur) || '__'}
-                  </div>
-                  <div>
-                    <span className='block text-gray-500'>Largeur</span>
-                    {item.Largeur > 0
-                      ? Math.floor(item.Largeur)
-                      : Math.floor(item?.article?.Largeur) || '__'}
-                  </div>
-                  <div>
-                    <span className='block text-gray-500'>Profondeur</span>
-                    {item.Profondeur || item?.article?.Profonduer || '__'}
-                  </div>
-                  <div>
-                    <span className='block text-gray-500'>Épaisseur</span>
-                    {item?.Episseur | item?.article?.Episseur}
-                  </div>
+                {/* Dimensions Grid */}
+                <div className='ml-9 grid grid-cols-4 gap-2'>
+                  {[
+                    { label: 'Haut.', value: item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) },
+                    { label: 'Larg.', value: item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) },
+                    { label: 'Prof.', value: Math.floor(item.Profondeur) || Math.floor(item?.article?.Profonduer) },
+                    { label: 'Épais.', value: Math.floor(item?.Episseur) || Math.floor(item?.article?.Episseur) },
+                  ].map(({ label, value }) => (
+                    <div key={label} className='bg-gray-50 rounded-lg p-2 text-center border border-gray-400'>
+                      <span className='block text-gray-400 text-xs uppercase tracking-wide font-medium'>{label}</span>
+                      <span className='block text-gray-900 text-base font-bold mt-0.5'>{value || '—'}</span>
+                    </div>
+                  ))}
                 </div>
 
-                <div className='border-t border-gray-200 pt-4 grid grid-cols-3 gap-4 text-sm text-gray-700 mt-4'>
-                  <div>
-                    <span className='block text-gray-500'>Couleur</span>
-                    <strong>
-                      {item.Couleur || item?.article?.Couleur || '__'}
-                    </strong>
+                {/* Color & Chant */}
+                {(item.Couleur || item?.article?.Couleur || item.Chant || item?.article?.Chant) && (
+                  <div className='ml-9 mt-3 flex gap-2 flex-wrap'>
+                    {(item.Couleur || item?.article?.Couleur) && (
+                      <span className='text-sm bg-gray-100 text-gray-700 font-medium px-3 py-1 rounded-full border border-gray-400'>
+                        {item.Couleur || item?.article?.Couleur}
+                      </span>
+                    )}
+                    {(item.Chant || item?.article?.Chant) && (
+                      <span className='text-sm bg-gray-100 text-gray-700 font-medium px-3 py-1 rounded-full'>
+                        Chant: {item.Chant || item?.article?.Chant}
+                      </span>
+                    )}
                   </div>
-                  <div>
-                    <span className='block text-gray-500'>Chant</span>
-                    {item.Chant || item?.article?.Chant || '__'}
-                  </div>
-                  <div>
-                    <span className='block text-gray-500'>Référence</span>
-                    {item.AR_Ref || '__'}
-                  </div>
-                </div>
+                )}
               </div>
             )
           })
         ) : (
-          <div className='bg-white border-1 border-gray-200 p-8 text-center'>
+          <div className='bg-white rounded-xl border border-gray-200 p-10 text-center'>
             <Empty description='Aucun article trouvé' />
           </div>
         )}

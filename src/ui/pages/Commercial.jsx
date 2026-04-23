@@ -192,7 +192,7 @@ function Commercial() {
             <div className='flex items-center space-x-3'>
               <h1 className='text-md font-bold text-gray-900 flex gap-3 items-center'>
                 <span>
-                  {data.docentete.DO_Piece
+                  {data?.docentete?.DO_Piece
                     ? data.docentete.DO_Piece
                     : 'Chargement...'}
                 </span>
@@ -235,7 +235,7 @@ function Commercial() {
               /> */}
               {data?.docentete?.document && (
                 <DocumentPalettesModal
-                  countPalettes={data.docentete.document.palettes?.length ?? 0}
+                  countPalettes={data?.docentete?.document?.palettes?.length ?? 0}
                   documentPiece={
                     data.docentete.document?.piece_fa ||
                     data.docentete.document?.piece_bl ||
@@ -252,15 +252,15 @@ function Commercial() {
             {[
               {
                 label: 'Client',
-                value: data.docentete.DO_Tiers,
+                value: data?.docentete?.DO_Tiers,
               },
               {
                 label: 'Référence',
-                value: data.docentete.DO_Ref,
+                value: data.docentete?.DO_Ref,
               },
               {
                 label: 'Expédition',
-                value: getExped(data.docentete.DO_Expedit),
+                value: getExped(data.docentete?.DO_Expedit),
               },
               {
                 label: 'Bon de commande',
@@ -271,7 +271,7 @@ function Commercial() {
                 value: (
                   <div>
                     {data?.docentete?.document?.companies?.length > 0 ? (
-                      data.docentete.document.companies
+                      data.docentete.document?.companies
                         .map(
                           (company) =>
                             `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''
@@ -310,7 +310,7 @@ function Commercial() {
                 fetchData={fetchData}
               />
 
-              {data.docentete.document &&
+              {data?.docentete?.document &&
                 (Number(data.docentete.document.status_id) < 8 || roles('super_admin')) && (
                   <Popconfirm
                     title='Réinitialiser la commande'

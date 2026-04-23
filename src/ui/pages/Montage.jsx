@@ -110,7 +110,7 @@ function Montage() {
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-lg font-bold text-gray-800'>
-            {data.docentete.DO_Piece
+            {data?.docentete?.DO_Piece
               ? `Commande ${data.docentete.DO_Piece}`
               : 'Chargement...'}
           </h1>
@@ -134,15 +134,15 @@ function Montage() {
         {[
           {
             label: 'Client',
-            value: data.docentete.DO_Tiers,
+            value: data?.docentete?.DO_Tiers,
           },
           {
             label: 'Référence',
-            value: data.docentete.DO_Ref,
+            value: data?.docentete?.DO_Ref,
           },
           {
             label: 'Expédition',
-            value: getExped(data.docentete.DO_Expedit),
+            value: getExped(data?.docentete?.DO_Expedit),
           },
           {
             label: 'Type de document',

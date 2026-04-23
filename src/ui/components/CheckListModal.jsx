@@ -10,7 +10,7 @@ import { locale } from '../utils/config';
 const STATUS_COLORS = { Oui: 'green', Non: 'red', 'N.A': 'default' };
 const STATUS_OPTIONS = ['Oui', 'Non', 'N.A'];
 
-export default function CheckListModal({ document_id, open, setOpen }) {
+export default function CheckListModal({ document_id, open, setOpen, reload }) {
   const [form]                          = Form.useForm();
   const [loading, setLoading]           = useState(false);
   const [fetching, setFetching]         = useState(false);
@@ -89,6 +89,7 @@ export default function CheckListModal({ document_id, open, setOpen }) {
 
       await api.post('shippings', payload);
       message.success("Liste de contrôle d'expédition soumise avec succès !");
+      reload()
       handleClose();
 
     } catch (err) {

@@ -104,7 +104,7 @@ function PreparationList() {
             `}
           >
             <span className={isElectron ? "text-2xl" : "text-lg"}>
-              {data.docentete.DO_Piece ? data.docentete.DO_Piece : "Chargement..."}
+              {data?.docentete?.DO_Piece ? data.docentete.DO_Piece : "Chargement..."}
             </span>
 
             {data?.docentete?.document && (
@@ -151,14 +151,14 @@ function PreparationList() {
         <div className='flex flex-col space-y-1'>
           <span className='text-sm text-gray-800 uppercase tracking-wide'>Client</span>
           <span className={isElectron ? "text-xl" : "text-base"}>
-            {data.docentete.DO_Tiers || <Skeleton />}
+            {data.docentete?.DO_Tiers || <Skeleton />}
           </span>
         </div>
 
         <div className='flex flex-col space-y-1'>
           <span className='text-sm text-gray-800 uppercase tracking-wide'>Référence</span>
           <span className={isElectron ? "text-xl" : "text-base"}>
-            {data.docentete.DO_Ref || <Skeleton />}
+            {data?.docentete?.DO_Ref || <Skeleton />}
           </span>
         </div>
 

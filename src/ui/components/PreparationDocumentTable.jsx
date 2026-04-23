@@ -198,82 +198,104 @@ function PreparationDocumentTable({ documents = [], loading, orderBy, setOrderBy
         </div>
       </div>
 
-      {/* Mobile Card View (if needed for smaller windows) */}
-      <div className='lg:hidden px-3'>
+    {/* Mobile Card View */}
+      <div className='lg:hidden px-3 py-2 space-y-3'>
         {documents.map((data, index) => (
           <div
             key={index}
-            className='border-b border-gray-200 p-4 hover:bg-gray-50 cursor-pointer transition-colors duration-150 bg-white shadow-sm mb-2 rounded-lg border'
-
+            // onClick={() => handleShow(data.docentete.DO_Piece)}
+            onClick={()=> navigate(`/document/${data.id}`)}
+            className='bg-white rounded-xl border border-gray-200 p-4 cursor-pointer active:border-blue-400 active:bg-blue-50/30 transition-all duration-150 shadow-sm'
           >
-            <div className='flex justify-between items-start mb-3'>
-              <div className='flex items-center'>
-                <span className='text-lg font-bold text-gray-900'>
-                  {data.piece || '__'}
+            {/* Top Row: Piece + Status */}
+            <div className='flex justify-between items-start mb-3 gap-2'>
+              <div className='flex items-center gap-2 min-w-0'>
+                <span className='text-base font-bold text-gray-900 truncate'>
+                  {data.piece || '—'}
                 </span>
-                {data.DO_Reliquat === 1 && (
-                  <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300'>
-                    <Settings size={14} />
+                {data?.docentete?.DO_Reliquat === '1' && (
+                  <span className='p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shrink-0'>
+                    <Settings size={13} />
                   </span>
                 )}
+                {parseInt(data?.urgent) ? (
+                  <span className='p-1 bg-red-100 rounded border border-red-300 shrink-0'>
+                    🚨
+                  </span>
+                ) : null}
               </div>
-              <Tag
-                color={company(data)?.pivot?.status_id
-                  ? getStatus(Number(company(data).pivot.status_id)).color
-                  : 'gray'}
-                className='text-xs font-medium shadow-sm p-4 border m-0'
-                style={window.electron ? { margin: 0, fontSize: "20px", padding: "4px" }: {}}
-              >
-                {company(data)?.pivot?.status_id
-                  ? getStatus(Number(company(data).pivot.status_id)).name
-                  : 'En attente'}
-              </Tag> 
+
+              {roles('fabrication') ? (
+                <Tag
+                  color={data.complation_date ? 'success' : 'gray'}
+                  className='!m-0 !text-sm !px-2 !py-0.5 shrink-0'
+                >
+                  {data.complation_date ? 'En cours' : 'En attente'}
+                </Tag>
+              ) : (
+                <Tag
+                  color={
+                    company(data)?.pivot?.status_id
+                      ? getStatus(Number(company(data).pivot.status_id)).color
+                      : 'gray'
+                  }
+                  className='!m-0 !text-sm !px-2 !py-0.5 shrink-0'
+                >
+                  {company(data)?.pivot?.status_id
+                    ? getStatus(Number(company(data).pivot.status_id)).name
+                    : 'En attente'}
+                </Tag>
+              )}
             </div>
 
-            {/* Expedition and Client badges */}
+            {/* Expedition + Client */}
             <div className='flex flex-wrap gap-2 mb-3'>
-              <span
-                className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold ${getExpeditionColor(data.DO_Expedit)}`}
-              >
+              <span className={`inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold ${getExpeditionColor(data.expedition)}`}>
                 {getExped(data.expedition)}
               </span>
               <span className='inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
                 {data.client_id}
               </span>
+              {Number(data.has_user_printer) > 0 && (
+                <span className='inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-gray-50 text-gray-600 border border-gray-200 gap-1'>
+                  <Printer size={14} /> Imprimé
+                </span>
+              )}
+              {parseInt(data?.companies?.find(c => parseInt(c.id) === parseInt(user?.company_id))?.pivot?.updated ?? 0) === 1 && (
+                <span className='inline-flex items-center px-3 py-1 rounded-md text-sm font-semibold bg-red-50 text-red-600 border border-red-200 gap-1'>
+                  <Edit size={14} /> Modifié
+                </span>
+              )}
             </div>
 
-            {/* Details */}
-            <div className='space-y-2 text-sm'>
-              <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium text-xl'>Référence:</span>
-                <span className={window.electron ? 'font-semibold text-lg text-gray-900': 'font-semibold text-sm text-gray-900'}>{data.ref}</span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium text-xl'>Date du document:</span>
-                <span className={window.electron ? 'font-semibold text-lg text-gray-900': 'font-semibold text-sm text-gray-900'}>
-                   {formatDate(new Date(data?.docentete?.DO_Date))}
-              
-                </span>
-              </div>
-              <div className='flex justify-between'>
-                <span className='text-gray-500 font-medium text-xl'>Date prévue:</span>
-                <span className={window.electron ? 'font-semibold text-lg text-gray-900': 'font-semibold text-sm text-gray-900'}>
-                  {formatDate(new Date(data?.docentete?.DO_DateLivr))}
-                </span>
-              </div>
+            {/* Details Grid */}
+            <div className='grid grid-cols-3 gap-2 mb-3'>
+              {[
+                { label: 'Référence', value: data.ref },
+                { label: 'Date doc.', value: formatDate(new Date(data?.docentete?.DO_Date)) },
+                { label: 'Date prévue', value: formatDate(data?.docentete?.DO_DateLivr || data.delivery_date) },
+              ].map(({ label, value }) => (
+                <div key={label} className='bg-gray-50 rounded-lg p-2 text-center'>
+                  <span className='block text-gray-400 text-xs uppercase tracking-wide font-medium mb-0.5'>{label}</span>
+                  <span className='block text-gray-900 text-sm font-bold'>{value || '—'}</span>
+                </div>
+              ))}
             </div>
-            {
-              (Number(company(data)?.pivot.status_id) === 8 || Number(company(data)?.pivot?.status_id) === 9) && roles('controleur') ?
-               <Button style={window.electron ? { fontSize: "20px", padding: "20px", width: '100%', marginTop: '12px' } : {marginTop: '12px'}}
-                color="cyan"
-                variant="solid"
-                className='w-full'
-                onClick={() => navigate(`/document/palettes/${data?.piece}`)}
+
+            {/* Controle Button */}
+            {(Number(company(data)?.pivot?.status_id) === 8 || Number(company(data)?.pivot?.status_id) === 9) && roles('controleur') && (
+              <Button
+                color='cyan'
+                variant='solid'
+                className='w-full !mt-1'
+                onClick={(e) => {
+                  e.stopPropagation()
+                  navigate(`/document/palettes/${data?.piece}`)
+                }}
               >
-                Controle
-              </Button> : ''
-            }
-
+                Contrôle
+              </Button>
+            )}
           </div>
         ))}
       </div>

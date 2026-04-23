@@ -46,7 +46,7 @@ const TicketPrinter = ({ docentete, palettes = [], btnSize }) => {
 
 
     return (
-        <div>
+        <div className='hidden md:block'>
             <Button type="primary" onClick={() => setVisible(true)} size={btnSize}>
                 <ReceiptText />
                 Billets
