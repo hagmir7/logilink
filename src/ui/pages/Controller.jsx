@@ -47,6 +47,25 @@ function Controller() {
   const [confirmLoading, setConfirmLoading] = useState(false)
   const [status, setStatus] = useState({});
   const [openCheckList, setOpencheckList] = useState(false);
+  const [downloadSpin, setDownloadSpin] = useState(false);
+  const [documentPL, setDocumentPl] = useState(null)
+
+
+
+  const getDocumentPL = async () => {
+    try {
+      const response = await api.get(`documents/${id}`)
+      setDocumentPl(response.data)
+    } catch (err) {
+      console.error('Failed to fetch data:', err)
+      message.error('Erreur lors du chargement des données')
+    } finally {
+    }
+  }
+
+  useEffect(() => {
+    getDocumentPL()
+  }, [id])
 
 
   const selectedRowsFull = Object.values(selected)
@@ -88,16 +107,16 @@ function Controller() {
     }
   }
 
-  const downloadCheckList = async (id) => {
-    // setPdfLoading(true);
+  const downloadCheckList = async (checklist_id) => {
+    setDownloadSpin(true);
     try {
-      const res = await api.get(`shippings/${id}/print`, {
+      const res = await api.get(`shippings/${checklist_id}/print`, {
         responseType: 'blob',
       });
       const url = window.URL.createObjectURL(new Blob([res.data]));
       const link = document.createElement('a');
       link.href = url;
-      link.setAttribute('download', `comparatif-${data.reference || id}.pdf`);
+      link.setAttribute('download', `${id}-${checklist_id}.pdf`);
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -107,7 +126,7 @@ function Controller() {
       console.log(error);
       message.error('Erreur lors du téléchargement du PDF.');
     } finally {
-      // setPdfLoading(false);
+      setDownloadSpin(false);
     }
   };
 
@@ -117,7 +136,6 @@ function Controller() {
     if (!user?.company_id) return
     fetchData(false)
 
-    // Interval → silent refresh (no loader)
     const interval = setInterval(() => {
       fetchData(true)
     }, 50000)
@@ -374,9 +392,12 @@ function Controller() {
           {
             (parseInt(user?.company_id) === 1 &&
               parseInt(data?.docentete?.document?.status_id) !== 11) && (
-              <Button onClick={validate} loading={validatePartialLoading} className='btn'>
-                <ListTodo /> Validate
-              </Button>
+              <Tooltip title={'Valider partielle'}>
+                <Button onClick={validate} loading={validatePartialLoading} className='btn'>
+                  <ListTodo /> P Valider
+                </Button>
+              </Tooltip>
+
             )
           }
 
@@ -441,20 +462,36 @@ function Controller() {
         <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date && '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
 
         <div className='flex gap-3 items-center'>
+  
           <div>
-            {Number(data?.docentete?.document?.status_id) === 11 && (
-              data?.docentete?.document?.shipping
-                ? <Button onClick={() => downloadCheckList(data?.docentete?.document?.shipping?.id)} color="green" variant="solid" icon={<CircleCheck size={18} />}>
-                  Check-list
-                </Button>
-                : <Button onClick={() => setOpencheckList(true)} icon={<ListCheck size={18} />}>Check-list</Button>
-            )}
-            <CheckListModal
-              document_id={data?.docentete?.document?.id}
-              open={openCheckList}
-              setOpen={setOpencheckList}
-              reload={fetchData}
-            />
+            {
+            Number(documentPL?.document?.status_id) === 11 &&
+              (<div>
+                <Button onClick={() => setOpencheckList(true)} icon={<ListCheck size={18} />}>Check-list</Button>
+
+                <CheckListModal
+                  document_id={data?.docentete?.document?.id || id}
+                  open={openCheckList}
+                  setOpen={setOpencheckList}
+                  reload={getDocumentPL}
+                />
+              </div>
+              )
+            }
+
+            
+
+ 
+            {Number(documentPL?.document?.status_id) === 14 &&
+              <Button
+                onClick={() => downloadCheckList(documentPL?.document?.shipping?.id)}
+                color="green"
+                loading={downloadSpin}
+                variant="solid"
+                icon={<CircleCheck size={18} />}>
+                Check-list
+              </Button>
+            }
           </div>
 
           {documentCompany?.pivot && (
