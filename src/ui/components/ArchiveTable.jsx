@@ -153,11 +153,13 @@ function ArchiveTable({ documents = [], documentType = 1 }) {
                           <span className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
                             {piece}
                           </span>
-                          {data.DO_Reliquat === '1' && (
+                          {data?.docentete?.DO_Reliquat === '1' && (
                             <span className="p-1 rounded bg-gray-100 text-gray-400 border border-gray-200">
                               <Settings size={11} />
                             </span>
                           )}
+                          - {data?.shipping?.id}
+                          {JSON.stringify(data?.shipping)}
                         </div>
                       </td>
 

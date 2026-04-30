@@ -5,7 +5,7 @@ import { useLocation, useParams } from 'react-router-dom'
 import { Button, Checkbox, DatePicker, Empty, message, Tag } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
 import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-import { RefreshCcw, ArrowRight, CheckCircle, Check } from 'lucide-react'
+import { RefreshCw, ArrowRight, CheckCircle, Check } from 'lucide-react'
 import PrintDocument from '../components/PrintDocument'
 import FacadDocumentPrint from '../components/FacadDocumentPrint'
 
@@ -136,9 +136,9 @@ function Fabrication() {
         <div className='flex gap-2'>
           <Button onClick={fetchData}>
             {loading ? (
-              <RefreshCcw className='animate-spin h-4 w-4 mr-2' />
+              <RefreshCw className='animate-spin h-4 w-4 mr-2' />
             ) : (
-              <RefreshCcw className='h-4 w-4 mr-2' />
+              <RefreshCw className='h-4 w-4 mr-2' />
             )}
             Rafraîchir
           </Button>

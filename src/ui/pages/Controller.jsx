@@ -53,19 +53,24 @@ function Controller() {
 
 
   const getDocumentPL = async () => {
+
     try {
       const response = await api.get(`documents/${id}`)
       setDocumentPl(response.data)
+
     } catch (err) {
       console.error('Failed to fetch data:', err)
       message.error('Erreur lors du chargement des données')
     } finally {
+      if (documentPL) {
+        fetchData(true)
+      }
     }
   }
 
   useEffect(() => {
     getDocumentPL()
-  }, [id])
+  }, [])
 
 
   const selectedRowsFull = Object.values(selected)
@@ -397,7 +402,6 @@ function Controller() {
                   <ListTodo /> P Valider
                 </Button>
               </Tooltip>
-
             )
           }
 
