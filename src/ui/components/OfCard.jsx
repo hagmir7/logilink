@@ -6,7 +6,6 @@ import dayjs from 'dayjs'
 import printOf from '../components/printOf'
 import { api } from "../utils/api"
 
-
 import {
   DndContext, closestCenter, PointerSensor, useSensor, useSensors,
 } from '@dnd-kit/core'
@@ -15,6 +14,7 @@ import {
 } from '@dnd-kit/sortable'
 import { CSS } from '@dnd-kit/utilities'
 import AchatProductSearch from "./AchatProductSearch"
+import OFDuplicateModal from "./OFDuplicateModal"
 import { useAuth } from "../contexts/AuthContext"
 
 /* ─── Config ─────────────────────────────────────────────────── */
@@ -37,8 +37,6 @@ function SortableLineRow({
   const { attributes, listeners, setNodeRef, transform, transition, isDragging } =
     useSortable({ id: line.id })
 
-
-
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
@@ -58,8 +56,8 @@ function SortableLineRow({
     >
       {/* Drag handle */}
       <td className="px-2 py-2 w-8">
-        {
-          !roles('production_operateur') ? (<span
+        {!roles('production_operateur') && (
+          <span
             {...attributes}
             {...listeners}
             className="flex items-center justify-center text-gray-300 hover:text-gray-500 cursor-grab active:cursor-grabbing"
@@ -68,8 +66,8 @@ function SortableLineRow({
               ? <Loader2 size={14} className="animate-spin text-blue-400" />
               : <GripVertical size={15} />
             }
-          </span>) : ''
-        }
+          </span>
+        )}
       </td>
 
       <td className="px-4 py-2">
@@ -105,7 +103,7 @@ function SortableLineRow({
               />
             </Tooltip>
             <Tooltip title="Annuler">
-              <Button  size="small" danger icon={<X size={12} />} onClick={handleCancelEditQty} className="!px-1.5" />
+              <Button size="small" danger icon={<X size={12} />} onClick={handleCancelEditQty} className="!px-1.5" />
             </Tooltip>
           </div>
         ) : (
@@ -141,7 +139,6 @@ function OFCard({ of: initialOf, refresh }) {
   const [editStatus, setEditStatus]         = useState(false)
   const [newStatus, setNewStatus]           = useState(of.statut)
   const [savingStatus, setSavingStatus]     = useState(false)
-  const [duplicateStatus, setDuplicateStatus] = useState(false)
 
   // Ordered lines
   const [orderedLines, setOrderedLines]     = useState(of.lines ?? [])
@@ -149,20 +146,17 @@ function OFCard({ of: initialOf, refresh }) {
 
   // Duplicate modal
   const [duplicateModalOpen, setDuplicateModalOpen] = useState(false)
-  const [machines, setMachines]             = useState([])
-  const [loadingMachines, setLoadingMachines] = useState(false)
-  const [selectedMachine, setSelectedMachine] = useState(null)
+  const [duplicating, setDuplicating]               = useState(false)
 
   // Qty edit
   const [editingLineId, setEditingLineId]   = useState(null)
   const [editingQty, setEditingQty]         = useState(null)
   const [savingLineQty, setSavingLineQty]   = useState(false)
 
-
-  const {roles} = useAuth();
-
   // Article search modal
   const [searchModal, setSearchModal]       = useState({ open: false, lineIndex: null, value: "" })
+
+  const { roles } = useAuth()
 
   useEffect(() => {
     setOrderedLines(initialOf.lines ?? [])
@@ -182,34 +176,31 @@ function OFCard({ of: initialOf, refresh }) {
     const newIndex  = orderedLines.findIndex(l => l.id === over.id)
     const reordered = arrayMove(orderedLines, oldIndex, newIndex)
 
-    setOrderedLines(reordered) // optimistic update
+    setOrderedLines(reordered)
 
     setSavingOrder(true)
     try {
       await api.put(`ordres-fabrication/${of.id}/reorder`, {
         lines: reordered.map((l, i) => ({ id: l.id, position: i + 1 }))
       })
-      // silent success — the handle spinner is enough feedback
-    } catch(error) {
+    } catch (error) {
       console.error(error)
       message.error('Erreur lors de la sauvegarde de l\'ordre')
-      setOrderedLines(orderedLines) // rollback
+      setOrderedLines(orderedLines)
     } finally {
       setSavingOrder(false)
     }
   }
 
-  /* ── Add article (from AchatProductSearch) ── */
+  /* ── Add article ── */
   const handleArticleSelect = async (articles) => {
     setSearchModal({ open: false, lineIndex: null, value: "" })
     try {
       const response = await api.post(`ordres-fabrication/${of.id}/lines`, {
         articles: articles.map(a => ({ code: a.code, quantity: 1 }))
       })
-
       const newLines = response.data.data
-      const updated = [...orderedLines, ...newLines]
-
+      const updated  = [...orderedLines, ...newLines]
       setOrderedLines(updated)
       setOf(prev => ({ ...prev, lines: updated }))
       message.success(response.data.message)
@@ -231,47 +222,6 @@ function OFCard({ of: initialOf, refresh }) {
       message.error('Erreur lors de la mise à jour')
     } finally {
       setSavingStatus(false)
-    }
-  }
-
-  /* ── Machines / Duplicate ── */
-  const getMachines = async () => {
-    setLoadingMachines(true)
-    try {
-      const response = await api.get('machines?per_page=100')
-      setMachines(
-        response.data.data
-          .filter(m => m.is_active)
-          .map(item => ({
-            label: item.ref_machine ? `${item.ref_machine} — ${item.group_code}` : item.ref_machine,
-            value: item.machine_id,
-          }))
-      )
-    } catch (error) {
-      message.error(error?.response?.data?.message || 'Erreur lors du chargement des machines')
-    } finally {
-      setLoadingMachines(false)
-    }
-  }
-
-  const openDuplicateModal = () => {
-    setSelectedMachine(null)
-    setDuplicateModalOpen(true)
-    getMachines()
-  }
-
-  const handleDuplicate = async () => {
-    if (!selectedMachine) { message.warning('Veuillez sélectionner une machine'); return }
-    setDuplicateStatus(true)
-    try {
-      await api.get(`ordres-fabrication/${of.id}/duplicate`, { params: { reference_machine: selectedMachine } })
-      message.success('OF dupliqué avec succès')
-      setDuplicateModalOpen(false)
-      refresh(1, false, [])
-    } catch {
-      message.error('Erreur lors de la duplication')
-    } finally {
-      setDuplicateStatus(false)
     }
   }
 
@@ -306,7 +256,6 @@ function OFCard({ of: initialOf, refresh }) {
           const updated = orderedLines.filter(l => l.id !== id)
           setOrderedLines(updated)
           setOf(prev => ({ ...prev, lines: updated }))
-          // refresh(1, false, [])
         } catch { message.error('Erreur lors de la suppression') }
       },
     })
@@ -395,7 +344,7 @@ function OFCard({ of: initialOf, refresh }) {
                 />
               </Tooltip>
               <Tooltip title="Annuler">
-                <Button  size="small" danger icon={<X size={12} />}
+                <Button size="small" danger icon={<X size={12} />}
                   onClick={() => { setEditStatus(false); setNewStatus(of.statut) }} className="!px-2"
                 />
               </Tooltip>
@@ -410,9 +359,12 @@ function OFCard({ of: initialOf, refresh }) {
           )}
 
           <Tooltip title="Dupliquer">
-            <Button  size="small" type="primary"
-              icon={duplicateStatus ? <Loader2 size={12} className="animate-spin" /> : <Copy size={12} />}
-              onClick={openDuplicateModal} disabled={duplicateStatus || roles('production_operateur')} className="!px-2"
+            <Button
+              size="small" type="primary"
+              icon={duplicating ? <Loader2 size={12} className="animate-spin" /> : <Copy size={12} />}
+              onClick={() => setDuplicateModalOpen(true)}
+              disabled={duplicating || roles('production_operateur')}
+              className="!px-2"
             />
           </Tooltip>
 
@@ -432,7 +384,7 @@ function OFCard({ of: initialOf, refresh }) {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="w-8 px-2 py-2" /> {/* drag handle col */}
+                <th className="w-8 px-2 py-2" />
                 {['Réf article', 'Désignation', 'Nom', 'Qté à produire', 'Actions'].map(h => (
                   <th key={h} className="px-4 py-2 text-sm text-gray-500 uppercase tracking-wide text-start">{h}</th>
                 ))}
@@ -462,8 +414,7 @@ function OFCard({ of: initialOf, refresh }) {
                   <tr className="bg-white">
                     <td colSpan={6} className="px-4 py-2">
                       <Button
-                        type="dashed"
-                        size="small"
+                        type="dashed" size="small"
                         disabled={roles('production_operateur')}
                         icon={<Plus size={13} />}
                         onClick={() => setSearchModal({ open: true, lineIndex: orderedLines.length, value: "" })}
@@ -481,25 +432,12 @@ function OFCard({ of: initialOf, refresh }) {
       )}
 
       {/* ── Duplicate modal ── */}
-      <Modal
-        title="Dupliquer l'OF"
+      <OFDuplicateModal
+        ofId={of.id}
         open={duplicateModalOpen}
-        onCancel={() => { setDuplicateModalOpen(false); setSelectedMachine(null) }}
-        onOk={handleDuplicate}
-        okText="Dupliquer" cancelText="Annuler"
-        confirmLoading={duplicateStatus}
-        okButtonProps={{ disabled: !selectedMachine }}
-      >
-        <div className="py-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Sélectionner une machine</label>
-          <Select
-            showSearch placeholder="Rechercher une machine..."
-            value={selectedMachine} onChange={setSelectedMachine}
-            loading={loadingMachines} options={machines}
-            optionFilterProp="label" style={{ width: '100%' }} size="large"
-          />
-        </div>
-      </Modal>
+        onClose={() => setDuplicateModalOpen(false)}
+        onSuccess={() => refresh(1, false, [])}
+      />
 
       {/* ── Article search modal ── */}
       <AchatProductSearch

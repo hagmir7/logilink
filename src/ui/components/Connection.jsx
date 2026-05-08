@@ -24,7 +24,7 @@ export default function Connection() {
         },
         {
             label: 'Personnalisée',
-            value: 'custom', // triggers input field
+            value: 'custom',
         },
     ];
 
