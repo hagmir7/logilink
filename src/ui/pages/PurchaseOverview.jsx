@@ -6,6 +6,7 @@ import { BadgeEuro, ClockFading, Network, Users } from "lucide-react";
 import MonthlyPurchases from "../components/charts/MonthlyPurchases";
 import ServiceExpenditures from "../components/charts/ServiceExpenditures";
 import dayjs from "dayjs";
+import IndicateursDashboard from "../components/IndicateursDashboard";
 
 const { RangePicker } = DatePicker;
 
@@ -141,11 +142,13 @@ export default function PurchaseOverview() {
                     className="min-w-[160px]"
                 />
             </div>
+            
             <DashboardSection dates={dates} />
             <div className="grid grid-cols-2 gap-2">
                 <ServiceExpenditures dates={dates} />
                 {/* <ServiceExpenditures dates={dates} /> */}
             </div>
+            {/* <IndicateursDashboard /> */}
         </div>
     );
 }

@@ -428,7 +428,10 @@ function FabricationArticles({ company_id }) {
           {/* Actions */}
           <div className="flex flex-wrap gap-2 items-center justify-between">
             <div className="flex gap-2 items-center flex-wrap">
-              <OFModal articles={selectedArticles} />
+              {
+               ! roles('production_operateur') ?  <OFModal articles={selectedArticles} /> : ''
+              }
+             
               <Button size="middle" onClick={() => fetchInitial()} disabled={loading}>
                 {loading
                   ? <Loader2 className="animate-spin" size={18} />

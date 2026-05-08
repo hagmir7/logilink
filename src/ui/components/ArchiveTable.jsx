@@ -74,6 +74,8 @@ const ExpeditionBadge = ({ value }) => {
 }
 
 function ArchiveTable({ documents = [], documentType = 1 }) {
+
+  
   const navigate = useNavigate()
   const { roles } = useAuth()
   const isFabrication = roles(['fabrication'])
@@ -158,8 +160,8 @@ function ArchiveTable({ documents = [], documentType = 1 }) {
                               <Settings size={11} />
                             </span>
                           )}
-                          - {data?.shipping?.id}
-                          {JSON.stringify(data?.shipping)}
+
+                          {roles('fabrication') ? ' - ' + data?.code : ''}
                         </div>
                       </td>
 

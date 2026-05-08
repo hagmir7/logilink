@@ -9,12 +9,11 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
   const [results, setResults] = useState([]);
   const [selectedArticles, setSelectedArticles] = useState([]);
 
-  // Fetch articles from Laravel API
   const fetchResults = async (query = '') => {
     try {
       setLoading(true);
       const res = await api.get(`articles/stock/search?q=${query}`);
-      setResults(res.data.data || []); // Laravel paginate returns data in "data"
+      setResults(res.data.data || []);
     } catch (error) {
       console.error('Erreur de recherche:', error);
       setResults([]);
@@ -23,7 +22,7 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
     }
   };
 
-  // Initial search when modal opens with inputValue
+
   useEffect(() => {
     if (searchModalOpen && inputValue) {
       setSearchText(inputValue);
@@ -31,7 +30,6 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
     }
   }, [searchModalOpen, inputValue]);
 
-  // Trigger search when input changes (with debounce)
   useEffect(() => {
     const timeout = setTimeout(() => {
       if (searchText !== '') {
@@ -43,7 +41,7 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
     return () => clearTimeout(timeout);
   }, [searchText]);
 
-  // Reset selected articles when modal closes
+
   useEffect(() => {
     if (!searchModalOpen) {
       setSelectedArticles([]);
@@ -52,7 +50,7 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
     }
   }, [searchModalOpen]);
 
-  // Handle checkbox selection
+
   const rowSelection = {
     selectedRowKeys: selectedArticles.map(a => a.code),
     onChange: (selectedRowKeys, selectedRows) => {
@@ -75,20 +73,52 @@ const AchatProductSearch = ({ searchModalOpen, inputValue, lineId, onCancel, onS
     onCancel();
   };
 
-  // Table columns
   const columns = [
     {
       title: 'Référence',
       dataIndex: 'code',
       key: 'code',
       className: 'font-semibold text-gray-700',
-      width: '30%',
+      width: '15%',
+    },
+    {
+      title: 'Nom',
+      dataIndex: 'name',
+      key: 'name',
+      className: 'font-semibold text-gray-700',
+      width: '25%',
+    },
+    {
+      title: 'Dimensions',
+      key: 'dimensions',
+      width: '20%',
+      render: (_, article) => {
+        const h = parseFloat(article?.height) || 0;
+        const w = parseFloat(article?.width) || 0;
+        const d = parseFloat(article?.depth) || 0;
+
+        const dims = [
+          { val: h, label: 'Hauteur' },
+          { val: w, label: 'Largeur' },
+          { val: d, label: 'Profondeur' },
+        ];
+
+        const nonZero = dims.filter(d => d.val > 0);
+
+        if (nonZero.length >= 2) {
+          return `${nonZero[0].val} * ${nonZero[1].val}`;
+        } else if (nonZero.length === 1) {
+          return `${nonZero[0].label}: ${nonZero[0].val}`;
+        } else {
+          return '--';
+        }
+      },
     },
     {
       title: 'Désignation',
       dataIndex: 'description',
       key: 'description',
-      width: '70%',
+      width: '40%',
     },
   ];
 

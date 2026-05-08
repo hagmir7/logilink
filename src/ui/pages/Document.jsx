@@ -216,17 +216,15 @@ function Document() {
             />
           )}
 
-          {parseInt(user?.company_id, 10) === 2 && roles('preparation') && (
-            <Button
-              color="green"
-              variant="solid"
-              size="large"
-              onClick={handleExport}
-              icon={<Download size={17} />}
-            >
-              Export
-            </Button>
-          )}
+          <Button
+            color="green"
+            variant="solid"
+            size="large"
+            onClick={handleExport}
+            icon={<Download size={17} />}
+          >
+            Export
+          </Button>
 
 
 
@@ -273,6 +271,7 @@ function Document() {
           setOrderBy={setOrderBy}
           orderDir={setOrderDir}
           setOrderDir={setOrderDir}
+          loading={loading}
         />
       )}
 

@@ -8,6 +8,7 @@ import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
 import { RefreshCw, ArrowRight, CheckCircle, Check } from 'lucide-react'
 import PrintDocument from '../components/PrintDocument'
 import FacadDocumentPrint from '../components/FacadDocumentPrint'
+import { useAuth } from '../contexts/AuthContext'
 
 
 function Fabrication() {
@@ -16,6 +17,8 @@ function Fabrication() {
   const [loading, setLoading] = useState(false)
   const [selected, setSelected] = useState([])
   const [complationSpin, setComplationSpin] = useState(false)
+
+  const {roles} = useAuth();
   const currentItems = data?.doclignes || []
 
     const location = useLocation();
@@ -204,12 +207,13 @@ function Fabrication() {
             locale={locale}
             className='border-2'
             placeholder='Date de livraison'
+            disabled={roles('production_operateur')}
           />
 
           {data?.docentete?.document?.complation_date &&  ' Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}
         </div>
         <div className='flex gap-3'>
-          <Button onClick={complation} color="green" variant="solid" loading={complationSpin}>
+          <Button onClick={complation} disabled={roles('production_operateur')} color="green" variant="solid" loading={complationSpin}>
             Validation <ArrowRight size={18} />
           </Button>
         </div>
@@ -224,7 +228,7 @@ function Fabrication() {
                <Tr>
                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
                    <Checkbox
-                     
+                     disabled={roles('production_operateur')}
                      onChange={handleSelectAll}
                      checked={
                        selected.length === data.doclignes.length &&
@@ -283,7 +287,8 @@ function Fabrication() {
                          item?.line?.fabricated_by ? <div className="bg-green-200 rounded-full py-1 flex items-center justify-center ml-2">
                            <Check size={16} className="text-green-600" />
                          </div> : <Checkbox
-                           disabled={item.line.fabricated_by}
+                         
+                           disabled={item.line.fabricated_by || roles('production_operateur')}
                            checked={selected.includes(item.line?.id)}
                            onChange={() => handleSelect(item.line?.id)}
                          />
