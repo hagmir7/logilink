@@ -130,7 +130,7 @@ function PreparationArchive() {
 
         fetchAndNotify();
 
-        const intervalId = setInterval(fetchAndNotify, 40000);
+        const intervalId = setInterval(fetchAndNotify, 100000);
 
         return () => clearInterval(intervalId);
     }, [documentType, dateFilter]);
@@ -171,8 +171,8 @@ function PreparationArchive() {
         navigate(`/layout/document/${orderId}`);
     };
 
-    const lateRate = data.total_count
-        ? Math.round((data.late / data.total_count) * 100)
+    const onTimeRate = data.total_count
+        ? Math.round((data.on_time / (data.on_time + data.late)) * 100)
         : null;
 
     return (
@@ -278,11 +278,11 @@ function PreparationArchive() {
 
                     <StatCard
                         icon={<ChartPie size={20} />}
-                        label="Taux de retard"
-                        value={lateRate !== null ? `${lateRate}%` : '—'}
-                        iconBg="#FAEEDA"
-                        iconColor="#854F0B"
-                        valueColor="#854F0B"
+                        label="Taux à temps"
+                        value={onTimeRate !== null ? `${onTimeRate}%` : '—'}
+                        iconBg="#EAF3DE"
+                        iconColor="#3B6D11"
+                        valueColor="#3B6D11"
                     />
                 </div>
             )}

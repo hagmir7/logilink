@@ -33,8 +33,7 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
       render: (_, rec) => (
         <Space size={4}>
           <Text strong>{rec.piece}</Text>
-          <Text>{roles('fabrication') ?  "- " + rec.code : ''}</Text>
-
+          {rec?.code ? <Text>{roles('fabrication') ? "- " + rec.code : ''}</Text> : ''}
           {rec?.docentete?.DO_Reliquat === '1' && (
             <Tag style={{ fontSize: 10, padding: '0 4px' }}><Settings size={16} /></Tag>
           )}
@@ -93,14 +92,9 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
       render: (_, rec) => (
         <Space size={4}>
           <span>{formatDate(rec?.docentete?.DO_DateLivr || rec.delivery_date)}</span>
-          {/* {Number(rec.has_user_printer) > 0 && <span title="Imprimé"><Printer size={20} /></span>}
-          {parseInt(company(rec)?.pivot?.updated ?? 0) === 1 && (
-            <span title="Modifié" style={{ color: '#cf1322' }}><Edit size={20} /></span>
-          )} */}
         </Space>
       )
     },
-
     {
       title: 'Prévue Fabrication',
       key: 'complation_date',
@@ -108,17 +102,13 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
       render: (_, rec) => (
         <Space size={4}>
           <span>
-            {rec.complation_date
-              ? formatDate(rec.complation_date)
-              : ''}
+            {rec.complation_date ? formatDate(rec.complation_date) : ''}
           </span>
-
           {Number(rec.has_user_printer) > 0 && (
             <span title="Imprimé">
               <Printer size={20} />
             </span>
           )}
-
           {parseInt(company(rec)?.pivot?.updated ?? 0) === 1 && (
             <span title="Modifié" style={{ color: '#cf1322' }}>
               <Edit size={20} />
@@ -143,7 +133,6 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
       columns={columns}
       dataSource={documents.map((d, i) => ({ ...d, key: i }))}
       loading={loading}
-      
       size="small"
       className='whitespace-nowrap'
       onChange={handleChange}
@@ -151,7 +140,7 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
         onClick: () => handleShow(rec.docentete.DO_Piece),
         style: { cursor: 'pointer' }
       })}
-      pagination={{ pageSize: 20, size: 'small', showTotal: (t) => `${t} documents` }}
+      pagination={false}
       scroll={{ x: 800 }}
     />
   )

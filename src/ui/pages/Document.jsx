@@ -9,13 +9,10 @@ import DocumentTable from '../components/DocumentTable';
 import dayjs from 'dayjs';
 import PreparationDocumentTable from '../components/PreparationDocumentTable';
 
-
 const { Search } = Input;
 const { RangePicker } = DatePicker;
 
 function Document() {
-
-
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
   const [documenStatus, setDocumentStatus] = useState('');
@@ -25,20 +22,15 @@ function Document() {
   const [searchSpinner, setSearchSpinner] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [dateFilter, setDateFilter] = useState(null);
-
+  const [exportSpin, setExportSpin] = useState(false);
   const navigate = useNavigate();
   const { roles = [], user } = useAuth();
-
-
   const [orderBy, setOrderBy] = useState('');
   const [orderDir, setOrderDir] = useState('asc');
 
-  
-
-
-
-
   const handleExport = async () => {
+
+    setExportSpin(true)
     try {
       const queryParams = new URLSearchParams();
 
@@ -50,13 +42,12 @@ function Document() {
       if (orderDir) queryParams.append('order_dir', orderDir);
 
       let url = 'documents/preparation/export';
-      if (roles('commercial')) url = 'docentetes/commercial/export';
+      if (roles('commercial')) url = 'documents/preparation/export';
 
       const response = await api.get(`${url}?${queryParams.toString()}`, {
-        responseType: 'blob', // 🔑 IMPORTANT
+        responseType: 'blob', 
       });
 
-      // 📥 Create file
       const blob = new Blob(
         [response.data],
         { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
@@ -72,7 +63,9 @@ function Document() {
 
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
+      setExportSpin(false)
     } catch (error) {
+      setExportSpin(false)
       console.error('Export failed:', error);
     }
   };
@@ -220,14 +213,13 @@ function Document() {
             color="green"
             variant="solid"
             size="large"
+            loading={exportSpin}
             onClick={handleExport}
             icon={<Download size={17} />}
           >
             Export
           </Button>
-
-
-
+          
           <Select
             defaultValue=''
             allowClear

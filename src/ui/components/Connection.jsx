@@ -12,7 +12,7 @@ export default function Connection() {
         },
         {
             label: 'Online',
-            value: 'https://online.intercocina.space/api/',
+            value: 'https://intercocina.online/api/',
         },
         {
             label: 'Développement',
@@ -20,7 +20,7 @@ export default function Connection() {
         },
         {
             label: 'Développement online',
-            value: 'https://dev.intercocina.space/api/'
+            value: 'https://dev.intercocina.online/api/'
         },
         {
             label: 'Personnalisée',
@@ -28,13 +28,13 @@ export default function Connection() {
         },
     ];
 
-    // Load saved connection from localStorage on mount
+
     useEffect(() => {
         const savedConnection = localStorage.getItem('connection_url');
         if (savedConnection) setConnection(savedConnection);
     }, []);
 
-    // Handle selection
+
     const handleSelect = (value) => {
         if (value === 'custom') {
             setConnection('');

@@ -36,7 +36,6 @@ const FabricationStatusBadge = ({ fabricatedAt, complationDate }) => {
   const fabDate = new Date(fabricatedAt)
   const compDate = new Date(complationDate)
 
-  // Normalize to date only (remove time)
   fabDate.setHours(0, 0, 0, 0)
   compDate.setHours(0, 0, 0, 0)
 

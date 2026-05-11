@@ -197,11 +197,6 @@ const sideMenu = () => {
           label: <Link to='/inventories'>Inventaire</Link>,
         },
         {
-          key: 'submenu-12',
-          icon: <Layers size={19} />,
-          label: <Link to='/articles'>Articles</Link>,
-        },
-        {
           key: 'submenu-3',
           icon: <Warehouse size={19} />,
           onClick: () => handleShow(navigate, '/depots', 1000, 800),

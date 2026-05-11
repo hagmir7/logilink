@@ -20,7 +20,6 @@ import Chargement from './pages/Chargement'
 import InventroyList from './pages/InventoryList'
 import InventoryMovement from './pages/InventoryMovement'
 import Depots from './pages/Depots'
-import Article from './pages/Article'
 import ViewInventory from './pages/ViewInventory'
 import ViewDepot from './pages/ViewDepot'
 import ViewArticle from './pages/ViewArticle'
@@ -201,7 +200,6 @@ function App() {
           <Route path='layout/depots/view/:id' element={<DepotEmplacement />} />
           <Route path='stock' element={<Stock />} />
           <Route path='layout/depots/:id' element={<ViewDepot />} />
-          <Route path='articles' element={<Article />} />
           <Route path='reception' element={<Reception />} />
           <Route path='layout/reception/:id/:company' element={<ViewReception />} />
 
