@@ -17,8 +17,7 @@ function CompanyStock({ company_id }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('panneaux')
   const [selectedCompany, setSelectedCompany] = useState('')
-  const { roles } = useAuth();
-  
+  const { roles } = useAuth()
 
   const [articles, setArticles] = useState({
     data: [],
@@ -30,7 +29,13 @@ function CompanyStock({ company_id }) {
 
   const navigate = useNavigate()
 
-  const fetchData = async (currentPage = 1, search = searchQuery, category = selectedCategory, size = pageSize, company = selectedCompany) => {
+  const fetchData = async (
+    currentPage = 1,
+    search = searchQuery,
+    category = selectedCategory,
+    size = pageSize,
+    company = selectedCompany
+  ) => {
     setLoading(true)
     try {
       const response = await api.get(`articles`, {
@@ -39,7 +44,8 @@ function CompanyStock({ company_id }) {
           per_page: size,
           search: search,
           category: category,
-          company: company
+          // Only send company param if a company is selected
+          ...(company !== '' && { company })
         }
       })
       setArticles({
@@ -70,60 +76,53 @@ function CompanyStock({ company_id }) {
   const handlePageChange = (newPage, newPageSize) => {
     if (newPageSize !== pageSize) {
       setPageSize(newPageSize)
-      setPage(1) // Reset to page 1 when changing page size
+      setPage(1)
     } else {
       setPage(newPage)
     }
   }
 
   const handleShow = async (id = null) => {
-    if(!roles(['admin', 'super_admin'])){
-      return;
+    if (!roles(['admin', 'super_admin'])) {
+      return
     }
 
     try {
-      let url;
+      let url
 
       if (id) {
         if (typeof id === 'object') {
-          console.warn('⚠️ handleShow received an object instead of ID:', id);
-          id = id.id || id.code || null;
+          console.warn('⚠️ handleShow received an object instead of ID:', id)
+          id = id.id || id.code || null
         }
-        url = `/articles/${id}`;
-      }
-      else {
-        url = '/articles/create';
+        url = `/articles/${id}`
+      } else {
+        url = '/articles/create'
       }
 
       if (window.electron && typeof window.electron.openShow === 'function') {
-        await window.electron.openShow({
-          width: 900,
-          height: 700,
-          url,
-        });
+        await window.electron.openShow({ width: 900, height: 700, url })
       } else {
-        navigate(url);
+        navigate(url)
       }
-
     } catch (error) {
-      console.error('❌ Error navigating to article:', error);
+      console.error('❌ Error navigating to article:', error)
     }
-  };
-
+  }
 
   const confirmDelete = async (id) => {
     try {
-      await api.delete(`articles/${id}`);
-      message.success("Article supprimé avec succès");
-      fetchData();
+      await api.delete(`articles/${id}`)
+      message.success('Article supprimé avec succès')
+      fetchData(page, searchQuery, selectedCategory, pageSize, selectedCompany)
     } catch (error) {
       if (error.response?.status === 403) {
-        message.error("Action non autorisée");
+        message.error('Action non autorisée')
       } else {
-        message.error("Erreur lors de la suppression de l'article");
+        message.error("Erreur lors de la suppression de l'article")
       }
     }
-  };
+  }
 
   return (
     <div className='w-full h-full bg-gray-50 p-0 md:px-2'>
@@ -166,21 +165,21 @@ function CompanyStock({ company_id }) {
                 placeholder="Société"
                 size="large"
                 className="min-w-[180px]"
+                // ✅ Fix: use string values so backend receives correct type
                 options={[
-                   {label: "Tout", value: ''},
-                  {label: "Intercocina", value: 1},
-                  {label: "Seriemoble", value: 2},
-                  {label: "AstiDkora", value: 3}
+                  { label: 'Tout', value: '' },
+                  { label: 'Intercocina', value: '1' },
+                  { label: 'Seriemoble', value: '2' },
+                  { label: 'AstiDkora', value: '3' }
                 ]}
                 onChange={setSelectedCompany}
               />
 
-              
-
+              {/* ✅ Fix: pass all params including selectedCompany */}
               <Button
                 size="large"
                 className="flex items-center gap-2"
-                onClick={() => fetchData(page, searchQuery, selectedCategory)}
+                onClick={() => fetchData(page, searchQuery, selectedCategory, pageSize, selectedCompany)}
                 disabled={loading}
               >
                 {loading ? <Loader2 className="animate-spin" size={18} /> : <RefreshCcw size={18} />}
@@ -188,7 +187,7 @@ function CompanyStock({ company_id }) {
             </div>
 
             {/* Right Side Admin Actions */}
-            {roles("admin") && (
+            {roles('admin') && (
               <div className="flex gap-3 col-span-1 justify-start md:justify-end">
                 <ImportArticle />
                 <Button
@@ -207,9 +206,16 @@ function CompanyStock({ company_id }) {
           {articles.total > 0 && (
             <div className="mt-4 pt-4 border-t border-gray-100 flex items-center justify-between text-sm">
               <span className="text-gray-600">
-                Affichage de <span className="font-semibold text-gray-900">{(page - 1) * pageSize + 1}-{Math.min(page * pageSize, articles.total)}</span> sur <span className="font-semibold text-gray-900">{articles.total}</span> articles
+                Affichage de{' '}
+                <span className="font-semibold text-gray-900">
+                  {(page - 1) * pageSize + 1}-{Math.min(page * pageSize, articles.total)}
+                </span>{' '}
+                sur{' '}
+                <span className="font-semibold text-gray-900">{articles.total}</span> articles
               </span>
-              <span className="text-gray-500">Page {articles.current_page} / {articles.last_page}</span>
+              <span className="text-gray-500">
+                Page {articles.current_page} / {articles.last_page}
+              </span>
             </div>
           )}
         </div>
@@ -223,11 +229,9 @@ function CompanyStock({ company_id }) {
                   <th className='px-4 py-2 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Référence
                   </th>
-
                   <th className='px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Désignation
                   </th>
-
                   {!roles(['commercial', 'admin']) && (
                     <>
                       <th className="px-4 py-1 text-left text-xs font-bold text-gray-700 uppercase tracking-wider">
@@ -238,27 +242,22 @@ function CompanyStock({ company_id }) {
                       </th>
                     </>
                   )}
-
                   <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Disponible
                   </th>
-
                   <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Physique
                   </th>
-
                   <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
                     Préparation
                   </th>
-                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'>
-                  </th>
+                  <th className='px-4 py-1 text-center text-xs font-bold text-gray-700 uppercase tracking-wider'></th>
                 </tr>
               </thead>
               <tbody className='divide-y divide-gray-100 whitespace-nowrap'>
                 {articles?.data?.map((article, index) => (
                   <tr
                     key={article.id || index}
-                    
                     className='hover:bg-blue-50/50 transition-all duration-200 cursor-pointer group'
                   >
                     <td className='px-4 py-1'>
@@ -274,8 +273,7 @@ function CompanyStock({ company_id }) {
                       <div className='text-sm text-gray-900 font-medium max-w-md'>
                         {roles(['commercial', 'admin'])
                           ? uppercaseFirst(article.description)
-                          : uppercaseFirst(article.name || article.description)
-                        }
+                          : uppercaseFirst(article.name || article.description)}
                       </div>
                     </td>
 
@@ -288,7 +286,6 @@ function CompanyStock({ company_id }) {
                             )}
                           </div>
                         </td>
-
                         <td className='px-4 py-1'>
                           <div className='text-sm text-gray-700 font-mono bg-gray-50 px-3 py-1 rounded inline-block'>
                             {article.height || '—'} × {article.width || '—'}
@@ -305,7 +302,9 @@ function CompanyStock({ company_id }) {
 
                     <td className='px-4 py-1 text-center'>
                       <span className='inline-flex items-center justify-center min-w-[60px] px-3 py-1.5 rounded-lg text-sm font-semibold bg-blue-50 text-blue-700 border border-blue-200'>
-                        {Math.floor((parseFloat(article.stock) + parseFloat(article.stock_prepartion)) * 100) / 100}
+                        {Math.floor(
+                          (parseFloat(article.stock) + parseFloat(article.stock_prepartion)) * 100
+                        ) / 100}
                       </span>
                     </td>
 
@@ -316,25 +315,34 @@ function CompanyStock({ company_id }) {
                     </td>
 
                     <td className='px-4 py-1 text-center flex gap-2'>
-                      <Button size='small' onClick={() => handleShow(article.code)} variant='solid' color='green'><Edit size={15} /></Button>
-                      <Popconfirm
-                        title="Delete the task"
-                        description="Are you sure to delete this task?"
-                        onConfirm={() => confirmDelete(article.code)}
-
-
-                        okText="Yes"
-                        cancelText="No"
+                      <Button
+                        size='small'
+                        onClick={() => handleShow(article.code)}
+                        variant='solid'
+                        color='green'
                       >
-                        <Button size='small' variant='solid' color='red'><Trash size={15} /></Button>
+                        <Edit size={15} />
+                      </Button>
+                      <Popconfirm
+                        title="Supprimer l'article"
+                        description="Êtes-vous sûr de vouloir supprimer cet article ?"
+                        onConfirm={() => confirmDelete(article.code)}
+                        okText="Oui"
+                        cancelText="Non"
+                      >
+                        <Button size='small' variant='solid' color='red'>
+                          <Trash size={15} />
+                        </Button>
                       </Popconfirm>
                     </td>
                   </tr>
                 ))}
 
-                {/* Loading State */}
                 {loading && (
-                  <TableSkeleton rows={roles(['admin', 'commercial']) ? 8 : 10} columns={roles(['admin', 'commercial']) ? 5 : 7} />
+                  <TableSkeleton
+                    rows={roles(['admin', 'commercial']) ? 8 : 10}
+                    columns={roles(['admin', 'commercial']) ? 5 : 7}
+                  />
                 )}
               </tbody>
             </table>
@@ -348,7 +356,9 @@ function CompanyStock({ company_id }) {
                 description={
                   <div className="text-center">
                     <p className="text-gray-900 font-medium mb-1">Aucun article trouvé</p>
-                    <p className="text-gray-500 text-sm">Essayez de modifier vos critères de recherche</p>
+                    <p className="text-gray-500 text-sm">
+                      Essayez de modifier vos critères de recherche
+                    </p>
                   </div>
                 }
               />
@@ -364,9 +374,7 @@ function CompanyStock({ company_id }) {
                 pageSize={pageSize}
                 showSizeChanger
                 showQuickJumper
-                showTotal={(total, range) =>
-                  `${range[0]}-${range[1]} sur ${total} articles`
-                }
+                showTotal={(total, range) => `${range[0]}-${range[1]} sur ${total} articles`}
                 onChange={handlePageChange}
                 onShowSizeChange={handlePageChange}
                 pageSizeOptions={['10', '20', '50', '100']}
