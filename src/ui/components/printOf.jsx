@@ -128,7 +128,20 @@ function printOf(of) {
           <td style="background:#f4b083; font-weight:700; font-size:11px; text-align:center; padding:6px 8px; border:0.5px solid #000; width:25%;">Quantité à produire</td>
         </tr>
 
-        ${lines.map(line => `
+        ${lines.map(line => {
+          const isSeparator = line?.article_code === 'SP000001';
+
+          if (isSeparator) {
+            return `
+              <tr>
+                <td colspan="4" style="background:#d9d9d9; border:0.5px solid #000; padding:7px 8px; font-size:11px; font-weight:700;">
+                  ${line?.article?.name || ''}
+                </td>
+              </tr>
+            `;
+          }
+
+          return `
           <tr>
             <td style="border:0.5px solid #000; padding:7px 8px; font-family:monospace; font-size:11px; font-weight:700;">
               ${line?.article_code || ''}
@@ -158,7 +171,7 @@ function printOf(of) {
                 } else if (nonZero.length === 1) {
                   return `${nonZero[0].label}: ${nonZero[0].val}`;
                 } else {
-                  return '--';
+                  return '';
                 }
               })()
               }
@@ -168,7 +181,8 @@ function printOf(of) {
               ${parseInt(line.quantity)}
             </td>
           </tr>
-        `).join('')}
+        `;
+        }).join('')}
 
       </table>
 

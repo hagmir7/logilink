@@ -172,8 +172,8 @@ function OFCard({ of: initialOf, refresh }) {
   const handleDragEnd = async ({ active, over }) => {
     if (!over || active.id === over.id) return
 
-    const oldIndex  = orderedLines.findIndex(l => l.id === active.id)
-    const newIndex  = orderedLines.findIndex(l => l.id === over.id)
+    const oldIndex = orderedLines.findIndex(l => l.id === active.id)
+    const newIndex = orderedLines.findIndex(l => l.id === over.id)
     const reordered = arrayMove(orderedLines, oldIndex, newIndex)
 
     setOrderedLines(reordered)
@@ -183,6 +183,7 @@ function OFCard({ of: initialOf, refresh }) {
       await api.put(`ordres-fabrication/${of.id}/reorder`, {
         lines: reordered.map((l, i) => ({ id: l.id, position: i + 1 }))
       })
+      setOf(prev => ({ ...prev, lines: reordered })) // ← add this
     } catch (error) {
       console.error(error)
       message.error('Erreur lors de la sauvegarde de l\'ordre')
@@ -413,15 +414,29 @@ function OFCard({ of: initialOf, refresh }) {
                   {/* ── Add article row ── */}
                   <tr className="bg-white">
                     <td colSpan={6} className="px-4 py-2">
-                      <Button
+                     <div className="flex gap-3">
+                       <Button
                         type="dashed" size="small"
                         disabled={roles('production_operateur')}
                         icon={<Plus size={13} />}
+                        classNames={'w-[90%]'}
                         onClick={() => setSearchModal({ open: true, lineIndex: orderedLines.length, value: "" })}
                         className="w-full !text-gray-400 hover:!text-blue-500 hover:!border-blue-400"
                       >
                         Ajouter un article
                       </Button>
+
+                      <Button
+                        type="dashed" size="small"
+                        disabled={roles('production_operateur')}
+                        classNames={'w-[10%]'}
+                        icon={<Plus size={13} />}
+                        className="w-full !text-gray-400 hover:!text-blue-500 hover:!border-blue-400"
+                        onClick={() => handleArticleSelect([{ code: 'SP000001' }])}
+                      >
+                        Vide
+                      </Button>
+                     </div>
                     </td>
                   </tr>
                 </tbody>
