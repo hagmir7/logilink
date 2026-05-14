@@ -67,7 +67,7 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
     {
       title: 'Client',
       dataIndex: 'client_id',
-      key: 'client',
+      key: 'client_id',
       sorter: true,
       width: 150,
     },
@@ -87,7 +87,8 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
     },
     {
       title: 'Date prévue',
-      key: 'delivery',
+      key: 'DO_DateLivr',
+      sorter: true,
       width: 130,
       render: (_, rec) => (
         <Space size={4}>
@@ -98,6 +99,7 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
     {
       title: 'Prévue Fabrication',
       key: 'complation_date',
+      sorter: true,
       width: 130,
       render: (_, rec) => (
         <Space size={4}>
@@ -120,10 +122,10 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
   ]
 
   const handleChange = (_, __, sorter) => {
-    if (sorter?.field) {
-      setOrderBy(sorter.field)
+    if (sorter?.columnKey) {             
+      setOrderBy(sorter.columnKey)
       setOrderDir(prev =>
-        orderBy === sorter.field ? (prev === 'asc' ? 'desc' : 'asc') : 'asc'
+        orderBy === sorter.columnKey ? (prev === 'asc' ? 'desc' : 'asc') : 'asc'
       )
     }
   }

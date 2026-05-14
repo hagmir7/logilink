@@ -49,28 +49,23 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
 
   const printingLines = selectedRows.length > 0 ? selectedRows : doclignes;
 
-  // 1. Sort ALL lines (including SP000001) by DL_Ligne ascending
   const sortedLines = [...printingLines].sort((a, b) =>
     (a.line?.DL_Ligne ?? a.DL_Ligne ?? 0) - (b.line?.DL_Ligne ?? b.DL_Ligne ?? 0)
   );
 
-  // 2. Split into CAI (portrait) and Other (landscape) lists.
-  //    SP000001 is a divider — place it on whichever page the lines above it belong to.
   const caiLines   = [];
   const otherLines = [];
-  let lastFamily = null; // tracks family of the last real (non-SP) line
+  let lastFamily = null; 
 
   sortedLines.forEach(item => {
     const isSeparator = item.AR_Ref === 'SP000001';
 
     if (isSeparator) {
-      // Append separator to whichever list the previous real lines went into
       if (lastFamily === 'CAI') {
         caiLines.push(item);
       } else if (lastFamily !== null) {
         otherLines.push(item);
       }
-      // If lastFamily is still null (SP000001 is the very first line), skip it
     } else {
       lastFamily = item?.article?.FA_CodeFamille;
       if (lastFamily === 'CAI') {
@@ -81,7 +76,6 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
     }
   });
 
-  // Build print groups: [{ lines, orientation }]
   const printGroups = [];
   if (caiLines.length > 0)   printGroups.push({ lines: caiLines,   orientation: 'portrait'  });
   if (otherLines.length > 0) printGroups.push({ lines: otherLines, orientation: 'landscape' });
@@ -212,6 +206,7 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
       </table>
       <div className="info-top-row">
         <span>Réf BPS : {docentete?.document?.code || '__'}</span>
+        <span>Date de document : {dateFormat(docentete?.document?.created_at)}</span>
         <span>Date de livraison prévue : {doclignes[0]?.line.complation_date ? dateFormat(doclignes[0]?.line.complation_date) : '__'}</span>
       </div>
     </>
