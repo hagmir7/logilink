@@ -183,7 +183,7 @@ function OFCard({ of: initialOf, refresh }) {
       await api.put(`ordres-fabrication/${of.id}/reorder`, {
         lines: reordered.map((l, i) => ({ id: l.id, position: i + 1 }))
       })
-      setOf(prev => ({ ...prev, lines: reordered })) // ← add this
+      setOf(prev => ({ ...prev, lines: reordered }))
     } catch (error) {
       console.error(error)
       message.error('Erreur lors de la sauvegarde de l\'ordre')
