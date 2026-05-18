@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Loader2, RefreshCcw, PlusCircle, Package, Trash, Edit } from 'lucide-react'
+import { Loader2, RefreshCcw, PlusCircle, Package, Trash, Edit, Upload } from 'lucide-react'
 import { Button, Empty, Input, Select, Pagination, Popconfirm, message } from 'antd'
 import { api } from '../utils/api'
 import { useAuth } from '../contexts/AuthContext'
@@ -7,6 +7,7 @@ import { categories, uppercaseFirst } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
 import ImportArticle from '../components/ImportArticle'
 import TableSkeleton from '../components/ui/TableSkeleton'
+import ExportStockModal from '../components/ExportStock'
 
 const { Search } = Input
 
@@ -17,6 +18,7 @@ function CompanyStock({ company_id }) {
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('panneaux')
   const [selectedCompany, setSelectedCompany] = useState('')
+  const [exportOpen, setExportOpen] = useState(false);
   const { roles } = useAuth()
 
   const [articles, setArticles] = useState({
@@ -129,13 +131,12 @@ function CompanyStock({ company_id }) {
       <div className='max-w-[1600px] mx-auto'>
         {/* Header Section */}
         <div className="mb-3 bg-white md:rounded-lg md:shadow-sm border border-gray-200 py-2 px-3">
-          <div className="flex items-center gap-3 mb-0">
+          <div className="flex items-center gap-3 mb-0 mb-3">
             <div className="p-1 bg-blue-50 rounded-lg">
               <Package className="text-blue-600" size={24} />
             </div>
             <div>
               <h1 className="text-lg font-semibold text-gray-900">Gestion des Articles</h1>
-              <p className="text-sm text-gray-500">Gérez et consultez votre stock</p>
             </div>
           </div>
 
@@ -146,7 +147,6 @@ function CompanyStock({ company_id }) {
               <Search
                 placeholder="Rechercher un article..."
                 allowClear
-                size="large"
                 className='flex-1 max-w-md'
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
@@ -154,7 +154,6 @@ function CompanyStock({ company_id }) {
               <Select
                 value={selectedCategory}
                 placeholder="Catégorie"
-                size="large"
                 className="min-w-[180px]"
                 options={categories}
                 onChange={setSelectedCategory}
@@ -163,7 +162,6 @@ function CompanyStock({ company_id }) {
               <Select
                 value={selectedCompany}
                 placeholder="Société"
-                size="large"
                 className="min-w-[180px]"
                 // ✅ Fix: use string values so backend receives correct type
                 options={[
@@ -177,7 +175,6 @@ function CompanyStock({ company_id }) {
 
               {/* ✅ Fix: pass all params including selectedCompany */}
               <Button
-                size="large"
                 className="flex items-center gap-2"
                 onClick={() => fetchData(page, searchQuery, selectedCategory, pageSize, selectedCompany)}
                 disabled={loading}
@@ -190,9 +187,26 @@ function CompanyStock({ company_id }) {
             {roles('admin') && (
               <div className="flex gap-3 col-span-1 justify-start md:justify-end">
                 <ImportArticle />
+
+                  <>
+              <Button  icon={<Upload size={18} />} onClick={() => setExportOpen(true)}>
+                Exporter
+              </Button>
+
+              <ExportStockModal
+                open={exportOpen}
+                onClose={() => setExportOpen(false)}
+                companies={[
+                  { name: 'Tout', value: '' },
+                  { name: 'Intercocina', id: '1' },
+                  { name: 'Seriemoble', id: '2' },
+                  { name: 'AstiDkora', id: '3' }
+                ]}
+              />
+            </>
+
                 <Button
                   type="primary"
-                  size="large"
                   className="flex items-center gap-2 bg-blue-600 hover:bg-blue-700"
                   onClick={handleShow}
                 >
@@ -200,6 +214,9 @@ function CompanyStock({ company_id }) {
                 </Button>
               </div>
             )}
+
+
+          
           </div>
 
           {/* Stats */}

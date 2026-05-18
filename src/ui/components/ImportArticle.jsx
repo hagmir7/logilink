@@ -107,7 +107,7 @@ const ImportArticle = () => {
 
   return (
     <Upload {...props}>
-      <Button size='large' icon={<Download size={18} />}>Importer</Button>
+      <Button icon={<Download size={18} />}>Importer</Button>
     </Upload>
   )
 }
