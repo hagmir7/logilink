@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Form, Input, Button, Select, Modal, Upload, message, Tag, Empty, Checkbox, DatePicker } from 'antd';
+import { Form, Input, Button, Select, Modal, Upload, message, Tag, Empty, Checkbox, DatePicker, Tooltip, Badge } from 'antd';
 import { PlusOutlined, MinusCircleOutlined, PaperClipOutlined, UploadOutlined } from '@ant-design/icons';
 import 'antd/dist/reset.css';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -11,6 +11,7 @@ import FormListSkeleton from '../components/ui/FormListSkeleton';
 import PurchaseImages from '../components/ui/PurchaseImages';
 import dayjs from 'dayjs';
 import { locale } from '../utils/config';
+import LineNonCompliantModal from "../components/LineNonCompliantModal";
 
 const { Option } = Select;
 
@@ -29,11 +30,13 @@ export default function PurchaseForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const authContext = useAuth();
+  const [nonCompliantModal, setNonCompliantModal] = useState({
+    open: false,
+    lineId: null,
+    lineQte: null
+  });
 
   const { user } = authContext;
-
-
-
   const [searchModal, setSearchModal] = useState({});
   const [units, setUnits] = useState([]);
 
@@ -56,16 +59,16 @@ export default function PurchaseForm() {
     return false;
   };
 
-  const isAdmin = hasRole('admin');   // admin can always do everything
-  const isDG = hasRole('dg');         // DG role
-  const isOwner = parseInt(user.id) === parseInt(initialData?.user_id); // document owner
-  const status = Number(initialData?.status ?? 1); // default status 1 if new
-  const isNew = !initialData;         // true when creating a new document
+  const isAdmin = hasRole('admin');
+  const isDG = hasRole('dg');
+  const isOwner = parseInt(user.id) === parseInt(initialData?.user_id);
+  const status = Number(initialData?.status ?? 1);
+  const isNew = !initialData;
 
   // Who can edit or add lines
-  const canEdit = isAdmin                      // admin always
-    || isNew                     // anyone can create new document
-    || ((isDG || isOwner) && status <= 1); // DG or owner can edit if status <= 1
+  const canEdit = isAdmin
+    || isNew
+    || ((isDG || isOwner) && status <= 1);
 
   // Who can read only
   const isReadOnly = !canEdit;
@@ -160,6 +163,7 @@ export default function PurchaseForm() {
         unit: line.unit,
         estimated_price: line.estimated_price,
         status: line.status ? String(line.status) : '1',
+        non_compliant: line.non_compliant || 0,
         checked: false,
       })) || []
     };
@@ -444,6 +448,34 @@ export default function PurchaseForm() {
           layout="vertical"
           onFinish={onFinish}
           initialValues={{ urgent: false, status: '1' }}
+          onValuesChange={(changedValues, allValues) => {
+            if (!changedValues.lines) return;
+
+            const changedLines = changedValues.lines;
+
+            changedLines.forEach((line, index) => {
+              if (!line) return;
+
+              const status = Number(line.status);
+
+              // 🚨 if status becomes 8 → open modal
+              if (status === 8) {
+                const lineId = allValues?.lines?.[index]?.id;
+                // const qte = allValues?.lines?.[index]?.quantity;
+                // console.log(allValues?.lines?.[index]?.quantity);
+                
+
+                if (lineId) {
+                  setNonCompliantModal({
+                    open: true,
+                    lineId,
+                    lineQte: allValues?.lines?.[index]?.quantity
+
+                  });
+                }
+              }
+            });
+          }}
         >
           {/* Document Info */}
           <div className="shadow-sm p-5 rounded-lg bg-white border border-gray-100">
@@ -756,19 +788,39 @@ export default function PurchaseForm() {
                           {/* Action Buttons */}
                           <div className="flex gap-2 justify-between">
                             {/* Upload Files Button */}
-                            <Button
-                              type="default"
-                              icon={<PaperClipOutlined />}
-                              onClick={() => openUploadModal(index)}
-                              className="flex-shrink-0 mt-0 pt-0"
-                              title="Joindre des fichiers"
-                            >
-                              {getFileCount(index) > 0 && (
-                                <span className="ml-1 text-blue-600 font-semibold">
-                                  ({getFileCount(index)})
-                                </span>
-                              )}
-                            </Button>
+                            <div className='flex gap-2'>
+                              <Button
+                                type="default"
+                                icon={<PaperClipOutlined />}
+                                onClick={() => openUploadModal(index)}
+                                className="flex-shrink-0 mt-0 pt-0"
+                                title="Joindre des fichiers"
+                              >
+                                {getFileCount(index) > 0 && (
+                                  <span className="ml-1 text-blue-600 font-semibold">
+                                    ({getFileCount(index)})
+                                  </span>
+                                )}
+                              </Button>
+
+                              <Form.Item
+                                noStyle
+                                shouldUpdate={(prev, curr) =>
+                                  prev.lines?.[index]?.non_compliant !== curr.lines?.[index]?.non_compliant
+                                }
+                              >
+                                {({ getFieldValue }) => {
+                                  const nonCompliant = getFieldValue(['lines', index, 'non_compliant']) || 0;
+                                  return (
+                                    <Tooltip title={`${nonCompliant} article${nonCompliant > 1 ? "s" : ''} non conforme`}>
+                                      <span>
+                                        <Badge count={nonCompliant} />
+                                      </span>
+                                    </Tooltip>
+                                  );
+                                }}
+                              </Form.Item>
+                            </div>
 
                             {/* Delete Button */}
                             <Button
@@ -897,6 +949,16 @@ export default function PurchaseForm() {
           </div>
         </Modal>
       </div>
+
+      <LineNonCompliantModal
+        open={nonCompliantModal.open}
+        setOpen={(val) =>
+          setNonCompliantModal((prev) => ({ ...prev, open: val }))
+        }
+        lineId={nonCompliantModal?.lineId}
+        lineQte={nonCompliantModal?.lineQte}
+        form={form}
+      />
     </div>
   );
 }

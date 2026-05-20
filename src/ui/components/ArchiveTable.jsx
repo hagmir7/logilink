@@ -108,7 +108,7 @@ function ArchiveTable({ documents = [], documentType = 1 }) {
 
   return (
     <div className="w-full h-full flex flex-col bg-white">
-      <div className="flex-1 overflow-hidden hidden lg:flex flex-col">
+      <div className="flex-1 overflow-hidden hidden md:flex flex-col">
         <div className="flex-1 overflow-auto">
           <table className="w-full border-collapse text-sm">
             <thead className="sticky top-0 z-10">

@@ -1,5 +1,5 @@
 import { useEffect, useState, useCallback } from "react";
-import { Button, message, Select, Tag, DatePicker, Empty, Tooltip } from "antd";
+import { Button, message, Select, Tag, DatePicker, Empty, Tooltip, Badge } from "antd";
 import { RefreshCcw, PlusCircle, Filter } from "lucide-react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
@@ -248,7 +248,13 @@ export default function Purchase() {
                   <td className="px-3 py-2 whitespace-nowrap">{truncate(item.reference, 20)}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{item.service?.name}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{item.user?.full_name}</td>
-                  <td className="px-3 py-2 whitespace-nowrap">{renderStatus(item.status)}</td>
+                  <td className="px-3 py-2 whitespace-nowrap flex gap-2">
+                    <span>{renderStatus(item.status)} </span>
+                    <Tooltip title={`${item?.non_compliant_lines_count} article${item?.non_compliant_lines_count > 1? "s" : '' } non conforme`}>
+                      <span><Badge count={item?.non_compliant_lines_count ? item?.non_compliant_lines_count : 0} /></span>
+                    </Tooltip>
+                    
+                  </td>
                   <td className="px-3 py-2 whitespace-nowrap">{item.sended_at && formatDate(item.sended_at)}</td>
                   <td className="px-3 py-2 whitespace-nowrap">{formatDate(item.created_at)}</td>
                   
