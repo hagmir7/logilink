@@ -12,6 +12,7 @@ import PurchaseImages from '../components/ui/PurchaseImages';
 import dayjs from 'dayjs';
 import { locale } from '../utils/config';
 import LineNonCompliantModal from "../components/LineNonCompliantModal";
+import ShowLineNonCompliantModal from '../components/ShowLineNonCompliantModal';
 
 const { Option } = Select;
 
@@ -35,6 +36,11 @@ export default function PurchaseForm() {
     lineId: null,
     lineQte: null
   });
+  const [showNonCompliantModal, setShowNonCompliantModal] = useState({
+  open: false,
+  lineId: null,
+  lineQte: null,
+});
 
   const { user } = authContext;
   const [searchModal, setSearchModal] = useState({});
@@ -69,9 +75,6 @@ export default function PurchaseForm() {
   const canEdit = isAdmin
     || isNew
     || ((isDG || isOwner) && status <= 1);
-
-  // Who can read only
-  const isReadOnly = !canEdit;
 
   useEffect(() => {
     if (!id) {
@@ -139,9 +142,6 @@ export default function PurchaseForm() {
       setPriority('normal');
     }
 
-
-
-
     if (docData.planned_at) {
       form.setFieldsValue({
         planned_at: dayjs(docData.planned_at)
@@ -163,7 +163,7 @@ export default function PurchaseForm() {
         unit: line.unit,
         estimated_price: line.estimated_price,
         status: line.status ? String(line.status) : '1',
-        non_compliant: line.non_compliant || 0,
+        non_compliant: line.non_compliant_count || 0,
         checked: false,
       })) || []
     };
@@ -237,8 +237,6 @@ export default function PurchaseForm() {
     if (values.user_id) formData.append('user_id', values.user_id);
     formData.append('note', values.note || '');
 
-
-
     // Handle priority
     if (priority === 'urgent') {
       formData.set('urgent', '1');
@@ -247,8 +245,6 @@ export default function PurchaseForm() {
     if (priority === 'planned' && values.planned_at) {
       formData.set('planned_at', values.planned_at.format('YYYY-MM-DD'));
     }
-
-
 
     // Selective transfer logic
     const lines = values.lines || [];
@@ -376,13 +372,11 @@ export default function PurchaseForm() {
     } else if (selectedArticles.length > 1) {
       const updatedLines = [...lines];
 
-
       updatedLines[lineIndex] = {
         ...updatedLines[lineIndex],
         code: selectedArticles[0].code,
         description: selectedArticles[0].description,
       };
-
 
       const newLines = selectedArticles.slice(1).map(article => ({
         code: article.code,
@@ -393,7 +387,6 @@ export default function PurchaseForm() {
         status: '1',
         checked: false,
       }));
-
 
       updatedLines.splice(lineIndex + 1, 0, ...newLines);
 
@@ -456,21 +449,17 @@ export default function PurchaseForm() {
             changedLines.forEach((line, index) => {
               if (!line) return;
 
-              const status = Number(line.status);
+              const lineStatus = Number(line.status);
 
-              // 🚨 if status becomes 8 → open modal
-              if (status === 8) {
+              // if status becomes 8 → open modal
+              if (lineStatus === 8) {
                 const lineId = allValues?.lines?.[index]?.id;
-                // const qte = allValues?.lines?.[index]?.quantity;
-                // console.log(allValues?.lines?.[index]?.quantity);
-                
 
                 if (lineId) {
                   setNonCompliantModal({
                     open: true,
                     lineId,
                     lineQte: allValues?.lines?.[index]?.quantity
-
                   });
                 }
               }
@@ -615,8 +604,7 @@ export default function PurchaseForm() {
                 />
               </Form.Item>
 
-              {/* Urgent Select */}
-
+              {/* Priority Select */}
               <div>
                 <span className='font-semibold'>Priorité</span>
                 <div className="mt-2.5 flex gap-1">
@@ -663,7 +651,6 @@ export default function PurchaseForm() {
                       >
                         <DatePicker className="w-full" locale={locale} placeholder="Choisir une date" />
                       </Form.Item>
-
                     </div>
                   )}
                 </div>
@@ -679,172 +666,206 @@ export default function PurchaseForm() {
                   {/* Purchase Lines */}
                   {fields.length > 0 ? (
                     <div className="space-y-3">
-                      {fields.map((field, index) => (
-                        <div
-                          key={field.key}
-                          className="relative grid grid-cols-1 md:grid-cols-7 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
-                        >
-                          {/* Hidden ID field for updates */}
-                          <Form.Item
-                            {...field}
-                            name={[field.name, 'id']}
-                            hidden
-                            style={{ marginBottom: 0 }}
-                          >
-                            <Input type="hidden" />
-                          </Form.Item>
+                      {fields.map((field, index) => {
+                        // FIX: moved per-line derived values inside the map callback
+                        // where `field` is properly in scope
+                        const lineStatus = parseInt(
+                          form.getFieldValue(['lines', field.name, 'status'])
+                        );
+                        const isInitialStatus7 = parseInt(initialData?.status) === 7;
+                        // FIX: renamed to avoid shadowing the outer `canEdit`
+                        const lineCanEdit = isAdmin || lineStatus === 7 || isInitialStatus7;
+                        const isStatus8 = lineStatus === 8;
 
-                          {/* Code (optional) */}
-                          <Form.Item
-                            {...field}
-                            name={[field.name, 'code']}
-                            className="mb-0"
-                            style={{ marginBottom: 0 }}
+                        return (
+                          <div
+                            key={field.key}
+                            className="relative grid grid-cols-1 md:grid-cols-7 gap-3 p-1.5 rounded-lg border border-gray-200 bg-gray-50 hover:border-blue-300 hover:bg-blue-50/30 transition-all"
                           >
-                            <Input
-                              placeholder="Code (optionnel)"
-                              className="w-full"
-                              onKeyDown={(e) => handleKeyDown(e, index, 'code')}
-                            />
-                          </Form.Item>
-
-                          {/* Description */}
-                          <Form.Item
-                            {...field}
-                            name={[field.name, 'description']}
-                            rules={[{ required: true, message: 'Requis' }]}
-                            className="mb-0 col-span-2"
-                            style={{ marginBottom: 0 }}
-                          >
-                            <Input
-                              placeholder="Description de l'article"
-                              className="w-full"
-                              onKeyDown={(e) => handleKeyDown(e, index, 'description')}
-                            />
-                          </Form.Item>
-
-                          {/* Quantity */}
-                          <div className="flex gap-2 items-start">
+                            {/* Hidden ID field for updates */}
                             <Form.Item
                               {...field}
-                              name={[field.name, 'quantity']}
-                              rules={[{ required: true, message: 'Requis' }]}
+                              name={[field.name, 'id']}
+                              hidden
+                              style={{ marginBottom: 0 }}
+                            >
+                              <Input type="hidden" />
+                            </Form.Item>
+
+                            {/* Code (optional) */}
+                            <Form.Item
+                              {...field}
+                              name={[field.name, 'code']}
+                              className="mb-0"
                               style={{ marginBottom: 0 }}
                             >
                               <Input
-                                type="number"
-                                placeholder="Qté"
-                                min="0"
-                                step="0.01"
+                                placeholder="Code (optionnel)"
                                 className="w-full"
+                                onKeyDown={(e) => handleKeyDown(e, index, 'code')}
                               />
                             </Form.Item>
-                          </div>
 
-                          {/* Unit */}
-                          <div className="flex gap-2 items-start">
+                            {/* Description */}
                             <Form.Item
                               {...field}
-                              name={[field.name, 'unit']}
-                              className="mb-0 w-full"
+                              name={[field.name, 'description']}
+                              rules={[{ required: true, message: 'Requis' }]}
+                              className="mb-0 col-span-2"
                               style={{ marginBottom: 0 }}
                             >
-                              <Select
-                                showSearch
-                                placeholder="Unité"
+                              <Input
+                                placeholder="Description de l'article"
                                 className="w-full"
-                                options={units.map(u => ({ label: u.U_Intitule, value: u.U_Intitule }))}
-                                optionFilterProp="label"
-                                filterOption={(input, option) =>
-                                  (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
-                                }
+                                onKeyDown={(e) => handleKeyDown(e, index, 'description')}
                               />
                             </Form.Item>
-                          </div>
 
-                          {/* Line Status */}
+                            {/* Quantity */}
+                            <div className="flex gap-2 items-start">
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'quantity']}
+                                rules={[{ required: true, message: 'Requis' }]}
+                                style={{ marginBottom: 0 }}
+                              >
+                                <Input
+                                  type="number"
+                                  placeholder="Qté"
+                                  min="0"
+                                  step="0.01"
+                                  className="w-full"
+                                />
+                              </Form.Item>
+                            </div>
+
+                            {/* Unit */}
+                            <div className="flex gap-2 items-start">
+                              <Form.Item
+                                {...field}
+                                name={[field.name, 'unit']}
+                                className="mb-0 w-full"
+                                style={{ marginBottom: 0 }}
+                              >
+                                <Select
+                                  showSearch
+                                  placeholder="Unité"
+                                  className="w-full"
+                                  options={units.map(u => ({ label: u.U_Intitule, value: u.U_Intitule }))}
+                                  optionFilterProp="label"
+                                  filterOption={(input, option) =>
+                                    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+                                  }
+                                />
+                              </Form.Item>
+                            </div>
+
+                            {/* Line Status */}
                           <Form.Item
                             {...field}
                             name={[field.name, 'status']}
                             className="mb-0"
-                            style={{ marginBottom: 0 }}
                           >
                             <Select
                               placeholder="Statut"
                               className="w-full"
-                              disabled={!isAdmin}
+                              disabled={!lineCanEdit || (!isAdmin && isStatus8)}
                             >
-                              {statusOptions.map(option => (
-                                <Select.Option key={option.value} value={option.value}>
-                                  <span className="flex items-center gap-2">
-                                    <span className={`w-2 h-2 rounded-full ${option.color}`}></span>
-                                    {option.label}
-                                  </span>
-                                </Select.Option>
-                              ))}
+                              {statusOptions.map(option => {
+                                const currentLineStatus = String(
+                                  form.getFieldValue(['lines', field.name, 'status']) ?? '1'
+                                );
+                                const isCurrentValue = option.value === currentLineStatus;
+
+                                const isDisabled = !isAdmin && !isCurrentValue
+                                  && option.value !== "1"
+                                  && option.value !== "8";
+
+                                return (
+                                  <Select.Option key={option.value} value={option.value} disabled={isDisabled}>
+                                    <span
+                                      className="flex items-center gap-2"
+                                      style={{ opacity: isDisabled ? 0.45 : 1 }}
+                                    >
+                                      <span className={`w-2 h-2 rounded-full ${option.color}`} />
+                                      {option.label}
+                                    </span>
+                                  </Select.Option>
+                                );
+                              })}
                             </Select>
                           </Form.Item>
 
-                          {/* Action Buttons */}
-                          <div className="flex gap-2 justify-between">
-                            {/* Upload Files Button */}
-                            <div className='flex gap-2'>
-                              <Button
-                                type="default"
-                                icon={<PaperClipOutlined />}
-                                onClick={() => openUploadModal(index)}
-                                className="flex-shrink-0 mt-0 pt-0"
-                                title="Joindre des fichiers"
-                              >
-                                {getFileCount(index) > 0 && (
-                                  <span className="ml-1 text-blue-600 font-semibold">
-                                    ({getFileCount(index)})
-                                  </span>
-                                )}
-                              </Button>
+                            {/* Action Buttons */}
+                            <div className="flex gap-2 justify-between">
+                              {/* Upload Files Button */}
+                              <div className='flex gap-2'>
+                                <Button
+                                  type="default"
+                                  icon={<PaperClipOutlined />}
+                                  onClick={() => openUploadModal(index)}
+                                  className="flex-shrink-0 mt-0 pt-0"
+                                  title="Joindre des fichiers"
+                                >
+                                  {getFileCount(index) > 0 && (
+                                    <span className="ml-1 text-blue-600 font-semibold">
+                                      ({getFileCount(index)})
+                                    </span>
+                                  )}
+                                </Button>
 
+                                <Form.Item
+                                  noStyle
+                                  shouldUpdate={(prev, curr) =>
+                                    prev.lines?.[index]?.non_compliant !== curr.lines?.[index]?.non_compliant
+                                  }
+                                >
+                                  {({ getFieldValue }) => {
+                                    const nonCompliant = getFieldValue(['lines', index, 'non_compliant']) || 0;
+                                    const lineId = getFieldValue(['lines', index, 'id']);
+                                    const lineQte = getFieldValue(['lines', index, 'quantity']);
+                                    return (
+                                      <Tooltip title={`${nonCompliant} non conforme`}>
+                                        <span
+                                          className="cursor-pointer"
+                                          onClick={() => {
+                                            if (nonCompliant > 0 && lineId) {
+                                              setShowNonCompliantModal({ open: true, lineId, lineQte });
+                                            }
+                                          }}
+                                        >
+                                          <Badge count={nonCompliant} />
+                                        </span>
+                                      </Tooltip>
+                                    );
+                                  }}
+                                </Form.Item>
+                              </div>
+
+                              {/* Delete Button */}
+                              <Button
+                                type="text"
+                                danger
+                                icon={<MinusCircleOutlined />}
+                                onClick={() => remove(field.name)}
+                                className="flex-shrink-0"
+                                title="Supprimer cette ligne"
+                                disabled={!canEdit}
+                              />
+
+                              {/* Checkbox */}
                               <Form.Item
-                                noStyle
-                                shouldUpdate={(prev, curr) =>
-                                  prev.lines?.[index]?.non_compliant !== curr.lines?.[index]?.non_compliant
-                                }
+                                {...field}
+                                name={[field.name, 'checked']}
+                                valuePropName="checked"
+                                style={{ marginBottom: 0 }}
                               >
-                                {({ getFieldValue }) => {
-                                  const nonCompliant = getFieldValue(['lines', index, 'non_compliant']) || 0;
-                                  return (
-                                    <Tooltip title={`${nonCompliant} article${nonCompliant > 1 ? "s" : ''} non conforme`}>
-                                      <span>
-                                        <Badge count={nonCompliant} />
-                                      </span>
-                                    </Tooltip>
-                                  );
-                                }}
+                                <Checkbox />
                               </Form.Item>
                             </div>
-
-                            {/* Delete Button */}
-                            <Button
-                              type="text"
-                              danger
-                              icon={<MinusCircleOutlined />}
-                              onClick={() => remove(field.name)}
-                              className="flex-shrink-0"
-                              title="Supprimer cette ligne"
-                              disabled={!canEdit}
-                            />
-
-                            {/* Checkbox */}
-                            <Form.Item
-                              {...field}
-                              name={[field.name, 'checked']}
-                              valuePropName="checked"
-                              style={{ marginBottom: 0 }}
-                            >
-                              <Checkbox />
-                            </Form.Item>
                           </div>
-                        </div>
-                      ))}
+                        );
+                      })}
                     </div>
                   ) : (loading ? <FormListSkeleton rows={5} /> :
                     <div className="flex flex-col items-center justify-center w-full h-full py-8 text-gray-400 text-center">
@@ -942,7 +963,6 @@ export default function PurchaseForm() {
 
             <PurchaseImages imageList={getPreviewImages(currentLineIndex)} />
 
-
             <p className="text-gray-500 text-sm mt-3">
               Vous pouvez joindre plusieurs fichiers (images, PDFs, documents, etc.)
             </p>
@@ -957,7 +977,17 @@ export default function PurchaseForm() {
         }
         lineId={nonCompliantModal?.lineId}
         lineQte={nonCompliantModal?.lineQte}
+        fetch={fetchAllData}
         form={form}
+      />
+
+      <ShowLineNonCompliantModal
+        open={showNonCompliantModal.open}
+        setOpen={(val) =>
+          setShowNonCompliantModal((prev) => ({ ...prev, open: val }))
+        }
+        lineId={showNonCompliantModal.lineId}
+        lineQte={showNonCompliantModal.lineQte}
       />
     </div>
   );

@@ -1,19 +1,27 @@
 import React, { useState } from "react";
-import { Modal, Input, Button, message } from "antd";
+import { Modal, Input, Button, message, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
 import { api } from "../utils/api";
+import { useAuth } from "../contexts/AuthContext";
 
 export default function LineNonCompliantModal({
   open,
   setOpen,
   lineId,
   lineQte,
-  form
+  form,
+  fetch,
 }) {
   const [quantity, setQuantity] = useState("");
+  const [note, setNote] = useState("");
+  const [supplierCode, setSupplierCode] = useState("");
+  const [file, setFile] = useState(null);
   const [loading, setLoading] = useState(false);
+  const { roles } = useAuth()
 
   const handleSubmit = async () => {
     const qty = Number(quantity);
+    
 
     if (!qty || qty < 1) {
       message.error("La quantité doit être au moins égale à 1");
@@ -21,27 +29,44 @@ export default function LineNonCompliantModal({
     }
 
     if (qty > Number(lineQte)) {
-      message.error(
-        `La quantité doit être inférieure ou égale à ${lineQte}`
-      );
+      message.error(`La quantité doit être inférieure ou égale à ${lineQte}`);
       return;
     }
 
     try {
       setLoading(true);
 
-      await api.post(`purchase-line/${lineId}/non-compliant`, {
-        quantity: qty,
-      });
+      const formData = new FormData();
+      formData.append("quantity", qty);
+      formData.append("note", note);
+      formData.append("supplier_code", supplierCode);
+
+      if (file) {
+        formData.append("file", file);
+      }
+
+      await api.post(
+        `purchase-line/${lineId}/non-compliant`,
+        formData,
+        {
+          headers: {
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
 
       message.success("Ligne non conforme ajoutée avec succès");
+
       form?.submit();
       setQuantity("");
+      setNote("");
+      setSupplierCode("");
+      setFile(null);
       setOpen(false);
+      fetch();
     } catch (error) {
       const msg =
-        error?.response?.data?.message ||
-        "Une erreur est survenue";
+        error?.response?.data?.message || "Une erreur est survenue";
 
       message.error(msg);
     } finally {
@@ -51,6 +76,9 @@ export default function LineNonCompliantModal({
 
   const handleClose = () => {
     setQuantity("");
+    setNote("");
+    setSupplierCode("");
+    setFile(null);
     setOpen(false);
   };
 
@@ -63,6 +91,8 @@ export default function LineNonCompliantModal({
       destroyOnClose
     >
       <div className="flex flex-col gap-4">
+
+        {/* Quantity */}
         <div>
           <label className="text-sm font-medium text-gray-600 block mb-2">
             Quantité
@@ -75,7 +105,6 @@ export default function LineNonCompliantModal({
             value={quantity}
             onChange={(e) => setQuantity(e.target.value)}
             placeholder="Saisir la quantité"
-            className="rounded-xl"
           />
 
           <p className="text-xs text-gray-500 mt-1">
@@ -83,6 +112,65 @@ export default function LineNonCompliantModal({
           </p>
         </div>
 
+        {/* Supplier Code */}
+        {
+          roles('admin') ? <div>
+            <label className="text-sm font-medium text-gray-600 block mb-2">
+              fournisseur
+            </label>
+
+            <Input
+              value={supplierCode}
+              onChange={(e) => setSupplierCode(e.target.value)}
+              placeholder="Ex: SUP-001"
+            />
+          </div> : ''
+        }
+        
+        {/* Note */}
+        <div>
+          <label className="text-sm font-medium text-gray-600 block mb-2">
+            Note
+          </label>
+
+          <Input.TextArea
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Ajouter une note..."
+            rows={3}
+          />
+        </div>
+
+        {/* File Upload */}
+        <div>
+          <label className="text-sm font-medium text-gray-600 block mb-2">
+            Fichier (image ou PDF)
+          </label>
+
+          <Upload
+            beforeUpload={(file) => {
+              const isValid =
+                file.type === "application/pdf" ||
+                file.type.startsWith("image/");
+
+              if (!isValid) {
+                message.error("Seuls les images et PDF sont autorisés");
+                return Upload.LIST_IGNORE;
+              }
+
+              setFile(file);
+              return false; // prevent auto upload
+            }}
+            maxCount={1}
+            onRemove={() => setFile(null)}
+          >
+            <Button icon={<UploadOutlined />}>
+              Choisir un fichier
+            </Button>
+          </Upload>
+        </div>
+
+        {/* Actions */}
         <div className="flex justify-end gap-2 mt-2">
           <Button onClick={handleClose}>
             Annuler

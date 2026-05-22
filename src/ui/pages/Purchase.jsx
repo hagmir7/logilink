@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { Button, message, Select, Tag, DatePicker, Empty, Tooltip, Badge } from "antd";
-import { RefreshCcw, PlusCircle, Filter } from "lucide-react";
+import { RefreshCcw, PlusCircle, Filter, RefreshCw } from "lucide-react";
 import dayjs from "dayjs";
 import { useNavigate } from "react-router-dom";
 
@@ -168,7 +168,7 @@ export default function Purchase() {
           </Button>
 
           <Button onClick={() => fetchData(true)}>
-            <RefreshCcw className={`h-4 w-4 ${loading && "animate-spin"}`} />
+            <RefreshCw className={`h-4 w-4 ${loading && "animate-spin"}`} />
             Rafraîchir
           </Button>
 
