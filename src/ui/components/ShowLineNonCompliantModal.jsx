@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Spin, Empty, Typography, Badge, Tag, Input, message } from 'antd';
+import { Modal, Spin, Empty, Typography, Badge, Tag, Input, message, Popconfirm } from 'antd';
 import {
     WarningOutlined,
     ReloadOutlined,
@@ -8,15 +8,20 @@ import {
     EditOutlined,
     CheckOutlined,
     CloseOutlined,
+    DeleteOutlined,
 } from '@ant-design/icons';
 import { api } from '../utils/api';
+import { useAuth } from '../contexts/AuthContext';
 
 const { Text } = Typography;
 
-function RecordCard({ item, lineId, onUpdated, fetch }) {
+function RecordCard({ item, lineId, onUpdated, onDeleted, fetch }) {
     const [editing, setEditing] = useState(false);
     const [value, setValue] = useState(item.supplier_code || '');
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
+    const {roles} = useAuth()
 
     const fileIcon = (file) => {
         if (!file) return null;
@@ -48,12 +53,45 @@ function RecordCard({ item, lineId, onUpdated, fetch }) {
         setEditing(false);
     };
 
+    const handleDelete = async () => {
+        setDeleting(true);
+        try {
+            await api.delete(`purchase-line/${item.id}/non-compliant`);
+            message.success('Non-conformité supprimée');
+            onDeleted(item.id);
+        } catch (err) {
+            message.error(err?.response?.data?.message || 'Erreur lors de la suppression');
+        } finally {
+            setDeleting(false);
+        }
+    };
+
     return (
         <div className="border rounded-xl p-4 shadow-sm bg-white hover:shadow-md transition">
             {/* Header */}
             <div className="flex justify-between items-center mb-2">
                 <Tag color="volcano">Qté: {item.quantity}</Tag>
-                {fileIcon(item.file)}
+                {
+                    roles('admin') && (<div className="flex items-center gap-2">
+                        {fileIcon(item.file)}
+                        <Popconfirm
+                            title="Supprimer cette non-conformité ?"
+                            description="Cette action est irréversible."
+                            onConfirm={handleDelete}
+                            okText="Supprimer"
+                            cancelText="Annuler"
+                            okButtonProps={{ danger: true, loading: deleting }}
+                        >
+                            <button
+                                className="text-gray-300 hover:text-red-500 transition"
+                                title="Supprimer"
+                                disabled={deleting}
+                            >
+                                <DeleteOutlined />
+                            </button>
+                        </Popconfirm>
+                    </div>)
+                }
             </div>
 
             {/* Supplier — inline editable */}
@@ -160,6 +198,10 @@ export default function ShowLineNonCompliantModal({ open, setOpen, lineId, lineQ
         setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
     };
 
+    const handleDeleted = (deletedId) => {
+        setRecords((prev) => prev.filter((r) => r.id !== deletedId));
+    };
+
     const handleClose = () => {
         setOpen(false);
         setRecords([]);
@@ -212,6 +254,7 @@ export default function ShowLineNonCompliantModal({ open, setOpen, lineId, lineQ
                                 item={item}
                                 lineId={lineId}
                                 onUpdated={handleUpdated}
+                                onDeleted={handleDeleted}
                                 fetch={fetchNonCompliants}
                             />
                         ))}

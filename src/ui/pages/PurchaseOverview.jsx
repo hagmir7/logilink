@@ -7,6 +7,8 @@ import MonthlyPurchases from "../components/charts/MonthlyPurchases";
 import ServiceExpenditures from "../components/charts/ServiceExpenditures";
 import dayjs from "dayjs";
 import IndicateursDashboard from "../components/IndicateursDashboard";
+import DeadlineSuppliers from "../components/charts/DeadlineSuppliers";
+import NonCompliantLines from "../components/charts/nonCompliantLines";
 
 const { RangePicker } = DatePicker;
 
@@ -116,10 +118,7 @@ const DashboardSection = ({ dates }) => {
                 ))}
             </div>
 
-            <div className="flex gap-2 mt-3">
-                <MonthlyPurchases dates={dates} />
-                <ServiceDistribution dates={dates} />
-            </div>
+           
         </div>
     );
 };
@@ -142,12 +141,29 @@ export default function PurchaseOverview() {
                     className="min-w-[160px]"
                 />
             </div>
+
+            
             
             <DashboardSection dates={dates} />
+
+
+            <div className="grid grid-cols-2 gap-2">
+                 <DeadlineSuppliers  />
+                {/* <ServiceExpenditures dates={dates} /> */}
+                <NonCompliantLines  />
+            </div>
+
+             <div className="flex gap-2 mt-3">
+                <MonthlyPurchases dates={dates} />
+                <ServiceDistribution dates={dates} />
+            </div>
+
             <div className="grid grid-cols-2 gap-2">
                 <ServiceExpenditures dates={dates} />
                 {/* <ServiceExpenditures dates={dates} /> */}
+        
             </div>
+           
             {/* <IndicateursDashboard /> */}
         </div>
     );

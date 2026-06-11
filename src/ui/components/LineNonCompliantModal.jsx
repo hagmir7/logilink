@@ -122,7 +122,7 @@ export default function LineNonCompliantModal({
             <Input
               value={supplierCode}
               onChange={(e) => setSupplierCode(e.target.value)}
-              placeholder="Ex: SUP-001"
+              placeholder="Ex: FR001"
             />
           </div> : ''
         }

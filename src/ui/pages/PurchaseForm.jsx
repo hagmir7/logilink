@@ -46,7 +46,7 @@ export default function PurchaseForm() {
   const [searchModal, setSearchModal] = useState({});
   const [units, setUnits] = useState([]);
 
-  let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api';
+  let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.38/api';
 
   const hasRole = (roleNames) => {
     const checkRoles = Array.isArray(roleNames) ? roleNames : [roleNames];

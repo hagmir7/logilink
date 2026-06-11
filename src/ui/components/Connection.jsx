@@ -8,7 +8,7 @@ export default function Connection() {
     const connections = [
         {
             label: 'Local',
-            value: 'http://192.168.1.113/api/',
+            value: 'http://192.168.1.38/api/',
         },
         {
             label: 'Online',

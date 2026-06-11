@@ -8,7 +8,7 @@ const getAuthToken = () => {
   return '';
 };
 
-let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.113/api/';
+let baseURL = localStorage.getItem('connection_url') || 'http://192.168.1.38/api/';
 
 export const api = axios.create({
   baseURL,

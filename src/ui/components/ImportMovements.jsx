@@ -36,7 +36,7 @@ const ImportMovements = () => {
 
   const downloadModel = async () => {
     try {
-      await window.electron.ipcRenderer.invoke('download-file', 'http://192.168.1.113/models/import-movements-model.xlsx');
+      await window.electron.ipcRenderer.invoke('download-file', 'http://192.168.1.38/models/import-movements-model.xlsx');
     } catch (error) {
       console.error(error);
       message.error('Erreur lors du téléchargement du modèle');
