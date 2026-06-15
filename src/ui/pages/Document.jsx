@@ -242,7 +242,7 @@ function Document() {
             ) : (
               <RefreshCcw size={17} />
             )}
-            <span className='hidden sm:inline'>Rafraîchir</span>
+            <span className='hidden sm:inline'></span>
           </Button>
         </div>
       </div>

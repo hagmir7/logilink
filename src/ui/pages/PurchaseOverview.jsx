@@ -9,6 +9,7 @@ import dayjs from "dayjs";
 import IndicateursDashboard from "../components/IndicateursDashboard";
 import DeadlineSuppliers from "../components/charts/DeadlineSuppliers";
 import NonCompliantLines from "../components/charts/nonCompliantLines";
+import SupplierInterviewsState from "../components/charts/SupplierInterviewsState";
 
 const { RangePicker } = DatePicker;
 
@@ -152,6 +153,13 @@ export default function PurchaseOverview() {
                 {/* <ServiceExpenditures dates={dates} /> */}
                 <NonCompliantLines  />
             </div>
+
+            <div className="grid grid-cols-2 gap-2">
+                <SupplierInterviewsState  />
+                {/* <ServiceExpenditures dates={dates} /> */}
+                {/* <NonCompliantLines  /> */}
+            </div>
+
 
              <div className="flex gap-2 mt-3">
                 <MonthlyPurchases dates={dates} />
