@@ -145,14 +145,16 @@ function Fabrication() {
             )}
             Rafraîchir
           </Button>
-          <PrintDocument
+
+
+          {/* <PrintDocument
             docentete={data?.docentete}
             doclignes={
               selected.length > 0
                 ? selectedRowsFull
                 : data.doclignes
             }
-          />
+          /> */}
 
           <FacadDocumentPrint
             docentete={data.docentete}

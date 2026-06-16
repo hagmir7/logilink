@@ -52,6 +52,8 @@ export default function Preparation() {
     createPalette: false, scan: false, submit: false, remove: false, create: false,
   })
 
+  
+
   const currentPalette = palettes[currentIndex]
 
   const setLoading = (key, value) =>
@@ -277,6 +279,8 @@ export default function Preparation() {
 
   const handleSubmit = async () => {
     setLoading('submit', true)
+
+    console.log(article.qte)
 
     if (
       roles(['magasinier', 'preparation_cuisine']) &&

@@ -363,7 +363,7 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
             variant="solid"
             icon={<Printer size={largeSize ? 40 : 16} />}
           >
-            {/* Imprimer */}
+            Imprimer
           </Button>
           <Modal
             title="Sélectionner l'imprimante"

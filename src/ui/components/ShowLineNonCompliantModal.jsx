@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Spin, Empty, Typography, Badge, Tag, Input, message, Popconfirm } from 'antd';
+import { Modal, Spin, Empty, Typography, Badge, Tag, Input, message, Popconfirm, Switch } from 'antd';
 import {
     WarningOutlined,
     ReloadOutlined,
@@ -20,8 +20,11 @@ function RecordCard({ item, lineId, onUpdated, onDeleted, fetch }) {
     const [value, setValue] = useState(item.supplier_code || '');
     const [saving, setSaving] = useState(false);
     const [deleting, setDeleting] = useState(false);
+    const [statusLoading, setStatusLoading] = useState(false);
 
-    const {roles} = useAuth()
+    const { roles } = useAuth();
+
+    const isActive = Number(item.status) === 1;
 
     const fileIcon = (file) => {
         if (!file) return null;
@@ -37,7 +40,7 @@ function RecordCard({ item, lineId, onUpdated, onDeleted, fetch }) {
                 `purchase-line/${item.id}/non-compliant/update`,
                 { supplier_code: value }
             );
-            onUpdated(res.data);
+            onUpdated(res.data?.data ?? res.data);
             setEditing(false);
             fetch();
             message.success('Fournisseur mis à jour');
@@ -66,32 +69,69 @@ function RecordCard({ item, lineId, onUpdated, onDeleted, fetch }) {
         }
     };
 
+    const handleStatusChange = async (checked) => {
+        setStatusLoading(true);
+        try {
+            const res = await api.patch(
+                `purchase-line/${item.id}/non-compliant/update`,
+                { status: checked ? 1 : 0 }
+            );
+            const updated = res.data?.data ?? res.data;
+            // Make sure the local copy reflects the new status even if the
+            // API response shape doesn't include it directly
+            onUpdated({ ...item, ...updated, status: checked ? 1 : 0 });
+            message.success('Statut mis à jour');
+        } catch (err) {
+            message.error(err?.response?.data?.message || 'Erreur lors de la mise à jour du statut');
+        } finally {
+            setStatusLoading(false);
+        }
+    };
+
     return (
         <div className="border rounded-xl p-4 shadow-sm bg-white hover:shadow-md transition">
             {/* Header */}
             <div className="flex justify-between items-center mb-2">
                 <Tag color="volcano">Qté: {item.quantity}</Tag>
+
                 {
-                    roles('admin') && (<div className="flex items-center gap-2">
-                        {fileIcon(item.file)}
-                        <Popconfirm
-                            title="Supprimer cette non-conformité ?"
-                            description="Cette action est irréversible."
-                            onConfirm={handleDelete}
-                            okText="Supprimer"
-                            cancelText="Annuler"
-                            okButtonProps={{ danger: true, loading: deleting }}
-                        >
-                            <button
-                                className="text-gray-300 hover:text-red-500 transition"
-                                title="Supprimer"
-                                disabled={deleting}
-                            >
-                                <DeleteOutlined />
-                            </button>
-                        </Popconfirm>
-                    </div>)
+                    roles('admin') && (
+                        <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-1">
+                                <Switch
+                                    size="small"
+                                    checked={isActive}
+                                    loading={statusLoading}
+                                    onChange={handleStatusChange}
+                                />
+                                <Text type="secondary" className="text-xs">
+                                    {isActive ? 'Accepté' : 'Non accepté'}
+                                </Text>
+                            </div>
+
+                            <div className="flex items-center gap-2">
+                                {fileIcon(item.file)}
+                                <Popconfirm
+                                    title="Supprimer cette non-conformité ?"
+                                    description="Cette action est irréversible."
+                                    onConfirm={handleDelete}
+                                    okText="Supprimer"
+                                    cancelText="Annuler"
+                                    okButtonProps={{ danger: true, loading: deleting }}
+                                >
+                                    <button
+                                        className="text-gray-300 hover:text-red-500 transition"
+                                        title="Supprimer"
+                                        disabled={deleting}
+                                    >
+                                        <DeleteOutlined />
+                                    </button>
+                                </Popconfirm>
+                            </div>
+                        </div>
+                    )
                 }
+
             </div>
 
             {/* Supplier — inline editable */}
@@ -158,8 +198,7 @@ function RecordCard({ item, lineId, onUpdated, onDeleted, fetch }) {
             {/* File link */}
             {item.file && (
                 <div className="mt-2">
-                    <a
-                        href={`/storage/${item.file}`}
+                    <a href={`/storage/${item.file}`}
                         target="_blank"
                         rel="noreferrer"
                         className="text-xs text-blue-600 underline"
@@ -186,7 +225,7 @@ export default function ShowLineNonCompliantModal({ open, setOpen, lineId, lineQ
         setError(null);
         try {
             const res = await api.get(`purchase-line/${lineId}/non-compliant`);
-            setRecords(res.data || []);
+            setRecords(res.data?.data ?? res.data ?? []);
         } catch (err) {
             setError(err?.response?.data?.message || 'Erreur lors du chargement');
         } finally {
@@ -195,7 +234,7 @@ export default function ShowLineNonCompliantModal({ open, setOpen, lineId, lineQ
     };
 
     const handleUpdated = (updated) => {
-        setRecords((prev) => prev.map((r) => (r.id === updated.id ? updated : r)));
+        setRecords((prev) => prev.map((r) => (r.id === updated.id ? { ...r, ...updated } : r)));
     };
 
     const handleDeleted = (deletedId) => {
