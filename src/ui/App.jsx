@@ -66,6 +66,7 @@ import QuoteComparison from './pages/QuoteComparison'
 import NcfStepForm from './components/NcfStepFormPreview'
 import NcfApp from './components/NcfApp'
 import NcfForm from './components/NfcForm'
+import WebsiteOrders from './pages/WebsiteOrders'
 
 
 const NotFound = () => {
@@ -176,6 +177,7 @@ function App() {
           <Route path='travels' element={<TravelReceptionTable />} />
 
           <Route path='stock/out' element={<StockMovement />} />
+          <Route path='website-orders' element={<WebsiteOrders />} />
           <Route path='stock/in' element={<StockMovement />} />
           <Route path='stock/return' element={<StockMovement />} />
           <Route

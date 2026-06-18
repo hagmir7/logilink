@@ -34,6 +34,7 @@ import {
   Van,
   BadgeX,
   GitCompare,
+  Globe,
 } from 'lucide-react'
 import { Link, Outlet, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -42,26 +43,48 @@ import MobileBottomNav from './MobileButtomNav'
 import Tools from '../components/Tools'
 import { api } from '../utils/api'
 import { handleShow } from '../utils/config'
+import axios from 'axios'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
   const { roles = [], permissions, user } = useAuth();
   const [purchaseStatus, setPurchaseStatus] = useState(0);
-  const navigate = useNavigate()
 
-  const getPurchaseCount = async () => {
+    const navigate = useNavigate()
+
+
+  const [states, setStates] = useState({
+    purchase : 0,
+    website_orders: 0
+  })
+
+
+
+  const getStates = async () => {
     try {
-      const response = await api.get("status-count/2");
-      setPurchaseStatus(response.data)
+      const [purchase, orders] = await Promise.all([
+        api.get("status-count/2"),
+        axios.get("https://app.intercocina.com/api/orders/count?status=1", {
+          headers: { 'X-API-Key': 'BUvM$K|+z)XS)kz}cOal2cg{)gJV|H$' },
+        }),
+      ]);
+
+      setStates({
+        ...purchase.data,
+        website_orders: orders.data.count,
+      });
+
+
+      console.log(purchase)
+      console.log(orders)
     } catch (error) {
-
+      console.error("Failed to load states:", error);
     }
-  }
-
+  };
 
   useEffect(() => {
-    getPurchaseCount();
-  }, [])
+    getStates();
+  }, []);
 
   return [
     {
@@ -101,6 +124,19 @@ const sideMenu = () => {
           disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
           label: <Link to='/transfer-orders/list'>Transfert</Link>,
         },
+
+        {
+          key: 'submenu-500',
+          icon: <Globe size={19} />,
+          hidden: !roles([ 'commercial', 'admin']),
+          label: (
+            <div className="flex items-center justify-between w-full">
+              Site web
+              <Link to='/website-orders'> <Badge count={states.website_orders} className="ml-2" /></Link>
+            </div>
+          ),
+        },
+        
         {
           key: 'submenu-17',
           icon: <Archive size={19} />,
@@ -252,7 +288,7 @@ const sideMenu = () => {
       label: (
         <div className="flex items-center justify-between w-full">
           Achat
-          {purchaseStatus && roles(['admin', 'dg']) ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
+          {states.purchase && roles(['admin', 'dg']) ? <Badge count={states.purchase} className="ml-2" /> : ''}
         </div>
       ),
 
@@ -272,7 +308,7 @@ const sideMenu = () => {
               <Link to="/purchase" className="flex-1">
                 Domands
               </Link>
-              {purchaseStatus && roles(['admin', 'dg']) ? <Badge count={purchaseStatus} className="ml-2" /> : ''}
+              {states.purchase && roles(['admin', 'dg']) ? <Badge count={states.purchase} className="ml-2" /> : ''}
             </div>
           ),
         },

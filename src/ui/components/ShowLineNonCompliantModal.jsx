@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, Spin, Empty, Typography, Badge, Tag, Input, message, Popconfirm, Switch } from 'antd';
+import { Modal, Spin, Empty, Typography, Badge, Tag, Input, message, Popconfirm, Switch, Select } from 'antd';
 import {
     WarningOutlined,
     ReloadOutlined,
@@ -69,20 +69,29 @@ function RecordCard({ item, lineId, onUpdated, onDeleted, fetch }) {
         }
     };
 
-    const handleStatusChange = async (checked) => {
+    const handleStatusChange = async (status) => {
         setStatusLoading(true);
+
         try {
             const res = await api.patch(
                 `purchase-line/${item.id}/non-compliant/update`,
-                { status: checked ? 1 : 0 }
+                { status }
             );
+
             const updated = res.data?.data ?? res.data;
-            // Make sure the local copy reflects the new status even if the
-            // API response shape doesn't include it directly
-            onUpdated({ ...item, ...updated, status: checked ? 1 : 0 });
+
+            onUpdated({
+                ...item,
+                ...updated,
+                status,
+            });
+
             message.success('Statut mis à jour');
         } catch (err) {
-            message.error(err?.response?.data?.message || 'Erreur lors de la mise à jour du statut');
+            message.error(
+                err?.response?.data?.message ||
+                'Erreur lors de la mise à jour du statut'
+            );
         } finally {
             setStatusLoading(false);
         }
@@ -98,15 +107,30 @@ function RecordCard({ item, lineId, onUpdated, onDeleted, fetch }) {
                     roles('admin') && (
                         <div className="flex items-center gap-3">
                             <div className="flex items-center gap-1">
-                                <Switch
-                                    size="small"
-                                    checked={isActive}
-                                    loading={statusLoading}
-                                    onChange={handleStatusChange}
-                                />
-                                <Text type="secondary" className="text-xs">
-                                    {isActive ? 'Accepté' : 'Non accepté'}
-                                </Text>
+                                {
+                                    roles('admin') ? (
+                                        <Select
+                                            size="small"
+                                            style={{ width: 130 }}
+                                            value={parseInt(item.status)}
+                                            loading={statusLoading}
+                                            onChange={handleStatusChange}
+                                            options={[
+                                                { value: null, label: '⏳ En attente' },
+                                                { value: 1, label: 'Accepté' },
+                                                { value: 0, label: 'Refusé' },
+                                            ]}
+                                        />
+                                    ) : (
+                                        item.status === 1 ? (
+                                            <Tag color="success">Accepté</Tag>
+                                        ) : item.status === 0 ? (
+                                            <Tag color="error">Refusé</Tag>
+                                        ) : (
+                                            <Tag color="warning">En attente</Tag>
+                                        )
+                                    )
+                                }
                             </div>
 
                             <div className="flex items-center gap-2">
