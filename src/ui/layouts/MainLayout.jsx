@@ -48,7 +48,6 @@ const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
   const { roles = [], permissions, user } = useAuth();
-  const [purchaseStatus, setPurchaseStatus] = useState(0);
 
     const navigate = useNavigate()
 
@@ -70,13 +69,12 @@ const sideMenu = () => {
       ]);
 
       setStates({
-        ...purchase.data,
+        purchase: purchase.data,
         website_orders: orders.data.count,
       });
 
 
-      console.log(purchase)
-      console.log(orders)
+      console.log(purchase.data)
     } catch (error) {
       console.error("Failed to load states:", error);
     }
