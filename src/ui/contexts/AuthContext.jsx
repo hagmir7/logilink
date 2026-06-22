@@ -45,9 +45,8 @@ export const AuthProvider = ({ children }) => {
       }
 
     } catch (error) {
-      console.log(error);
       
-      setMessage("Nom d'utilisateur/e-mail ou mot de passe invalide.");
+      setMessage(error.response.data.message);
     } finally {
       setLoading(false);
     }

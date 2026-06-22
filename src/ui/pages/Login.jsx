@@ -59,7 +59,6 @@ const Login = () => {
       localStorage.setItem('usernames', JSON.stringify(updated));
       setUsernames(updated);
     } catch (error) {
-      // Check if it's a network error
       if (error.message?.includes('Network') || error.code === 'ERR_NETWORK' || !navigator.onLine) {
         setErrorType('network');
       } else {

@@ -6,7 +6,7 @@ import { CheckCircle } from 'lucide-react';
 
 const { Title, Text } = Typography;
 
-const API_URL = 'https://app.intercocina.com/api/orders/json';
+const API_URL = 'http://localhost:8000/api/orders/json';
 const API_KEY = 'BUvM$K|+z)XS)kz}cOal2cg{)gJV|H$';
 
 const STATUS_MAP = {
@@ -37,6 +37,18 @@ const formatDate = (value) =>
     minute: '2-digit',
   });
 
+const computeTotals = (products = []) => {
+  const totalHT = products.reduce((sum, p) => sum + p.total * p.quantity, 0);
+  const totalNet = products.reduce(
+    (sum, p) => sum + p.total * (1 - p.discount / 100) * p.quantity,
+    0
+  );
+  const totalDiscount = totalHT - totalNet;
+  const tva = totalNet * 0.2;
+  const totalTTC = totalNet + tva;
+  return { totalHT, totalNet, totalDiscount, tva, totalTTC };
+};
+
 export default function WebsiteOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -57,8 +69,8 @@ export default function WebsiteOrders() {
     } catch (err) {
       setError(
         err?.response?.data?.message ||
-          err.message ||
-          'Impossible de charger les commandes.'
+        err.message ||
+        'Impossible de charger les commandes.'
       );
       setOrders([]);
     } finally {
@@ -80,6 +92,10 @@ export default function WebsiteOrders() {
     setSelectedOrder(null);
   };
 
+  const validate = () => {
+    // TODO: implement validation
+  };
+
   const columns = [
     {
       title: 'Code',
@@ -97,9 +113,7 @@ export default function WebsiteOrders() {
       key: 'customer',
       render: (_, record) =>
         record.customer ? (
-          <div>
-            {record.customer_code}
-          </div>
+          <div>{record.customer_code}</div>
         ) : (
           <Text type="secondary">—</Text>
         ),
@@ -153,120 +167,137 @@ export default function WebsiteOrders() {
     },
   ];
 
-const productColumns = [
-  {
-    title: 'Désignation',
-    dataIndex: 'designation',
-    key: 'designation',
-    render: (text) => (
-      <div className="whitespace-nowrap">
-        {text}
-      </div>
-    ),
-  },
-  {
-    title: 'Couleur',
-    dataIndex: 'color',
-    key: 'color',
-    width: 100,
-  },
-  {
-    title: 'Dimensions',
-    dataIndex: 'dimensions',
-    key: 'dimensions',
-    width: 130,
-  },
-  {
-    title: 'Qté',
-    dataIndex: 'quantity',
-    key: 'quantity',
-    width: 70,
-    align: 'center',
-  },
-  {
-    title: 'Remise',
-    dataIndex: 'discount',
-    key: 'discount',
-    width: 70,
-    align: 'center',
-  },
-  {
-    title: 'Total',
-    dataIndex: 'total',
-    key: 'total',
-    width: 110,
-    align: 'right',
-    render: formatMAD,
-  },
-];
-
-
-  const validate = () =>{
-
-  }
+  const productColumns = [
+    {
+      title: 'Désignation',
+      dataIndex: 'designation',
+      key: 'designation',
+      render: (text) => <div className="whitespace-nowrap">{text}</div>,
+    },
+    {
+      title: 'Couleur',
+      dataIndex: 'color',
+      key: 'color',
+      width: 100,
+    },
+    {
+      title: 'Dimensions',
+      dataIndex: 'dimensions',
+      key: 'dimensions',
+      width: 130,
+    },
+    {
+      title: 'Qté',
+      dataIndex: 'quantity',
+      key: 'quantity',
+      width: 70,
+      align: 'center',
+    },
+    // {
+    //   title: 'P.U.',
+    //   dataIndex: 'total',
+    //   key: 'unit_price',
+    //   width: 110,
+    //   align: 'right',
+    //   render: (value) => <Text type="secondary">{formatMAD(value)}</Text>,
+    // },
+    {
+      title: 'Remise',
+      dataIndex: 'discount',
+      key: 'discount',
+      width: 80,
+      align: 'center',
+      render: (value) =>
+        value > 0 ? (
+          <Tag color="orange">{value}%</Tag>
+        ) : (
+          <Text type="secondary">—</Text>
+        ),
+    },
+    {
+      title: 'P.U. Net',
+      key: 'net_price',
+      width: 110,
+      align: 'right',
+      render: (_, record) => {
+        const net = record.total * (1 - record.discount / 100);
+        return <Text strong>{formatMAD(net)}</Text>;
+      },
+    },
+    {
+      title: 'Total Net',
+      key: 'total_net',
+      width: 120,
+      align: 'right',
+      render: (_, record) => {
+        const net = record.total * (1 - record.discount / 100) * record.quantity;
+        return <Text strong style={{ color: '#16a34a' }}>{formatMAD(net)}</Text>;
+      },
+    },
+  ];
 
   const selectedStatusInfo = selectedOrder
     ? STATUS_MAP[selectedOrder.status] || { label: 'Inconnu', color: 'default' }
     : null;
 
   return (
-    <div className=" bg-slate-50 min-h-screen">
-
-        <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-          <Title level={4} className="!mb-0 px-3 py-2">
-            Commandes du site
-          </Title>
-          <div className="flex items-center gap-2 px-3 py-2">
-            <Select
-              allowClear
-              placeholder="Tous les statuts"
-              style={{ width: 200 }}
-              value={status}
-              onChange={(value) => setStatus(value)}
-              options={STATUS_OPTIONS}
-            />
-          </div>
-        </div>
-
-        {error && (
-          <Alert
-            type="error"
-            // message="Erreur"
-            description={error}
-            showIcon
-            className="mb-4 p-0"
+    <div className="bg-slate-50 min-h-screen">
+      <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+        <Title level={4} className="!mb-0 px-3 py-2">
+          Commandes du site
+        </Title>
+        <div className="flex items-center gap-2 px-3 py-2">
+          <Select
+            allowClear
+            placeholder="Tous les statuts"
+            style={{ width: 200 }}
+            value={status}
+            onChange={(value) => setStatus(value)}
+            options={STATUS_OPTIONS}
           />
-        )}
+        </div>
+      </div>
 
-        <Table
-          rowKey="id"
-          columns={columns}
-          dataSource={orders}
-          loading={loading}
-          onRow={(record) => ({
-            onClick: () => openOrderDetail(record),
-            style: { cursor: 'pointer' },
-          })}
-          size='small'
-          locale={{ emptyText: <Empty description="Aucune commande trouvée" /> }}
-          pagination={{
-            pageSize: 10,
-            showSizeChanger: true,
-            showTotal: (total) => `${total} commande(s)`,
-          }}
-          scroll={{ x: true }}
+      {error && (
+        <Alert
+          type="error"
+          description={error}
+          showIcon
+          className="mb-4 p-0"
         />
+      )}
 
-        <Modal
-          title={selectedOrder ? `Commande ${selectedOrder.code}` : ''}
-          open={detailOpen}
-          onCancel={closeOrderDetail}
-          footer={null}
-          width={900}
-          centered
-          destroyOnClose
-        >
-          {selectedOrder && (
+      <Table
+        rowKey="id"
+        columns={columns}
+        dataSource={orders}
+        loading={loading}
+        onRow={(record) => ({
+          onClick: () => openOrderDetail(record),
+          style: { cursor: 'pointer' },
+        })}
+        size="small"
+        locale={{ emptyText: <Empty description="Aucune commande trouvée" /> }}
+        pagination={{
+          pageSize: 10,
+          showSizeChanger: true,
+          showTotal: (total) => `${total} commande(s)`,
+        }}
+        scroll={{ x: true }}
+      />
+
+      <Modal
+        title={selectedOrder ? `Commande ${selectedOrder.code}` : ''}
+        open={detailOpen}
+        onCancel={closeOrderDetail}
+        footer={null}
+        width={1000}
+        centered
+        destroyOnClose
+      >
+        {selectedOrder && (() => {
+          const { totalHT, totalNet, totalDiscount, tva, totalTTC } = computeTotals(selectedOrder.products);
+          return (
             <div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 border border-gray-300 p-2 rounded-2xl">
                 <div>
@@ -298,38 +329,33 @@ const productColumns = [
                 size="small"
               />
 
-            <div className="flex justify-end mt-4">
-              <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 min-w-[250px]">
-                <div className="flex justify-between items-center mb-2">
-                  <Text type="secondary">Total HT</Text>
-                  <Text strong>
-                    {formatMAD(selectedOrder.total_amount)}
-                  </Text>
-                </div>
-
-                {/* <Divider className="p-0" /> */}
-
-                <div className="flex justify-between items-center">
-                  <Text strong style={{ fontSize: 14 }}>
-                    Total TTC
-                  </Text>
-                  <Text strong style={{ fontSize: 16 }}>
-                    {formatMAD(selectedOrder.total_amount)}
-                  </Text>
+              <div className="flex justify-end mt-4">
+                <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 min-w-[280px] space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Text type="secondary">Total Net HT</Text>
+                    <Text strong>{formatMAD(totalNet)}</Text>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <Text type="secondary">TVA (20%)</Text>
+                    <Text>{formatMAD(tva)}</Text>
+                  </div>
+                  <Divider className="!my-2" />
+                  <div className="flex justify-between items-center">
+                    <Text strong style={{ fontSize: 14 }}>Total TTC</Text>
+                    <Text strong style={{ fontSize: 16, color: '#16a34a' }}>{formatMAD(totalTTC)}</Text>
+                  </div>
                 </div>
               </div>
-            </div>
 
-              <div>
-
-                <Button color='green' variant='solid' onClick={validate} icon={<CheckCircle size={16} />}>
+              <div className="mt-4">
+                <Button color="green" variant="solid" onClick={validate} icon={<CheckCircle size={16} />}>
                   Valider
                 </Button>
-
               </div>
             </div>
-          )}
-        </Modal>
+          );
+        })()}
+      </Modal>
     </div>
   );
 }
