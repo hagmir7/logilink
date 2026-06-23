@@ -1,8 +1,9 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
-import { Table, Select, Tag, Card, Typography, Alert, Empty, Modal, Divider, Button } from 'antd';
+import { Table, Select, Tag, Card, Typography, Alert, Empty, Modal, Divider, Button, message } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
 import { CheckCircle } from 'lucide-react';
+import { api } from "../utils/api";
 
 const { Title, Text } = Typography;
 
@@ -30,24 +31,9 @@ const formatMAD = (value) =>
 
 const formatDate = (value) =>
   new Date(value).toLocaleString('fr-FR', {
-    day: '2-digit',
-    month: '2-digit',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
+    day: '2-digit', month: '2-digit', year: 'numeric',
+    hour: '2-digit', minute: '2-digit',
   });
-
-const computeTotals = (products = []) => {
-  const totalHT = products.reduce((sum, p) => sum + p.total * p.quantity, 0);
-  const totalNet = products.reduce(
-    (sum, p) => sum + p.total * (1 - p.discount / 100) * p.quantity,
-    0
-  );
-  const totalDiscount = totalHT - totalNet;
-  const tva = totalNet * 0.2;
-  const totalTTC = totalNet + tva;
-  return { totalHT, totalNet, totalDiscount, tva, totalTTC };
-};
 
 export default function WebsiteOrders() {
   const [orders, setOrders] = useState([]);
@@ -67,35 +53,51 @@ export default function WebsiteOrders() {
       });
       setOrders(data?.data ?? []);
     } catch (err) {
-      setError(
-        err?.response?.data?.message ||
-        err.message ||
-        'Impossible de charger les commandes.'
-      );
+      setError(err?.response?.data?.message || err.message || 'Impossible de charger les commandes.');
       setOrders([]);
     } finally {
       setLoading(false);
     }
   }, []);
 
-  useEffect(() => {
-    fetchOrders(status);
-  }, [status, fetchOrders]);
 
-  const openOrderDetail = (record) => {
-    setSelectedOrder(record);
-    setDetailOpen(true);
+
+  const [validating, setValidating] = useState(false);
+
+  const validate = async () => {
+    if (!selectedOrder) return;
+    setValidating(true);
+    const preload = {
+      order_id: selectedOrder.id,
+      code: selectedOrder.code,
+      products: selectedOrder.products,
+      total_ht: selectedOrder.total_ht,
+      tva_amount: selectedOrder.tva_amount,
+      total_amount: selectedOrder.total_amount,
+    }
+
+    console.log(preload)
+    try {
+      await api.post('orders/validate', preload);
+
+      closeOrderDetail();
+      fetchOrders(status);
+    } catch (err) {
+      message.error(err?.response?.data?.message || 'Erreur lors de la validation.');
+    } finally {
+      setValidating(false);
+    }
   };
 
-  const closeOrderDetail = () => {
-    setDetailOpen(false);
-    setSelectedOrder(null);
-  };
 
-  const validate = () => {
-    // TODO: implement validation
-  };
 
+  useEffect(() => { fetchOrders(status); }, [status, fetchOrders]);
+
+  const openOrderDetail = (record) => { setSelectedOrder(record); setDetailOpen(true); };
+  const closeOrderDetail = () => { setDetailOpen(false); setSelectedOrder(null); };
+
+
+  // ─── Main table columns ────────────────────────────────────────────────────
   const columns = [
     {
       title: 'Code',
@@ -112,11 +114,9 @@ export default function WebsiteOrders() {
       title: 'Client',
       key: 'customer',
       render: (_, record) =>
-        record.customer ? (
-          <div>{record.customer_code}</div>
-        ) : (
-          <Text type="secondary">—</Text>
-        ),
+        record.customer_code
+          ? <div>{record.customer_code}</div>
+          : <Text type="secondary">—</Text>,
     },
     {
       title: 'Articles',
@@ -125,7 +125,7 @@ export default function WebsiteOrders() {
       render: (_, record) => record.products?.length ?? 0,
     },
     {
-      title: 'Total',
+      title: 'Total TTC',
       dataIndex: 'total_amount',
       key: 'total_amount',
       align: 'right',
@@ -158,15 +158,13 @@ export default function WebsiteOrders() {
           type="text"
           size="small"
           icon={<EyeOutlined />}
-          onClick={(e) => {
-            e.stopPropagation();
-            openOrderDetail(record);
-          }}
+          onClick={(e) => { e.stopPropagation(); openOrderDetail(record); }}
         />
       ),
     },
   ];
 
+  // ─── Product detail columns ─────────────────────────────────────────────
   const productColumns = [
     {
       title: 'Désignation',
@@ -190,17 +188,17 @@ export default function WebsiteOrders() {
       title: 'Qté',
       dataIndex: 'quantity',
       key: 'quantity',
-      width: 70,
+      width: 60,
       align: 'center',
     },
-    // {
-    //   title: 'P.U.',
-    //   dataIndex: 'total',
-    //   key: 'unit_price',
-    //   width: 110,
-    //   align: 'right',
-    //   render: (value) => <Text type="secondary">{formatMAD(value)}</Text>,
-    // },
+    {
+      title: 'P.U. HT',
+      dataIndex: 'unit_price',
+      key: 'unit_price',
+      width: 110,
+      align: 'right',
+      render: (value) => <Text type="secondary" className='whitespace-nowrap'>{formatMAD(value)}</Text>,
+    },
     {
       title: 'Remise',
       dataIndex: 'discount',
@@ -208,31 +206,27 @@ export default function WebsiteOrders() {
       width: 80,
       align: 'center',
       render: (value) =>
-        value > 0 ? (
-          <Tag color="orange">{value}%</Tag>
-        ) : (
-          <Text type="secondary">—</Text>
-        ),
+        value > 0
+          ? <Tag color="orange">{value}%</Tag>
+          : <Text type="secondary">—</Text>,
     },
     {
       title: 'P.U. Net',
-      key: 'net_price',
+      dataIndex: 'discounted_price',
+      key: 'discounted_price',
       width: 110,
       align: 'right',
-      render: (_, record) => {
-        const net = record.total * (1 - record.discount / 100);
-        return <Text strong>{formatMAD(net)}</Text>;
-      },
+      render: (value) => <Text strong className='whitespace-nowrap'>{formatMAD(value)}</Text>,
     },
     {
       title: 'Total Net',
-      key: 'total_net',
+      dataIndex: 'total',
+      key: 'total',
       width: 120,
       align: 'right',
-      render: (_, record) => {
-        const net = record.total * (1 - record.discount / 100) * record.quantity;
-        return <Text strong style={{ color: '#16a34a' }}>{formatMAD(net)}</Text>;
-      },
+      render: (value) => (
+        <Text strong style={{ color: '#16a34a' }} className='whitespace-nowrap'>{formatMAD(value)}</Text>
+      ),
     },
   ];
 
@@ -243,9 +237,7 @@ export default function WebsiteOrders() {
   return (
     <div className="bg-slate-50 min-h-screen">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-        <Title level={4} className="!mb-0 px-3 py-2">
-          Commandes du site
-        </Title>
+        <Title level={4} className="!mb-0 px-3 py-2">Commandes du site</Title>
         <div className="flex items-center gap-2 px-3 py-2">
           <Select
             allowClear
@@ -258,31 +250,17 @@ export default function WebsiteOrders() {
         </div>
       </div>
 
-      {error && (
-        <Alert
-          type="error"
-          description={error}
-          showIcon
-          className="mb-4 p-0"
-        />
-      )}
+      {error && <Alert type="error" description={error} showIcon className="mb-4" />}
 
       <Table
         rowKey="id"
         columns={columns}
         dataSource={orders}
         loading={loading}
-        onRow={(record) => ({
-          onClick: () => openOrderDetail(record),
-          style: { cursor: 'pointer' },
-        })}
+        onRow={(record) => ({ onClick: () => openOrderDetail(record), style: { cursor: 'pointer' } })}
         size="small"
         locale={{ emptyText: <Empty description="Aucune commande trouvée" /> }}
-        pagination={{
-          pageSize: 10,
-          showSizeChanger: true,
-          showTotal: (total) => `${total} commande(s)`,
-        }}
+        pagination={{ pageSize: 10, showSizeChanger: true, showTotal: (total) => `${total} commande(s)` }}
         scroll={{ x: true }}
       />
 
@@ -296,59 +274,92 @@ export default function WebsiteOrders() {
         destroyOnClose
       >
         {selectedOrder && (() => {
-          const { totalHT, totalNet, totalDiscount, tva, totalTTC } = computeTotals(selectedOrder.products);
+          const order = selectedOrder;
+          const tvaLabel = order.tva_percent ?? `${((order.tva_rate ?? 0.02) * 100).toFixed(0)}%`;
+
           return (
             <div>
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 border border-gray-300 p-2 rounded-2xl">
+              {/* Order meta */}
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4 border border-gray-200 p-3 rounded-xl">
                 <div>
                   <Text type="secondary" className="block text-xs">Référence</Text>
-                  <div><Text strong>{selectedOrder.reference}</Text></div>
+                  <Text strong>{order.reference}</Text>
                 </div>
                 <div>
                   <Text type="secondary" className="block text-xs">Statut</Text>
-                  <div><Tag color={selectedStatusInfo.color}>{selectedStatusInfo.label}</Tag></div>
+                  <Tag color={selectedStatusInfo.color}>{selectedStatusInfo.label}</Tag>
                 </div>
                 <div>
                   <Text type="secondary" className="block text-xs">Client</Text>
-                  <div>{selectedOrder.customer ? selectedOrder.customer_code : <Text type="secondary">—</Text>}</div>
+                  <Text>{order.customer_code || '—'}</Text>
                 </div>
                 <div>
                   <Text type="secondary" className="block text-xs">Date</Text>
-                  <div>{formatDate(selectedOrder.created_at)}</div>
+                  <Text>{formatDate(order.created_at)}</Text>
                 </div>
               </div>
 
               <Divider className="!my-3" />
 
+              {/* Products */}
               <Table
                 columns={productColumns}
-                dataSource={selectedOrder.products}
+                dataSource={order.products}
                 rowKey="id"
                 pagination={false}
                 scroll={{ x: true }}
                 size="small"
               />
 
+              {/* Totals — use backend fields directly */}
               <div className="flex justify-end mt-4">
-                <div className="bg-gray-50 border border-gray-300 rounded-lg p-4 min-w-[280px] space-y-2">
-                  <div className="flex justify-between items-center">
-                    <Text type="secondary">Total Net HT</Text>
-                    <Text strong>{formatMAD(totalNet)}</Text>
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 min-w-[300px] space-y-2 text-sm">
+
+                  {order.raw_total > 0 && (
+                    <div className="flex justify-between">
+                      <Text type="secondary">Sous-total HT</Text>
+                      <Text>{formatMAD(order.raw_total)}</Text>
+                    </div>
+                  )}
+
+                  {order.discount_amount > 0 && (
+                    <div className="flex justify-between">
+                      <Text type="secondary">Remise</Text>
+                      <Text style={{ color: '#16a34a' }}>− {formatMAD(order.discount_amount)}</Text>
+                    </div>
+                  )}
+
+                  {order.total_ht > 0 && (
+                    <div className="flex justify-between">
+                      <Text type="secondary">Total HT</Text>
+                      <Text strong>{formatMAD(order.total_ht)}</Text>
+                    </div>
+                  )}
+
+                  <div className="flex justify-between">
+                    <Text type="secondary">TVA ({tvaLabel})</Text>
+                    <Text>{formatMAD(order.tva_amount)}</Text>
                   </div>
-                  <div className="flex justify-between items-center">
-                    <Text type="secondary">TVA (20%)</Text>
-                    <Text>{formatMAD(tva)}</Text>
-                  </div>
+
                   <Divider className="!my-2" />
+
                   <div className="flex justify-between items-center">
                     <Text strong style={{ fontSize: 14 }}>Total TTC</Text>
-                    <Text strong style={{ fontSize: 16, color: '#16a34a' }}>{formatMAD(totalTTC)}</Text>
+                    <Text strong style={{ fontSize: 16, color: '#16a34a' }}>
+                      {formatMAD(order.total_amount)}
+                    </Text>
                   </div>
                 </div>
               </div>
 
               <div className="mt-4">
-                <Button color="green" variant="solid" onClick={validate} icon={<CheckCircle size={16} />}>
+                <Button
+                  color="green"
+                  variant="solid"
+                  onClick={validate}
+                  loading={validating}
+                  icon={<CheckCircle size={16} />}
+                >
                   Valider
                 </Button>
               </div>
