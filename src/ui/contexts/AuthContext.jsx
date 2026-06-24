@@ -45,8 +45,9 @@ export const AuthProvider = ({ children }) => {
       }
 
     } catch (error) {
+      console.error(error);
       
-      setMessage(error.response.data.message);
+      setMessage(error?.response?.data?.message || 'Impossible de se connecter au serveur. Veuillez vérifier votre connexion Internet.');
     } finally {
       setLoading(false);
     }

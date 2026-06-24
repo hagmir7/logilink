@@ -1,9 +1,17 @@
-import { app, BrowserWindow } from 'electron';
+import { app, BrowserWindow, dialog } from 'electron';
 import path from 'path';
 import { getPreloadPath, isDev } from '../util.js';
 import { fileURLToPath } from 'url';
+import pkg from 'electron-updater';
+
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+const { autoUpdater } = pkg;
+
+autoUpdater.autoDownload = false;
+autoUpdater.autoInstallOnAppQuit = true;
+
 
 
 export default function createLoginWindow() {
@@ -24,6 +32,10 @@ export default function createLoginWindow() {
         loginWindow.loadFile(path.join(app.getAppPath(), 'react-dist', 'index.html'), {
             hash: '/login'
         });
+
+        if (process.platform === 'win32' || process.env.APPIMAGE) {
+            autoUpdater.checkForUpdatesAndNotify();
+        }
     }
 
     loginWindow.on('maximize', () => {
@@ -32,3 +44,46 @@ export default function createLoginWindow() {
 
     return loginWindow;
 }
+
+
+
+
+autoUpdater.on("update-available", (info) => {
+  dialog.showMessageBox({
+    type: "info",
+    title: "Mise à jour disponible",
+    message: `Une nouvelle mise à jour est disponible.\nVersion actuelle : ${app.getVersion()}`,
+    detail: `La version ${info.version} est en cours de téléchargement...`
+  });
+
+  autoUpdater.downloadUpdate();
+});
+
+// autoUpdater.on("update-not-available", (info) => {
+//   dialog.showMessageBox({
+//     type: "info",
+//     title: "Aucune mise à jour",
+//     message: `Aucune mise à jour disponible.\nVersion actuelle : ${app.getVersion()}`
+//   });
+// });
+
+autoUpdater.on("update-downloaded", (info) => {
+  dialog.showMessageBox({
+    type: "info",
+    buttons: ["Redémarrer maintenant", "Plus tard"],
+    defaultId: 0,
+    cancelId: 1,
+    title: "Mise à jour prête",
+    message: `Mise à jour téléchargée`,
+    detail: `La version ${info.version} a été téléchargée.\nRedémarrez maintenant pour l'appliquer.`
+  }).then(result => {
+    if (result.response === 0) {
+      autoUpdater.quitAndInstall();
+    }
+  });
+});
+
+
+autoUpdater.on("error", (error) => {
+  dialog.showErrorBox("Update Error", error == null ? "unknown" : (error.stack || error.toString()));
+});

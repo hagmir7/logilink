@@ -111,7 +111,7 @@ const Login = () => {
         <div className="text-center mb-8">
           <img
             className="h-20 mx-auto mb-4"
-            src="https://intercocina.com/assets/imgs/intercocina-logo.png"
+            src="https://app.intercocina.com/assets/imgs/intercocina-logo.png"
             alt="Intercocina"
           />
           <Title level={2} className="text-gray-800">Connectez-vous</Title>

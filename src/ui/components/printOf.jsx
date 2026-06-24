@@ -41,7 +41,7 @@ function printOf(of) {
         <tr>
           <td style="width:130px; border:0.5px solid #000; padding:6px 10px; vertical-align:middle;">
             <div style="display:flex; align-items:center">
-              <img src="https://intercocina.com/assets/imgs/intercocina-logo.png" style="text-align:center" alt="StileMobili" width="100" />
+              <img src="https://app.intercocina.com/assets/imgs/intercocina-logo.png" style="text-align:center" alt="StileMobili" width="100" />
             </div>
           </td>
           <td style="border:0.5px solid #000; border-left:none; padding:4px 10px; vertical-align:middle;">

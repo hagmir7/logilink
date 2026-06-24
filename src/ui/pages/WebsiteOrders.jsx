@@ -64,26 +64,38 @@ export default function WebsiteOrders() {
 
   const [validating, setValidating] = useState(false);
 
+
   const validate = async () => {
     if (!selectedOrder) return;
     setValidating(true);
-    const preload = {
-      order_id: selectedOrder.id,
-      code: selectedOrder.code,
-      products: selectedOrder.products,
-      total_ht: selectedOrder.total_ht,
-      tva_amount: selectedOrder.tva_amount,
-      total_amount: selectedOrder.total_amount,
-    }
-
-    console.log(preload)
     try {
-      await api.post('orders/validate', preload);
+      const { data } = await api.post('orders/transfer-de',
+        {
+          order_code: selectedOrder.code,
+          customer_code: selectedOrder.customer_code,
+          total_ht: selectedOrder.total_ht,
+          total_ttc: selectedOrder.total_amount,
+          products: selectedOrder.products.map((p) => ({
+            code: p.code,
+            designation: p.designation,
+            quantity: p.quantity,
+            unit_price: p.unit_price,
+            discount: p.discount,
+            discounted_price: p.discounted_price,
+            total: p.total,           // line total already computed
+            height: p.height,
+            width: p.width,
+            depth: p.depth,
+            color: p.color,
+          })),
+        },
+      );
 
+      message.success(data.message);
       closeOrderDetail();
       fetchOrders(status);
     } catch (err) {
-      message.error(err?.response?.data?.message || 'Erreur lors de la validation.');
+      message.error(err?.response?.data?.message || 'Erreur lors du transfert.');
     } finally {
       setValidating(false);
     }

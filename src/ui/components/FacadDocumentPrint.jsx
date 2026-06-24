@@ -188,7 +188,7 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
         <tbody>
           <tr>
             <td rowSpan="3" className="header-logo-cell">
-              <img src="https://intercocina.com/assets/imgs/intercocina-logo.png" alt="StileMobili" />
+              <img src="https://app.intercocina.com/assets/imgs/intercocina-logo.png" alt="StileMobili" />
             </td>
             <td className="header-syst-cell">SYSTEME DE MANAGEMENT DE LA QUALITE</td>
             <td className="header-ref-cell">ENR.FAB.11</td>
