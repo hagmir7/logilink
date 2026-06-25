@@ -7,7 +7,7 @@ import { api } from "../utils/api";
 
 const { Title, Text } = Typography;
 
-const API_URL = 'http://localhost:8000/api/orders/json';
+const API_URL = 'https://app.intercocina.com/api/orders/json';
 const API_KEY = 'BUvM$K|+z)XS)kz}cOal2cg{)gJV|H$';
 
 const STATUS_MAP = {
