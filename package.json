@@ -1,7 +1,7 @@
 {
   "name": "LOGILINK",
   "private": true,
-  "version": "0.11.3",
+  "version": "0.11.4",
   "description": "Logilink App",
   "title": "LOGILINK PRO",
   "author": {
@@ -51,7 +51,8 @@
     "react-apexcharts": "^2.0.1",
     "react-barcode": "^1.6.1",
     "react-dom": "^18.0.0",
-    "react-router-dom": "^7.5.3"
+    "react-router-dom": "^7.5.3",
+    "recharts": "^3.9.0"
   },
   "devDependencies": {
     "@electron/fuses": "^1.8.0",

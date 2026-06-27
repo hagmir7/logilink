@@ -22,7 +22,7 @@ export default function InventoryExport({inventory_id}) {
 
     return (
         <div>
-            <Button type="primary" size='large' onClick={() => setOpen(true)}>
+            <Button type="primary" onClick={() => setOpen(true)}>
                 <Download size={16} />
                 Export
             </Button>
