@@ -114,7 +114,7 @@ export const locale = {
 }
 
 
-const statuses = [
+export const statuses = [
   { id: 1, name: "Transféré", color: "#f39c12" },
   { id: 2, name: "Reçu", color: "#27ae60" },
   { id: 3, name: "Fabrication", color: "#2980b9" },
@@ -130,6 +130,8 @@ const statuses = [
   { id: 13, name: "Chargement", color: "#e74c3c" },
   { id: 14, name: "Livré", color: "#2c3e50" }
 ];
+
+
 
 export function getStatus(id) {
   return statuses.find(status => status.id === id) || null;

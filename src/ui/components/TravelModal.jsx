@@ -177,7 +177,7 @@ function StepDriverAndReception({ cin, onSubmit, loading, companies }) {
                 >
                     <Input
                         prefix={<User size={15} className="text-gray-400 mr-1" />}
-                        placeholder="ex : Ahmed Benali"
+                        placeholder=""
                         size="large"
                         className="rounded-lg"
                     />

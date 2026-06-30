@@ -472,7 +472,7 @@ function Commercial() {
                               duration-150 
                               ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                             `}
-                            onClick={user.name = "admin" && (()=> openActionModal(item.line.id))}
+                           onClick={user.name = "admin" && (()=> openActionModal(item.line.id))}
                           >
                             <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                               {item?.line ? (
@@ -720,7 +720,7 @@ function Commercial() {
           </div>
         </div>
       </div>
-      <DocumentLineActions line_id={selectedLine} open={open} setOpne={setOpen} />
+      <DocumentLineActions line_id={selectedLine} open={open} setOpen={setOpen} />
     </div>
   )
 }

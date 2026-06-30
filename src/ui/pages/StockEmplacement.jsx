@@ -13,12 +13,12 @@ function StockBadge({ quantity, limit }) {
 
   const color =
     cap === 0
-      ? "bg-green-500"
+      ? "bg-red-500"
       : pct >= 90
-        ? "bg-red-500"
+        ? "bg-green-500"
         : pct >= 60
           ? "bg-yellow-400"
-          : "bg-green-500";
+          : "bg-red-500";
 
   return (
     <div className="min-w-[90px]">
