@@ -59,29 +59,6 @@ autoUpdater.on("update-available", (info) => {
   autoUpdater.downloadUpdate();
 });
 
-// autoUpdater.on("update-not-available", (info) => {
-//   dialog.showMessageBox({
-//     type: "info",
-//     title: "Aucune mise à jour",
-//     message: `Aucune mise à jour disponible.\nVersion actuelle : ${app.getVersion()}`
-//   });
-// });
-
-autoUpdater.on("update-downloaded", (info) => {
-  dialog.showMessageBox({
-    type: "info",
-    buttons: ["Redémarrer maintenant", "Plus tard"],
-    defaultId: 0,
-    cancelId: 1,
-    title: "Mise à jour prête",
-    message: `Mise à jour téléchargée`,
-    detail: `La version ${info.version} a été téléchargée.\nRedémarrez maintenant pour l'appliquer.`
-  }).then(result => {
-    if (result.response === 0) {
-      autoUpdater.quitAndInstall();
-    }
-  });
-});
 
 
 autoUpdater.on("error", (error) => {

@@ -1,12 +1,12 @@
 {
   "name": "LOGILINK",
   "private": true,
-  "version": "0.11.4",
+  "version": "0.11.6",
   "description": "Logilink App",
   "title": "LOGILINK PRO",
   "author": {
     "name": "Intercocina",
-    "email": "webnaster@intercocina.com"
+    "email": "webmaster@intercocina.com"
   },
   "type": "module",
   "repository": {

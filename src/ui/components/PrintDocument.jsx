@@ -4,7 +4,6 @@ import { api } from '../utils/api';
 import React, { useState, useEffect } from 'react';
 import { Button, Modal, Select, message } from 'antd';
 import { useAuth } from '../contexts/AuthContext'
-import { Watermark } from 'antd';
 import Barcode from 'react-barcode';
 
 const { Option } = Select;
@@ -33,6 +32,18 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
 
   const handlePrint = () => {
     const content = document.getElementById("print-section").innerHTML;
+
+    // Build a tiled "STILE MOBILI" watermark as an SVG data URI, à la antd's Watermark component.
+    const watermarkSvg = `
+      <svg xmlns='http://www.w3.org/2000/svg' width='320' height='180'>
+        <text x='160' y='90' text-anchor='middle' dominant-baseline='middle'
+          transform='rotate(-22 160 90)'
+          font-family='Arial, sans-serif' font-size='20' font-weight='bold'
+          fill='rgba(0,0,0,0.08)'>STILE MOBILI</text>
+      </svg>
+    `;
+    const watermarkDataUri = `data:image/svg+xml,${encodeURIComponent(watermarkSvg)}`;
+
     const styledHtml = `
       <html>
         <head>
@@ -42,9 +53,15 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               margin: 0;
               padding: 25px;
               color: #000;
-              background: #fff;
+              background-color: #fff;
+              background-image: url("${watermarkDataUri}");
+              background-repeat: repeat;
+              background-size: 320px 180px;
               font-size: 12px;
               line-height: 1.4;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              color-adjust: exact;
             }
             @page {
                 margin: 25;
@@ -56,10 +73,27 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                 margin: 0;
                 padding: 0;
                 font-size: 11px;
+                background-image: url("${watermarkDataUri}");
+                background-repeat: repeat;
+                background-size: 320px 180px;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
               }
 
               .page-break {
                 page-break-after: always;
+              }
+
+              thead {
+                background-color: #ccc;
+              }
+
+              th {
+                background-color: #ccc !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+                color-adjust: exact;
               }
 
               .page-break:last-child {
@@ -147,6 +181,9 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               background-color: #ccc;
               font-weight: bold;
               font-size: 11px;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              color-adjust: exact;
             }
 
             .footer {
@@ -183,9 +220,12 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
               font-size: 14px;
               text-align: center;
               padding: 8px;
-              background: #f0f0f0;
+              background: #c4c7c5;
               border-bottom: 1px solid #000;
               margin: -10px -10px 10px -10px;
+              -webkit-print-color-adjust: exact;
+              print-color-adjust: exact;
+              color-adjust: exact;
             }
 
             .signature-content {
@@ -290,7 +330,6 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
       )}
 
       <div id='print-section' style={{ display: 'none' }}>
-        <Watermark content={['STILE MOBILI']}>
         <div className='document-content'>
           {/* Header */}
           <div className='document-header'>
@@ -428,7 +467,6 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
             </div>
           ))}
         </div>
-        </Watermark>
       </div>
     </div>
   )
