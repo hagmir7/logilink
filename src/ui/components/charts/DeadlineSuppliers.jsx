@@ -29,15 +29,18 @@ export default function DeadlineSuppliers() {
     getData();
   }, []);
 
-  const data = useMemo(
-    () =>
-      dataRow.map((d) => ({
-        ...d,
-        label: formatMonth(d.month),
-        rate: d.total > 0 ? Math.round((d.count / d.total) * 100) : 0,
-      })),
-    [dataRow]
-  );
+const data = useMemo(() => {
+  const now = new Date();
+  const currentMonthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+
+  return dataRow
+    .filter((d) => d.month !== currentMonthStr)
+    .map((d) => ({
+      ...d,
+      label: formatMonth(d.month),
+      rate: d.total > 0 ? Math.round(((d.total - d.count) / d.total) * 100) : 0,
+    }));
+}, [dataRow]);
 
   const chartOptions = {
     chart: {
@@ -113,7 +116,7 @@ export default function DeadlineSuppliers() {
               Taux : <span style="color:#111827;font-weight:700">${d.rate}%</span>
             </p>
             <p style="color:#9ca3af;font-size:11px;margin:4px 0 0">
-              ${d.count} / ${d.total === 0 ? "—" : d.total} conversion${d.count !== 1 ? "s" : ""}
+              ${d.total === 0 ? "—" : d.total} / ${d.count} livraison${d.count !== 1 ? "s" : ""} conforme${d.count !== 1 ? "s" : ""}
             </p>
           </div>`;
       },
@@ -130,6 +133,8 @@ export default function DeadlineSuppliers() {
     },
   ];
 
+
+
   return (
     <div className="overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-white/[0.03] mt-4 p-4">
       {/* En-tête */}
@@ -138,7 +143,7 @@ export default function DeadlineSuppliers() {
           Taux de respect des délais de livraison
         </h2>
         <p className="text-sm text-gray-400 mt-0.5">
-          (nombre / total) × 100 — juil. 2025 à juin 2026
+          (Nb livraisons conformes / Nb total) × 100 — juil. 2025 à juin 2026
         </p>
       </div>
 
