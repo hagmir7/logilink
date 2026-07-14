@@ -47,13 +47,13 @@ npm -v
 Clone the repository
 
 ```bash
-git clone https://github.com/username/project-name.git
+git clone https://github.com/hagmir7/logilink.git
 ```
 
 Go into the project
 
 ```bash
-cd project-name
+cd logilink
 ```
 
 Install dependencies
