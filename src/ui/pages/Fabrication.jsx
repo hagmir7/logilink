@@ -9,25 +9,32 @@ import { RefreshCw, ArrowRight, CheckCircle, Check } from 'lucide-react'
 import PrintDocument from '../components/PrintDocument'
 import FacadDocumentPrint from '../components/FacadDocumentPrint'
 import { useAuth } from '../contexts/AuthContext'
+import FabricationNote from '../components/FabricationNote'
 
 
 function Fabrication() {
   const { id } = useParams()
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
   const [loading, setLoading] = useState(false)
-  const [selected, setSelected] = useState([])
+  const [selected, setSelected] = useState([]);
   const [complationSpin, setComplationSpin] = useState(false)
 
-  const {roles} = useAuth();
+
+
+  const { roles, user } = useAuth();
+  const company = data?.docentete?.document?.companies?.find(
+    item => Number(item.id) === Number(user.company_id)
+  );
+
   const currentItems = data?.doclignes || []
 
-    const location = useLocation();
+  const location = useLocation();
 
   const queryParams = new URLSearchParams(location.search);
   const type = queryParams.get('type');
 
 
-  const selectedRowsFull = data.doclignes.filter(line => 
+  const selectedRowsFull = data.doclignes.filter(line =>
     selected.includes(line.line?.id)
   );
 
@@ -36,8 +43,6 @@ function Fabrication() {
     try {
       const response = await api.get(`docentetes/${id}${type ? `?type=${type}` : ''}`)
       setData(response.data)
-      console.log(response.data);
-      
     } catch (err) {
       message.error(err?.response?.data?.message)
       console.error('Failed to fetch data:', err)
@@ -47,16 +52,16 @@ function Fabrication() {
   }
 
   useEffect(() => {
-    if (!id) return
+    if (!id) return;
 
-    fetchData()
+    fetchData();
 
     const interval = setInterval(() => {
-      fetchData()
-    }, 1110000)
+      fetchData();
+    }, 1110000);
 
-    return () => clearInterval(interval) 
-  }, [id])
+    return () => clearInterval(interval);
+  }, [id, type]);
 
 
   const handleSelect = (lineId) => {
@@ -76,8 +81,9 @@ function Fabrication() {
     if (selected.length === 0) return
 
     const requestData = {
-      complation_date: dateString, // ✅ FIX (YYYY-MM-DD)
+      complation_date: dateString,
       lines: selected,
+      piece: id
     }
 
     try {
@@ -102,9 +108,9 @@ function Fabrication() {
 
     setComplationSpin(true)
     try {
-      await api.post('docentetes/complation', {lines: selected})
+      await api.post('docentetes/complation', { lines: selected, piece: id })
       message.success("Fabrication terminée avec succès", 6);
-      setSelected([]); // Clear selection after success
+      setSelected([]);
       fetchData()
     } catch (error) {
       console.error(error)
@@ -127,7 +133,7 @@ function Fabrication() {
   }
 
   return (
-  <div className='max-w-7xl mx-auto p-2 md:p-5'>
+    <div className='max-w-7xl mx-auto p-2 md:p-5'>
       <div className='flex justify-between items-center mb-6'>
         <div className='flex items-center space-x-3'>
           <h1 className='text-lg font-bold text-gray-800'>
@@ -146,25 +152,23 @@ function Fabrication() {
             Rafraîchir
           </Button>
 
-
-          {/* <PrintDocument
-            docentete={data?.docentete}
-            doclignes={
-              selected.length > 0
-                ? selectedRowsFull
-                : data.doclignes
-            }
-          /> */}
-
-          <FacadDocumentPrint
-            docentete={data.docentete}
-            doclignes={
-              selected.length > 0
-                ? selectedRowsFull
-                : data.doclignes
-            }
-          />
-
+          {
+            Number(user.company_id) === 1 ? <FacadDocumentPrint
+              docentete={data.docentete}
+              doclignes={
+                selected.length > 0
+                  ? selectedRowsFull
+                  : data.doclignes
+              }
+            /> : (<PrintDocument
+              docentete={data?.docentete}
+              doclignes={
+                selected.length > 0
+                  ? selectedRowsFull
+                  : data.doclignes
+              }
+            />)
+          }
         </div>
       </div>
 
@@ -205,171 +209,173 @@ function Fabrication() {
         <div className='flex items-center gap-2'>
           <DatePicker
             onChange={onDateChange}
-            format="YYYY-MM-DD" // ✅ IMPORTANT
+            format="YYYY-MM-DD"
             locale={locale}
             className='border-2'
             placeholder='Date de livraison'
-            disabled={roles('production_operateur')}
+            disabled={roles('production_operateur') || company?.pivot?.complation_date}
           />
 
-          {data?.docentete?.document?.complation_date &&  ' Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}
+          <FabricationNote company={company?.pivot} onUpdated={fetchData} />
+
+          {company?.pivot?.complation_date && ' Prévue le ' + formatDate(company?.pivot?.complation_date)}
         </div>
         <div className='flex gap-3'>
-          <Button onClick={complation} disabled={roles('production_operateur')} color="green" variant="solid" loading={complationSpin}>
+          <Button onClick={complation} disabled={roles('production_operateur') || !company?.pivot?.complation_date} color="green" variant="solid" loading={complationSpin}>
             Validation <ArrowRight size={18} />
           </Button>
         </div>
       </div>
 
       {/* Desktop Table */}
-     <div className='overflow-x-auto'>
-           <Table>
-             {
-               data.doclignes?.length > 0 ? 
-                <Thead>
-               <Tr>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                   <Checkbox
-                     disabled={roles('production_operateur')}
-                     onChange={handleSelectAll}
-                     checked={
-                       selected.length === data.doclignes.length &&
-                       data.doclignes.length > 0
-                     }
-                   ></Checkbox>
-                 </th>
-   
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Piece </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Ref Article </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Date Livraison</th>
-                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                   Hauteur
-                 </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                   Largeur
-                 </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                   Profondeur
-                 </th>
-                   <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                   Couleur
-                 </th>
-   
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                   Chant
-                 </th>
-   
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                   Epaisseur
-                 </th>
-                 <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>Quantité</th>
-               </Tr>
-             </Thead> : null
-             }
-            
-   
-             <Tbody>
-               {loading ? (
-                  [...Array(4)].map((_, rowIndex) => (
-                   <tr key={rowIndex}>
-                     {[...Array(10)].map((_, colIndex) => (
-                       <td className="px-6 py-4" key={colIndex}>
-                         <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                       </td>
-                     ))}
-                   </tr>
-                 ))
-               ) : data.doclignes?.length > 0 ? (
-                 currentItems.map((item, index) => (
-                   <Tr key={index} className='whitespace-nowrap'>
+      <div className='overflow-x-auto'>
+        <Table>
+          {
+            data.doclignes?.length > 0 ?
+              <Thead>
+                <Tr>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
+                    <Checkbox
+                      disabled={roles('production_operateur')}
+                      onChange={handleSelectAll}
+                      checked={
+                        selected.length === data.doclignes.length &&
+                        data.doclignes.length > 0
+                      }
+                    ></Checkbox>
+                  </th>
+
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Piece </th>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Ref Article </th>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Date Livraison</th>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
+                    Hauteur
+                  </th>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
+                    Largeur
+                  </th>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
+                    Profondeur
+                  </th>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
+                    Couleur
+                  </th>
+
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
+                    Chant
+                  </th>
+
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
+                    Epaisseur
+                  </th>
+                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>Quantité</th>
+                </Tr>
+              </Thead> : null
+          }
 
 
-                     <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
-                       {
-                         item?.line?.fabricated_by ? <div className="bg-green-200 rounded-full py-1 flex items-center justify-center ml-2">
-                           <Check size={16} className="text-green-600" />
-                         </div> : <Checkbox
-                         
-                           disabled={item.line.fabricated_by || roles('production_operateur')}
-                           checked={selected.includes(item.line?.id)}
-                           onChange={() => handleSelect(item.line?.id)}
-                         />
-                       }
-                     </td>
-   
-                <td className='px-2 text-sm border-r border-gray-100'>
-                       <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
-                         {item?.Nom ||
-                           item.article?.Nom ||
-                           item?.DL_Design ||
-                           '__'}
-                           {" "}
-                           {item?.Poignee}
-                           {" "}
-                           {item?.Rotation}
-   
-                           {" "}
-                           {item?.Description}
-                       </div>
-                     </td>
-   
-                     <td className='px-2 text-sm border-r border-gray-100'>{item.AR_Ref || '__'}</td>
-   
-                     <td className='px-2 text-sm border-r border-gray-100'>
-                       <Tag> {item.line?.complation_date
-                         ? dateFormat(item.line.complation_date)
-                         : '__'}</Tag>
-                     </td>
-   
-                     <td className='px-2 text-sm border-r border-gray-100'>
-                       {item.Hauteur > 0 ?
-                         Math.floor(item.Hauteur) :
-                         Math.floor(item.article?.Hauteur) || '__'
-                       }
-                     </td>
-   
-                     <td className='px-2 text-sm border-r border-gray-100'>
-                       {item.Largeur > 0
-                         ? Math.floor(item.Largeur)
-                         : Math.floor(item?.article?.Largeur) || '__'}
-                     </td>
-                     <td className='px-2 text-sm border-r border-gray-100'>
-                       {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
-                     </td>
-   
-                     <td className='px-2 text-sm border-r border-gray-100'>
-                       {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
-                     </td>
-   
-                     <td className='px-2 text-sm border-r border-gray-100'>
-                       {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
-                     </td>
-   
-                     <td className='px-2 text-sm border-r border-gray-100'>
-                       {item.Episseur > 0
-                         ? Math.floor(item.Episseur)
-                         : Math.floor(item?.article?.Episseur) || '__'}
-                     </td>
-                     <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
-                       <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                         {Math.floor(type === 'archive' ? item.DL_QtePL : item.EU_Qte)}
-                       </span>
-                     </td>
-                   </Tr>
-                 ))
-               ) : (
-                 <tr>
-                   <td
-                     colSpan='10'
-                     className='px-6 py-4 text-center text-sm text-gray-500'
-                   >
-                     <Empty description="Aucun article trouvé"/>
-                   </td>
-                 </tr>
-               )}
-             </Tbody>
-           </Table>
-         </div>
+          <Tbody>
+            {loading ? (
+              [...Array(4)].map((_, rowIndex) => (
+                <tr key={rowIndex}>
+                  {[...Array(10)].map((_, colIndex) => (
+                    <td className="px-6 py-4" key={colIndex}>
+                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
+                    </td>
+                  ))}
+                </tr>
+              ))
+            ) : data.doclignes?.length > 0 ? (
+              currentItems.map((item, index) => (
+                <Tr key={index} className='whitespace-nowrap'>
+
+
+                  <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
+                    {
+                      item?.line?.fabricated_by ? <div className="bg-green-200 rounded-full py-1 flex items-center justify-center ml-2">
+                        <Check size={16} className="text-green-600" />
+                      </div> : <Checkbox
+
+                        disabled={item.line.fabricated_by || roles('production_operateur')}
+                        checked={selected.includes(item.line?.id)}
+                        onChange={() => handleSelect(item.line?.id)}
+                      />
+                    }
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
+                      {item?.Nom ||
+                        item.article?.Nom ||
+                        item?.DL_Design ||
+                        '__'}
+                      {" "}
+                      {item?.Poignee}
+                      {" "}
+                      {item?.Rotation}
+
+                      {" "}
+                      {item?.Description}
+                    </div>
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>{item.AR_Ref || '__'}</td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    <Tag> {item.line?.complation_date
+                      ? dateFormat(item.line.complation_date)
+                      : '__'}</Tag>
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {item.Hauteur > 0 ?
+                      Math.floor(item.Hauteur) :
+                      Math.floor(item.article?.Hauteur) || '__'
+                    }
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {item.Largeur > 0
+                      ? Math.floor(item.Largeur)
+                      : Math.floor(item?.article?.Largeur) || '__'}
+                  </td>
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
+                  </td>
+
+                  <td className='px-2 text-sm border-r border-gray-100'>
+                    {item.Episseur > 0
+                      ? Math.floor(item.Episseur)
+                      : Math.floor(item?.article?.Episseur) || '__'}
+                  </td>
+                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
+                    <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
+                      {Math.floor(type === 'archive' ? item.DL_QtePL : item.EU_Qte)}
+                    </span>
+                  </td>
+                </Tr>
+              ))
+            ) : (
+              <tr>
+                <td
+                  colSpan='10'
+                  className='px-6 py-4 text-center text-sm text-gray-500'
+                >
+                  <Empty description="Aucun article trouvé" />
+                </td>
+              </tr>
+            )}
+          </Tbody>
+        </Table>
+      </div>
     </div>
   )
 }

@@ -1,4 +1,4 @@
-import { Table, Tag, Typography, Space } from 'antd'
+import { Table, Tag, Typography, Space, Tooltip } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { getExped, getStatus } from '../utils/config'
@@ -30,16 +30,37 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
       key: 'piece',
       sorter: true,
       width: 160,
-      render: (_, rec) => (
-        <Space size={4}>
-          <Text strong>{rec.piece}</Text>
-          {rec?.code ? <Text>{roles('fabrication') ? "- " + rec.code : ''}</Text> : ''}
-          {rec?.docentete?.DO_Reliquat === '1' && (
-            <Tag style={{ fontSize: 10, padding: '0 4px' }}><Settings size={16} /></Tag>
-          )}
-          {parseInt(rec?.urgent) ? '🚨' : null}
-        </Space>
-      )
+      render: (_, rec) => {
+
+        const companyItem = rec?.companies?.find(
+          item => Number(item.id) === Number(user.company_id)
+        )
+        return (
+          <Space size={4}>
+            <Text strong>{rec.piece}</Text>
+            {rec?.code && Number(user.company_id) === 1 && roles('fabrication') ? (
+              <Text>{"- " + rec.code}</Text>
+            ) : ''}
+            {rec?.docentete?.DO_Reliquat === '1' && (
+              <Tag style={{ fontSize: 10, padding: '0 4px' }}><Settings size={16} /></Tag>
+            )}
+            {parseInt(rec?.urgent) ? '🚨' : null}
+            {companyItem?.pivot?.note ? (
+              <Tooltip title={companyItem.pivot.note}>
+                <Tag
+                  color='red'
+                  style={{ padding: 0 }}
+                  className='cursor-help text-[10px] py-0 px-0 leading-4 m-0 animate-pulse'
+                >
+                  ❓
+                </Tag>
+              </Tooltip>
+            ) : ''}
+
+          </Space>
+        )
+      }
+
     },
     {
       title: 'Statut',
@@ -48,8 +69,11 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
       width: 120,
       render: (_, rec) => {
         if (roles('fabrication')) {
-          return <Tag color={rec.complation_date ? 'success' : 'default'}>
-            {rec.complation_date ? 'En cours' : 'En attente'}
+          const company = rec?.companies?.find(
+            item => Number(item.id) === Number(user.company_id)
+          );
+          return <Tag color={company.pivot.complation_date ? 'success' : 'default'}>
+            {company.pivot.complation_date ? 'En cours' : 'En attente'}
           </Tag>
         }
         const s = company(rec)?.pivot?.status_id
@@ -101,28 +125,33 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
       key: 'complation_date',
       sorter: true,
       width: 130,
-      render: (_, rec) => (
-        <Space size={4}>
-          <span>
-            {rec.complation_date ? formatDate(rec.complation_date) : ''}
-          </span>
-          {Number(rec.has_user_printer) > 0 && (
-            <span title="Imprimé">
-              <Printer size={20} />
+      render: (_, rec) => {
+        const companyItem = rec?.companies?.find(
+          item => Number(item.id) === Number(user.company_id)
+        )
+        return (
+          <Space size={4}>
+            <span>
+              {companyItem?.pivot?.complation_date ? formatDate(companyItem?.pivot?.complation_date) : ''}
             </span>
-          )}
-          {parseInt(company(rec)?.pivot?.updated ?? 0) === 1 && (
-            <span title="Modifié" style={{ color: '#cf1322' }}>
-              <Edit size={20} />
-            </span>
-          )}
-        </Space>
-      )
+            {Number(rec.has_user_printer) > 0 && (
+              <span title="Imprimé">
+                <Printer size={20} />
+              </span>
+            )}
+            {parseInt(companyItem?.pivot?.updated ?? 0) === 1 && (
+              <span title="Modifié" style={{ color: '#cf1322' }}>
+                <Edit size={20} />
+              </span>
+            )}
+          </Space>
+        )
+      }
     }
   ]
 
   const handleChange = (_, __, sorter) => {
-    if (sorter?.columnKey) {             
+    if (sorter?.columnKey) {
       setOrderBy(sorter.columnKey)
       setOrderDir(prev =>
         orderBy === sorter.columnKey ? (prev === 'asc' ? 'desc' : 'asc') : 'asc'

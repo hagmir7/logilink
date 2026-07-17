@@ -34,6 +34,8 @@ function Commercial() {
   const { roles = [], user } = useAuth()
   const navigate = useNavigate()
 
+  const companies = data?.docentete?.document?.companies;
+
   const fetchData = async (piece = null) => {
     setLoading(true)
     try {
@@ -150,7 +152,7 @@ function Commercial() {
 
 
 
-  const openActionModal = (line_id) =>{
+  const openActionModal = (line_id) => {
     setOpen(true)
     setSelectedLine(line_id);
   }
@@ -163,7 +165,7 @@ function Commercial() {
         piece: piece,
       });
 
-      message.success('Validation successful!'); 
+      message.success('Validation successful!');
       setValidationSpin(false);
       return response.data;
 
@@ -180,6 +182,9 @@ function Commercial() {
       }
     }
   };
+
+  const companiesWithDate =
+    companies?.filter((item) => item.pivot?.complation_date) || [];
 
 
 
@@ -303,7 +308,32 @@ function Commercial() {
 
           {/* Table Header Controls */}
           <div className='flex justify-between items-center'>
-              <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date &&  '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
+            <div className="flex flex-wrap gap-2 text-sm text-gray-500">
+              {companies
+                ?.filter((item) => item.pivot?.complation_date)
+                .map((item) => (
+                  <div key={item.id} className="flex items-center gap-1">
+                    <span className="font-medium text-gray-700">{item.name}</span>
+
+                    {item.pivot?.note && (
+                      <Tooltip title={item.pivot.note}>
+                        <Tag
+                          color="red"
+                          className="cursor-help text-[10px] px-1 py-0 leading-4 m-0 animate-[pulse-scale_1.5s_ease-in-out_infinite]"
+                        >
+                          Remarque
+                        </Tag>
+                      </Tooltip>
+                    )}
+
+                    <>
+                      <span>•</span>
+                      <span>Prévue le {formatDate(item.pivot.complation_date)}</span>
+                    </>
+                  </div>
+                ))}
+            </div>
+
             <div className='flex gap-3'>
               <ResetPrinter
                 document={data?.docentete?.document}
@@ -348,7 +378,7 @@ function Commercial() {
                 </Popconfirm>
               )}
 
-              
+
               <Tooltip title="Vente de comptoir">
                 <Button
                   type={isUrgent ? 'primary' : 'default'}
@@ -472,7 +502,7 @@ function Commercial() {
                               duration-150 
                               ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
                             `}
-                           onClick={user.name = "admin" && (()=> openActionModal(item.line.id))}
+                            onClick={user.name = "admin" && (() => openActionModal(item.line.id))}
                           >
                             <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                               {item?.line ? (

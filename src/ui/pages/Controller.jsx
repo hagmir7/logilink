@@ -50,6 +50,7 @@ function Controller() {
   const [downloadSpin, setDownloadSpin] = useState(false);
   const [documentPL, setDocumentPl] = useState(null)
 
+  const companies = data?.docentete?.document?.companies;
 
 
   const getDocumentPL = async () => {
@@ -327,6 +328,12 @@ function Controller() {
 
   }
 
+  const companiesWithDate =
+    companies?.filter(
+      (item) =>
+        item.pivot?.complation_date &&
+        Number(item.id) === Number(user.company_id)
+    ) || [];
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -368,11 +375,6 @@ function Controller() {
             )}
             Rafraîchir
           </Button>
-
-
-
-
-
           <PrintDocument
             docentete={data.docentete}
             doclignes={
@@ -404,8 +406,6 @@ function Controller() {
               </Tooltip>
             )
           }
-
-
         </div>
       </div>
 
@@ -463,13 +463,34 @@ function Controller() {
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-        <h2 className='text-lg font-semibold text-gray-800'>Articles  {data?.docentete?.document?.complation_date && '| Prévue le ' + formatDate(data?.docentete?.document?.complation_date)}</h2>
+
+        <div className="flex flex-wrap gap-2 text-md text-gray-500">
+          {companiesWithDate.map((item) => (
+            <div key={item.id} className="flex items-center gap-1">
+              <span className="font-medium text-gray-700">{item.name}</span>
+
+              {item.pivot?.note && (
+                <Tooltip title={item.pivot.note}>
+                  <Tag
+                    color="blue"
+                    className="cursor-help text-[10px] px-1 py-0 leading-4 m-0"
+                  >
+                    Remarque
+                  </Tag>
+                </Tooltip>
+              )}
+
+              <span>•</span>
+              <span>Prévue le {formatDate(item.pivot.complation_date)}</span>
+            </div>
+          ))}
+        </div>
 
         <div className='flex gap-3 items-center'>
-  
+
           <div>
             {
-            Number(documentPL?.document?.status_id) === 11 &&
+              Number(documentPL?.document?.status_id) === 11 &&
               (<div>
                 <Button onClick={() => setOpencheckList(true)} icon={<ListCheck size={18} />}>Check-list</Button>
 
@@ -483,9 +504,9 @@ function Controller() {
               )
             }
 
-            
 
- 
+
+
             {Number(documentPL?.document?.status_id) === 14 &&
               <Button
                 onClick={() => downloadCheckList(documentPL?.document?.shipping?.id)}

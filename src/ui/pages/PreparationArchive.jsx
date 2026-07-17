@@ -189,14 +189,14 @@ function PreparationArchive() {
                         <Search
                             placeholder="Recherche"
                             loading={searchSpinner}
-                            size="large"
+                            size="middle"
                             onChange={handleSearch}
                         />
                     </div>
 
                     <div className="hidden md:block">
                         <RangePicker
-                            size="large"
+                            size="middle"
                             onChange={handleChangeDate}
                             className="min-w-[220px]"
                         />
@@ -205,7 +205,7 @@ function PreparationArchive() {
                     {roles('commercial') && (
                         <Select
                             value={documentType}
-                            size="large"
+                            size="middle"
                             onChange={(value) => {
                                 setDocumentType(value);
                                 setPage(1);
@@ -225,7 +225,7 @@ function PreparationArchive() {
                     )}
 
                     <Button
-                        size="large"
+                        size="middle"
                         onClick={() => {
                             setPage(1);
                             fetchData();

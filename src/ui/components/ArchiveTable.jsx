@@ -1,8 +1,9 @@
+import { useMemo } from 'react'
 import { Settings, Clock, CheckCircle, AlertCircle, Package } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../contexts/AuthContext'
 import { getExped } from '../utils/config'
-import { Tag } from 'antd'
+import { Table, Tag, Tooltip, Empty } from 'antd'
 
 const formatDate = (date) => {
   if (!date) return '—'
@@ -72,11 +73,9 @@ const ExpeditionBadge = ({ value }) => {
   )
 }
 
-function ArchiveTable({ documents = [], documentType = 1 }) {
-
-  
+function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
   const navigate = useNavigate()
-  const { roles } = useAuth()
+  const { roles, user } = useAuth()
   const isFabrication = roles(['fabrication'])
 
   const handleShow = async (id) => {
@@ -92,149 +91,206 @@ function ArchiveTable({ documents = [], documentType = 1 }) {
     }
   }
 
-  const columns = [
-    { label: 'Document', key: 'document' },
-    { label: 'Statut', key: 'statut' },
-    { label: 'Expédition', key: 'expedition' },
-    { label: 'Client', key: 'client' },
-    { label: 'Référence', key: 'reference' },
-    { label: 'Date Document', key: 'date_doc' },
-    { label: 'Date Prévue', key: 'date_prev' },
-    ...(isFabrication ? [
-      { label: 'Date de libération', key: 'date_lib' },
-      { label: 'Date prévue fabrication', key: 'date_fab' },
-    ] : []),
-  ]
+  // Pre-compute derived values once per document instead of inline during render,
+  // so both the columns' render functions and the row key can reuse them.
+  const dataSource = useMemo(() => {
+    return documents.map((data, index) => {
+      const company = data?.companies?.find(
+        (item) => Number(item.id) === Number(user.company_id)
+      )
+
+      return {
+        ...data,
+        key: data.id ?? data.piece_fa ?? data.piece_bl ?? data.piece ?? index,
+        _piece: documentType === 1 ? data?.piece : data?.piece_bl,
+        _navId: data.piece_fa || data.piece_bl || data.piece,
+        _expedit: data?.docentete?.DO_Expedit || data.expedition,
+        _client: data?.docentete?.DO_Tiers || data.client_id,
+        _ref: data?.docentete?.DO_Ref || data.ref,
+        _dateDoc: data?.docentete?.DO_Date || data.created_at,
+        _datePrev: data?.docentete?.DO_DateLivr || data.delivery_date,
+        _fabricatedAt: data.lines?.[0]?.fabricated_at,
+        _complationDate: company?.pivot?.complation_date,
+        _note: company?.pivot?.note,
+        _showFabCode: Boolean(data?.code) && Number(user.company_id) === 1,
+      }
+    })
+  }, [documents, documentType, user.company_id])
+
+  const columns = useMemo(() => {
+    const cols = [
+      {
+        title: 'Document',
+        dataIndex: '_piece',
+        key: 'document',
+        fixed: 'left',
+        width: 200,
+        sorter: (a, b) => String(a._piece ?? '').localeCompare(String(b._piece ?? '')),
+        render: (piece, record) => (
+          <div className="flex items-center gap-2">
+            <span className="font-semibold text-gray-800">{piece || '—'}</span>
+
+            {record?.docentete?.DO_Reliquat === '1' && (
+              <span className="p-1 rounded bg-gray-100 text-gray-400 border border-gray-200">
+                <Settings size={11} />
+              </span>
+            )}
+
+            {record._showFabCode && roles('fabrication') ? (
+              <span className="text-gray-400 text-xs">- {record.code}</span>
+            ) : null}
+
+            {record._note ? (
+              <Tooltip title={record._note}>
+                <Tag
+                  color="red"
+                  style={{ padding: 0 }}
+                  className="cursor-help text-[10px] py-0 px-0 leading-4 m-0 animate-pulse"
+                >
+                  ❓
+                </Tag>
+              </Tooltip>
+            ) : null}
+          </div>
+        ),
+      },
+      {
+        title: 'Statut',
+        key: 'statut',
+        width: 170,
+        filters: !isFabrication
+          ? undefined
+          : [
+              { text: 'Libéré à temps', value: 'on_time' },
+              { text: 'Libéré en retard', value: 'late' },
+              { text: 'En attente', value: 'pending' },
+            ],
+        onFilter: !isFabrication
+          ? undefined
+          : (value, record) => {
+              if (!record._fabricatedAt || !record._complationDate) return value === 'pending'
+              const fab = new Date(record._fabricatedAt)
+              const comp = new Date(record._complationDate)
+              fab.setHours(0, 0, 0, 0)
+              comp.setHours(0, 0, 0, 0)
+              const isLate = fab > comp
+              return value === (isLate ? 'late' : 'on_time')
+            },
+        render: (_, record) =>
+          isFabrication ? (
+            <FabricationStatusBadge
+              fabricatedAt={record._fabricatedAt}
+              complationDate={record._complationDate}
+            />
+          ) : (
+            <Tag color={record?.status?.color} className="text-xs font-medium shadow-sm border">
+              {record?.status?.name || 'En attente'}
+            </Tag>
+          ),
+      },
+      {
+        title: 'Expédition',
+        dataIndex: '_expedit',
+        key: 'expedition',
+        width: 140,
+        filters: [1, 2, 3].map((v) => ({ text: getExped(v), value: v })),
+        onFilter: (value, record) => Number(record._expedit) === Number(value),
+        render: (expedit) => <ExpeditionBadge value={expedit} />,
+      },
+      {
+        title: 'Client',
+        dataIndex: '_client',
+        key: 'client',
+        width: 140,
+        sorter: (a, b) => String(a._client ?? '').localeCompare(String(b._client ?? '')),
+        render: (client) => <span className="font-medium text-gray-700">{client || '—'}</span>,
+      },
+      {
+        title: 'Référence',
+        dataIndex: '_ref',
+        key: 'reference',
+        width: 160,
+        ellipsis: true,
+        render: (ref) => <span className="text-gray-500">{ref || '—'}</span>,
+      },
+      {
+        title: 'Date Document',
+        dataIndex: '_dateDoc',
+        key: 'date_doc',
+        width: 140,
+        sorter: (a, b) => new Date(a._dateDoc || 0) - new Date(b._dateDoc || 0),
+        render: (date) => <span className="text-gray-500">{formatDate(date)}</span>,
+      },
+      {
+        title: 'Date Prévue',
+        dataIndex: '_datePrev',
+        key: 'date_prev',
+        width: 140,
+        sorter: (a, b) => new Date(a._datePrev || 0) - new Date(b._datePrev || 0),
+        render: (date) => <span className="text-gray-500">{formatDate(date)}</span>,
+      },
+    ]
+
+    if (isFabrication) {
+      cols.push(
+        {
+          title: 'Date de libération',
+          dataIndex: '_fabricatedAt',
+          key: 'date_lib',
+          width: 160,
+          sorter: (a, b) => new Date(a._fabricatedAt || 0) - new Date(b._fabricatedAt || 0),
+          render: (date) => <span className="text-gray-500">{formatDate(date)}</span>,
+        },
+        {
+          title: 'Date prévue fabrication',
+          dataIndex: '_complationDate',
+          key: 'date_fab',
+          width: 180,
+          sorter: (a, b) => new Date(a._complationDate || 0) - new Date(b._complationDate || 0),
+          render: (date) => <span className="text-gray-500">{formatDate(date)}</span>,
+        }
+      )
+    }
+
+    return cols
+  }, [isFabrication, roles])
 
   return (
     <div className="w-full h-full flex flex-col bg-white">
-      <div className="flex-1 overflow-hidden hidden md:flex flex-col">
-        <div className="flex-1 overflow-auto">
-          <table className="w-full border-collapse text-sm">
-            <thead className="sticky top-0 z-10">
-              <tr className="bg-gray-50 border-b border-gray-200">
-                {columns.map((col) => (
-                  <th
-                    key={col.key}
-                    className="px-4 py-2.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-widest whitespace-nowrap"
-                  >
-                    {col.label}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {documents.length === 0 ? (
-                <tr>
-                  <td colSpan={columns.length} className="px-4 py-12 text-center text-gray-400 text-sm">
-                    Aucun document trouvé
-                  </td>
-                </tr>
-              ) : (
-                documents.map((data, index) => {
-                  const piece = documentType === 1 ? data?.piece : data?.piece_bl
-                  const navId = data.piece_fa || data.piece_bl || data.piece
-                  const expedit = data?.docentete?.DO_Expedit || data.expedition
-                  const client = data?.docentete?.DO_Tiers || data.client_id
-                  const ref = data?.docentete?.DO_Ref || data.ref
-                  const dateDoc = data?.docentete?.DO_Date || data.created_at
-                  const datePrev = data?.docentete?.DO_DateLivr || data.delivery_date
-                  const fabricatedAt = data.lines?.[0]?.fabricated_at
-                  const complationDate = data.lines?.[0]?.complation_date
-
-                  return (
-                    <tr
-                      key={index}
-                      onClick={() => handleShow(navId)}
-                      className="border-b border-gray-100 hover:bg-blue-50/60 cursor-pointer transition-colors duration-100 group"
-                    >
-                      {/* Document */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
-                            {piece}
-                          </span>
-                          {data?.docentete?.DO_Reliquat === '1' && (
-                            <span className="p-1 rounded bg-gray-100 text-gray-400 border border-gray-200">
-                              <Settings size={11} />
-                            </span>
-                          )}
-
-                          {roles('fabrication') ? ' - ' + data?.code : ''}
-                        </div>
-                      </td>
-
-                      {/* Statut */}
-                      {
-                        roles('fabrication') ? (<td className="px-4 py-3 whitespace-nowrap">
-                          <FabricationStatusBadge
-                            fabricatedAt={fabricatedAt}
-                            complationDate={complationDate}
-                          />
-                        </td>) : (<td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                          <Tag color={data?.status?.color} className='text-xs font-medium shadow-sm border'>
-                            {data?.status?.name || 'En attente'}
-                          </Tag>
-                        </td>)
-                      }
-                      
-
-                      {/* Expédition */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <ExpeditionBadge value={expedit} />
-                      </td>
-
-                      {/* Client */}
-                      <td className="px-4 py-3 whitespace-nowrap">
-                        <span className="font-medium text-gray-700">{client || '—'}</span>
-                      </td>
-
-                      {/* Référence */}
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">
-                        {ref || '—'}
-                      </td>
-
-                      {/* Date Document */}
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">
-                        {formatDate(dateDoc)}
-                      </td>
-
-                      {/* Date Prévue */}
-                      <td className="px-4 py-3 whitespace-nowrap text-gray-500">
-                        {formatDate(datePrev)}
-                      </td>
-
-                      {isFabrication && (
-                        <>
-                          {/* Date de libération */}
-                          <td className="px-4 py-3 whitespace-nowrap text-gray-500">
-                            {formatDate(fabricatedAt)}
-                          </td>
-
-                          {/* Date prévue fabrication */}
-                          <td className="px-4 py-3 whitespace-nowrap text-gray-500">
-                            {formatDate(complationDate)}
-                          </td>
-
-                          {/* Statut fabrication */}
-                       
-                        </>
-                      )}
-                    </tr>
-                  )
-                })
-              )}
-            </tbody>
-          </table>
-        </div>
-
-        {/* Footer count */}
-        {documents.length > 0 && (
-          <div className="px-4 py-2 border-t border-gray-100 text-xs text-gray-400 bg-gray-50">
-            {documents.length} document{documents.length > 1 ? 's' : ''}
-          </div>
-        )}
-      </div>
+      <Table
+        columns={columns}
+        dataSource={dataSource}
+        loading={loading}
+        
+        pagination={false}
+        scroll={{ x: 'max-content', y: '100%' }}
+        size="small"
+        sticky
+        onRow={(record) => ({
+          onClick: () => handleShow(record._navId),
+          className: 'cursor-pointer',
+        })}
+        locale={{
+          emptyText: (
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="Aucun document trouvé"
+              className="py-10"
+            />
+          ),
+        }}
+        rowClassName="hover:!bg-blue-50/60 transition-colors duration-100"
+        className="flex-1"
+        footer={
+          documents.length > 0
+            ? () => (
+                <div className="text-xs text-gray-400">
+                  {documents.length} document{documents.length > 1 ? 's' : ''}
+                </div>
+              )
+            : undefined
+        }
+      />
     </div>
   )
 }

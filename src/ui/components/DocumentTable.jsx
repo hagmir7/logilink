@@ -1,14 +1,18 @@
 import { Settings } from 'lucide-react'
-import { Tag } from 'antd'
+import { Tag, Tooltip } from 'antd'
 import { getExped } from '../utils/config'
 import { useNavigate } from 'react-router-dom'
 
 const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('fr-FR')
+  if (!date) return '__'
+  const d = new Date(date)
+  return isNaN(d.getTime()) ? '__' : d.toLocaleDateString('fr-FR')
 }
 
-function DocumentTable({ documents = []}) {
+function DocumentTable({ documents = [], user }) {
   const navigate = useNavigate();
+
+  //  const company = (document) => document?.companies?.find(c => c.id === Number(user?.company_id))
 
   const getExpeditionColor = (expedit) => {
     const colorMap = {
@@ -69,73 +73,93 @@ function DocumentTable({ documents = []}) {
               </tr>
             </thead>
             <tbody className='bg-white'>
-              {documents.map((data, index) => (
-                <tr
-                  key={index}
-                  className={`
-                    border-b border-gray-200 
-                    hover:bg-blue-50 
-                    active:bg-blue-100 
-                    cursor-pointer 
-                    transition-colors 
-                    duration-150 
-                    ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
-                  `}
-                  onClick={() => handleShow(data.DO_Piece)}
-                >
-                  <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <div className='flex items-center'>
-                      <span className='text-sm font-semibold text-gray-900'>
-                        {data.DO_Piece || '__'}
-                      </span>
-                      {data.DO_Reliquat === "1" && (
-                        <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
-                          <Settings size={12} />
+              {documents?.map((data, index) => {
+
+                const companies = data?.document?.companies;
+
+                return (
+                  <tr
+                    key={data.DO_Piece ?? index}
+                    className={`
+                      border-b border-gray-200 
+                      hover:bg-blue-50 
+                      active:bg-blue-100 
+                      cursor-pointer 
+                      transition-colors 
+                      duration-150 
+                      ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                    `}
+                    onClick={() => handleShow(data.DO_Piece)}
+                  >
+                    <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
+                      <div className='flex items-center gap-1'>
+                        <span className='text-sm font-semibold text-gray-900'>
+                          {data.DO_Piece || '__'}
                         </span>
-                      )}
-                    </div>
-                  </td>
+                        {data.DO_Reliquat === "1" && (
+                          <span className='ml-2 p-1 bg-gray-100 text-gray-600 rounded border border-gray-300 shadow-sm'>
+                            <Settings size={12} />
+                          </span>
+                        )}
 
-                  <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <Tag
-                      color={data?.document?.status?.color}
-                      className='text-xs font-medium shadow-sm border'
-                    >
-                      {data?.document?.status?.name || 'En attente'}
-                    </Tag>
-                  </td>
+                        {
+                          companies?.map(compa => (compa?.pivot?.note ? (
+                            <Tooltip title={compa.pivot.note}>
+                              <Tag
+                                color='red'
+                                style={{ padding: 0 }}
+                                className='cursor-help text-[10px] py-0 px-0 leading-4 m-0 animate-pulse ms-1'
+                              >
+                                ❓
+                              </Tag>
+                            </Tooltip>
+                          ) : ''))
+                        }
+                        {/* {} */}
+                      </div>
+                    </td>
 
-                  <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <span
-                      className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(
-                        data.DO_Expedit
-                      )}`}
-                    >
-                      {getExped(data.DO_Expedit)}
-                    </span>
-                  </td>
+                    <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
+                      <Tag
+                        color={data?.document?.status?.color}
+                        className='text-xs font-medium shadow-sm border'
+                      >
+                        {data?.document?.status?.name || 'En attente'}
+                      </Tag>
+                    </td>
 
-                  <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
-                    <span className='text-sm text-gray-900 font-medium'>
-                      {data.DO_Tiers}
-                    </span>
-                  </td>
+                    <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
+                      <span
+                        className={`inline-flex items-center px-3 py-1 rounded-md text-xs font-medium ${getExpeditionColor(
+                          data.DO_Expedit
+                        )}`}
+                      >
+                        {getExped(data.DO_Expedit)}
+                      </span>
+                    </td>
 
-                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {data.DO_Ref}
-                  </td>
+                    <td className='px-4 py-3 whitespace-nowrap border-r border-gray-100 last:border-r-0'>
+                      <span className='text-sm text-gray-900 font-medium'>
+                        {data.DO_Tiers}
+                      </span>
+                    </td>
 
-                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
-                    {formatDate(new Date(data?.DO_Date))}
-                  </td>
+                    <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
+                      {data.DO_Ref}
+                    </td>
 
-                  <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-4 items-center'>
-                    <span>
-                      {formatDate(new Date(data?.DO_DateLivr))}
-                    </span>
-                  </td>
-                </tr>
-              ))}
+                    <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0'>
+                      {formatDate(data?.DO_Date)}
+                    </td>
+
+                    <td className='px-4 py-3 whitespace-nowrap text-sm text-gray-600 border-r border-gray-100 last:border-r-0 flex gap-4 items-center'>
+                      <span>
+                        {formatDate(data?.DO_DateLivr)}
+                      </span>
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>
