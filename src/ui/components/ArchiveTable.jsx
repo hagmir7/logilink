@@ -136,6 +136,12 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
               </span>
             )}
 
+            {record?.shipping && (
+              <span className="p-1 rounded bg-gray-100 text-gray-400 border border-gray-200">
+                <CheckCircle size={11} />
+              </span>
+            )}
+
             {record._showFabCode && roles('fabrication') ? (
               <span className="text-gray-400 text-xs">- {record.code}</span>
             ) : null}
@@ -161,21 +167,21 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
         filters: !isFabrication
           ? undefined
           : [
-              { text: 'Libéré à temps', value: 'on_time' },
-              { text: 'Libéré en retard', value: 'late' },
-              { text: 'En attente', value: 'pending' },
-            ],
+            { text: 'Libéré à temps', value: 'on_time' },
+            { text: 'Libéré en retard', value: 'late' },
+            { text: 'En attente', value: 'pending' },
+          ],
         onFilter: !isFabrication
           ? undefined
           : (value, record) => {
-              if (!record._fabricatedAt || !record._complationDate) return value === 'pending'
-              const fab = new Date(record._fabricatedAt)
-              const comp = new Date(record._complationDate)
-              fab.setHours(0, 0, 0, 0)
-              comp.setHours(0, 0, 0, 0)
-              const isLate = fab > comp
-              return value === (isLate ? 'late' : 'on_time')
-            },
+            if (!record._fabricatedAt || !record._complationDate) return value === 'pending'
+            const fab = new Date(record._fabricatedAt)
+            const comp = new Date(record._complationDate)
+            fab.setHours(0, 0, 0, 0)
+            comp.setHours(0, 0, 0, 0)
+            const isLate = fab > comp
+            return value === (isLate ? 'late' : 'on_time')
+          },
         render: (_, record) =>
           isFabrication ? (
             <FabricationStatusBadge
@@ -261,7 +267,7 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
         columns={columns}
         dataSource={dataSource}
         loading={loading}
-        
+
         pagination={false}
         scroll={{ x: 'max-content', y: '100%' }}
         size="small"
@@ -284,10 +290,10 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
         footer={
           documents.length > 0
             ? () => (
-                <div className="text-xs text-gray-400">
-                  {documents.length} document{documents.length > 1 ? 's' : ''}
-                </div>
-              )
+              <div className="text-xs text-gray-400">
+                {documents.length} document{documents.length > 1 ? 's' : ''}
+              </div>
+            )
             : undefined
         }
       />

@@ -51,8 +51,8 @@ const Login = () => {
 
       const token = localStorage.getItem('authToken');
       if (!token) {
-        setErrorType('auth'); 
-        return; 
+        setErrorType('auth');
+        return;
       }
 
       const updated = Array.from(new Set([values.login, ...usernames]));
@@ -95,7 +95,7 @@ const Login = () => {
         <div>
           <div className="font-semibold mb-2">Erreur de connexion réseau</div>
           <div>
-            Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet 
+            Impossible de se connecter au serveur. Veuillez vérifier votre connexion internet
             ou cliquez sur le bouton ci-dessous pour changer le type de connexion.
           </div>
         </div>
@@ -118,16 +118,16 @@ const Login = () => {
         </div>
 
         {(message || errorType === 'network') && (
-          <Alert 
-            message={getErrorMessage()} 
-            type={errorType === 'network' ? 'warning' : 'error'} 
-            showIcon 
+          <Alert
+            message={getErrorMessage()}
+            type={errorType === 'network' ? 'warning' : 'error'}
+            showIcon
             className="mb-6"
             action={
               errorType === 'network' && (
-                <Button 
-                  size="small" 
-                  type="link" 
+                <Button
+                  size="small"
+                  type="link"
                   onClick={() => setIsModalOpen(true)}
                   className="text-orange-600 hover:text-orange-700"
                 >

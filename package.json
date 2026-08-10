@@ -1,7 +1,7 @@
 {
   "name": "LOGILINK",
   "private": true,
-  "version": "0.11.8",
+  "version": "0.11.9",
   "description": "Logilink App",
   "title": "LOGILINK PRO",
   "author": {
@@ -62,6 +62,7 @@
     "@vitejs/plugin-react": "^4.3.4",
     "cross-env": "^7.0.3",
     "electron": "^42.5.1",
+    "electron-builder": "^26.15.3",
     "electron-winstaller": "^5.4.0",
     "eslint": "^9.21.0",
     "eslint-plugin-react-hooks": "^5.1.0",

@@ -2,7 +2,7 @@ import { Table, Tag, Typography, Space, Tooltip } from 'antd'
 import { useAuth } from '../contexts/AuthContext'
 import { useNavigate } from 'react-router-dom'
 import { getExped, getStatus } from '../utils/config'
-import { Edit, Printer, Settings } from 'lucide-react'
+import { CheckCircle, Edit, Printer, Settings } from 'lucide-react'
 
 const { Text } = Typography
 
@@ -44,6 +44,16 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
             {rec?.docentete?.DO_Reliquat === '1' && (
               <Tag style={{ fontSize: 10, padding: '0 4px' }}><Settings size={16} /></Tag>
             )}
+
+            {/* {JSON.stringify(rec?.shipping)} */}
+            
+            {rec?.shipping && (
+              <span className="p-1 rounded bg-gray-100 text-gray-400 border border-gray-200">
+                <CheckCircle size={11} />
+              </span>
+            )}
+
+
             {parseInt(rec?.urgent) ? '🚨' : null}
             {companyItem?.pivot?.note ? (
               <Tooltip title={companyItem.pivot.note}>

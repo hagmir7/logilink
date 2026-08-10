@@ -6,6 +6,7 @@ import {
   Settings,
   Store,
   CheckCircle,
+  CircleCheck,
 } from 'lucide-react'
 import { useState, useEffect } from 'react';
 import { api } from '../utils/api';
@@ -33,6 +34,7 @@ function Commercial() {
   const [validationSpin, setValidationSpin] = useState(false);
   const { roles = [], user } = useAuth()
   const navigate = useNavigate()
+  const [downloadSpin, setDownloadSpin] = useState(false);
 
   const companies = data?.docentete?.document?.companies;
 
@@ -157,6 +159,29 @@ function Commercial() {
     setSelectedLine(line_id);
   }
 
+   const downloadCheckList = async (checklist_id) => {
+    setDownloadSpin(true);
+    try {
+      const res = await api.get(`shippings/${checklist_id}/print`, {
+        responseType: 'blob',
+      });
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', `${id}-${checklist_id}.pdf`);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      window.URL.revokeObjectURL(url);
+      message.success('PDF téléchargé avec succès.');
+    } catch (error) {
+      console.log(error);
+      message.error('Erreur lors du téléchargement du PDF.');
+    } finally {
+      setDownloadSpin(false);
+    }
+  };
+
 
   const fullValidation = async (piece) => {
     setValidationSpin(true);
@@ -233,6 +258,17 @@ function Commercial() {
                 doclignes={data.doclignes}
                 docentete={data.docentete}
               />
+
+                 {data.docentete?.document?.shipping &&
+                <Button
+                  onClick={() => downloadCheckList(data.docentete?.document?.shipping?.id)}
+                  color="green"
+                  loading={downloadSpin}
+                  variant="solid"
+                  icon={<CircleCheck size={18} />}>
+                  Check-list
+                </Button>
+              }
 
               {/* <PrintDocumentTest
                 doclignes={data.doclignes}
@@ -339,6 +375,9 @@ function Commercial() {
                 document={data?.docentete?.document}
                 fetchData={fetchData}
               />
+
+
+           
 
               {data?.docentete?.document &&
                 (Number(data.docentete.document.status_id) < 8 || roles('super_admin')) && (

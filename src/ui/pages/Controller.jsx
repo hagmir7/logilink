@@ -325,7 +325,6 @@ function Controller() {
     } else {
       return str;
     }
-
   }
 
   const companiesWithDate =
@@ -487,10 +486,9 @@ function Controller() {
         </div>
 
         <div className='flex gap-3 items-center'>
-
           <div>
             {
-              Number(documentPL?.document?.status_id) === 11 &&
+              !documentPL?.document?.shipping &&
               (<div>
                 <Button onClick={() => setOpencheckList(true)} icon={<ListCheck size={18} />}>Check-list</Button>
 
@@ -505,9 +503,7 @@ function Controller() {
             }
 
 
-
-
-            {Number(documentPL?.document?.status_id) === 14 &&
+            {documentPL?.document?.shipping &&
               <Button
                 onClick={() => downloadCheckList(documentPL?.document?.shipping?.id)}
                 color="green"
