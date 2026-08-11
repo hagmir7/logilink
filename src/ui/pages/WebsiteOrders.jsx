@@ -2,7 +2,7 @@ import React, { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { Table, Select, Tag, Card, Typography, Alert, Empty, Modal, Divider, Button, message } from 'antd';
 import { EyeOutlined } from '@ant-design/icons';
-import { CheckCircle } from 'lucide-react';
+import { CheckCircle, CircleX } from 'lucide-react';
 import { api } from "../utils/api";
 
 const { Title, Text } = Typography;
@@ -63,6 +63,7 @@ export default function WebsiteOrders() {
 
 
   const [validating, setValidating] = useState(false);
+   const [canceling, setCanceling] = useState(false);
 
 
   const validate = async () => {
@@ -91,13 +92,56 @@ export default function WebsiteOrders() {
         },
       );
 
+
+      confirm()
       message.success(data.message);
       closeOrderDetail();
       fetchOrders(status);
     } catch (err) {
+      console.error(err);
       message.error(err?.response?.data?.message || 'Erreur lors du transfert.');
     } finally {
       setValidating(false);
+    }
+  };
+
+
+
+
+
+
+  const cancel = async () => {
+      if (!selectedOrder) return;
+      setCanceling(true);
+      try {
+          const response = await axios.delete(API_URL, {
+             headers: { 'X-API-Key': API_KEY },
+             params: { code: selectedOrder.code },
+          });
+          message.success("Commande annulée avec succès.");
+          closeOrderDetail();
+          fetchOrders(status);
+      } catch (err) {
+          console.error(err);
+          message.error(err?.response?.data?.message || 'Erreur lors de l’annulation.');
+      } finally {
+          setCanceling(false);
+      }
+  };
+
+
+  const confirm = async () => {
+    if (!selectedOrder) return;
+    try {
+      await axios.post('https://app.intercocina.com/api/orders/confirm', {
+        headers: { 'X-API-Key': API_KEY },
+        params: { code: selectedOrder.code },
+      });
+    } catch (err) {
+      console.error(err);
+      message.error(
+        err?.response?.data?.message || 'Erreur lors de la confirmation.'
+      );
     }
   };
 
@@ -128,7 +172,7 @@ export default function WebsiteOrders() {
       render: (_, record) =>
         record.customer_code
           ? <div>{record.customer_code}</div>
-          : <Text type="secondary">—</Text>,
+          : <Text type="secondary">CL150</Text>,
     },
     {
       title: 'Articles',
@@ -303,7 +347,7 @@ export default function WebsiteOrders() {
                 </div>
                 <div>
                   <Text type="secondary" className="block text-xs">Client</Text>
-                  <Text>{order.customer_code || '—'}</Text>
+                  <Text>{order.customer_code || 'CL150'}</Text>
                 </div>
                 <div>
                   <Text type="secondary" className="block text-xs">Date</Text>
@@ -324,7 +368,41 @@ export default function WebsiteOrders() {
               />
 
               {/* Totals — use backend fields directly */}
-              <div className="flex justify-end mt-4">
+              <div className="flex justify-between mt-4">
+                <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 min-w-[300px] space-y-2 text-sm">
+
+
+
+                  <div className="flex justify-between">
+                    <Text type="secondary">Nom</Text>
+                    <Text>{order.full_name}</Text>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <Text type="secondary">Phone</Text>
+                    <Text>{order.phone}</Text>
+                  </div>
+
+
+                  <div className="flex justify-between">
+                    <Text type="secondary">Email</Text>
+                    <Text>{order.email}</Text>
+                  </div>
+
+                  <div className="flex justify-between">
+                    <Text type="secondary">Ville</Text>
+                    <Text>{order.city}</Text>
+                  </div>
+
+                  <div className="">
+                    <Text type="secondary">Address</Text> <br />
+                    <Text>{order.address}</Text>
+                  </div>
+
+
+                </div>
+
+
                 <div className="bg-gray-50 border border-gray-200 rounded-lg p-4 min-w-[300px] space-y-2 text-sm">
 
                   {order.raw_total > 0 && (
@@ -362,9 +440,11 @@ export default function WebsiteOrders() {
                     </Text>
                   </div>
                 </div>
+
+
               </div>
 
-              <div className="mt-4">
+              <div className="mt-4 flex gap-3">
                 <Button
                   color="green"
                   variant="solid"
@@ -373,6 +453,16 @@ export default function WebsiteOrders() {
                   icon={<CheckCircle size={16} />}
                 >
                   Valider
+                </Button>
+
+                <Button
+                  color="red"
+                  variant="solid"
+                  onClick={cancel}
+                  loading={canceling}
+                  icon={<CircleX size={16} />}
+                >
+                  Annuler
                 </Button>
               </div>
             </div>
