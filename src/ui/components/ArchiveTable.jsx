@@ -67,11 +67,18 @@ const ExpeditionBadge = ({ value }) => {
   }
   const cls = styles[value] || 'bg-gray-50 text-gray-500 border-gray-200'
   return (
-    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border ${cls}`}>
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium border whitespace-nowrap ${cls}`}>
       {getExped(value)}
     </span>
   )
 }
+
+const DeletedBadge = () => (
+  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-red-100 text-red-700 border border-red-300 shadow-sm">
+    <AlertCircle size={10} />
+    Supprimé
+  </span>
+)
 
 function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
   const navigate = useNavigate()
@@ -91,13 +98,12 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
     }
   }
 
-  // Pre-compute derived values once per document instead of inline during render,
-  // so both the columns' render functions and the row key can reuse them.
   const dataSource = useMemo(() => {
     return documents.map((data, index) => {
       const company = data?.companies?.find(
         (item) => Number(item.id) === Number(user.company_id)
       )
+      console.log(data)
 
       return {
         ...data,
@@ -113,6 +119,7 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
         _complationDate: company?.pivot?.complation_date,
         _note: company?.pivot?.note,
         _showFabCode: Boolean(data?.code) && Number(user.company_id) === 1,
+        _isDeleted: data?.canceled,
       }
     })
   }, [documents, documentType, user.company_id])
@@ -127,8 +134,10 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
         width: 200,
         sorter: (a, b) => String(a._piece ?? '').localeCompare(String(b._piece ?? '')),
         render: (piece, record) => (
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 whitespace-nowrap">
             <span className="font-semibold text-gray-800">{piece || '—'}</span>
+
+            {record._isDeleted && <DeletedBadge />}
 
             {record?.docentete?.DO_Reliquat === '1' && (
               <span className="p-1 rounded bg-gray-100 text-gray-400 border border-gray-200">
@@ -248,7 +257,7 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
           render: (date) => <span className="text-gray-500">{formatDate(date)}</span>,
         },
         {
-          title: 'Date prévue fabrication',
+          title: 'Prévue fabrication',
           dataIndex: '_complationDate',
           key: 'date_fab',
           width: 180,
@@ -285,7 +294,13 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
             />
           ),
         }}
-        rowClassName="hover:!bg-blue-50/60 transition-colors duration-100"
+        rowClassName={(record) =>
+          `transition-colors duration-100 ${
+            record._isDeleted
+              ? 'bg-red-50 hover:!bg-red-100/80'
+              : 'hover:!bg-blue-50/60'
+          }`
+        }
         className="flex-1"
         footer={
           documents.length > 0

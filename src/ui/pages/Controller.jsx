@@ -487,20 +487,24 @@ function Controller() {
 
         <div className='flex gap-3 items-center'>
           <div>
-            {
-              !documentPL?.document?.shipping &&
-              (<div>
-                <Button onClick={() => setOpencheckList(true)} icon={<ListCheck size={18} />}>Check-list</Button>
+            {Number(documentPL?.document?.shipping) === 0 &&
+              Number(documentPL?.document?.status_id) > 8 && (
+                <>
+                  <Button
+                    onClick={() => setOpencheckList(true)}
+                    icon={<ListCheck size={18} />}
+                  >
+                    Check-list
+                  </Button>
 
-                <CheckListModal
-                  document_id={data?.docentete?.document?.id || id}
-                  open={openCheckList}
-                  setOpen={setOpencheckList}
-                  reload={getDocumentPL}
-                />
-              </div>
-              )
-            }
+                  <CheckListModal
+                    document_id={data?.docentete?.document?.id || id}
+                    open={openCheckList}
+                    setOpen={setOpencheckList}
+                    reload={getDocumentPL}
+                  />
+                </>
+              )}
 
 
             {documentPL?.document?.shipping &&
