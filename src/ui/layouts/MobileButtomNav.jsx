@@ -71,7 +71,7 @@ export default function MobileBottomNav() {
   ];
 
   return (
-    <nav className="fixed lg:hidden bottom-0 z-50 left-0 right-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg rounded-t-2xl">
+    <nav className="fixed  lg:hidden bottom-0 z-50 left-0 right-0 w-full bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg rounded-t-2xl">
       <div className="flex justify-around items-center py-3 px-2">
         {navItems.map((item) => {
           const isActive = activeTab === item.path;

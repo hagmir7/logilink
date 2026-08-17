@@ -20,11 +20,14 @@ function ReceptionMovementList() {
     return `${url}?page=${pageNumber}`;
   };
 
+  // pageNumber defaults to 1: any "full refetch" (initial load, interval, refresh button)
+  // starts over from page 1, so we resync the `page` state to match what we just loaded.
   const fetchData = async (pageNumber = 1) => {
     setLoading(true);
     try {
       const response = await api.get(buildUrl(pageNumber));
       setData(response.data);
+      setPage(pageNumber); // <-- keep page state in sync with what's actually loaded
     } catch (err) {
       console.error("Failed to fetch data:", err);
     } finally {
@@ -46,17 +49,21 @@ function ReceptionMovementList() {
     if (!data.next_page_url) return;
     setMoreSpinner(true);
     const nextPage = page + 1;
-    setPage(nextPage);
 
     try {
       const response = await api.get(buildUrl(nextPage));
+      const newItems = Array.isArray(response.data.data)
+        ? response.data.data
+        : Object.values(response.data.data ?? {});
+
       setData({
-        data: [...data.data, ...response.data.data],
+        data: [...data.data, ...newItems],
         next_page_url: response.data.next_page_url,
         total: response.data.total,
       });
+      setPage(nextPage);
     } catch (err) {
-      console.error("Failed to fetch more data:", err);
+      console.error("Failed to fetch more data:", err?.response?.status, err?.response?.data || err.message);
     } finally {
       setMoreSpinner(false);
     }
@@ -66,15 +73,14 @@ function ReceptionMovementList() {
     navigate(`/reception-movement/${orderId}/${company_db}`);
   };
 
-    const statuses = [
-      { id: 1, name: "Transféré", color: "orange" },
-      { id: 2, name: "Réceptionné", color: "green" },
-      { id: 3, name: "Validé", color: "blue" },
-    ]
+  const statuses = [
+    { id: 1, name: "Transféré", color: "orange" },
+    { id: 2, name: "Réceptionné", color: "green" },
+    { id: 3, name: "Validé", color: "blue" },
+  ];
 
-    const getStatus = (id) =>
-      statuses.find(s => s.id === Number(id)) || { name: "En attente", color: "default" }
-
+  const getStatus = (id) =>
+    statuses.find((s) => s.id === Number(id)) || { name: "En attente", color: "default" };
 
   return (
     <div className="min-h-screen">
@@ -94,14 +100,18 @@ function ReceptionMovementList() {
           <span className="hidden sm:inline ml-2">Rafraîchir</span>
         </Button>
 
-          <TravelModal />
+        <TravelModal />
       </div>
 
       {/* Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4">
         {data.data.length > 0 ? (
           data.data.map((item, index) => (
-            <Badge.Ribbon key={index} text={getStatus(item?.document?.status_id)?.name || "Document"} color={getStatus(item?.document?.status_id)?.color || "blue"}>
+            <Badge.Ribbon
+              key={item.DO_Piece ? `${item.company}-${item.DO_Piece}` : index}
+              text={getStatus(item?.document?.status_id)?.name || "Document"}
+              color={getStatus(item?.document?.status_id)?.color || "blue"}
+            >
               <div
                 className="bg-white rounded-2xl shadow-sm hover:shadow-lg border border-gray-200 p-5 transition cursor-pointer"
                 onClick={() => handleSelectOrder(item.DO_Piece, item.company)}
@@ -157,13 +167,8 @@ function ReceptionMovementList() {
 
       {/* Load more */}
       {data.next_page_url && (
-        <div className="flex justify-center py-6">
-          <Button
-            onClick={loadMore}
-            type="primary"
-            loading={moreSpinner}
-            iconPosition="end"
-          >
+        <div className="flex justify-center py-10 mb-10">
+          <Button onClick={loadMore} type="primary" loading={moreSpinner} iconPosition="end">
             Charger Plus
           </Button>
         </div>
