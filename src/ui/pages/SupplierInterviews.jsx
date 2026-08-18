@@ -22,10 +22,7 @@ export default function SupplierInterviews() {
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const navigate = useNavigate();
-  const { confirm } = Modal;
 
-
-  
   useEffect(() => {
     fetchData(true);
   }, [company]);
@@ -33,10 +30,7 @@ export default function SupplierInterviews() {
   const fetchData = async (reset = false) => {
     setLoading(true);
 
-    try {
-      
-      console.log(company);
-      
+    try { 
       const response = await api.get("supplier-interviews", {
         params: { company_db: company },
       });
@@ -50,37 +44,6 @@ export default function SupplierInterviews() {
     } finally {
       setLoading(false);
     }
-  };
-
-
-  const openUpdate = (CT_Num) => {
-    setSelectedClient(CT_Num);
-    setOpen(true);
-  };
-
-
-  const handleDelete = async (id) => {
-    try {
-      await api.delete(`client/suppliers/${id}`);
-      message.success("Fournisseur supprimé avec succès.");
-      fetchData(true);
-    } catch (error) {
-      message.error("Erreur lors de la suppression.");
-    }
-  };
-
-  const showDeleteConfirm = (id) => {
-    confirm({
-      title: "Supprimer ce fournisseur ?",
-      icon: <CircleAlert size={22} className="text-red-600" />,
-      content: "Cette action est irréversible.",
-      okText: "Supprimer",
-      okType: "danger",
-      cancelText: "Annuler",
-      onOk() {
-        handleDelete(id);
-      },
-    });
   };
 
 

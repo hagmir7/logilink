@@ -24,7 +24,6 @@ const ImportMovements = () => {
         headers: { "Content-Type": "multipart/form-data" },
       });
       message.success.success("Importation réussie !");
-      console.log("Response:", response.data);
     } catch (error) {
       console.error(error);
       message.error(error?.response?.data?.message || "Échec de l’importation.");

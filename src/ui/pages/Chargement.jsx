@@ -87,7 +87,6 @@ export default function Chargement() {
     setLoading('submit', true)
     try {
       const { data } = await api.post(`palettes/confirm/${paletteCode}/${id}`);
-      console.log(data);
       message.success("La palette est livrée")
       setPaletteCode('')
       setPalette({

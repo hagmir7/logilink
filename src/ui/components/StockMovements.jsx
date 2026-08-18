@@ -120,7 +120,6 @@ function StockMovements({ company_id }) {
       const url = query ? `${baseUrl}?${query}` : baseUrl
 
       const { data } = await api.get(url)
-      console.log(data);
       
       setMovments(data.movements)
     } catch (err) {

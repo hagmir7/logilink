@@ -47,9 +47,9 @@ import axios from 'axios'
 const { Header, Content, Sider } = Layout
 
 const sideMenu = () => {
-  const { roles = [], permissions, user } = useAuth();
+  const { roles, permissions, user } = useAuth();
 
-    const navigate = useNavigate()
+  const navigate = useNavigate()
 
 
   const [states, setStates] = useState({
@@ -72,9 +72,6 @@ const sideMenu = () => {
         purchase: purchase.data,
         website_orders: orders.data.count,
       });
-
-
-      console.log(purchase.data)
     } catch (error) {
       console.error("Failed to load states:", error);
     }

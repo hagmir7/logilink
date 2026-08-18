@@ -103,9 +103,7 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
       const company = data?.companies?.find(
         (item) => Number(item.id) === Number(user.company_id)
       )
-      console.log(data)
-
-      return {
+     return {
         ...data,
         key: data.id ?? data.piece_fa ?? data.piece_bl ?? data.piece ?? index,
         _piece: documentType === 1 ? data?.piece : data?.piece_bl,

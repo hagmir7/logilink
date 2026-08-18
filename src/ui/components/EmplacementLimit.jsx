@@ -238,7 +238,6 @@ export default function EmplacementLimit() {
             initialValues={editData}
             emplacements={emplacements}
             articles={articles}
-            onSuccess={() => console.log("refresh table")}
           />
         </div>
       </div>

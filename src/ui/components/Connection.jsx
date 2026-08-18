@@ -34,8 +34,6 @@ export default function Connection() {
                 mode: 'no-cors',
                 signal: AbortSignal.timeout(5000)
             });
-
-            console.log(response)
             return response.type === 'opaque' || response.ok;
         } catch {
             return false;

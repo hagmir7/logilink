@@ -27,10 +27,9 @@ export default function ComparisonForm({ initialData, onSuccess }) {
         message.success('Comparatif créé avec succès.');
       }
       onSuccess?.();
-    } catch (err) {
-        console.log(err);
-        
-      const errors = err.response?.data?.errors;
+    } catch (error) {
+      console.error(error);
+      const errors = error.response?.data?.errors;
       if (errors) {
         form.setFields(Object.entries(errors).map(([name, msgs]) => ({ name, errors: msgs })));
       } else {

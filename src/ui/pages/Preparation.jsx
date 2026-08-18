@@ -163,8 +163,6 @@ export default function Preparation() {
   // ─── Scan ────────────────────────────────────────────────────────────────────
 
   const lineNameGenerator = (data) => {
-    console.log(data);
-    
     const height =
       Math.floor(data?.docligne?.Hauteur) ||
       Math.floor(data?.docligne?.article?.Hauteur) ||
@@ -279,9 +277,6 @@ export default function Preparation() {
 
   const handleSubmit = async () => {
     setLoading('submit', true)
-
-    console.log(article.qte)
-
     if (
       roles(['magasinier', 'preparation_cuisine']) &&
       !scannedEmplacement &&

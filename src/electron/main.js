@@ -294,8 +294,6 @@ ipcMain.handle('get-printers', async (event) => {
 
 
 ipcMain.handle('print-palette-tickets', async (event, { printerName, data }) => {
-    console.log(data);
-    
     for (const palette of data.palettes) {
         const ticketWindow = new BrowserWindow({
             show: false,

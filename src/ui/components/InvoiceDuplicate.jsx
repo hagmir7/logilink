@@ -8,9 +8,6 @@ export default function InvoiceDuplicate() {
 
   const onFinish = async (values) => {
     setLoading(true);
-    console.log(values);
-    
-
     try {
       const payload = {
         client: values.client?.trim() || null,

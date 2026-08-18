@@ -7,7 +7,6 @@ export default function PrivateRoute({ children }) {
   if (authLoading) return null; // prevent infinite redirect loop
 
   if (!user) {
-    console.log(user);
     return <Navigate to="/login" replace />;
   }
 

@@ -129,8 +129,8 @@ function Controller() {
       window.URL.revokeObjectURL(url);
       message.success('PDF téléchargé avec succès.');
     } catch (error) {
-      console.log(error);
-      message.error('Erreur lors du téléchargement du PDF.');
+      console.error(error);
+      message.error(error?.response?.data?.message || 'Erreur lors du téléchargement du PDF.');
     } finally {
       setDownloadSpin(false);
     }

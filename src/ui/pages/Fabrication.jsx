@@ -88,9 +88,6 @@ function Fabrication() {
 
     try {
       await api.post('docentetes/start', requestData)
-
-      console.log(requestData)
-
       message.success("Date modifiée avec succès")
       setSelected([])
       fetchData()

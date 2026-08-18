@@ -21,8 +21,6 @@ const DropMenu = () => {
 
         if (window.electron) {
             await window.electron.logout();
-            console.log("Working");
-
         } else {
             navigate('/login')
         }

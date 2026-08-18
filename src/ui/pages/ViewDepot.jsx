@@ -25,7 +25,6 @@ export default function ViewDepot() {
     try {
       const { data } = await api.get(`depots/${id}`)
       setDepot(data)
-      console.log(data)
     } catch (error) {
       message.error(
         error?.response?.data?.message || 'Erreur lors du chargement'

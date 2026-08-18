@@ -17,10 +17,6 @@ const QScanner = ({ onScan }) => {
                 result?.text ||
                 result ||
                 ""
-
-              console.log("RAW SCAN RESULT:", result)
-              console.log("PARSED VALUE:", value)
-
               if (value && onScan) onScan(value) 
               setShowScanner(false)
             }}
