@@ -68,7 +68,7 @@ function PreparationArchive() {
 
     const { roles = [] } = useAuth();
 
-    const isFabrication = roles('fabrication');
+    const isFabrication = roles(['fabrication', 'peinture']);
 
     const buildUrl = (pageNumber = 1, search = searchTerm) => {
         const queryParams = new URLSearchParams();

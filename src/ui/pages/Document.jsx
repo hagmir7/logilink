@@ -255,7 +255,7 @@ function Document() {
         />
       )}
 
-      {(roles('preparation') || roles('montage') || roles('fabrication')) && (
+      {(roles('preparation') || roles('montage') || roles('fabrication') || roles('peinture')) && (
         <PreparationDocumentTable
           documents={data.data}
           onSelectOrder={handleSelectOrder}
@@ -297,9 +297,9 @@ function Document() {
         </div>
       )}
 
-      {(data.data.length === 0 && !loading) && (
+      {/* {(data.data.length === 0 && !loading) && (
         <Empty className='mt-10' description='Aucun document à afficher' />
-      )}
+      )} */}
     </div>
   )
 }

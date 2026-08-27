@@ -1,380 +1,308 @@
-import { useState, useEffect } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import { api } from '../utils/api'
-import { getExped, getDocumentType, locale, formatDate } from '../utils/config'
+import {
+  getExped, getDocumentType, locale, formatDate, formatShortDate, TRANSFER_OPTIONS,
+  isLineDisabled,
+  isLineDone,
+  getLineSelectDisplay,
+} from '../utils/config'
 import { useLocation, useParams } from 'react-router-dom'
-import { Button, Checkbox, DatePicker, Empty, message, Tag } from 'antd'
-import Skeleton from '../components/ui/Skeleton'
-import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
-import { RefreshCw, ArrowRight, CheckCircle, Check } from 'lucide-react'
+import { Button, Checkbox, DatePicker, Empty, message, Select, Tag, Table, Skeleton } from 'antd'
+import { RefreshCw, ArrowRight, Check, PaintBucket } from 'lucide-react'
 import PrintDocument from '../components/PrintDocument'
 import FacadDocumentPrint from '../components/FacadDocumentPrint'
 import { useAuth } from '../contexts/AuthContext'
 import FabricationNote from '../components/FabricationNote'
+import { useDocEntet } from '../hooks/useDocEntete'
 
-
-function Fabrication() {
-  const { id } = useParams()
-  const [data, setData] = useState({ docentete: {}, doclignes: [] })
-  const [loading, setLoading] = useState(false)
-  const [selected, setSelected] = useState([]);
-  const [complationSpin, setComplationSpin] = useState(false)
-
-
-
-  const { roles, user } = useAuth();
-  const company = data?.docentete?.document?.companies?.find(
-    item => Number(item.id) === Number(user.company_id)
-  );
-
-  const currentItems = data?.doclignes || []
-
-  const location = useLocation();
-
-  const queryParams = new URLSearchParams(location.search);
-  const type = queryParams.get('type');
-
-
-  const selectedRowsFull = data.doclignes.filter(line =>
-    selected.includes(line.line?.id)
-  );
-
-  const fetchData = async () => {
-    setLoading(true)
-    try {
-      const response = await api.get(`docentetes/${id}${type ? `?type=${type}` : ''}`)
-      setData(response.data)
-    } catch (err) {
-      message.error(err?.response?.data?.message)
-      console.error('Failed to fetch data:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    if (!id) return;
-
-    fetchData();
-
-    const interval = setInterval(() => {
-      fetchData();
-    }, 1110000);
-
-    return () => clearInterval(interval);
-  }, [id, type]);
-
-
-  const handleSelect = (lineId) => {
-    setSelected((prev) =>
-      prev.includes(lineId) ? prev.filter((item) => item !== lineId) : [...prev, lineId]
+/** Small presentational badge for "done" / "sent to painting" line states. */
+function LineStatusBadge({ status }) {
+  if (status === 'painting') {
+    return (
+      <div className="bg-blue-200 rounded-full py-1 flex items-center justify-center ml-2">
+        <PaintBucket size={16} className="text-blue-600" />
+      </div>
     )
   }
-
-  const handleSelectAll = (e) => {
-    if (e.target.checked) {
-      setSelected(data.doclignes.map((item) => item.line?.id).filter(Boolean))
-    } else {
-      setSelected([])
-    }
-  }
-  const onDateChange = async (date, dateString) => {
-    if (selected.length === 0) return
-
-    const requestData = {
-      complation_date: dateString,
-      lines: selected,
-      piece: id
-    }
-
-    try {
-      await api.post('docentetes/start', requestData)
-      message.success("Date modifiée avec succès")
-      setSelected([])
-      fetchData()
-    } catch (error) {
-      message.error(error?.response?.data?.message)
-      console.error(error)
-    }
-  }
-
-  const complation = async () => {
-    if (selected.length === 0) {
-      message.warning("Aucun article sélectionné")
-      return;
-    }
-
-    setComplationSpin(true)
-    try {
-      await api.post('docentetes/complation', { lines: selected, piece: id })
-      message.success("Fabrication terminée avec succès", 6);
-      setSelected([]);
-      fetchData()
-    } catch (error) {
-      console.error(error)
-      message.error(error?.response?.data?.message || 'server error ⚠️');
-    } finally {
-      setComplationSpin(false)
-    }
-  }
-
-  const dateFormat = (date) => {
-    if (!date) return '__'
-
-    const inputDate = new Date(date)
-
-    const day = inputDate.getDate()
-    const month = inputDate.getMonth() + 1
-    const year = inputDate.getFullYear()
-
-    return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`
-  }
-
   return (
-    <div className='max-w-7xl mx-auto p-2 md:p-5'>
-      <div className='flex justify-between items-center mb-6'>
-        <div className='flex items-center space-x-3'>
-          <h1 className='text-lg font-bold text-gray-800'>
-            {data?.docentete?.DO_Piece
-              ? `Commande ${type === 'archive' ? id + " -> " + data.docentete.DO_Piece : data.docentete.DO_Piece}`
-              : 'Chargement...'}
-          </h1>
-        </div>
-        <div className='flex gap-2'>
-          <Button onClick={fetchData}>
-            {loading ? (
-              <RefreshCw className='animate-spin h-4 w-4 mr-2' />
-            ) : (
-              <RefreshCw className='h-4 w-4 mr-2' />
-            )}
-            Rafraîchir
-          </Button>
+    <div className="bg-green-200 rounded-full py-1 flex items-center justify-center ml-2">
+      <Check size={16} className="text-green-600" />
+    </div>
+  )
+}
 
-          {
-            Number(user.company_id) === 1 ? <FacadDocumentPrint
-              docentete={data.docentete}
-              doclignes={
-                selected.length > 0
-                  ? selectedRowsFull
-                  : data.doclignes
-              }
-            /> : (<PrintDocument
-              docentete={data?.docentete}
-              doclignes={
-                selected.length > 0
-                  ? selectedRowsFull
-                  : data.doclignes
-              }
-            />)
-          }
-        </div>
-      </div>
-
-      {/* Document Info */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-        {[
-          {
-            label: 'Client',
-            value: data.docentete?.DO_Tiers,
-          },
-          {
-            label: 'Référence',
-            value: data.docentete?.DO_Ref,
-          },
-          {
-            label: 'Expédition',
-            value: getExped(data.docentete?.DO_Expedit),
-          },
-          {
-            label: 'Type de document',
-            value: data.docentete?.DO_Piece && getDocumentType(data.docentete?.DO_Piece),
-          },
-        ].map(({ label, value }, idx) => (
-          <div key={idx} className="bg-white border border-gray-400 rounded-lg p-2 shadow-sm">
-            <div className="flex flex-col gap-2">
-              <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">
-                {label}
-              </span>
-              <span className="text-sm font-semibold text-gray-900">
-                {value || <Skeleton />}
-              </span>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Table Header */}
-      <div className='flex justify-between items-center mb-4'>
-        <div className='flex items-center gap-2'>
-          <DatePicker
-            onChange={onDateChange}
-            format="YYYY-MM-DD"
-            locale={locale}
-            className='border-2'
-            placeholder='Date de livraison'
-            disabled={roles('production_operateur') || company?.pivot?.complation_date}
-          />
-
-          <FabricationNote company={company?.pivot} onUpdated={fetchData} />
-
-          {company?.pivot?.complation_date && ' Prévue le ' + formatDate(company?.pivot?.complation_date)}
-        </div>
-        <div className='flex gap-3'>
-          <Button onClick={complation} disabled={roles('production_operateur') || !company?.pivot?.complation_date} color="green" variant="solid" loading={complationSpin}>
-            Validation <ArrowRight size={18} />
-          </Button>
-        </div>
-      </div>
-
-      {/* Desktop Table */}
-      <div className='overflow-x-auto'>
-        <Table>
-          {
-            data.doclignes?.length > 0 ?
-              <Thead>
-                <Tr>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                    <Checkbox
-                      disabled={roles('production_operateur')}
-                      onChange={handleSelectAll}
-                      checked={
-                        selected.length === data.doclignes.length &&
-                        data.doclignes.length > 0
-                      }
-                    ></Checkbox>
-                  </th>
-
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Piece </th>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Ref Article </th>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>Date Livraison</th>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                    Hauteur
-                  </th>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                    Largeur
-                  </th>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                    Profondeur
-                  </th>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                    Couleur
-                  </th>
-
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                    Chant
-                  </th>
-
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-400 whitespace-nowrap'>
-                    Epaisseur
-                  </th>
-                  <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>Quantité</th>
-                </Tr>
-              </Thead> : null
-          }
-
-
-          <Tbody>
-            {loading ? (
-              [...Array(4)].map((_, rowIndex) => (
-                <tr key={rowIndex}>
-                  {[...Array(10)].map((_, colIndex) => (
-                    <td className="px-6 py-4" key={colIndex}>
-                      <div className="h-4 bg-gray-200 rounded w-3/4 animate-pulse"></div>
-                    </td>
-                  ))}
-                </tr>
-              ))
-            ) : data.doclignes?.length > 0 ? (
-              currentItems.map((item, index) => (
-                <Tr key={index} className='whitespace-nowrap'>
-
-
-                  <td className='py-4 whitespace-nowrap text-sm text-gray-500 text-center'>
-                    {
-                      item?.line?.fabricated_by ? <div className="bg-green-200 rounded-full py-1 flex items-center justify-center ml-2">
-                        <Check size={16} className="text-green-600" />
-                      </div> : <Checkbox
-
-                        disabled={item.line.fabricated_by || roles('production_operateur')}
-                        checked={selected.includes(item.line?.id)}
-                        onChange={() => handleSelect(item.line?.id)}
-                      />
-                    }
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    <div className='text-sm font-medium text-gray-900 whitespace-nowrap'>
-                      {item?.Nom ||
-                        item.article?.Nom ||
-                        item?.DL_Design ||
-                        '__'}
-                      {" "}
-                      {item?.Poignee}
-                      {" "}
-                      {item?.Rotation}
-
-                      {" "}
-                      {item?.Description}
-                    </div>
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>{item.AR_Ref || '__'}</td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    <Tag> {item.line?.complation_date
-                      ? dateFormat(item.line.complation_date)
-                      : '__'}</Tag>
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item.Hauteur > 0 ?
-                      Math.floor(item.Hauteur) :
-                      Math.floor(item.article?.Hauteur) || '__'
-                    }
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item.Largeur > 0
-                      ? Math.floor(item.Largeur)
-                      : Math.floor(item?.article?.Largeur) || '__'}
-                  </td>
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {(item.Chant ? item.Chant : item?.article?.Chant) || '__'}
-                  </td>
-
-                  <td className='px-2 text-sm border-r border-gray-100'>
-                    {item.Episseur > 0
-                      ? Math.floor(item.Episseur)
-                      : Math.floor(item?.article?.Episseur) || '__'}
-                  </td>
-                  <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
-                    <span className='px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800'>
-                      {Math.floor(type === 'archive' ? item.DL_QtePL : item.EU_Qte)}
-                    </span>
-                  </td>
-                </Tr>
-              ))
-            ) : (
-              <tr>
-                <td
-                  colSpan='10'
-                  className='px-6 py-4 text-center text-sm text-gray-500'
-                >
-                  <Empty description="Aucun article trouvé" />
-                </td>
-              </tr>
-            )}
-          </Tbody>
-        </Table>
+/** One tile in the "Client / Référence / Expédition / Type" summary row. */
+function SummaryCard({ label, value }) {
+  return (
+    <div className="bg-white border border-gray-200 border-solid rounded-lg p-2 shadow-sm">
+      <div className="flex flex-col gap-2">
+        <span className="text-xs text-gray-500 uppercase tracking-wider font-medium">{label}</span>
+        <span className="text-sm font-semibold text-gray-900">
+          {value || <Skeleton.Button active size="small" shape="default" block />}
+        </span>
       </div>
     </div>
   )
 }
 
-export default Fabrication;
+function Fabrication() {
+  const { id } = useParams()
+  const location = useLocation()
+  const type = new URLSearchParams(location.search).get('type')
+
+  const { data, loading, refetch } = useDocEntet(id, type)
+  const { roles, user } = useAuth()
+
+  const [selected, setSelected] = useState([])
+  const [transferValue, setTransferValue] = useState(null)
+  const [completionSpin, setCompletionSpin] = useState(false)
+  const [transferSpin, setTransferSpin] = useState(false)
+
+  const company = useMemo(
+    () => data?.docentete?.document?.companies?.find(
+      (c) => Number(c.id) === Number(user.company_id)
+    ),
+    [data, user.company_id]
+  )
+
+  const isLaca = data?.docentete?.Type === 'Laca'
+
+  const currentLineRole = roles('fabrication')
+    ? 'fabrication'
+    : roles('montage')
+      ? 'montage'
+      : roles('peinture')
+        ? 'peinture'
+        : null
+
+  // Lines that are actually selectable right now for the current role:
+  // not locked (isLineDisabled) and not already completed (isLineDone).
+  const selectableIds = useMemo(() => (
+    data.doclignes
+      .map((item) => item.line)
+      .filter((line) => line?.id && !isLineDisabled(currentLineRole, line) && !isLineDone(currentLineRole, line))
+      .map((line) => line.id)
+  ), [data.doclignes, currentLineRole])
+
+  const selectedRowsFull = useMemo(
+    () => data.doclignes.filter((l) => selected.includes(l.line?.id)),
+    [data.doclignes, selected]
+  )
+
+  const handleSelect = useCallback((lineId) => {
+    setSelected((prev) => (
+      prev.includes(lineId) ? prev.filter((i) => i !== lineId) : [...prev, lineId]
+    ))
+  }, [])
+
+  const handleSelectAll = useCallback((checked) => {
+    setSelected(checked ? selectableIds : [])
+  }, [selectableIds])
+
+  const onDateChange = useCallback(async (_date, dateString) => {
+    if (selected.length === 0) return
+    try {
+      await api.post('docentetes/start', { complation_date: dateString, lines: selected, piece: id })
+      message.success('Date modifiée avec succès')
+      setSelected([])
+      refetch()
+    } catch (error) {
+      message.error(error?.response?.data?.message)
+    }
+  }, [selected, id, refetch])
+
+  // Safety net: even though selectableIds/isDisabled already keep already-done
+  // lines out of the checkboxes, this drops them again right before we submit,
+  // in case isLineDone doesn't (yet) match every backend field for a role.
+  const dropAlreadyDoneLines = useCallback((ids) => (
+    ids.filter((lineId) => {
+      const item = data.doclignes.find((d) => d.line?.id === lineId)
+      return item && !isLineDone(currentLineRole, item.line)
+    })
+  ), [data.doclignes, currentLineRole])
+
+  const complete = useCallback(async () => {
+    if (selected.length === 0) return message.warning('Aucun article sélectionné')
+    const safeSelected = dropAlreadyDoneLines(selected)
+    if (safeSelected.length === 0) return message.warning('Ces articles sont déjà validés')
+
+    setCompletionSpin(true)
+    try {
+      await api.post('docentetes/complation', { lines: safeSelected, piece: id })
+      message.success('Fabrication terminée avec succès', 6)
+      setSelected([])
+      refetch()
+    } catch (error) {
+      message.error(error?.response?.data?.message || 'server error ⚠️')
+    } finally {
+      setCompletionSpin(false)
+    }
+  }, [selected, dropAlreadyDoneLines, id, refetch])
+
+  const transfer = useCallback(async () => {
+    if (selected.length === 0) return message.warning('Aucun article sélectionné')
+    if (!transferValue) return message.warning('Veuillez sélectionner une destination de transfert')
+    const safeSelected = dropAlreadyDoneLines(selected)
+    if (safeSelected.length === 0) return message.warning('Ces articles sont déjà validés')
+
+    setTransferSpin(true)
+    try {
+      await api.post('docentetes/transfer', { lines: safeSelected, piece: id, roles: transferValue })
+      message.success('Transfert effectué avec succès', 6)
+      setSelected([])
+      setTransferValue(null)
+      refetch()
+    } catch (error) {
+      message.error(error?.response?.data?.message || 'server error ⚠️')
+    } finally {
+      setTransferSpin(false)
+    }
+  }, [selected, transferValue, dropAlreadyDoneLines, id, refetch])
+
+  const handleValidation = () => (transferValue ? transfer() : complete())
+
+  const columns = useMemo(() => (
+    [
+      currentLineRole && {
+        title: (
+          <Checkbox
+            disabled={roles('production_operateur') || selectableIds.length === 0}
+            checked={selectableIds.length > 0 && selected.length === selectableIds.length}
+            indeterminate={selected.length > 0 && selected.length < selectableIds.length}
+            onChange={(e) => handleSelectAll(e.target.checked)}
+          />
+        ),
+        key: 'select',
+        width: 50,
+        render: (_, item) => {
+          const line = item?.line
+          const display = getLineSelectDisplay(currentLineRole, line)
+          if (!display) return null
+
+          if (display.kind === 'checkbox') {
+            return (
+              <Checkbox
+                disabled={isLineDisabled(currentLineRole, line) || roles('production_operateur')}
+                checked={selected.includes(line?.id)}
+                onChange={() => handleSelect(line?.id)}
+              />
+            )
+          }
+          return <LineStatusBadge status={display.status} />
+        },
+      },
+      { title: 'Piece', key: 'piece', render: (_, item) => item?.Nom || item.article?.Nom || item?.DL_Design || '__' },
+      { title: 'Ref Article', key: 'ref', render: (_, item) => item.AR_Ref || '__' },
+      {
+        title: 'Date Livraison',
+        key: 'date',
+        render: (_, item) => <Tag>{formatShortDate(item.line?.complation_date)}</Tag>,
+      },
+      { title: 'Hauteur', key: 'hauteur', render: (_, item) => Math.floor(item.Hauteur > 0 ? item.Hauteur : item.article?.Hauteur) || '__' },
+      { title: 'Largeur', key: 'largeur', render: (_, item) => Math.floor(item.Largeur > 0 ? item.Largeur : item?.article?.Largeur) || '__' },
+      { title: 'Profondeur', key: 'profondeur', render: (_, item) => Math.floor(item.Profondeur || item?.article?.Profonduer) || '__' },
+      { title: 'Couleur', key: 'couleur', render: (_, item) => item.Couleur || item?.article?.Couleur || '__' },
+      { title: 'Chant', key: 'chant', render: (_, item) => item.Chant || item?.article?.Chant || '__' },
+      { title: 'Epaisseur', key: 'epaisseur', render: (_, item) => Math.floor(item.Episseur > 0 ? item.Episseur : item?.article?.Episseur) || '__' },
+      {
+        title: 'Quantité',
+        key: 'quantite',
+        render: (_, item) => (
+          <span className="px-3 py-1 w-full justify-center border border-green-500 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+            {Math.floor(type === 'archive' ? item.DL_QtePL : item.EU_Qte)}
+          </span>
+        ),
+      },
+    ]
+      .filter(Boolean)
+      .map((col) => ({ ...col, ellipsis: false, onCell: () => ({ style: { whiteSpace: 'nowrap' } }) }))
+  ), [currentLineRole, roles, selectableIds, selected, handleSelect, handleSelectAll, type])
+
+  const summaryItems = [
+    { label: 'Client', value: data.docentete?.DO_Tiers },
+    { label: 'Référence', value: data.docentete?.DO_Ref },
+    { label: 'Expédition', value: getExped(data.docentete?.DO_Expedit) },
+    { label: 'Type de document', value: data.docentete?.DO_Piece && getDocumentType(data.docentete?.DO_Piece) },
+  ]
+
+  const title = data?.docentete?.DO_Piece
+    ? `Commande ${type === 'archive' ? `${id} -> ${data.docentete.DO_Piece}` : data.docentete.DO_Piece}`
+    : 'Chargement...'
+
+  return (
+    <div className="max-w-7xl mx-auto p-2 md:p-5">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-lg font-bold text-gray-800">{title}</h1>
+        <div className="flex gap-2">
+          <Button onClick={refetch}>
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Rafraîchir
+          </Button>
+          {Number(user.company_id) === 1 ? (
+            <FacadDocumentPrint docentete={data.docentete} doclignes={selected.length > 0 ? selectedRowsFull : data.doclignes} />
+          ) : (
+            <PrintDocument docentete={data?.docentete} doclignes={selected.length > 0 ? selectedRowsFull : data.doclignes} />
+          )}
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+        {summaryItems.map(({ label, value }) => (
+          <SummaryCard key={label} label={label} value={value} />
+        ))}
+      </div>
+
+      <div className="flex justify-between items-center mb-4">
+        <div className="flex items-center gap-2">
+          <DatePicker
+            onChange={onDateChange}
+            format="YYYY-MM-DD"
+            locale={locale}
+            className="border-2"
+            placeholder="Date de livraison"
+            disabled={roles('production_operateur') || company?.pivot?.complation_date}
+          />
+          <FabricationNote company={company?.pivot} onUpdated={refetch} />
+          {company?.pivot?.complation_date && ` Prévue le ${formatDate(company?.pivot?.complation_date)}`}
+        </div>
+
+        <div className="flex gap-3">
+          {isLaca && !roles('peinture') && (
+            <Select
+              className="w-40"
+              placeholder="Transférer vers"
+              options={TRANSFER_OPTIONS}
+              value={transferValue}
+              onChange={setTransferValue}
+              allowClear
+            />
+          )}
+
+          <Button
+            onClick={handleValidation}
+            disabled={roles('production_operateur') || selected.length === 0 || !company?.pivot?.complation_date}
+            color="green"
+            variant="solid"
+            loading={transferValue ? transferSpin : completionSpin}
+          >
+            {transferValue ? 'Transférer' : 'Validation'} <ArrowRight size={18} />
+          </Button>
+        </div>
+      </div>
+
+      <Table
+        columns={columns}
+        dataSource={data.doclignes}
+        rowKey={(item, i) => item.line?.id ?? i}
+        loading={loading}
+        size="small"
+        className="border border-solid border-gray-200 rounded-lg overflow-hidden border-b-0"
+        pagination={false}
+        scroll={{ x: true }}
+        locale={{ emptyText: <Empty description="Aucun article trouvé" /> }}
+      />
+    </div>
+  )
+}
+
+export default Fabrication

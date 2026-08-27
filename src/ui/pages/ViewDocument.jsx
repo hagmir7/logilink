@@ -18,7 +18,7 @@ export default function ViewDocument() {
     return <Montage />
   }
 
-  if (roles('fabrication')) {
+  if (roles(['fabrication', 'peinture'])) {
     return <Fabrication />
   }
 

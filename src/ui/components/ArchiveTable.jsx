@@ -83,7 +83,7 @@ const DeletedBadge = () => (
 function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
   const navigate = useNavigate()
   const { roles, user } = useAuth()
-  const isFabrication = roles(['fabrication'])
+  const isFabrication = roles(['fabrication', 'peinture'])
 
   const handleShow = async (id) => {
     try {
@@ -113,7 +113,7 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
         _ref: data?.docentete?.DO_Ref || data.ref,
         _dateDoc: data?.docentete?.DO_Date || data.created_at,
         _datePrev: data?.docentete?.DO_DateLivr || data.delivery_date,
-        _fabricatedAt: data.lines?.[0]?.fabricated_at,
+        _fabricatedAt: data.lines?.[0]?.peinture_at || data.lines?.[0]?.fabricated_at,
         _complationDate: company?.pivot?.complation_date,
         _note: company?.pivot?.note,
         _showFabCode: Boolean(data?.code) && Number(user.company_id) === 1,
@@ -149,7 +149,7 @@ function ArchiveTable({ documents = [], documentType = 1, loading = false }) {
               </span>
             )}
 
-            {record._showFabCode && roles('fabrication') ? (
+            {record._showFabCode && roles(['fabrication', 'peinture']) ? (
               <span className="text-gray-400 text-xs">- {record.code}</span>
             ) : null}
 

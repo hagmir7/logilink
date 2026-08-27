@@ -38,7 +38,7 @@ function PreparationDocumentTable({ documents = [], loading, setOrderBy, setOrde
         return (
           <Space size={4}>
             <Text strong>{rec.piece}</Text>
-            {rec?.code && Number(user.company_id) === 1 && roles('fabrication') ? (
+            {rec?.code && Number(user.company_id) === 1 && roles(['fabrication']) ? (
               <Text>{"- " + rec.code}</Text>
             ) : ''}
             {rec?.docentete?.DO_Reliquat === '1' && (

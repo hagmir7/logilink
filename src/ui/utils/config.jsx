@@ -120,7 +120,7 @@ export const statuses = [
   { id: 3, name: "Fabrication", color: "#2980b9" },
   { id: 4, name: "Fabriqué", color: "#3498db" },
   { id: 5, name: "Montage", color: "#9b59b6" },
-  { id: 6, name: "Monté", color: "#8e44ad" },
+  { id: 6, name: "Peinture", color: "#8e44ad" },
   { id: 7, name: "Préparation", color: "#16a085" },
   { id: 8, name: "Préparé", color: "#1abc9c" },
   { id: 9, name: "Contrôle", color: "#d35400" },
@@ -211,3 +211,77 @@ export const handleShow = async (navigate, path, width=1400, height=800) => {
     return `${String(day).padStart(2, '0')}/${String(month).padStart(2, '0')}/${year}`
   }
 
+
+
+export const REFRESH_INTERVAL_MS = 1_110_000 // ~18.5 min
+
+export const TRANSFER_OPTIONS = [{ value: "19,4", label: 'Peinture' }]
+
+// role_id on a line that identifies a "peinture" (paint) step
+const PEINTURE_ROLE_ID = 19
+// role_id on a line that identifies a "fabrication/cut" step
+const FABRICATION_ROLE_ID = 6
+
+/**
+ * Per-role rules for whether a line can currently be selected (isDisabled)
+ * and whether it has already been completed (isDone).
+ *
+ * NOTE (unconfirmed assumptions, carried over from the original code):
+ * - montage is disabled until fabrication is finished
+ * - peinture completion is tracked via line.peinture_at / line.peinture_by
+ */
+export const ROLE_RULES = {
+  fabrication: {
+    isDisabled: (line) => Boolean(line?.cutted_at || line?.fabricated_at || line?.peinture_at),
+    isDone: (line) => Boolean(line?.fabricated_by || line?.cutted_by),
+  },
+  montage: {
+    isDisabled: (line) => !line?.fabricated_at,
+    isDone: (line) => Boolean(line?.mounted_by),
+  },
+  peinture: {
+    isDisabled: (line) => Boolean(line?.peinture_at),
+    isDone: (line) => Boolean(line?.peinture_by),
+  },
+}
+
+export const isLineDisabled = (role, line) => ROLE_RULES[role]?.isDisabled(line) ?? true
+export const isLineDone = (role, line) => ROLE_RULES[role]?.isDone(line) ?? false
+
+/**
+ * Decides what the "select" column should show for a given line, based on
+ * the currently active role. This replaces the nested if/else chain that
+ * used to live inside the column's `render`.
+ *
+ * Returns one of:
+ *   { kind: 'checkbox' }               -> render a selectable checkbox
+ *   { kind: 'status', status: 'done' | 'painting' } -> render a status badge
+ *   null                                -> render nothing (e.g. montage today)
+ */
+export function getLineSelectDisplay(role, line) {
+  const roleId = Number(line?.role_id)
+
+  if (role === 'fabrication') {
+    if (roleId === FABRICATION_ROLE_ID) return { kind: 'checkbox' }
+    if (roleId === PEINTURE_ROLE_ID) return { kind: 'status', status: 'painting' }
+    return { kind: 'status', status: 'done' }
+  }
+
+  if (role === 'peinture') {
+    if (roleId === PEINTURE_ROLE_ID) return { kind: 'checkbox' }
+    return { kind: 'status', status: 'done' }
+  }
+
+  // montage currently has no dedicated display in this column
+  return null
+}
+
+/** Formats a date as DD/MM/YYYY, or '__' when missing. Distinct from the
+ * app-wide `formatDate` util, which uses a different display format. */
+export function formatShortDate(date) {
+  if (!date) return '__'
+  const d = new Date(date)
+  const day = String(d.getDate()).padStart(2, '0')
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  return `${day}/${month}/${d.getFullYear()}`
+}
