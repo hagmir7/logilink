@@ -8,7 +8,7 @@ export default function Sage() {
 
     return (
         <div className="p-2">
-            <Button onClick={() => handleShow(navigate, '/create-document')}>
+            <Button onClick={() => handleShow(navigate, '/create-document')} type="primary" className="w-full">
                 Nouveau
             </Button>
         </div>

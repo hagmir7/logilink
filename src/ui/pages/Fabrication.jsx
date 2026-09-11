@@ -229,6 +229,21 @@ function Fabrication() {
     ? `Commande ${type === 'archive' ? `${id} -> ${data.docentete.DO_Piece}` : data.docentete.DO_Piece}`
     : 'Chargement...'
 
+
+
+  const canTransfer = useMemo(() => {
+    if (!transferValue) return true
+
+    return selected.length > 0 &&
+      selected.every((lineId) => {
+        const item = data.doclignes.find(
+          (d) => Number(d.line?.id) === Number(lineId)
+        )
+
+        return !!item?.line?.complation_date
+      })
+  }, [transferValue, selected, data.doclignes])
+
   return (
     <div className="max-w-7xl mx-auto p-2 md:p-5">
       <div className="flex justify-between items-center mb-6">
@@ -280,12 +295,17 @@ function Fabrication() {
 
           <Button
             onClick={handleValidation}
-            disabled={roles('production_operateur') || selected.length === 0 || !company?.pivot?.complation_date}
+            disabled={
+              roles('production_operateur') ||
+              selected.length === 0 ||
+              (!transferValue && !company?.pivot?.complation_date)
+            }
             color="green"
             variant="solid"
             loading={transferValue ? transferSpin : completionSpin}
           >
-            {transferValue ? 'Transférer' : 'Validation'} <ArrowRight size={18} />
+            {transferValue ? 'Transférer' : 'Validation'}
+            <ArrowRight size={18} />
           </Button>
         </div>
       </div>

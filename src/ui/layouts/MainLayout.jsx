@@ -147,13 +147,13 @@ const sideMenu = () => {
         // },
 
 
-        //  {
-        //   key: 'submenu-20',
-        //   className: 'hidden',
-        //   icon: <File size={19} />,
-        //   // disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
-        //   label: <Link to='/sage'>Documents</Link>,
-        // },
+        {
+          key: 'submenu-20',
+          className: 'hidden',
+          icon: <File size={19} />,
+          // disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
+          label: <Link to='/sage'>Documents</Link>,
+        },
       ],
     },
 

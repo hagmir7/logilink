@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, InputNumber, message, Modal, Popconfirm, Space, Table } from 'antd'
+import { Button, InputNumber, message, Modal, Popconfirm, Space, Table, Tag } from 'antd'
 import { ArrowDownUp, Check, Pencil, Trash2, X } from 'lucide-react'
 import { api } from '../utils/api'
 
@@ -92,7 +92,7 @@ const ReceptionMovmentsModal = ({ piece, company, reload }) => {
       key: 'description',
       width: 280,
       render: (text) => (
-        <div style={{ whiteSpace: 'normal', wordBreak: 'break-word', lineHeight: 1.4 }}>
+        <div className='whitespace-nowrap'>
           {text}
         </div>
       ),
@@ -132,6 +132,18 @@ const ReceptionMovmentsModal = ({ piece, company, reload }) => {
         return depot || emplacement || '—'
       },
     },
+
+     {
+      title: 'Palettes',
+      dataIndex: 'total_palettes',
+      key: 'total_palettes',
+      width: 180,
+      render: (_, record) => {
+       
+        return <Tag>{record.total_palettes || 0}</Tag>
+      },
+    },
+
     {
       title: 'Conteneur',
       dataIndex: 'container_code',
@@ -140,7 +152,7 @@ const ReceptionMovmentsModal = ({ piece, company, reload }) => {
       render: (value) => value || '—',
     },
     {
-      title: 'Date création',
+      title: 'Date',
       dataIndex: 'created_at',
       key: 'created_at',
       width: 150,
@@ -239,7 +251,8 @@ const ReceptionMovmentsModal = ({ piece, company, reload }) => {
             showSizeChanger: false,
             showTotal: (total) => `Total: ${total}`,
           }}
-          size="middle"
+          className='whitespace-nowrap'
+          size="small"
           scroll={{ x: 'max-content' }}
           locale={{ emptyText: 'Aucun mouvement trouvé' }}
         />

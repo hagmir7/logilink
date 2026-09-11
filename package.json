@@ -1,7 +1,7 @@
 {
   "name": "LOGILINK",
   "private": true,
-  "version": "0.12.2",
+  "version": "0.12.5",
   "description": "Logilink App",
   "title": "LOGILINK PRO",
   "author": {
@@ -9,31 +9,35 @@
     "email": "webmaster@intercocina.com"
   },
   "type": "module",
+  "main": "src/electron/main.js",
   "repository": {
     "type": "git",
     "url": "https://github.com/hagmir7/logilink.git"
   },
   "homepage": "https://intercocina.com",
-  "main": "src/electron/main.js",
+
   "scripts": {
     "dev": "npm-run-all --parallel dev:react dev:electron",
     "dev:react": "vite",
     "dev:electron": "cross-env NODE_ENV=development electron .",
+
     "build": "vite build",
+    "build:win": "npm run build && electron-builder --win --x64",
+    "publish": "npm run build && electron-builder --win --x64 --publish always",
+
+    "build:linux": "npm run build && electron-builder --linux --x64",
+    "build:mac": "npm run build && electron-builder --mac --arm64",
+
     "lint": "eslint .",
-    "preview": "vite preview",
-    "transpile:electron": "echo skipping",
-    "dist:mac": "npm run transpile:electron && npm run build && electron-builder --mac --arm64",
-    "dist:win": "npm run build && electron-builder --win --x64",
-    "dist:linux": "npm run transpile:electron && npm run build && electron-builder --linux --x64",
-    "publish": "npm run build && electron-builder --win --x64 --publish always"
+    "preview": "vite preview"
   },
+
   "dependencies": {
     "@ant-design/plots": "^2.6.8",
     "@dnd-kit/core": "^6.3.1",
     "@dnd-kit/sortable": "^10.0.0",
     "@dnd-kit/utilities": "^3.2.2",
-    "@ericblade/quagga2": "^1.8.4",
+    "@ericblade/quagga2": "^1.8.0",
     "@fontsource/inter": "^5.2.5",
     "@tailwindcss/vite": "^4.1.4",
     "@yudiel/react-qr-scanner": "^2.3.1",
@@ -54,6 +58,7 @@
     "react-router-dom": "^7.5.3",
     "recharts": "^3.9.0"
   },
+
   "devDependencies": {
     "@electron/fuses": "^1.8.0",
     "@eslint/js": "^9.21.0",
@@ -73,19 +78,58 @@
     "tailwindcss": "^4.1.11",
     "vite": "^6.2.0"
   },
+
   "build": {
     "appId": "com.intercocina.logilink",
     "productName": "LOGILINK",
-    "publish": {
-      "provider": "github",
-      "repo": "logilink",
-      "owner": "hagmir7"
+    "copyright": "Copyright Intercocina",
+
+    "directories": {
+      "output": "dist",
+      "buildResources": "build"
     },
+
+    "files": [
+      "**/*",
+      "!**/.vscode/*",
+      "!electron.vite.config.{js,ts,mjs,cjs}",
+      "!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml}",
+      "!{dev-app-update.yml,CHANGELOG.md,README.md}",
+      "!{.env,.env.*,.npmrc,pnpm-lock.yaml}"
+    ],
+
+    "asar": true,
+
+    "asarUnpack": [
+      "resources/**"
+    ],
+
+    "artifactName": "LOGILINK-Setup-${version}.${ext}",
+
     "win": {
-      "target": "nsis",
-      "executableName": "LOGILINK",
-      "icon": "build/inter.png"
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "build/inter.png",
+      "executableName": "LOGILINK"
     },
+
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "perMachine": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "LOGILINK",
+      "uninstallDisplayName": "LOGILINK",
+      "deleteAppDataOnUninstall": false
+    },
+
     "linux": {
       "target": [
         "AppImage",
@@ -94,6 +138,19 @@
       "executableName": "logilink",
       "icon": "build/inter.png",
       "category": "Office"
+    },
+
+    "npmRebuild": false,
+
+    "publish": {
+      "provider": "github",
+      "owner": "hagmir7",
+      "repo": "logilink",
+      "releaseType": "release"
+    },
+
+    "electronDownload": {
+      "mirror": "https://npmmirror.com/mirrors/electron/"
     }
   }
 }
