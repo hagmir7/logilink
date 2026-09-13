@@ -4,6 +4,7 @@ import {
   Select,
   Button,
   Table,
+  message,
 } from "antd";
 import {
   MinusOutlined,
@@ -326,7 +327,15 @@ export default function CreateDocument() {
       {/* Toolbar */}
      {/* <DocumentToolbar /> */}
       <DocumentHeaderForm
-        onValidate={(data) =>  create(data)}
+        onValidate={async (data) =>  {
+          try {
+             const response = await axios.post('https://localhost:7244/documents',{data})
+             console.log(response);
+          } catch (error) {
+            console.error(error.data)
+            message.error(error?.response?.data?.message)
+          }
+        }}
       />
 
      

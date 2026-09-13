@@ -86,12 +86,12 @@ export default function DocumentHeaderForm({ onValidate }) {
         const formData = {
             clientCode: client,
             referenc:reference,
+            dateLivraison:  dateLivraison ? dateLivraison.format("DDMMYY") : null,
             type,
             affaire,
             expedition,
             date: date ? date.format("DDMMYY") : null,
             dateLivraisonStatut,
-            dateLivraison: dateLivraison ? dateLivraison.format("DDMMYY") : null,
             representant,
             nExpedition,
             nDocument: {
