@@ -130,8 +130,8 @@ function App() {
 
          <Route path='/supplier-ncf/create' element={<NcfForm />} />
          <Route path='/supplier-ncf/:id/edit' element={<NcfForm />} />
-
-        <Route element={<MainLayout />}>
+          <Route path='/sage/documents/:piece' element={<CreateDocument />} />
+          <Route element={<MainLayout />}>
           <Route path='/sage' element={<Sage />} />
           <Route path='/layout/create-document' element={<CreateDocument />} />
           <Route path='/' element={<Document />} />
@@ -142,9 +142,7 @@ function App() {
           <Route path='/supplier-interviews' element={<SupplierInterviews />} />
 
           <Route path='/supplier-ncf' element={<NcfApp />} />
-         
-
-         
+      
           <Route path='/user-archive' element={<UserArchive />} />
           <Route
             path='/layout/user-archive/:id'

@@ -4,6 +4,8 @@ import {
   Select,
   Button,
   Table,
+  message,
+  Empty,
 } from "antd";
 import {
   MinusOutlined,
@@ -17,158 +19,28 @@ import DocumentTotals from "../document/DocumentTotals";
 import DocumentToolbar from "../document/DocumentToolbar";
 import DocumentHeaderForm from "../document/DocumentHeaderForm";
 import axios from "axios";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { useSearchParams } from 'react-router-dom';
 
-/**
- * Pixel-oriented recreation of the Sage "Devis" (Quote) window
- * shown in the reference screenshot, built with Ant Design
- * components for the native-app widget look and Tailwind
- * utility classes for spacing/layout.
- *
- * NOTE: Ant Design (antd) is not part of the Claude.ai artifact
- * sandbox's bundled libraries, so this file will not render
- * inside the in-chat preview. Drop it into a project that has
- * `antd` and `@ant-design/icons` installed (plus Tailwind
- * configured) and it will render as shown in the screenshot.
- *
- *   npm install antd @ant-design/icons
- *
- * LIVE-SYNCED COLUMN WIDTHS
- * ------------------------------------------------------------
- * Both the quick-add input row and the <Table> columns read
- * their width from ONE piece of state: `widths` (a plain
- * { [columnKey]: number } map). Dragging the small resize
- * handle on the right edge of any table header updates that
- * shared state, so the input above the column resizes with it
- * automatically — there's nothing to keep in sync by hand.
- *
- * COLUMN_DEFS still holds everything that never changes for a
- * column (title, alignment, placeholder, starting width). The
- * `widths` state only tracks the numbers that can change.
- *
- * LAYOUT / SCROLL BEHAVIOR
- * ------------------------------------------------------------
- * The whole window is a full-height flex column:
- *   - title bar, toolbar, header form, quick-add row → fixed
- *     height, `shrink-0`, never scroll.
- *   - the <Table> area → `flex-1 min-h-0`, this is the ONLY
- *     part that scrolls (vertically AND horizontally). Its
- *     available height is measured live with a ResizeObserver
- *     so it stays correct if the window/viewport is resized
- *     (responsive), and passed to antd's `scroll.y` so the
- *     table header stays pinned while rows scroll underneath.
- *   - totals bar + footer buttons → `shrink-0`, rendered AFTER
- *     the flex-1 table area, so they always stay pinned to the
- *     bottom of the window, fully visible regardless of how
- *     many rows are in the grid.
- */
 
 const COLUMN_DEFS = [
-  { key: "reference", title: "Référence", defaultWidth: 95, align: "left", placeholder: "Référence" },
+  { key: "articleRef", title: "Référence", defaultWidth: 95, align: "left", placeholder: "Référence" },
   { key: "designation", title: "Désignation", defaultWidth: 280, align: "left", placeholder: "Désignation" },
   { key: "hauteur", title: "Hauteur", defaultWidth: 100, align: "right", placeholder: "Hauteur" },
   { key: "largeur", title: "Largeur", defaultWidth: 100, align: "right", placeholder: "Largeur" },
+   { key: "chant", title: "Chant", defaultWidth: 50, align: "right", placeholder: "Chant" },
   { key: "couleur", title: "Couleur", defaultWidth: 100, align: "right", placeholder: "Couleur" },
-  { key: "puHt", title: "P.U. HT", defaultWidth: 90, align: "right", placeholder: "P.U. HT" },
-  { key: "puTtc", title: "P.U. TTC", defaultWidth: 70, align: "right", placeholder: "P.U. TTC" },
+  { key: "prixUnitaire", title: "P.U. HT", defaultWidth: 90, align: "right", placeholder: "P.U. HT" },
+  { key: "", title: "P.U. TTC", defaultWidth: 70, align: "right", placeholder: "P.U. TTC" },
   { key: "quantite", title: "Quantité", defaultWidth: 80, align: "right", placeholder: "Quantité" },
   { key: "qteColisee", title: "Qté colisée", defaultWidth: 80, align: "right", placeholder: "Qté colisée" },
-  { key: "condition", title: "Conditionnement", defaultWidth: 110, align: "left", placeholder: "Conditionnement" },
+  // { key: "condition", title: "Conditionnement", defaultWidth: 110, align: "left", placeholder: "Conditionnement" },
   { key: "remise", title: "Remise", defaultWidth: 70, align: "right", placeholder: "Remise" },
 ];
 
 const MIN_COLUMN_WIDTH = 50;
 
-const lineItems = [
-  {
-    key: "1",
-    reference: "SP000001",
-    designation: "Meuble sale de bain 565*600*450 laquee",
-    indent: false,
-    puHt: "",
-    puTtc: "",
-    qte: "",
-    quantite: "1,00",
-    qteColisee: "1,00",
-    condition: "Unité",
-    qteCommandee: "1,00",
-    remise: "20%",
-  },
-  {
-    key: "2",
-    reference: "SP000001",
-    designation: "Vasque",
-    indent: true,
-    puHt: "",
-    puTtc: "",
-    qte: "",
-    quantite: "1,00",
-    qteColisee: "1,00",
-    condition: "Unité",
-    qteCommandee: "1,00",
-    remise: "20%",
-  },
-  {
-    key: "3",
-    reference: "SP000001",
-    designation: "Miroir",
-    indent: true,
-    puHt: "",
-    puTtc: "",
-    qte: "",
-    quantite: "1,00",
-    qteColisee: "1,00",
-    condition: "Unité",
-    qteCommandee: "1,00",
-    remise: "20%",
-  },
-  {
-    key: "4",
-    reference: "SP000001",
-    designation: "Glissieres a frain",
-    indent: true,
-    puHt: "",
-    puTtc: "",
-    qte: "",
-    quantite: "2,00",
-    qteColisee: "2,00",
-    condition: "Unité",
-    qteCommandee: "2,00",
-    remise: "20%",
-  },
-  {
-    key: "5",
-    reference: "SP000001",
-    designation: "Accessoires d'assemblage",
-    indent: true,
-    puHt: "",
-    puTtc: "",
-    qte: "",
-    quantite: "1,00",
-    qteColisee: "1,00",
-    condition: "Unité",
-    qteCommandee: "1,00",
-    remise: "20%",
-  },
-  {
-    key: "6",
-    reference: "SP000001",
-    designation: "Coloune Meuble",
-    indent: true,
-    puHt: "",
-    puTtc: "",
-    qte: "",
-    quantite: "1,00",
-    qteColisee: "1,00",
-    condition: "Unité",
-    qteCommandee: "1,00",
-    remise: "20%",
-  },
-];
 
-// Small drag handle rendered on the right edge of a table header.
-// It doesn't own any state itself — it just reports a pixel delta
-// back to whoever is listening (the parent's `widths` state).
 function ColumnResizeHandle({ onResize }) {
   const handleMouseDown = useCallback(
     (e) => {
@@ -200,9 +72,6 @@ function ColumnResizeHandle({ onResize }) {
 }
 
 
-
-
-
 export default function CreateDocument() {
   // The ONE source of truth for column widths. Everything else
   // (table columns, input row, total width) is derived from this.
@@ -226,22 +95,22 @@ export default function CreateDocument() {
     [widths]
   );
 
-  // --- Responsive vertical scroll -------------------------------------
-  // The table body's available height depends on how much vertical
-  // space is left in the window after every other section (title bar,
-  // toolbar, header form, quick-add row, totals, footer). Rather than
-  // hard-coding a pixel value, we measure the wrapping <div> live with
-  // a ResizeObserver, so the scroll area — and therefore where the
-  // scrollbar kicks in — always matches the actual viewport, and the
-  // totals/footer stay pinned below it no matter the window size.
   const tableWrapRef = useRef(null);
   const [bodyHeight, setBodyHeight] = useState(300);
+  const navigation = useNavigate();
+  // const [documentType, setDocumentType] = useState(null);
+  const [lineItems, setLineItems] = useState([]);
+
+  const [searchParams] = useSearchParams();
+
+
+  const documentType = searchParams.get('documentType');
 
   useEffect(() => {
     const el = tableWrapRef.current;
     if (!el) return undefined;
 
-    const HEADER_ROW_HEIGHT = 39; // approx antd small-size header row height
+    const HEADER_ROW_HEIGHT = 39;
 
     const updateHeight = () => {
       const available = el.clientHeight - HEADER_ROW_HEIGHT;
@@ -254,6 +123,26 @@ export default function CreateDocument() {
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+
+  const fetchDocument = async (piece) => {
+    try {
+      const response = await axios.get(`https://localhost:7244/documents/${documentType}/${piece}`);
+      setDocument(response?.data);
+      setLineItems(response?.data?.lignes)
+    }catch (e) {
+      message.error(e.response?.data?.title || "Erreur lors de la récupération du document");
+      console.error("Error fetching document:", e.response?.data || e.message);
+    }
+  };
+
+  useEffect(() => {
+    if (piece) {
+      fetchDocument(piece);
+    }
+  }, [piece]);
+
+
 
   const columns = useMemo(
     () =>
@@ -286,12 +175,34 @@ export default function CreateDocument() {
   );
 
 
-  const create = async (data) =>{
-    setDocument(data);
-    // const response = await axios.post('https://localhost:7244/documents',{data})
-    // console.log("Document created:", response.data);
-    
+  const update  = async (data) =>{
+     try {
+      console.log("Creating document with data:", data);
+      
+      const response = await axios.patch(`https://localhost:7244/documents/${documentType}/${piece}`,data);
+      console.log("Document created:", response.data);
+      message.success("Start Updating successfully");
+      
+      return response.data;
+    } catch (e) {
+      message.error(e.response?.data?.title);
+      console.error("Error creating document:",e.response?.data || e.message);
+      throw e;
+    }
   }
+
+
+  const create = async (data) => {
+    try {
+      const response = await axios.post('https://localhost:7244/documents',data);
+      navigation(`/sage/documents/${response.data.piece}`);
+      return response.data;
+    } catch (e) {
+      message.error(e.response?.data?.title);
+      console.error("Error creating document:",e.response?.data || e.message);
+      throw e;
+    }
+  };
 
   return (
     <div
@@ -306,8 +217,8 @@ export default function CreateDocument() {
           </span>
           {
             piece ? 
-            <span className="text-[13px] text-gray-800">Devis : Archivé N° 23DE000438 CL353 ESPAGNO CUISINE</span> :
-             <span className="text-[13px] text-gray-800">Nouveau Devis</span>
+            <span className="text-[13px] text-gray-800">Bone de commande : {document?.statut} N° {piece} {document?.clientCode} {document?.clientIntitule}</span> :
+            <span className="text-[13px] text-gray-800">Nouveau Devis</span>
           }
         </div>
         <div className="flex items-center gap-1 text-gray-600">
@@ -323,16 +234,15 @@ export default function CreateDocument() {
         </div>
       </div>
 
-      {/* Toolbar */}
+
      {/* <DocumentToolbar /> */}
       <DocumentHeaderForm
-        onValidate={(data) =>  create(data)}
+        piece={piece}
+        document={document}
+        documentType={documentType}
+        onValidate={(data) =>  piece ? update(data) : create(data)}
       />
 
-     
-      {/* Quick-add input row — width per column comes straight from
-          `widths`, the exact same state the table columns use below,
-          so resizing a table column resizes the input above it. */}
       <div className="shrink-0">
         <div
           className="flex items-center bg-white border-b border-gray-200 py-1.5 overflow-x-auto  gap-3 justify-between"
@@ -363,24 +273,27 @@ export default function CreateDocument() {
           </Button>
         </div>
       </div>
-
-      {/* Table — the only part of the window that scrolls. It grows
-          to fill whatever space is left (flex-1) and is measured live
-          so `scroll.y` always matches the real available height,
-          keeping the antd header pinned while rows scroll beneath it.
-          Everything below (bottom action bar, totals, footer) stays
-          outside this flex-1 box, so it's always pinned to the
-          bottom of the window regardless of row count. */}
       <div ref={tableWrapRef} className="bg-white flex-1 min-h-0">
         <Table
           columns={columns}
           dataSource={lineItems}
           pagination={false}
           size="small"
-          className="whitespace-nowrap"
+          // className=""
+
+            className="
+            whitespace-nowrap 
+              [&_.ant-table-thead>tr>th]:!py-1
+              [&_.ant-table-thead>tr>th]:!px-2
+              [&_.ant-table-tbody>tr>td]:!py-1
+              [&_.ant-table-tbody>tr>td]:!px-2
+              [&_.ant-table-tbody>tr>td]:text-sm
+            "
           rowClassName="text-[13px] whitespace-nowrap"
           scroll={{ x: totalWidth, y: bodyHeight }}
           tableLayout="fixed"
+          
+          locale={{ emptyText: <Empty description="No Aucun article"></Empty> }}
         />
       </div>
 
