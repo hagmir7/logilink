@@ -16,7 +16,6 @@ import {
   CaretUpOutlined,
 } from "@ant-design/icons";
 import DocumentTotals from "../document/DocumentTotals";
-import DocumentToolbar from "../document/DocumentToolbar";
 import DocumentHeaderForm from "../document/DocumentHeaderForm";
 import axios from "axios";
 import { useNavigate, useParams } from "react-router-dom";
