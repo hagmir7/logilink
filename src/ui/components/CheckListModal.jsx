@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import {
   Modal, Form, Input, DatePicker, Select,
-  Button, message, Spin, Radio, Table, Divider, Tag, Space
+  Button, message, Spin, Radio, Table, Divider, Tag, Space,
+  InputNumber
 } from 'antd';
 import { SendOutlined, LoadingOutlined, CheckCircleOutlined, CheckSquareOutlined, MinusSquareOutlined } from '@ant-design/icons';
 import { api } from '../utils/api';
@@ -79,6 +80,7 @@ export default function CheckListModal({ document_id, open, setOpen, reload }) {
         shipping_date:   values.shipping_date?.format('YYYY-MM-DD'),
         validation_date: values.validation_date?.format('YYYY-MM-DD') ?? null,
         user_id:         values.user_id,
+        total_articles:  values.total_articles,
         document_id,
         criteria: criteriaRows.map(r => ({
           shipping_criteria_id: r.id,
@@ -96,7 +98,7 @@ export default function CheckListModal({ document_id, open, setOpen, reload }) {
       if (err?.response?.data?.errors) {
         Object.values(err.response.data.errors).flat().forEach(m => message.error(m));
       } else if (!err?.errorFields) {
-        message.error('Something went wrong. Please try again.');
+        message.error(err?.response?.data?.message || 'Something went wrong. Please try again.');
       }
     } finally {
       setLoading(false);
@@ -261,13 +263,13 @@ export default function CheckListModal({ document_id, open, setOpen, reload }) {
           </div>
         </div>
       }
-      destroyOnClose
+      destroyOnHidden
     >
       <Spin spinning={fetching} tip="Chargement des critères...">
 
         {/* ── Header fields ── */}
         <Form form={form} layout="vertical" className="mt-2">
-          <div className="grid grid-cols-2 gap-x-4">
+          <div className="grid grid-cols-3 gap-x-4">
             <Form.Item
               name="user_id"
               label={<span className="text-xs font-medium text-gray-600">Nom & Prénom</span>}
@@ -287,6 +289,14 @@ export default function CheckListModal({ document_id, open, setOpen, reload }) {
               rules={[{ required: true, message: 'La date est requise' }]}
             >
               <DatePicker locale={locale} className="w-full" format="DD/MM/YYYY" />
+            </Form.Item>
+
+            <Form.Item
+              name="total_articles"
+              label={<span className="text-xs font-medium text-gray-600 w-full">Nombre d’articles contrôlés</span>}
+              rules={[{ required: true, message: 'Articles contrôlés est requise' }]}
+            >
+              <InputNumber style={{width : "100%"}} min="1" max='200' className="w-full" placeholder='Articles contrôlés' />
             </Form.Item>
           </div>
         </Form>

@@ -10,6 +10,7 @@ import IndicateursDashboard from "../components/IndicateursDashboard";
 import DeadlineSuppliers from "../components/charts/DeadlineSuppliers";
 import NonCompliantLines from "../components/charts/nonCompliantLines";
 import SupplierInterviewsState from "../components/charts/SupplierInterviewsState";
+import AverageProcessingTime from "../components/charts/AverageProcessingTime";
 
 const { RangePicker } = DatePicker;
 
@@ -158,6 +159,7 @@ export default function PurchaseOverview() {
                 <SupplierInterviewsState  />
                 {/* <ServiceExpenditures dates={dates} /> */}
                 {/* <NonCompliantLines  /> */}
+                <AverageProcessingTime />
             </div>
 
 
