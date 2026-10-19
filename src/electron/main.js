@@ -157,16 +157,16 @@ app.on('activate', () => {
 });
 
 // Update
-autoUpdater.on("update-available", (info) => {
-  dialog.showMessageBox({
-    type: "info",
-    title: "Mise à jour disponible",
-    message: `Une nouvelle mise à jour est disponible.\nVersion actuelle : ${app.getVersion()}`,
-    detail: `La version ${info.version} est en cours de téléchargement...`
-  });
+// autoUpdater.on("update-available", (info) => {
+//   dialog.showMessageBox({
+//     type: "info",
+//     title: "Mise à jour disponible",
+//     message: `Une nouvelle mise à jour est disponible.\nVersion actuelle : ${app.getVersion()}`,
+//     detail: `La version ${info.version} est en cours de téléchargement...`
+//   });
 
-  autoUpdater.downloadUpdate();
-});
+//   autoUpdater.downloadUpdate();
+// });
 
 // autoUpdater.on("update-not-available", (info) => {
 //   dialog.showMessageBox({
@@ -193,9 +193,9 @@ autoUpdater.on("update-downloaded", (info) => {
 });
 
 
-autoUpdater.on("error", (error) => {
-  dialog.showErrorBox("Update Error", error == null ? "unknown" : (error.stack || error.toString()));
-});
+// autoUpdater.on("error", (error) => {
+//   dialog.showErrorBox("Update Error", error == null ? "unknown" : (error.stack || error.toString()));
+// });
 
 //  End update
 ipcMain.on('openShow', async (event, preload) => {

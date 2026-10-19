@@ -324,7 +324,7 @@ export default function FacadDocumentPrint({ docentete, doclignes, selectedRows 
          {
           isLandscape
             ? <td className="col-chant" style={{ fontSize: '12px' }}>{item.Chant || art.Chant || ''}</td>
-            : <td className="col-chant">{Math.floor(item.Profondeur) || Math.floor(art.Profonduer) || ''}</td>
+            : <td className="col-chant">{Math.floor(item.Profondeur) || Math.floor(art.Profondeur) || ''}</td>
         }
 
         <td className="col-col"        style={{ fontSize: '12px' }}>{item.Couleur || art.Couleur || ''}</td>

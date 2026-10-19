@@ -108,7 +108,7 @@ const PreparationArticleCard = ({
         <div className="bg-gray-50 rounded-md p-2 border border-gray-100">
           <div className="text-gray-500 font-medium mb-1">Profondeur</div>
           <div className="font-bold text-gray-900">
-            {item.Profondeur ? Math.floor(item.Profondeur) : Math.floor(item.article?.Profonduer) || "N/A"}
+            {item.Profondeur ? Math.floor(item.Profondeur) : Math.floor(item.article?.Profondeur) || "N/A"}
           </div>
         </div>
         <div className="bg-gray-50 rounded-md p-2 border border-gray-100">

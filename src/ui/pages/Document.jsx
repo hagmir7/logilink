@@ -3,7 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { api } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 import DocumentCard from '../components/ui/DocumentCard';
-import { Button, Select, DatePicker, Input, Empty, message } from 'antd';
+import { Button, Select, DatePicker, Input, message } from 'antd';
 import { useAuth } from '../contexts/AuthContext';
 import DocumentTable from '../components/DocumentTable';
 import dayjs from 'dayjs';
@@ -15,77 +15,68 @@ const { RangePicker } = DatePicker;
 function Document() {
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
-  const [documenStatus, setDocumentStatus] = useState('');
-  const [documenType, setDocumentType] = useState('');
+  const [documentStatus, setDocumentStatus] = useState('');
+  const [documentType, setDocumentType] = useState('');
   const [page, setPage] = useState(1);
   const [moreSpinner, setMoreSpinner] = useState(false);
   const [searchSpinner, setSearchSpinner] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState(null);
+  const [dateFilter, setDateFilter] = useState([]);
   const [exportSpin, setExportSpin] = useState(false);
-  const navigate = useNavigate();
-  const { roles = [], user } = useAuth();
   const [orderBy, setOrderBy] = useState('');
   const [orderDir, setOrderDir] = useState('asc');
 
+  const navigate = useNavigate();
+  const { roles = () => false, user } = useAuth();
+
+  const buildParams = (search = searchTerm) => {
+    const params = new URLSearchParams();
+    if (documentType) params.append('type', documentType);
+    if (documentStatus) params.append('status', documentStatus);
+    if (dateFilter?.length) params.append('date', dateFilter.join(','));
+    if (search) params.append('search', search);
+    if (orderBy) params.append('order_by', orderBy);
+    if (orderDir) params.append('order_dir', orderDir);
+    return params;
+  };
+
   const handleExport = async () => {
-
-    setExportSpin(true)
+    setExportSpin(true);
     try {
-      const queryParams = new URLSearchParams();
-
-      if (documenType) queryParams.append('type', documenType);
-      if (documenStatus) queryParams.append('status', documenStatus);
-      if (dateFilter?.length) queryParams.append('date', dateFilter.join(','));
-      if (searchTerm) queryParams.append('search', searchTerm);
-      if (orderBy) queryParams.append('order_by', orderBy);
-      if (orderDir) queryParams.append('order_dir', orderDir);
-
-      let url = 'documents/preparation/export';
-      if (roles('commercial')) url = 'documents/preparation/export';
-
-      const response = await api.get(`${url}?${queryParams.toString()}`, {
-        responseType: 'blob', 
-      });
-
-      const blob = new Blob(
-        [response.data],
-        { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' }
+      const response = await api.get(
+        `documents/preparation/export?${buildParams().toString()}`,
+        { responseType: 'blob' }
       );
+
+      const blob = new Blob([response.data], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      });
 
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
-
       link.href = downloadUrl;
       link.setAttribute('download', 'preparation_documents.xlsx');
       document.body.appendChild(link);
       link.click();
-
       link.remove();
       window.URL.revokeObjectURL(downloadUrl);
-      setExportSpin(false)
     } catch (error) {
-      setExportSpin(false)
       console.error('Export failed:', error);
+      message.error('Export failed');
+    } finally {
+      setExportSpin(false);
     }
   };
 
-
   const buildUrl = (pageNumber = 1, search = searchTerm) => {
-    const queryParams = new URLSearchParams();
-    if (documenType) queryParams.append('type', documenType);
-    if (documenStatus) queryParams.append('status', documenStatus);
-    if (dateFilter?.length) queryParams.append('date', dateFilter.join(','));
-    if (search) queryParams.append('search', search);
-    if (orderBy) queryParams.append('order_by', orderBy);
-    if (orderDir) queryParams.append('order_dir', orderDir);
-    if (pageNumber) queryParams.append('page', pageNumber);
+    const params = buildParams(search);
+    if (pageNumber) params.append('page', pageNumber);
 
+    const url = roles('commercial')
+      ? 'docentetes/commercial'
+      : 'documents/preparation-list';
 
-    let url = 'documents/preparation-list';
-    if (roles('commercial')) url = 'docentetes/commercial';
-
-    return `${url}?${queryParams.toString()}`;
+    return `${url}?${params.toString()}`;
   };
 
   const fetchData = async (pageNumber = 1, search = searchTerm) => {
@@ -93,14 +84,13 @@ function Document() {
     try {
       const response = await api.get(buildUrl(pageNumber, search));
       setData(response.data);
+      setPage(pageNumber);
     } catch (err) {
-      const navigate = useNavigate()
-      const raw = localStorage.getItem('user')
-
+      const raw = localStorage.getItem('user');
       if (!raw || raw === 'undefined' || raw === 'null') {
-        navigate('/login', { replace: true })
+        navigate('/login', { replace: true });
       }
-      message.error(err.response.data.message)
+      message.error(err?.response?.data?.message || 'Failed to fetch data');
       console.error('Failed to fetch data:', err);
     } finally {
       setLoading(false);
@@ -116,16 +106,13 @@ function Document() {
 
     const intervalId = setInterval(fetchAndNotify, 40000);
     return () => clearInterval(intervalId);
-
-
-
-  }, [documenType, documenStatus, dateFilter, orderBy, orderDir]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [documentType, documentStatus, dateFilter, orderBy, orderDir]);
 
   const loadMore = async () => {
     if (!data.next_page_url) return;
     setMoreSpinner(true);
     const nextPage = page + 1;
-    setPage(nextPage);
 
     try {
       const response = await api.get(buildUrl(nextPage));
@@ -134,6 +121,7 @@ function Document() {
         next_page_url: response.data.next_page_url,
         total: response.data.total,
       });
+      setPage(nextPage);
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -149,6 +137,7 @@ function Document() {
     try {
       const response = await api.get(buildUrl(1, value));
       setData(response.data);
+      setPage(1);
     } catch (err) {
       console.error('Failed to fetch data:', err);
     } finally {
@@ -168,6 +157,10 @@ function Document() {
     navigate(`/layout/document/${orderId}`);
   };
 
+  const canExport =
+    (!roles('preparation_cuisine') && !roles('preparation_trailer')) ||
+    Number(user?.company_id) !== 1;
+
   return (
     <div className='min-h-screen pt-3'>
       {/* Header */}
@@ -178,15 +171,14 @@ function Document() {
               placeholder='Recherch'
               allowClear
               loading={searchSpinner}
-              size='large'
+              size='middle'
               onChange={handleSearch}
             />
-
           </div>
 
           <div className='hidden md:block'>
             <RangePicker
-              size='large'
+              size='middle'
               onChange={handleChangeDate}
               className='min-w-[140px]'
             />
@@ -194,13 +186,13 @@ function Document() {
 
           {roles('commercial') && (
             <Select
-              defaultValue=''
+              value={documentStatus || undefined}
+              placeholder='État'
               className='min-w-[140px] block md:hidden'
-              size='large'
+              size='middle'
               allowClear
-              onChange={(value) => setDocumentStatus(value)}
+              onChange={(value) => setDocumentStatus(value ?? '')}
               options={[
-                { value: '', label: 'État' },
                 { value: '0', label: 'En attente' },
                 { value: '1', label: 'Transféré' },
                 { value: '2', label: 'Reçu' },
@@ -209,34 +201,39 @@ function Document() {
             />
           )}
 
-          <Button
-            color="green"
-            variant="solid"
-            size="large"
-            loading={exportSpin}
-            onClick={handleExport}
-            icon={<Download size={17} />}
-          >
-            Export
-          </Button>
-          
-          <Select
-            defaultValue=''
-            allowClear
-            className='min-w-[140px] block md:hidden'
-            size='large'
-            onChange={(value) => setDocumentType(value)}
-            options={[
-              { value: '', label: 'Type' },
-              { value: 'Cuisine', label: 'Cuisine' },
-              { value: 'Placard', label: 'Placard' },
-              { value: 'Laca', label: 'Laca' },
-              { value: 'Polilaminado', label: 'Polilaminado' },
-              { value: 'Stock', label: 'Stock' }
-            ]}
-          />
+          {canExport && (
+            <div className='flex items-center gap-2'>
+              <Button
+                color='green'
+                variant='solid'
+                size='middle'
+                hidden={roles('preparation_cuisine') || roles('preparation_trailer')}
+                loading={exportSpin}
+                onClick={handleExport}
+                icon={<Download size={17} />}
+              >
+                Export
+              </Button>
 
-          <Button onClick={() => fetchData()} size='large'>
+              <Select
+                value={documentType || undefined}
+                placeholder='Type'
+                allowClear
+                className='min-w-[140px] block md:hidden'
+                size='middle'
+                onChange={(value) => setDocumentType(value ?? '')}
+                options={[
+                  { value: 'Cuisine', label: 'Cuisine' },
+                  { value: 'Placard', label: 'Placard' },
+                  { value: 'Laca', label: 'Laca' },
+                  { value: 'Polilaminado', label: 'Polilaminado' },
+                  { value: 'Stock', label: 'Stock' },
+                ]}
+              />
+            </div>
+          )}
+
+          <Button onClick={() => fetchData()} size='middle'>
             {loading ? (
               <Loader2 className='animate-spin text-blue-500' size={17} />
             ) : (
@@ -249,19 +246,19 @@ function Document() {
 
       {/* Tables / Cards */}
       {roles('commercial') && (
-        <DocumentTable
-          documents={data.data}
-          onSelectOrder={handleSelectOrder}
-        />
+        <DocumentTable documents={data.data} onSelectOrder={handleSelectOrder} />
       )}
 
-      {(roles('preparation') || roles('montage') || roles('fabrication') || roles('peinture')) && (
+      {(roles('preparation') ||
+        roles('montage') ||
+        roles('fabrication') ||
+        roles('peinture')) && (
         <PreparationDocumentTable
           documents={data.data}
           onSelectOrder={handleSelectOrder}
           orderBy={orderBy}
           setOrderBy={setOrderBy}
-          orderDir={setOrderDir}
+          orderDir={orderDir}
           setOrderDir={setOrderDir}
           loading={loading}
         />
@@ -270,19 +267,17 @@ function Document() {
       {(roles('preparation_cuisine') ||
         roles('preparation_trailer') ||
         roles('magasinier')) && (
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
-            {data.data.length > 0
-              ? data.data.map((item, index) => (
-                <DocumentCard
-                  key={index}
-                  data={item}
-                  loading={loading}
-                  onSelectOrder={handleSelectOrder}
-                />
-              ))
-              : null}
-          </div>
-        )}
+        <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-2 md:p-4'>
+          {data.data.map((item, index) => (
+            <DocumentCard
+              key={item.id ?? index}
+              data={item}
+              loading={loading}
+              onSelectOrder={handleSelectOrder}
+            />
+          ))}
+        </div>
+      )}
 
       {data.next_page_url && (
         <div className='flex justify-center py-6'>
@@ -296,12 +291,8 @@ function Document() {
           </Button>
         </div>
       )}
-
-      {/* {(data.data.length === 0 && !loading) && (
-        <Empty className='mt-10' description='Aucun document à afficher' />
-      )} */}
     </div>
-  )
+  );
 }
 
 export default Document;

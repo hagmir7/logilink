@@ -282,7 +282,7 @@ function PreparationList() {
                             {Math.floor(
                               item.Profondeur
                                 ? item.Profondeur
-                                : item.article?.Profonduer
+                                : item.article?.Profondeur
                             ) || '__'}
                           </span>
                         </span>

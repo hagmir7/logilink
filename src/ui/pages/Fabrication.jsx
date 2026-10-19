@@ -200,7 +200,7 @@ function Fabrication() {
       },
       { title: 'Hauteur', key: 'hauteur', render: (_, item) => Math.floor(item.Hauteur > 0 ? item.Hauteur : item.article?.Hauteur) || '__' },
       { title: 'Largeur', key: 'largeur', render: (_, item) => Math.floor(item.Largeur > 0 ? item.Largeur : item?.article?.Largeur) || '__' },
-      { title: 'Profondeur', key: 'profondeur', render: (_, item) => Math.floor(item.Profondeur || item?.article?.Profonduer) || '__' },
+      { title: 'Profondeur', key: 'profondeur', render: (_, item) => Math.floor(item.Profondeur || item?.article?.Profondeur) || '__' },
       { title: 'Couleur', key: 'couleur', render: (_, item) => item.Couleur || item?.article?.Couleur || '__' },
       { title: 'Chant', key: 'chant', render: (_, item) => item.Chant || item?.article?.Chant || '__' },
       { title: 'Epaisseur', key: 'epaisseur', render: (_, item) => Math.floor(item.Episseur > 0 ? item.Episseur : item?.article?.Episseur) || '__' },

@@ -184,7 +184,7 @@ export default function Preparation() {
       ''
 
     const depth = Math.floor(
-      data.docligne?.Profondeur ?? data?.docligne?.article?.Profonduer ?? ''
+      data.docligne?.Profondeur ?? data?.docligne?.article?.Profondeur ?? ''
     )
 
     let arName

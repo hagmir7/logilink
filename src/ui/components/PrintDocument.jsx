@@ -277,7 +277,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
   const hasDescription = printingLines.some(item => item.Description);
   const hasProf = printingLines.some(item => {
     const art = item.article || {};
-    return (item.Profondeur && item.Profondeur > 0) || (art.Profonduer && art.Profonduer > 0);
+    return (item.Profondeur && item.Profondeur > 0) || (art.Profondeur && art.Profondeur > 0);
   });
 
   return (
@@ -436,7 +436,7 @@ export default function PrintDocument({ docentete, doclignes, selectedRows = [],
                         <td>{item?.Nom || item.article?.Nom || item?.DL_Design || '__'}</td>
                         <td>{item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) || '__'}</td>
                         <td>{item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) || '__'}</td>
-                        {hasProf && <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profonduer) || "__"}</td>}
+                        {hasProf && <td>{Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(art.Profondeur) || "__"}</td>}
                         <td>
                           <span>{Math.floor(item.EU_Qte || 0)} </span>
                           <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>

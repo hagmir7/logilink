@@ -180,7 +180,7 @@ export default function PaletteControle() {
                           {Math.floor(
                             item?.docligne?.Profondeur
                               ? item?.docligne?.Profondeur
-                              : item?.docligne?.article?.Profonduer
+                              : item?.docligne?.article?.Profondeur
                           ) || '__'}
                         </strong>
                       </div>

@@ -706,7 +706,7 @@ function Controller() {
                         : Math.floor(item?.article?.Largeur) || '__'}
                     </td>
                     <td className='px-2 text-sm border-r border-gray-100'>
-                      {Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(item?.article?.Profonduer) || "__"}
+                      {Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(item?.article?.Profondeur) || "__"}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100'>
@@ -868,7 +868,7 @@ function Controller() {
                   {[
                     { label: 'Haut.', value: item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) },
                     { label: 'Larg.', value: item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) },
-                    { label: 'Prof.', value: Math.floor(item.Profondeur) || Math.floor(item?.article?.Profonduer) },
+                    { label: 'Prof.', value: Math.floor(item.Profondeur) || Math.floor(item?.article?.Profondeur) },
                     { label: 'Épais.', value: Math.floor(item?.Episseur) || Math.floor(item?.article?.Episseur) },
                   ].map(({ label, value }) => (
                     <div key={label} className='bg-gray-50 rounded-lg p-2 text-center border border-gray-400'>

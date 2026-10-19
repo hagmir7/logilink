@@ -285,7 +285,7 @@ function Montage() {
                       : Math.floor(item?.article?.Largeur) || '__'}
                   </td>
                   {/* <td className='px-2 text-sm border-r border-gray-100'>
-                    {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profonduer) || '__'}
+                    {Math.floor(item.Profondeur ? item.Profondeur : item?.article?.Profondeur) || '__'}
                   </td> */}
 
                   <td className='px-2 text-sm border-r border-gray-100'>
