@@ -15,7 +15,7 @@ const { RangePicker } = DatePicker;
 function Document() {
   const [data, setData] = useState({ data: [], next_page_url: null, total: 0 });
   const [loading, setLoading] = useState(false);
-  const [documentStatus, setDocumentStatus] = useState('');
+
   const [documentType, setDocumentType] = useState('');
   const [page, setPage] = useState(1);
   const [moreSpinner, setMoreSpinner] = useState(false);
@@ -32,7 +32,7 @@ function Document() {
   const buildParams = (search = searchTerm) => {
     const params = new URLSearchParams();
     if (documentType) params.append('type', documentType);
-    if (documentStatus) params.append('status', documentStatus);
+
     if (dateFilter?.length) params.append('date', dateFilter.join(','));
     if (search) params.append('search', search);
     if (orderBy) params.append('order_by', orderBy);
@@ -73,7 +73,7 @@ function Document() {
     if (pageNumber) params.append('page', pageNumber);
 
     const url = roles('commercial')
-      ? 'docentetes/commercial'
+      ? 'docentetes/pending'
       : 'documents/preparation-list';
 
     return `${url}?${params.toString()}`;
@@ -107,7 +107,7 @@ function Document() {
     const intervalId = setInterval(fetchAndNotify, 40000);
     return () => clearInterval(intervalId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [documentType, documentStatus, dateFilter, orderBy, orderDir]);
+  }, [documentType, dateFilter, orderBy, orderDir]);
 
   const loadMore = async () => {
     if (!data.next_page_url) return;
@@ -183,23 +183,6 @@ function Document() {
               className='min-w-[140px]'
             />
           </div>
-
-          {roles('commercial') && (
-            <Select
-              value={documentStatus || undefined}
-              placeholder='État'
-              className='min-w-[140px] block md:hidden'
-              size='middle'
-              allowClear
-              onChange={(value) => setDocumentStatus(value ?? '')}
-              options={[
-                { value: '0', label: 'En attente' },
-                { value: '1', label: 'Transféré' },
-                { value: '2', label: 'Reçu' },
-                { value: '3', label: 'Fabrication' },
-              ]}
-            />
-          )}
 
           {canExport && (
             <div className='flex items-center gap-2'>

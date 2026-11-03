@@ -104,7 +104,7 @@ function DocumentTable({ documents = [], user }) {
 
                         {
                           companies?.map(compa => (compa?.pivot?.note ? (
-                            <Tooltip title={compa.pivot.note}>
+                            <Tooltip title={compa.pivot.note} key={compa.id}>
                               <Tag
                                 color='red'
                                 style={{ padding: 0 }}

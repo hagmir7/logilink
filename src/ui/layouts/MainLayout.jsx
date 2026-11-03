@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { Layout, Menu, theme, Drawer, Badge } from 'antd'
 import {
   ArrowDownUp,
@@ -16,13 +16,10 @@ import {
   Truck,
   RefreshCcw,
   CircleCheck,
-  AudioWaveform,
   ArrowRightLeft,
   Lock,
   Archive,
   ScrollText,
-  FileInput,
-  File,
   ChartSpline,
   Handshake,
   ChartCandlestick,
@@ -36,346 +33,409 @@ import {
   GitCompare,
   Globe,
 } from 'lucide-react'
-import { Link, Outlet, useNavigate } from 'react-router-dom'
+import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
 import { useAuth } from '../contexts/AuthContext'
 import MobileBottomNav from './MobileButtomNav'
 import Tools from '../components/Tools'
 import { api } from '../utils/api'
 import { handleShow } from '../utils/config'
-import axios from 'axios'
+
 const { Header, Content, Sider } = Layout
 
-const sideMenu = () => {
-  const { roles, permissions, user } = useAuth();
+/* -------------------------------------------------------------------------- */
+/*  Menu helpers                                                               */
+/* -------------------------------------------------------------------------- */
 
-  const navigate = useNavigate()
+/**
+ * Generates unique keys by position: menu-0, menu-0-0, menu-0-1, menu-1 ...
+ * - If an item has `path` and a string label, the label is wrapped in <Link>.
+ * - `path` is stripped before the items are passed to antd.
+ * - Hidden items still take an index, so keys never shift.
+ */
+const addKeys = (items, parentKey = 'menu') =>
+  items.map((item, index) => {
+    const key = `${parentKey}-${index}`
+    const { path, children, label, ...rest } = item
 
-
-  const [states, setStates] = useState({
-    purchase : 0,
-    website_orders: 0
+    return {
+      ...rest,
+      key,
+      path, // kept temporarily for route matching (removed by stripPaths)
+      label: path && typeof label === 'string' ? <Link to={path}>{label}</Link> : label,
+      ...(children && { children: addKeys(children, key) }),
+    }
   })
 
+/** Removes the custom `path` field before giving items to antd. */
+const stripPaths = (items) =>
+  items.map(({ path, children, ...rest }) => ({
+    ...rest,
+    ...(children && { children: stripPaths(children) }),
+  }))
 
+/**
+ * Finds the keys matching the current URL (longest matching path wins).
+ * Returns { selected: [keys], open: [parent keys] }.
+ */
+const matchRoute = (items, pathname) => {
+  let best = { length: -1, keys: [], parents: [] }
 
-  const getStates = async () => {
-    try {
-      const [purchase, orders] = await Promise.all([
-        api.get("status-count/2"),
-        axios.get("https://app.intercocina.com/api/orders/count?status=1", {
-          headers: { 'X-API-Key': 'BUvM$K|+z)XS)kz}cOal2cg{)gJV|H$' },
-        }),
-      ]);
+  const walk = (list, parents) => {
+    list.forEach((item) => {
+      if (item.path) {
+        const isMatch =
+          pathname === item.path ||
+          (item.path !== '/' && pathname.startsWith(item.path + '/'))
 
-      setStates({
-        purchase: purchase.data,
-        website_orders: orders.data.count,
-      });
-    } catch (error) {
-      console.error("Failed to load states:", error);
-    }
-  };
+        if (isMatch) {
+          if (item.path.length > best.length) {
+            best = { length: item.path.length, keys: [item.key], parents }
+          } else if (item.path.length === best.length) {
+            best.keys.push(item.key) // same path used in several menus
+          }
+        }
+      }
+      if (item.children) walk(item.children, [...parents, item.key])
+    })
+  }
+
+  walk(items, [])
+  return { selected: best.keys, open: best.parents }
+}
+
+/* -------------------------------------------------------------------------- */
+/*  Menu definition (hook, called ONCE in MainLayout)                          */
+/* -------------------------------------------------------------------------- */
+
+const useSideMenu = () => {
+  const { roles, permissions, user } = useAuth()
+  const navigate = useNavigate()
+
+  const [states, setStates] = useState({
+    purchase: 0,
+    website_orders: 0,
+  })
 
   useEffect(() => {
-    getStates();
-  }, []);
+    const getStates = async () => {
+      try {
+        // The website API key now lives on the backend only.
+        const [purchase, orders] = await Promise.all([
+          api.get('status-count/2'),
+          api.get('website-orders/count'),
+        ])
 
-  return [
+        setStates({
+          purchase: purchase.data,
+          website_orders: orders.data.count,
+        })
+      } catch (error) {
+        console.error('Failed to load states:', error)
+      }
+    }
+
+    getStates()
+  }, [])
+
+  const canBuy = roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4
+  const showPurchaseBadge = Number(states.purchase) > 0 && roles(['admin', 'dg'])
+
+  return addKeys([
+    /* ------------------------------ Commandes ------------------------------ */
     {
-      key: 'menu-1',
       icon: <ShoppingBag size={20} />,
       hidden: roles(['production', 'production_operateur', 'fabrication']),
       label: <span className='text-base'>Commandes</span>,
       children: [
         {
-          key: 'submenu-1',
+          path: '/',
+      
           icon: <RefreshCcw size={19} />,
-          label: <Link to='/'>Préparation</Link>,
+          label: 'Préparation',
+        },
+        {
+          path: '/documents/pending',
+          icon: <RefreshCcw size={19} />,
+          label: 'Préparation en cours',
+        },
+        {
+          path: '/documents/company',
+          icon: <RefreshCcw size={19} />,
+          label: 'Préparation Société',
         },
 
         {
-          key: 'submenu-10',
+              hidden: !roles('fabrication'),
+          path: '/documents/fabrication',
+          icon: <RefreshCcw size={19} />,
+          label: 'Fabrication',
+        },
+        {
+          path: '/documents/peinture',
+          icon: <RefreshCcw size={19} />,
+          label: 'Peinture',
+        },
+        {
+          path: '/documents/montage',
+          icon: <RefreshCcw size={19} />,
+          label: 'Montage',
+        },
+        {
+          path: '/validation',
           disabled: !roles(['controleur', 'commercial', 'expedition', 'admin', 'preparation']),
           icon: <CircleCheck size={19} />,
-          label: <Link to='/validation'>Validation</Link>,
+          label: 'Validation',
         },
-        // {
-        //   key: 'submenu-21',
-        //   icon: <AudioWaveform size={19} />,
-        //   hidden: !roles(['commercial', 'expedition', 'admin']),
-        //   label: <Link to='/progress'>Progrès</Link>,
-        // },
         {
-          key: 'submenu-15',
-
-          icon: <Truck size={19} />,
+          path: '/shipping',
           disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition', 'preparation']),
-          label: <Link to='/shipping'>Expédition</Link>,
+          icon: <Truck size={19} />,
+          label: 'Expédition',
         },
         {
-          key: 'submenu-16',
-          icon: <ArrowRightLeft size={19} />,
+          path: '/transfer-orders/list',
           disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
-          label: <Link to='/transfer-orders/list'>Transfert</Link>,
+          icon: <ArrowRightLeft size={19} />,
+          label: 'Transfert',
         },
-
         {
-          key: 'submenu-500',
+          path: '/website-orders',
+          hidden: !roles(['commercial', 'admin']),
           icon: <Globe size={19} />,
-          hidden: !roles([ 'commercial', 'admin']),
           label: (
-            <div className="flex items-center justify-between w-full">
+            <Link to='/website-orders' className='flex items-center justify-between w-full'>
               Site web
-              <Link to='/website-orders'> <Badge count={states.website_orders} className="ml-2" /></Link>
-            </div>
+              <Badge count={states.website_orders} className='ml-2' />
+            </Link>
           ),
         },
-        
         {
-          key: 'submenu-17',
+          path: '/preparation/archive',
+          disabled: !roles([
+            'controleur',
+            'commercial',
+            'chargement',
+            'expedition',
+            'fabrication',
+            'montage',
+            'peinture',
+          ]),
           icon: <Archive size={19} />,
-          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition', 'fabrication', 'montage', 'peinture']),
-          label: <Link to='/preparation/archive'>Archives</Link>,
+          label: 'Archives',
         },
-
-        //  {
-        //   key: 'submenu-19',
-        //   icon: <FileInput size={19} />,
-        //   // disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
-        //   label: <Link to='/user-archive'>Mes documents</Link>,
-        // },
-
-
-        // {
-        //   key: 'submenu-20',
-        //   className: 'hidden',
-        //   icon: <File size={19} />,
-        //   // disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
-        //   label: <Link to='/sage'>Documents</Link>,
-        // },
       ],
     },
 
+    /* ----------------------------- Fabrication ----------------------------- */
     {
-      key: 'menu-10',
       hidden: !roles(['production', 'production_operateur', 'fabrication']),
       icon: <ZodiacCancer size={20} />,
       label: <span className='text-base'>Fabrication</span>,
-
       children: [
         {
-          key: 'submenu-115',
+          path: '/',
           icon: <RefreshCcw size={19} />,
-          label: <Link to='/'> Commandes </Link>,
+          label: 'Commandes',
         },
         {
-
-          key: 'submenu-102',
+          path: '/preparation/archive',
           icon: <ClipboardCheck size={19} />,
-          label: <Link to='/preparation/archive'>Archives</Link>,
+          label: 'Archives',
         },
         {
-          key: 'submenu-103',
+          path: '/fabrication/stock',
           icon: <Layers size={19} />,
-          // disabled: true,
-          label: <Link to='/fabrication/stock'>Stock</Link>,
+          label: 'Stock',
         },
-
-
         {
-          key: 'submenu-109',
-          icon: <ArrowDownUp size={19} />,
+          path: '/fabrication/movements', // fixed typo: was /fabircation/movements
           disabled: true,
-          label: <Link to='/fabircation/movements'>Movements</Link>,
+          icon: <ArrowDownUp size={19} />,
+          label: 'Movements',
         },
-
-
         {
-          key: 'submenu-108',
+          path: '/fabrication/articles',
           icon: <Square size={19} />,
-          label: <Link to='/fabrication/articles'>Articles</Link>,
+          label: 'Articles',
         },
-
         {
-          key: 'submenu-1010',
+          path: '/fabrication/orders',
           icon: <Factory size={19} />,
-          label: <Link to='/fabrication/orders'>OFs</Link>,
+          label: 'OFs',
         },
-
         {
-          key: 'submenu-107',
+          path: '/fabrication/capacit',
           icon: <WeightTilde size={19} />,
-          label: <Link to='/fabrication/capacit'>Capacité</Link>,
+          label: 'Capacité',
         },
       ],
     },
+
+    /* -------------------------------- Stock -------------------------------- */
     {
-      key: 'menu-2',
       icon: <Package size={20} />,
       label: <span className='text-base'>Stock</span>,
-
       children: [
         {
-          key: 'submenu-13',
+          path: '/stock',
           icon: <ArrowDownUp size={19} />,
-          label: <Link to='/stock'> Suivi </Link>,
+          label: 'Suivi',
         },
         {
-
-          key: 'submenu-2',
+          path: '/inventories',
           icon: <ClipboardCheck size={19} />,
-          label: <Link to='/inventories'>Inventaire</Link>,
+          label: 'Inventaire',
         },
         {
-          key: 'submenu-3',
+          // opens in a popup window, so no `path` (never highlighted)
           icon: <Warehouse size={19} />,
           onClick: () => handleShow(navigate, '/depots', 1000, 800),
-          label: "Depots",
+          label: 'Depots',
         },
-
-        //  {
-        //   key: 'submenu-55',
-        //   icon: <Building size={19} />,
-        //   label: <Link to='/companies/stock'>Société</Link>,
-        // },
       ],
     },
 
+    /* ------------------------------- Arrivage ------------------------------ */
     {
-      key: 'menu-6',
       icon: <PlaneLanding size={20} />,
       disabled: !roles(['logistique', 'admin']),
       label: 'Arrivage',
       children: [
-
         {
-          key: 'submenu-105',
+          path: '/reception',
           icon: <FileDown size={20} />,
-          label: <Link to='/reception'>Reception</Link>,
+          label: 'Reception',
         },
         {
-          key: 'submenu-106',
+          path: '/travels',
           icon: <Van size={20} />,
-          label: <Link to='/travels'>Voyage</Link>,
-        },
-      ]
-
-    },
-
-
-    {
-      key: 'menu-66',
-      hidden: (roles(['admin'])),
-      icon: <BaggageClaim size={20} />,
-      disabled: !roles(['admin', 'chef_service']),
-      label: <Link to='/purchase'>Achat</Link>,
-    
-    },
-
-  
-
-    {
-      key: 'menu-7',
-      icon: <BaggageClaim size={20} />,
-      hidden: !(roles(['admin'])),
-      disabled: !roles(['admin', 'chef_service']),
-      label: (
-        <div className="flex items-center justify-between w-full">
-          Achat
-          {states.purchase && roles(['admin', 'dg']) ? <Badge count={states.purchase} className="ml-2" /> : ''}
-        </div>
-      ),
-
-      children: [
-        {
-          key: 'submenu-101',
-          icon: <ChartSpline size={20} />,
-          label: <Link to='/purchase-overview'>Tableau de bord</Link>,
-        },
-
-        {
-          key: 'submenu-100',
-          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
-          icon: <UserCheck size={20} />,
-          label: (
-            <div className="flex items-center justify-between w-full">
-              <Link to="/purchase" className="flex-1">
-                Domands
-              </Link>
-              {states.purchase && roles(['admin', 'dg']) ? <Badge count={states.purchase} className="ml-2" /> : ''}
-            </div>
-          ),
-        },
-
-        {
-          key: 'submenu-104',
-          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
-          icon: <Handshake size={20} />,
-          label: <Link to='/suppliers'>Fournisseurs</Link>,
-        },
-
-        {
-          key: 'submenu-116',
-          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
-          icon: <ChartCandlestick size={20} />,
-          label: <Link to='/supplier-interviews'>F.Evaluations</Link>,
-        },
-
-         {
-          key: 'submenu-117',
-          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
-          icon: <GitCompare size={20} />,
-          label: <Link to='/quote-comparison'>Comparatif des devis</Link>,
-        },
-
-         {
-          key: 'submenu-118',
-          disabled: !(roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4),
-          icon: <BadgeX size={20} />,
-          label: <Link to='/supplier-ncf'>NC Fournisseur</Link>,
+          label: 'Voyage',
         },
       ],
     },
+
+    /* --------------------- Achat (simple link, non-admin) ------------------ */
     {
-      key: 'menu-8',
+      path: '/purchase',
+      hidden: roles(['admin']),
+      disabled: !roles(['admin', 'chef_service']),
+      icon: <BaggageClaim size={20} />,
+      label: 'Achat',
+    },
+
+    /* ----------------------------- Achat (admin) --------------------------- */
+    {
+      hidden: !roles(['admin']),
+      disabled: !roles(['admin', 'chef_service']),
+      icon: <BaggageClaim size={20} />,
+      label: (
+        <div className='flex items-center justify-between w-full'>
+          Achat
+          {showPurchaseBadge ? <Badge count={states.purchase} className='ml-2' /> : null}
+        </div>
+      ),
+      children: [
+        {
+          path: '/purchase-overview',
+          icon: <ChartSpline size={20} />,
+          label: 'Tableau de bord',
+        },
+        {
+          path: '/purchase',
+          disabled: !canBuy,
+          icon: <UserCheck size={20} />,
+          label: (
+            <Link to='/purchase' className='flex items-center justify-between w-full'>
+              <span className='flex-1'>Domands</span>
+              {showPurchaseBadge ? <Badge count={states.purchase} className='ml-2' /> : null}
+            </Link>
+          ),
+        },
+        {
+          path: '/suppliers',
+          disabled: !canBuy,
+          icon: <Handshake size={20} />,
+          label: 'Fournisseurs',
+        },
+        {
+          path: '/supplier-interviews',
+          disabled: !canBuy,
+          icon: <ChartCandlestick size={20} />,
+          label: 'F.Evaluations',
+        },
+        {
+          path: '/quote-comparison',
+          disabled: !canBuy,
+          icon: <GitCompare size={20} />,
+          label: 'Comparatif des devis',
+        },
+        {
+          path: '/supplier-ncf',
+          disabled: !canBuy,
+          icon: <BadgeX size={20} />,
+          label: 'NC Fournisseur',
+        },
+      ],
+    },
+
+    /* ------------------------------ Personnel ------------------------------ */
+    {
       icon: <Users size={20} />,
       label: <span className='text-base'>Personnel</span>,
       children: [
         {
-          key: 'submenu-8-1',
+          path: '/users',
           disabled: !permissions('view:users'),
           icon: <UserCheck size={20} />,
-          label: <Link to='/users'>Utilisateurs</Link>,
+          label: 'Utilisateurs',
         },
-
         {
-          key: 'submenu-8-14',
+          path: '/users/actions',
           disabled: !permissions('view:users'),
           icon: <ScrollText size={20} />,
-          label: <Link to='/users/actions'>Actions</Link>,
+          label: 'Actions',
         },
         {
-          key: 'submenu-8-209',
+          path: '/roles',
           disabled: !permissions('view:roles'),
-
           icon: <Lock size={20} />,
-          label: <Link to='/roles'>Roles</Link>,
+          label: 'Roles',
         },
       ],
     },
-  ]
+  ])
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Layout                                                                     */
+/* -------------------------------------------------------------------------- */
 
 const MainLayout = () => {
   const {
     token: { colorBgContainer, borderRadiusLG },
   } = theme.useToken()
+
+  const { pathname } = useLocation()
   const [collapsed, setCollapsed] = useState(false)
   const [isMobile, setIsMobile] = useState(false)
   const [sidebarVisible, setSidebarVisible] = useState(true)
+  const [openKeys, setOpenKeys] = useState([])
 
-  // Handle responsive behavior
+  // Built once and shared by the desktop Sider and the mobile Drawer
+  const rawItems = useSideMenu()
+  const menuItems = useMemo(() => stripPaths(rawItems), [rawItems])
+
+  // Highlight the active item from the URL
+  const { selected, open } = useMemo(() => matchRoute(rawItems, pathname), [rawItems, pathname])
+
+  // Keep the parent of the active page open when the route changes
+  useEffect(() => {
+    setOpenKeys((prev) => Array.from(new Set([...prev, ...open])))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pathname])
+
+  // Responsive behavior
   useEffect(() => {
     const checkScreenSize = () => {
       const mobile = window.innerWidth <= 768
@@ -388,10 +448,7 @@ const MainLayout = () => {
       }
     }
 
-    // Initialize on first render
     checkScreenSize()
-
-    // Add event listener for window resize
     window.addEventListener('resize', checkScreenSize)
 
     return () => {
@@ -400,13 +457,16 @@ const MainLayout = () => {
     }
   }, [])
 
-
   const toggleSidebar = () => {
     setSidebarVisible((prevState) => !prevState)
-    // Reset any potential lag on mobile
     if (isMobile) {
       document.body.style.overflow = sidebarVisible ? 'auto' : 'hidden'
     }
+  }
+
+  const closeDrawer = () => {
+    setSidebarVisible(false)
+    document.body.style.overflow = 'auto'
   }
 
   return (
@@ -425,7 +485,6 @@ const MainLayout = () => {
           display: 'flex',
           alignItems: 'center',
         }}
-        theme='light'
       >
         <div className='flex justify-between w-full items-center'>
           <div className='flex md:hidden h-full items-center'>
@@ -442,7 +501,7 @@ const MainLayout = () => {
             </button>
           </div>
           <div>
-            <Link to={'/'}>
+            <Link to='/'>
               <img
                 src='https://app.intercocina.com/logo.png'
                 alt='Intercocina logo'
@@ -460,6 +519,7 @@ const MainLayout = () => {
           </div>
         </div>
       </Header>
+
       <Layout>
         {/* Desktop Sidebar */}
         {!isMobile && (
@@ -473,21 +533,22 @@ const MainLayout = () => {
             style={{
               background: colorBgContainer,
               paddingTop: '12px',
-              position: 'fixed', // Fixed position
-              top: 64, // Assuming Header is 64px tall
+              position: 'fixed',
+              top: 64,
               left: 0,
-              height: 'calc(100vh - 64px)', // Full height minus header
-              overflowY: 'auto', // Enable vertical scroll
+              height: 'calc(100vh - 64px)',
+              overflowY: 'auto',
               zIndex: 100,
             }}
           >
             <Menu
               mode='inline'
               className='space-y-2'
-              defaultSelectedKeys={['menu-1', 'menu-10']}
-              defaultOpenKeys={['menu-1', 'menu-10']}
+              selectedKeys={selected}
+              openKeys={openKeys}
+              onOpenChange={setOpenKeys}
               style={{ borderRight: 0 }}
-              items={sideMenu()}
+              items={menuItems}
             />
           </Sider>
         )}
@@ -497,23 +558,28 @@ const MainLayout = () => {
           <Drawer
             placement='left'
             closable={false}
-            onClose={toggleSidebar}
+            onClose={closeDrawer}
             open={sidebarVisible}
             width={240}
             styles={{
-              padding: 0,
-              paddingTop: '12px',
-              background: colorBgContainer,
+              body: {
+                padding: 0,
+                paddingTop: 12,
+                background: colorBgContainer,
+              },
             }}
-            maskClosable={true}
-            mask={true}
+            maskClosable
+            mask
           >
             <Menu
               mode='inline'
               className='space-y-2'
-              defaultSelectedKeys={['menu-1']}
+              selectedKeys={selected}
+              openKeys={openKeys}
+              onOpenChange={setOpenKeys}
+              onClick={closeDrawer}
               style={{ height: '100%', borderRight: 0 }}
-              items={sideMenu()}
+              items={menuItems}
             />
           </Drawer>
         )}
@@ -538,6 +604,7 @@ const MainLayout = () => {
           </Content>
         </Layout>
       </Layout>
+
       <MobileBottomNav />
     </Layout>
   )
