@@ -166,7 +166,7 @@ const useSideMenu = () => {
         },
 
         {
-              hidden: !roles('fabrication'),
+          idden: !roles('fabrication'),
           path: '/documents/fabrication',
           icon: <RefreshCcw size={19} />,
           label: 'Fabrication',
