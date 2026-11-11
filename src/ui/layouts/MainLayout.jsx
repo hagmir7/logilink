@@ -2,36 +2,43 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { Layout, Menu, theme, Drawer, Badge } from 'antd'
 import {
   ArrowDownUp,
-  BaggageClaim,
-  ClipboardCheck,
-  Layers,
-  Package,
-  ShoppingBag,
-  UserCheck,
-  Users,
-  Menu as MenuIcon,
-  X,
-  Warehouse,
-  FileDown,
-  Truck,
-  RefreshCcw,
-  CircleCheck,
   ArrowRightLeft,
-  Lock,
   Archive,
-  ScrollText,
-  ChartSpline,
-  Handshake,
-  ChartCandlestick,
-  ZodiacCancer,
-  Square,
-  Factory,
-  WeightTilde,
-  PlaneLanding,
-  Van,
   BadgeX,
+  BaggageClaim,
+  Boxes,
+  Building2,
+  ChartCandlestick,
+  CircleCheck,
+  ClipboardCheck,
+  ClipboardList,
+  Factory,
+  FileArchive,
+  FileText,
+  FolderArchive,
+  Gauge,
   GitCompare,
   Globe,
+  Hammer,
+  Handshake,
+  History,
+  LayoutDashboard,
+  Layers,
+  Lock,
+  Menu as MenuIcon,
+  Package,
+  PackageCheck,
+  Paintbrush,
+  PlaneLanding,
+  ScrollText,
+  ShoppingBag,
+  Truck,
+  UserCheck,
+  Users,
+  Van,
+  Warehouse,
+  Wrench,
+  X,
 } from 'lucide-react'
 import { Link, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import DropMenu from '../components/DropMenu'
@@ -141,270 +148,140 @@ const useSideMenu = () => {
   const canBuy = roles(['admin', 'super_admin', 'dg']) || parseInt(user?.service_id) === 4
   const showPurchaseBadge = Number(states.purchase) > 0 && roles(['admin', 'dg'])
 
-  return addKeys([
-    /* ------------------------------ Commandes ------------------------------ */
-    {
-      icon: <ShoppingBag size={20} />,
-      hidden: roles(['production', 'production_operateur', 'fabrication']),
-      label: <span className='text-base'>Commandes</span>,
-      children: [
-        {
-          path: '/',
-      
-          icon: <RefreshCcw size={19} />,
-          label: 'Préparation',
-        },
-        {
-          path: '/documents/pending',
-          icon: <RefreshCcw size={19} />,
-          label: 'Préparation en cours',
-        },
-        {
-          path: '/documents/company',
-          icon: <RefreshCcw size={19} />,
-          label: 'Préparation Société',
-        },
+return addKeys([
+  /* ------------------------------ Commandes ------------------------------ */
+  {
+    icon: <ShoppingBag size={20} />,
+    label: <span className='text-base'>Commandes</span>,
+    children: [
+      { path: '/documents/pending',     hidden: !permissions('commandes_en_cours.voir'),            icon: <ClipboardList size={19} />, label: 'Préparation en cours' },
+      { path: '/documents/company',     hidden: !permissions('societe_commandes.voir'),             icon: <Building2 size={19} />,     label: 'Préparation Société' },
+      { path: '/company/archive',       hidden: !permissions('archives.company.voir'),              icon: <FolderArchive size={19} />, label: 'Archives société' },
+      { path: '/global/archive',        hidden: !permissions('archives.global.voir'),               icon: <Archive size={19} />,       label: 'Archives' },
+      { path: '/documents/fabrication', hidden: !permissions('fabrication_commandes.voir'),         icon: <Hammer size={19} />,        label: 'Fabrication' },
+      { path: '/fabrication/archive',   hidden: !permissions('fabrication_commandes.voir_archive'), icon: <History size={19} />,       label: 'Fabrication archives' },
+      { path: '/fabrication/orders',    hidden: !permissions('ordres_fabrication.voir'),             icon: <Factory size={19} />,       label: 'OFs' },
+      { path: '/documents/peinture',    hidden: !permissions('fabrication_peinture.voir'),          icon: <Paintbrush size={19} />,    label: 'Peinture' },
+      { path: '/documents/montage',     hidden: !permissions('fabrication_montage.voir'),           icon: <Wrench size={19} />,        label: 'Montage' },
+      {
+        path: '/validation',
+        disabled: !roles(['controleur', 'commercial', 'expedition', 'admin', 'preparation']),
+        icon: <CircleCheck size={19} />,
+        label: 'Validation',
+      },
 
-        {
-          idden: !roles('fabrication'),
-          path: '/documents/fabrication',
-          icon: <RefreshCcw size={19} />,
-          label: 'Fabrication',
-        },
-        {
-          path: '/documents/peinture',
-          icon: <RefreshCcw size={19} />,
-          label: 'Peinture',
-        },
-        {
-          path: '/documents/montage',
-          icon: <RefreshCcw size={19} />,
-          label: 'Montage',
-        },
-        {
-          path: '/validation',
-          disabled: !roles(['controleur', 'commercial', 'expedition', 'admin', 'preparation']),
-          icon: <CircleCheck size={19} />,
-          label: 'Validation',
-        },
-        {
-          path: '/shipping',
-          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition', 'preparation']),
-          icon: <Truck size={19} />,
-          label: 'Expédition',
-        },
-        {
-          path: '/transfer-orders/list',
-          disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
-          icon: <ArrowRightLeft size={19} />,
-          label: 'Transfert',
-        },
-        {
-          path: '/website-orders',
-          hidden: !roles(['commercial', 'admin']),
-          icon: <Globe size={19} />,
-          label: (
-            <Link to='/website-orders' className='flex items-center justify-between w-full'>
-              Site web
-              <Badge count={states.website_orders} className='ml-2' />
-            </Link>
-          ),
-        },
-        {
-          path: '/preparation/archive',
-          disabled: !roles([
-            'controleur',
-            'commercial',
-            'chargement',
-            'expedition',
-            'fabrication',
-            'montage',
-            'peinture',
-          ]),
-          icon: <Archive size={19} />,
-          label: 'Archives',
-        },
-      ],
-    },
+      {
+        path: '/documents/preparation',
+        icon: <CircleCheck size={19} />,
+        label: 'Preparation',
+      },
+      {
+        path: '/shipping',
+        disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition', 'preparation']),
+        icon: <Truck size={19} />,
+        label: 'Expédition',
+      },
+      {
+        path: '/transfer-orders/list',
+        disabled: !roles(['controleur', 'commercial', 'chargement', 'expedition']),
+        icon: <ArrowRightLeft size={19} />,
+        label: 'Transfert',
+      },
+      {
+        path: '/website-orders',
+        hidden: !roles(['commercial', 'admin']),
+        icon: <Globe size={19} />,
+        label: (
+          <Link to='/website-orders' className='flex items-center justify-between w-full'>
+            Site web
+            <Badge count={states.website_orders} className='ml-2' />
+          </Link>
+        ),
+      },
+    ],
+  },
 
-    /* ----------------------------- Fabrication ----------------------------- */
-    {
-      hidden: !roles(['production', 'production_operateur', 'fabrication']),
-      icon: <ZodiacCancer size={20} />,
-      label: <span className='text-base'>Fabrication</span>,
-      children: [
-        {
-          path: '/',
-          icon: <RefreshCcw size={19} />,
-          label: 'Commandes',
-        },
-        {
-          path: '/preparation/archive',
-          icon: <ClipboardCheck size={19} />,
-          label: 'Archives',
-        },
-        {
-          path: '/fabrication/stock',
-          icon: <Layers size={19} />,
-          label: 'Stock',
-        },
-        {
-          path: '/fabrication/movements', // fixed typo: was /fabircation/movements
-          disabled: true,
-          icon: <ArrowDownUp size={19} />,
-          label: 'Movements',
-        },
-        {
-          path: '/fabrication/articles',
-          icon: <Square size={19} />,
-          label: 'Articles',
-        },
-        {
-          path: '/fabrication/orders',
-          icon: <Factory size={19} />,
-          label: 'OFs',
-        },
-        {
-          path: '/fabrication/capacit',
-          icon: <WeightTilde size={19} />,
-          label: 'Capacité',
-        },
-      ],
-    },
+  /* -------------------------------- Stock -------------------------------- */
+  {
+    icon: <Package size={20} />,
+    label: <span className='text-base'>Stock</span>,
+    children: [
+      { path: '/stock',                hidden: false,                                         icon: <ArrowDownUp size={19} />,    label: 'Suivi' },
+      { path: '/inventories',          hidden: !permissions('inventaire.voir'),               icon: <ClipboardCheck size={19} />, label: 'Inventaire' },
+      {
+        icon: <Warehouse size={19} />,
+        hidden: !permissions('depots.voir'),
+        onClick: () => handleShow(navigate, '/depots', 1000, 800),
+        label: 'Depots',
+      },
+      { path: '/fabrication/stock',    hidden: !permissions('stock_fabrication.voir'),          icon: <Layers size={19} />, label: 'Fabrication Stock' },
+      { path: '/fabrication/articles', hidden: !permissions('stock_fabrication.voir'),          icon: <Boxes size={19} />,  label: 'Fabrication Articles' },
+      { path: '/fabrication/capacit',  hidden: !permissions('stock_fabrication.voir_capacite'), icon: <Gauge size={19} />,  label: 'Fabrication Capacité' },
+    ],
+  },
 
-    /* -------------------------------- Stock -------------------------------- */
-    {
-      icon: <Package size={20} />,
-      label: <span className='text-base'>Stock</span>,
-      children: [
-        {
-          path: '/stock',
-          icon: <ArrowDownUp size={19} />,
-          label: 'Suivi',
-        },
-        {
-          path: '/inventories',
-          icon: <ClipboardCheck size={19} />,
-          label: 'Inventaire',
-        },
-        {
-          // opens in a popup window, so no `path` (never highlighted)
-          icon: <Warehouse size={19} />,
-          onClick: () => handleShow(navigate, '/depots', 1000, 800),
-          label: 'Depots',
-        },
-      ],
-    },
+  /* ------------------------------- Arrivage ------------------------------ */
+  {
+    icon: <PlaneLanding size={20} />,
+    disabled: !roles(['logistique', 'admin']),
+    label: 'Arrivage',
+    children: [
+      { path: '/reception', icon: <PackageCheck size={20} />, label: 'Reception' },
+      { path: '/travels',   icon: <Van size={20} />,          label: 'Voyage' },
+    ],
+  },
 
-    /* ------------------------------- Arrivage ------------------------------ */
-    {
-      icon: <PlaneLanding size={20} />,
-      disabled: !roles(['logistique', 'admin']),
-      label: 'Arrivage',
-      children: [
-        {
-          path: '/reception',
-          icon: <FileDown size={20} />,
-          label: 'Reception',
-        },
-        {
-          path: '/travels',
-          icon: <Van size={20} />,
-          label: 'Voyage',
-        },
-      ],
-    },
+  /* --------------------- Achat (simple link, non-admin) ------------------ */
+  {
+    path: '/purchase',
+    hidden: roles(['admin']),
+    disabled: !roles(['admin', 'chef_service']),
+    icon: <BaggageClaim size={20} />,
+    label: 'Achat',
+  },
 
-    /* --------------------- Achat (simple link, non-admin) ------------------ */
-    {
-      path: '/purchase',
-      hidden: roles(['admin']),
-      disabled: !roles(['admin', 'chef_service']),
-      icon: <BaggageClaim size={20} />,
-      label: 'Achat',
-    },
+  /* ----------------------------- Achat (admin) --------------------------- */
+  {
+    hidden: !roles(['admin']),
+    disabled: !roles(['admin', 'chef_service']),
+    icon: <BaggageClaim size={20} />,
+    label: (
+      <div className='flex items-center justify-between w-full'>
+        Achat
+        {showPurchaseBadge ? <Badge count={states.purchase} className='ml-2' /> : null}
+      </div>
+    ),
+    children: [
+      { path: '/purchase-overview', icon: <LayoutDashboard size={20} />, label: 'Tableau de bord' },
+      {
+        path: '/purchase',
+        disabled: !canBuy,
+        icon: <FileText size={20} />,
+        label: (
+          <Link to='/purchase' className='flex items-center justify-between w-full'>
+            <span className='flex-1'>Domands</span>
+            {showPurchaseBadge ? <Badge count={states.purchase} className='ml-2' /> : null}
+          </Link>
+        ),
+      },
+      { path: '/suppliers',           disabled: !canBuy, icon: <Handshake size={20} />,        label: 'Fournisseurs' },
+      { path: '/supplier-interviews', disabled: !canBuy, icon: <ChartCandlestick size={20} />, label: 'F.Evaluations' },
+      { path: '/quote-comparison',    disabled: !canBuy, icon: <GitCompare size={20} />,       label: 'Comparatif des devis' },
+      { path: '/supplier-ncf',        disabled: !canBuy, icon: <BadgeX size={20} />,           label: 'NC Fournisseur' },
+    ],
+  },
 
-    /* ----------------------------- Achat (admin) --------------------------- */
-    {
-      hidden: !roles(['admin']),
-      disabled: !roles(['admin', 'chef_service']),
-      icon: <BaggageClaim size={20} />,
-      label: (
-        <div className='flex items-center justify-between w-full'>
-          Achat
-          {showPurchaseBadge ? <Badge count={states.purchase} className='ml-2' /> : null}
-        </div>
-      ),
-      children: [
-        {
-          path: '/purchase-overview',
-          icon: <ChartSpline size={20} />,
-          label: 'Tableau de bord',
-        },
-        {
-          path: '/purchase',
-          disabled: !canBuy,
-          icon: <UserCheck size={20} />,
-          label: (
-            <Link to='/purchase' className='flex items-center justify-between w-full'>
-              <span className='flex-1'>Domands</span>
-              {showPurchaseBadge ? <Badge count={states.purchase} className='ml-2' /> : null}
-            </Link>
-          ),
-        },
-        {
-          path: '/suppliers',
-          disabled: !canBuy,
-          icon: <Handshake size={20} />,
-          label: 'Fournisseurs',
-        },
-        {
-          path: '/supplier-interviews',
-          disabled: !canBuy,
-          icon: <ChartCandlestick size={20} />,
-          label: 'F.Evaluations',
-        },
-        {
-          path: '/quote-comparison',
-          disabled: !canBuy,
-          icon: <GitCompare size={20} />,
-          label: 'Comparatif des devis',
-        },
-        {
-          path: '/supplier-ncf',
-          disabled: !canBuy,
-          icon: <BadgeX size={20} />,
-          label: 'NC Fournisseur',
-        },
-      ],
-    },
-
-    /* ------------------------------ Personnel ------------------------------ */
-    {
-      icon: <Users size={20} />,
-      label: <span className='text-base'>Personnel</span>,
-      children: [
-        {
-          path: '/users',
-          disabled: !permissions('view:users'),
-          icon: <UserCheck size={20} />,
-          label: 'Utilisateurs',
-        },
-        {
-          path: '/users/actions',
-          disabled: !permissions('view:users'),
-          icon: <ScrollText size={20} />,
-          label: 'Actions',
-        },
-        {
-          path: '/roles',
-          disabled: !permissions('view:roles'),
-          icon: <Lock size={20} />,
-          label: 'Roles',
-        },
-      ],
-    },
-  ])
+  /* ------------------------------ Personnel ------------------------------ */
+  {
+    icon: <Users size={20} />,
+    label: <span className='text-base'>Personnel</span>,
+    children: [
+      { path: '/users',         disabled: !permissions('view:users'), icon: <UserCheck size={20} />, label: 'Utilisateurs' },
+      { path: '/users/actions', disabled: !permissions('view:users'), icon: <ScrollText size={20} />, label: 'Actions' },
+      { path: '/roles',         disabled: !permissions('view:roles'), icon: <Lock size={20} />,       label: 'Roles' },
+    ],
+  },
+])
 }
 
 /* -------------------------------------------------------------------------- */

@@ -74,6 +74,10 @@ import CompanyDocuments from './document/CompanyDocuments'
 import FabricationDocuments from './document/FabricationDocuments'
 import PeintureDocuments from './document/PeintureDocuments'
 import MontageDocuments from './document/MontageDocuments'
+import ArchiveFabrication from './document/Archive/ArchiveFabrication'
+import ArchiveCompany from './document/Archive/ArchiveCompany'
+import ArchiveGlobal from './document/Archive/ArchiveGlobal'
+import PreparationDocuments from './document/PreparationDocuments'
 
 const NotFound = () => {
   return (
@@ -172,11 +176,17 @@ export const router = createHashRouter([
           { path: 'companies/stock', element: <CompanyStock /> },
           { path: 'documents', element: <Document /> },
           { path: 'preparation/:id', element: <Preparation /> },
+
+          { path: 'company/archive', element: <ArchiveCompany /> },
+          { path: 'global/archive', element: <ArchiveGlobal /> },
+
           { path: 'fabrication/:id', element: <Fabrication /> },
           { path: 'fabrication/stock', element: <StockEmplacement /> },
           { path: 'fabrication/articles', element: <FabricationArticles /> },
           { path: 'fabrication/orders', element: <OFs /> },
           { path: 'fabrication/capacit', element: <EmplacementLimit /> },
+          { path: 'fabrication/archive', element: <ArchiveFabrication /> },
+
           { path: 'validation', element: <Validation /> },
           { path: 'progress', element: <Progress /> },
           { path: 'shipping', element: <Shipping /> },
@@ -221,6 +231,7 @@ export const router = createHashRouter([
           { path: 'documents/fabrication', element: <FabricationDocuments /> },
           { path: 'documents/montage', element: <MontageDocuments /> },
           { path: 'documents/peinture', element: <PeintureDocuments /> },
+          { path: 'documents/preparation', element: <PreparationDocuments /> },
           { path: '*', element: <NotFound /> },
         ],
       },

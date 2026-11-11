@@ -108,7 +108,7 @@ function CompanyDocuments() {
 
   return (
     <div className='min-h-screen'>
-      <div className='flex flex-wrap justify-between items-center gap-4 pe-2 mb-2'>
+      <div className='flex gap-4 pe-2 mb-2'>
         <DocumentFilters filters={filters} setFilter={setFilter} />
 
         <div className='flex items-center gap-2'>

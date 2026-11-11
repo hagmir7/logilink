@@ -1,136 +1,129 @@
-import { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
-import CModal from '../components/ui/CModal'
-import { Loader2, PlusCircle, RefreshCcw } from 'lucide-react'
-import { api } from '../utils/api'
-import RoleForm from '../components/RoleForm';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Modal, message } from 'antd';
+import { useAuth } from '../contexts/AuthContext';
+import { rolesApi, apiError } from '../services/rolesApi';
+import useRoles from '../hooks/useRoles';
+import RoleSidebar from '../components/roles/RoleSidebar';
+import RoleModal from '../components/roles/RoleModal';
+import PermissionsPanel from '../components/roles/PermissionsPanel';
 
 
-function strClean(str) {
-  return str.replace(/\w\S*/g, function(txt) {
-      return txt.charAt(0).toUpperCase() + txt.substr(1);
-  }).replace("_", " ");
+function groupPermissions(permissions) {
+  const groups = new Map();
+  for (const permission of permissions) {
+    const key = permission.category || 'autres';
+    if (!groups.has(key)) groups.set(key, { key, label: permission.category_label || key, permissions: [] });
+    groups.get(key).permissions.push(permission);
+  }
+  return [...groups.values()];
 }
 
-const TableRow = ({ data }) => (
-  <tr className='hover:bg-gray-100'>
-    <td className='size-px whitespace-nowrap'>
-      <Link to={`/roles/${data.name}`}>
-        <div className='px-6 py-2 flex items-center gap-x-2'>
-          <span className='text-sm text-gray-600'>
-            #{data.id || '__'}
-          </span>
-        </div>
-      </Link>
-    </td>
-    <td className='size-px whitespace-nowrap'>
-      <Link to={`/roles/${data.name}`}>
-        <div className='px-6 py-2'>
-          <span className='text-sm text-gray-600'>
-            {strClean(data.name) || '__'}
-          </span>
-        </div>
-      </Link>
-    </td>
-    <td className='size-px whitespace-nowrap'>
-      <div className='px-6 py-2'>
-        <span className='text-sm text-gray-600'>
-          {data.guard_name}
-        </span>
-      </div>
-    </td>
-  </tr>
-)
+export default function Roles() {
+  const { permissions: authPermissions } = useAuth();
+  // Supports either a function can(name) or an array of permission strings in AuthContext.
+  const can = useCallback((name) => typeof authPermissions === 'function'
+    ? Boolean(authPermissions(name))
+    : Array.isArray(authPermissions) && authPermissions.includes(name), [authPermissions]);
 
-const Roles = () => {
-  const labels = ['Code', 'Role', 'Gaurdn']
-  const [data, setData] = useState([])
-  const [loading, setLoading] = useState(false)
+  const { roles, selectedName, setSelectedName, loading: rolesLoading, refresh } = useRoles();
+  const [role, setRole] = useState(null);
+  const [permissions, setPermissions] = useState([]);
+  const [selected, setSelected] = useState(new Set());
+  const [initial, setInitial] = useState(new Set());
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [modal, setModal] = useState(null);
+  const [modalLoading, setModalLoading] = useState(false);
+  const [alert, setAlert] = useState(null);
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const groups = useMemo(() => groupPermissions(permissions), [permissions]);
+  const dirty = useMemo(() => selected.size !== initial.size || [...selected].some((p) => !initial.has(p)), [selected, initial]);
+  const canAssign = can('roles.attribuer') && can('permissions.attribuer') && !role?.protected;
 
   useEffect(() => {
-    getData()
-  }, [])
+    let active = true;
+    if (!selectedName) { setRole(null); setSelected(new Set()); setInitial(new Set()); return; }
+    setLoading(true); setAlert(null);
+    Promise.all([rolesApi.get(selectedName), rolesApi.permissions()])
+      .then(([roleData, permissionList]) => {
+        if (!active) return;
+        const names = (roleData.permissions || []).map((p) => typeof p === 'string' ? p : p.name);
+        setRole(roleData);
+        setPermissions(Array.isArray(permissionList) ? permissionList : []);
+        setSelected(new Set(names));
+        setInitial(new Set(names));
+      })
+      .catch((error) => { if (active) setAlert({ type: 'error', message: apiError(error, 'Chargement impossible.') }); })
+      .finally(() => { if (active) setLoading(false); });
+    return () => { active = false; };
+  }, [selectedName]);
 
-  const getData = async () => {
-    setLoading(true)
-    const respones = await api.get('roles')
-    if (respones.status !== 200) {
-      setLoading(false)
-    }
-    setData(respones.data)
-    setLoading(false)
-  }
+  const toggle = useCallback((name) => setSelected((old) => {
+    const next = new Set(old);
+    next.has(name) ? next.delete(name) : next.add(name);
+    return next;
+  }), []);
+
+  const toggleGroup = useCallback((key, checked) => setSelected((old) => {
+    const next = new Set(old);
+    for (const p of (groups.find((g) => g.key === key)?.permissions || [])) checked ? next.add(p.name) : next.delete(p.name);
+    return next;
+  }), [groups]);
+
+  const toggleAll = useCallback(() => setSelected((old) => {
+    const all = groups.flatMap((g) => g.permissions.map((p) => p.name));
+    return all.every((p) => old.has(p)) ? new Set() : new Set(all);
+  }), [groups]);
+
+  const save = async () => {
+    if (!canAssign || !selectedName || !dirty) return;
+    setSaving(true); setAlert(null);
+    try {
+      const updated = await rolesApi.sync(selectedName, [...selected]);
+      const names = (updated.permissions || []).map((p) => p.name);
+      setSelected(new Set(names)); setInitial(new Set(names)); setRole(updated);
+      setAlert({ type: 'success', message: 'Autorisations mises à jour avec succès.' });
+      await refresh(selectedName);
+    } catch (error) {
+      setAlert({ type: 'error', message: apiError(error, 'Enregistrement impossible.') });
+    } finally { setSaving(false); }
+  };
+
+  const submitRole = async (name) => {
+    setModalLoading(true);
+    try {
+      const old = modal?.role?.name;
+      if (modal?.mode === 'create') await rolesApi.create(name);
+      else await rolesApi.rename(old, name);
+      setModal(null);
+      await refresh(name);
+      messageApi.success(modal?.mode === 'create' ? 'Rôle créé.' : 'Rôle renommé.');
+    } catch (error) { messageApi.error(apiError(error)); }
+    finally { setModalLoading(false); }
+  };
+
+  const deleteRole = (target) => Modal.confirm({
+    title: `Supprimer « ${target.name} » ?`,
+    content: 'Ce rôle sera retiré des utilisateurs qui le possèdent. Les permissions elles-mêmes resteront disponibles.',
+    okText: 'Supprimer', okButtonProps: { danger: true }, cancelText: 'Annuler',
+    onOk: async () => {
+      try { await rolesApi.remove(target.name); await refresh(target.name === selectedName ? null : undefined); messageApi.success('Rôle supprimé.'); }
+      catch (error) { messageApi.error(apiError(error)); throw error; }
+    },
+  });
 
   return (
-    <div className='flex flex-col'>
-      <div className='-m-1.5 overflow-x-auto'>
-        <div className='p-1.5 min-w-full inline-block align-middle'>
-          <div className='bg-white overflow-hidden'>
-            {/* Header */}
-            <div className='px-6 py-4 grid gap-3 md:flex md:justify-between md:items-center border-b border-gray-200 '>
-              <h2 className='text-xl font-semibold text-gray-800'>
-                Roles
-              </h2>
-              <div className='inline-flex gap-x-2'>
-                <button
-                  type='button'
-                  onClick={getData}
-                  className='py-2 px-3 cursor-pointer inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-gray-200 bg-white text-gray-800 shadow-2xs hover:bg-gray-50 focus:outline-hidden focus:bg-gray-50 disabled:opacity-50 disabled:pointer-events-none'
-                >
-                  <RefreshCcw size={17} />
-                  Rafraîchir
-                </button>
-                <CModal
-                  label='Créer'
-                  title='Créer un nouveau rôle'
-                  icon={() => <PlusCircle size={17} />}
-                  btnClass='py-2 px-3 inline-flex items-center gap-x-2 text-sm font-medium rounded-lg border border-transparent bg-red-600 text-white hover:bg-red-700 focus:outline-none focus:bg-red-700 disabled:opacity-50 disabled:pointer-events-none'
-                >
-                  <RoleForm />
-                </CModal>
-              </div>
-            </div>
-            {/* Table */}
-            <table className='min-w-full divide-y divide-gray-200'>
-              <thead className='bg-gray-50'>
-                <tr>
-                  {labels.map((label) => {
-                    return (
-                      <th
-                        scope='col'
-                        key={label}
-                        className='px-6 py-3 text-start'
-                      >
-                        <div className='flex items-center gap-x-2'>
-                          <span className='text-xs font-semibold uppercase text-gray-800'>
-                            {label}
-                          </span>
-                        </div>
-                      </th>
-                    )
-                  })}
-                </tr>
-              </thead>
-              <tbody className='divide-y divide-gray-200'>
-                {data.map((item, index) => (
-                  <TableRow key={index} data={item} />
-                ))}
-              </tbody>
-            </table>
-            {loading && (
-              <div className='flex flex-col items-center justify-center h-64'>
-                <Loader2
-                  className='animate-spin text-blue-500 mb-2'
-                  size={32}
-                />
-                <span className='text-gray-600'>Chargement...</span>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
+    <div className="flex flex-col md:flex-row w-full min-h-[70vh] bg-white border border-gray-200 rounded-lg overflow-hidden">
+      {contextHolder}
+      <RoleSidebar roles={roles} selectedName={selectedName} onSelect={(name) => {
+        if (dirty && !window.confirm('Abandonner les modifications non enregistrées ?')) return;
+        setSelectedName(name);
+      }} loading={rolesLoading} canCreate={can('roles.creer')} canRename={can('roles.attribuer')} canDelete={can('roles.supprimer')}
+        onCreate={() => setModal({ mode: 'create' })} onRename={(role) => setModal({ mode: 'rename', role })} onDelete={deleteRole} />
+      <PermissionsPanel role={role} groups={groups} selected={selected} onToggle={toggle} onToggleGroup={toggleGroup} onToggleAll={toggleAll}
+        onSave={save} disabled={!canAssign || saving || loading} loading={loading} saving={saving} dirty={dirty} alert={alert} onDismiss={() => setAlert(null)} />
+      <RoleModal open={!!modal} mode={modal?.mode} initialName={modal?.role?.name} loading={modalLoading} onCancel={() => setModal(null)} onSubmit={submitRole} />
     </div>
-  )
+  );
 }
-
-export default Roles

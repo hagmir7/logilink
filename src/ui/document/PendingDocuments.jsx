@@ -104,7 +104,7 @@ function PendingDocuments() {
 
   return (
     <div className='min-h-screen'>
-      <div className='flex flex-wrap justify-between items-center gap-4 pe-2 mb-2'>
+      <div className='flex flex-wrap items-center gap-4 pe-2 mb-2'>
         <DocumentFilters filters={filters} setFilter={setFilter} showCompany={false} />
 
         <div className='flex items-center gap-2'>
