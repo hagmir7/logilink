@@ -1,13 +1,12 @@
 import {
-  RefreshCcw,
   ArrowRight,
   CircleCheckBig,
   ListTodo,
   Settings,
-  CheckCheck,
   CircleCheck,
   RefreshCw,
   ListCheck,
+  Lock,
 } from 'lucide-react'
 import { useState, useEffect } from 'react'
 import { api } from '../utils/api'
@@ -21,44 +20,39 @@ import {
   Tag,
   Popconfirm,
   Empty,
-  InputNumber,
   Tooltip,
 } from 'antd'
 import Skeleton from '../components/ui/Skeleton'
-import { Table, Thead, Tbody, Tr, Th, Td } from '../components/ui/Table'
+import { Table, Thead, Tr } from '../components/ui/Table'
 import { useAuth } from '../contexts/AuthContext'
 import PrintDocument from '../components/PrintDocument'
 import TicketPrinter from '../components/TicketPrinter'
 import { DocumentPalettesModal } from '../components/DocumentPalettesModal'
 import CheckListModal from '../components/CheckListModal'
 
-
 function Controller() {
   const { id } = useParams()
   const [data, setData] = useState({ docentete: {}, doclignes: [] })
   const [loading, setLoading] = useState(false)
-  const [validatePartialLoading, setValidatePartialLoading] = useState(false);
-  const [selected, setSelected] = useState({});
+  const [validatePartialLoading, setValidatePartialLoading] = useState(false)
+  const [selected, setSelected] = useState({})
   const [selectedRoles, setSelectedRoles] = useState()
   const [transferSpin, setTransferSpin] = useState(false)
   const [documentCompany, setDocumentCompany] = useState({})
   const { roles = [], user } = useAuth()
   const [open, setOpen] = useState(false)
   const [confirmLoading, setConfirmLoading] = useState(false)
-  const [status, setStatus] = useState({});
-  const [openCheckList, setOpencheckList] = useState(false);
-  const [downloadSpin, setDownloadSpin] = useState(false);
+  const [status, setStatus] = useState({})
+  const [openCheckList, setOpencheckList] = useState(false)
+  const [downloadSpin, setDownloadSpin] = useState(false)
   const [documentPL, setDocumentPl] = useState(null)
 
-  const companies = data?.docentete?.document?.companies;
-
+  const companies = data?.docentete?.document?.companies
 
   const getDocumentPL = async () => {
-
     try {
       const response = await api.get(`documents/${id}`)
       setDocumentPl(response.data)
-
     } catch (err) {
       console.error('Failed to fetch data:', err)
       message.error('Erreur lors du chargement des données')
@@ -73,12 +67,41 @@ function Controller() {
     getDocumentPL()
   }, [])
 
+  // ---------------------------------------------------------------------------
+  // Locked / selectable helpers
+  // A line is LOCKED when it has a complation_date:
+  // it cannot be selected, validated or transferred.
+  // ---------------------------------------------------------------------------
+  const getLineId = (item) => item?.line?.id || item?.id
+
+  const isLocked = (item) => !!item?.line?.complation_date
+
+  const isValidatedLine = (item) => item?.line?.validated === '1'
+
+  const isSelectable = (item) => !isValidatedLine(item) && !isLocked(item)
+
+  const currentItems = data?.doclignes || []
+
+  const selectableItems = currentItems.filter(isSelectable)
+
+  const allSelected =
+    selectableItems.length > 0 &&
+    Object.keys(selected).length === selectableItems.length
+
+  // Safeguard: never send locked lines to the API
+  const getSelectedItems = () =>
+    Object.values(selected).filter((sel) => {
+      const row = currentItems.find((l) => getLineId(l) === sel.line_id)
+      return row && !isLocked(row)
+    })
 
   const selectedRowsFull = Object.values(selected)
-    .map(sel => data.doclignes.find(line =>
-      line.id === sel.line_id || line.line?.id === sel.line_id
-    ))
-    .filter(Boolean);
+    .map((sel) =>
+      currentItems.find(
+        (line) => line.id === sel.line_id || line.line?.id === sel.line_id
+      )
+    )
+    .filter(Boolean)
 
   const fetchData = async (silent = false) => {
     if (!silent) {
@@ -103,6 +126,18 @@ function Controller() {
         setDocumentCompany({})
         setStatus({})
       }
+
+      // Drop any selected line that became locked after the refresh
+      const lockedIds = (response.data?.doclignes || [])
+        .filter((l) => !!l?.line?.complation_date)
+        .map((l) => l?.line?.id || l?.id)
+      if (lockedIds.length > 0) {
+        setSelected((prev) => {
+          const next = { ...prev }
+          lockedIds.forEach((lid) => delete next[lid])
+          return next
+        })
+      }
     } catch (err) {
       console.error('Failed to fetch data:', err)
       message.error('Erreur lors du chargement des données')
@@ -114,29 +149,29 @@ function Controller() {
   }
 
   const downloadCheckList = async (checklist_id) => {
-    setDownloadSpin(true);
+    setDownloadSpin(true)
     try {
       const res = await api.get(`shippings/${checklist_id}/print`, {
         responseType: 'blob',
-      });
-      const url = window.URL.createObjectURL(new Blob([res.data]));
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `${id}-${checklist_id}.pdf`);
-      document.body.appendChild(link);
-      link.click();
-      link.remove();
-      window.URL.revokeObjectURL(url);
-      message.success('PDF téléchargé avec succès.');
+      })
+      const url = window.URL.createObjectURL(new Blob([res.data]))
+      const link = document.createElement('a')
+      link.href = url
+      link.setAttribute('download', `${id}-${checklist_id}.pdf`)
+      document.body.appendChild(link)
+      link.click()
+      link.remove()
+      window.URL.revokeObjectURL(url)
+      message.success('PDF téléchargé avec succès.')
     } catch (error) {
-      console.error(error);
-      message.error(error?.response?.data?.message || 'Erreur lors du téléchargement du PDF.');
+      console.error(error)
+      message.error(
+        error?.response?.data?.message || 'Erreur lors du téléchargement du PDF.'
+      )
     } finally {
-      setDownloadSpin(false);
+      setDownloadSpin(false)
     }
-  };
-
-
+  }
 
   useEffect(() => {
     if (!user?.company_id) return
@@ -149,18 +184,15 @@ function Controller() {
     return () => clearInterval(interval)
   }, [id, user?.company_id])
 
-
-  const currentItems = data?.doclignes || []
-
   const handleSelect = (lineId, item) => {
+    if (isLocked(item) || isValidatedLine(item)) return
+
     setSelected((prev) => {
       const newSelected = { ...prev }
 
       if (newSelected[lineId]) {
-
         delete newSelected[lineId]
       } else {
-
         newSelected[lineId] = {
           line_id: lineId,
           quantity: Math.floor(item.EU_Qte),
@@ -173,37 +205,35 @@ function Controller() {
 
   const validate = async () => {
     setValidatePartialLoading(true)
-    const selectedItems = Object.values(selected)
-    if (selectedItems.length == 0) {
-      message.warning("Aucun article sélectionné");
+    const selectedItems = getSelectedItems()
+    if (selectedItems.length === 0) {
+      message.warning('Aucun article sélectionné')
       setValidatePartialLoading(false)
-      return;
+      return
     }
     try {
-      const response = await api.post(`docentetes/palettes/validate-partial/${id}`, {
-        lines: selectedItems
+      await api.post(`docentetes/palettes/validate-partial/${id}`, {
+        lines: selectedItems,
       })
-      message.success("document validated successfully")
+      message.success('document validated successfully')
       fetchData(true)
-      setValidatePartialLoading(false)
     } catch (error) {
+      message.error(error?.response?.data?.message)
+    } finally {
       setValidatePartialLoading(false)
-      message.error(error.response.data.message);
     }
   }
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
       const newSelected = {}
-      data.doclignes
-        .filter((item) => item.line?.validated !== '1')
-        .forEach((doc) => {
-          const lineId = doc.line?.id || doc.id
-          newSelected[lineId] = {
-            line_id: lineId,
-            quantity: Math.floor(doc.DL_Qte),
-          }
-        })
+      selectableItems.forEach((doc) => {
+        const lineId = getLineId(doc)
+        newSelected[lineId] = {
+          line_id: lineId,
+          quantity: Math.floor(doc.DL_Qte),
+        }
+      })
       setSelected(newSelected)
     } else {
       setSelected({})
@@ -212,26 +242,11 @@ function Controller() {
 
   const handleChangeTransfer = (value) => {
     setSelectedRoles(value)
-    if (value !== selectedRoles) {
-      setSelectedRoles(value)
-    }
-  }
-
-  const handleQuantityChange = (lineId, value) => {
-    if (value && value > 0) {
-      setSelected((prev) => ({
-        ...prev,
-        [lineId]: {
-          ...prev[lineId],
-          quantity: value,
-        },
-      }))
-    }
   }
 
   const transfer = async () => {
     setTransferSpin(true)
-    const selectedItems = Object.values(selected)
+    const selectedItems = getSelectedItems()
 
     if (selectedRoles && selectedItems.length > 0) {
       const transferData = {
@@ -257,8 +272,7 @@ function Controller() {
     }
   }
 
-
-  let listTransfer = [
+  const listTransfer = [
     { value: 4, label: 'Preparation Cuisine' },
     { value: 5, label: 'Preparation Trailer' },
     { value: '7,4', label: 'Montage + Pr Cuisine' },
@@ -274,16 +288,17 @@ function Controller() {
   const handleOk = async () => {
     try {
       setConfirmLoading(true)
-      const selectedItems = Object.values(selected)
+      const selectedItems = getSelectedItems()
       await api.post(`docentetes/palettes/validate/${id}`, {
         lines: selectedItems,
       })
       setOpen(false)
-      setConfirmLoading(false)
       fetchData()
     } catch (error) {
       console.error(error)
-      message.error(error.response.data.message)
+      message.error(error?.response?.data?.message)
+    } finally {
+      setConfirmLoading(false)
     }
   }
 
@@ -291,22 +306,15 @@ function Controller() {
     setOpen(false)
   }
 
-
   const isItemSelected = (lineId) => {
-    return selected.hasOwnProperty(lineId)
+    return Object.prototype.hasOwnProperty.call(selected, lineId)
   }
-
-  const getSelectedQuantity = (lineId) => {
-    return selected[lineId]?.quantity || 0
-  }
-
-
 
   const getLineColor = (color, role_id, status) => {
     const colors = {
-      4: "#059669", // Blue
-      5: "#DC2626", // Red
-      8: "#06B6D4", // Orange
+      4: '#059669',
+      5: '#DC2626',
+      8: '#06B6D4',
     }
 
     if ([4, 5, 8].includes(Number(role_id)) && Number(status) === 7) {
@@ -316,14 +324,15 @@ function Controller() {
     return color
   }
 
-
   function strClean(str) {
     if (str) {
-      return str.replace(/\w\S*/g, function (txt) {
-        return txt.charAt(0).toUpperCase() + txt.substr(1);
-      }).replace("_", " ");
+      return str
+        .replace(/\w\S*/g, function (txt) {
+          return txt.charAt(0).toUpperCase() + txt.substr(1)
+        })
+        .replace('_', ' ')
     } else {
-      return str;
+      return str
     }
   }
 
@@ -332,7 +341,7 @@ function Controller() {
       (item) =>
         item.pivot?.complation_date &&
         Number(item.id) === Number(user.company_id)
-    ) || [];
+    ) || []
 
   return (
     <div className='max-w-7xl mx-auto p-2 md:p-5'>
@@ -352,19 +361,19 @@ function Controller() {
             )}
 
             {data?.docentete?.document && (
-              <Tag color={status.color}>
-                {status.name}
-              </Tag>
+              <Tag color={status.color}>{status.name}</Tag>
             )}
           </h1>
         </div>
 
         <div className='flex gap-2'>
-          {roles('controleur') && (Number(documentCompany?.pivot?.status_id) === 8 || (Number(documentCompany?.pivot?.status_id) === 9)) && (
-            <Button href={`#/document/palettes/${id}`} className='btn'>
-              <ListTodo /> Contrôler
-            </Button>
-          )}
+          {roles('controleur') &&
+            (Number(documentCompany?.pivot?.status_id) === 8 ||
+              Number(documentCompany?.pivot?.status_id) === 9) && (
+              <Button href={`#/document/palettes/${id}`} className='btn'>
+                <ListTodo /> Contrôler
+              </Button>
+            )}
 
           <Button onClick={() => fetchData()}>
             {loading ? (
@@ -382,10 +391,7 @@ function Controller() {
                 : data.doclignes
             }
           />
-          <TicketPrinter
-            doclignes={data.doclignes}
-            docentete={data.docentete}
-          />
+          <TicketPrinter doclignes={data.doclignes} docentete={data.docentete} />
 
           {data?.docentete?.document && (
             <DocumentPalettesModal
@@ -394,17 +400,18 @@ function Controller() {
             />
           )}
 
-
-          {
-            (parseInt(user?.company_id) === 1 &&
-              parseInt(data?.docentete?.document?.status_id) !== 11) && (
+          {parseInt(user?.company_id) === 1 &&
+            parseInt(data?.docentete?.document?.status_id) !== 11 && (
               <Tooltip title={'Valider partielle'}>
-                <Button onClick={validate} loading={validatePartialLoading} className='btn'>
+                <Button
+                  onClick={validate}
+                  loading={validatePartialLoading}
+                  className='btn'
+                >
                   <ListTodo /> P Valider
                 </Button>
               </Tooltip>
-            )
-          }
+            )}
         </div>
       </div>
 
@@ -433,7 +440,10 @@ function Controller() {
               <div>
                 {data?.docentete?.document?.companies?.length > 0 ? (
                   data?.docentete?.document?.companies
-                    .map((company) => `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''}`)
+                    .map(
+                      (company) =>
+                        `${company.name} ${company.pivot.printed == 1 ? '🖨️' : ''}`
+                    )
                     .join(' & ')
                 ) : (
                   <Skeleton />
@@ -456,23 +466,20 @@ function Controller() {
             </div>
           </div>
         ))}
-
-
       </div>
 
       {/* Table Header */}
       <div className='flex justify-between items-center mb-4'>
-
-        <div className="flex flex-wrap gap-2 text-md text-gray-500">
+        <div className='flex flex-wrap gap-2 text-md text-gray-500'>
           {companiesWithDate.map((item) => (
-            <div key={item.id} className="flex items-center gap-1">
-              <span className="font-medium text-gray-700">{item.name}</span>
+            <div key={item.id} className='flex items-center gap-1'>
+              <span className='font-medium text-gray-700'>{item.name}</span>
 
               {item.pivot?.note && (
                 <Tooltip title={item.pivot.note}>
                   <Tag
-                    color="blue"
-                    className="cursor-help text-[10px] px-1 py-0 leading-4 m-0"
+                    color='blue'
+                    className='cursor-help text-[10px] px-1 py-0 leading-4 m-0'
                   >
                     Remarque
                   </Tag>
@@ -506,17 +513,19 @@ function Controller() {
                 </>
               )}
 
-
-            {documentPL?.document?.shipping &&
+            {documentPL?.document?.shipping && (
               <Button
-                onClick={() => downloadCheckList(documentPL?.document?.shipping?.id)}
-                color="green"
+                onClick={() =>
+                  downloadCheckList(documentPL?.document?.shipping?.id)
+                }
+                color='green'
                 loading={downloadSpin}
-                variant="solid"
-                icon={<CircleCheck size={18} />}>
+                variant='solid'
+                icon={<CircleCheck size={18} />}
+              >
                 Check-list
               </Button>
-            }
+            )}
           </div>
 
           {documentCompany?.pivot && (
@@ -542,7 +551,6 @@ function Controller() {
                   </Button>
                 </Popconfirm>
               )}
-
 
               {Number(documentCompany.pivot.status_id) < 8 && (
                 <>
@@ -575,15 +583,8 @@ function Controller() {
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
                 <Checkbox
                   onChange={handleSelectAll}
-                  checked={
-                    Object.keys(selected).length ===
-                    data.doclignes.filter(
-                      (item) => item.line?.validated !== '1'
-                    ).length &&
-                    data.doclignes.filter(
-                      (item) => item.line?.validated !== '1'
-                    ).length > 0
-                  }
+                  checked={allSelected}
+                  disabled={selectableItems.length === 0}
                 />
               </th>
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider border-r border-gray-200 whitespace-nowrap'>
@@ -619,7 +620,6 @@ function Controller() {
               <th className='px-2 py-1 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider whitespace-nowrap'>
                 QTE Prp
               </th>
-
             </Tr>
           </Thead>
           <tbody className='bg-white'>
@@ -635,7 +635,8 @@ function Controller() {
               ))
             ) : data.doclignes?.length > 0 ? (
               currentItems.map((item, index) => {
-                const lineId = item.line?.id || item.id
+                const lineId = getLineId(item)
+                const locked = isLocked(item)
                 return (
                   <tr
                     key={index}
@@ -645,6 +646,7 @@ function Controller() {
                       transition-colors 
                       duration-150 
                       ${index % 2 === 0 ? 'bg-white' : 'bg-gray-50'}
+                      ${locked ? 'opacity-60' : ''}
                     `}
                   >
                     <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
@@ -662,6 +664,14 @@ function Controller() {
                             />
                           </svg>
                         </div>
+                      ) : locked ? (
+                        <Tooltip
+                          title={`Date prévue : ${formatDate(item.line.complation_date)}`}
+                        >
+                          <span className='inline-flex'>
+                            <Checkbox checked={false} disabled />
+                          </span>
+                        </Tooltip>
                       ) : (
                         <Checkbox
                           checked={isItemSelected(lineId)}
@@ -671,11 +681,16 @@ function Controller() {
                     </td>
                     <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
                       <Tooltip title={strClean(item.line?.role?.name)}>
-                        <Tag color={getLineColor(item.line?.status?.color, item.line?.role_id, item.line?.status?.id)}>
+                        <Tag
+                          color={getLineColor(
+                            item.line?.status?.color,
+                            item.line?.role_id,
+                            item.line?.status?.id
+                          )}
+                        >
                           {item.line?.status?.name}
                         </Tag>
                       </Tooltip>
-
                     </td>
 
                     <td className='px-2 py-1 whitespace-nowrap border-r border-gray-100'>
@@ -706,15 +721,19 @@ function Controller() {
                         : Math.floor(item?.article?.Largeur) || '__'}
                     </td>
                     <td className='px-2 text-sm border-r border-gray-100'>
-                      {Math.floor(item.Profondeur) ? Math.floor(item.Profondeur) : Math.floor(item?.article?.Profondeur) || "__"}
+                      {Math.floor(item.Profondeur)
+                        ? Math.floor(item.Profondeur)
+                        : Math.floor(item?.article?.Profondeur) || '__'}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100'>
-                      {Math.floor(item?.Episseur) || Math.floor(item?.article?.Episseur)}
+                      {Math.floor(item?.Episseur) ||
+                        Math.floor(item?.article?.Episseur)}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100 whitespace-nowrap'>
-                      {(item.Couleur ? item.Couleur : item?.article?.Couleur) || '__'}
+                      {(item.Couleur ? item.Couleur : item?.article?.Couleur) ||
+                        '__'}
                     </td>
 
                     <td className='px-2 text-sm border-r border-gray-100'>
@@ -723,26 +742,34 @@ function Controller() {
 
                     <td className='px-4 py-2'>
                       <span className='inline-flex justify-center px-2 py-1 w-full gap-1 items-center rounded-md text-sm font-semibold bg-green-50 text-green-700 border border-green-200'>
-                        <span>{Math.floor(item.EU_Qte || 0)} {" "}</span>
-                        <small>{item.EU_Qte !== item.DL_Qte ? `(${Math.floor(item.DL_Qte)}m)` : ''}</small>
+                        <span>{Math.floor(item.EU_Qte || 0)} </span>
+                        <small>
+                          {item.EU_Qte !== item.DL_Qte
+                            ? `(${Math.floor(item.DL_Qte)}m)`
+                            : ''}
+                        </small>
                       </span>
                     </td>
 
-                    <td className="px-4 py-2">
+                    <td className='px-4 py-2'>
                       <span
                         className={`inline-flex justify-center px-2 py-1 w-full rounded-md text-sm font-semibold border
-                            ${(item?.line?.quantity_prepare
-                            ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
-                            : Math.floor(item.DL_QteBL)) <
-                            (item?.line?.quantity_prepare
-                              ? Math.floor(item.EU_Qte) - item.line.quantity_prepare
-                              : Math.floor(item.EU_Qte))
-                            ? 'bg-red-50 text-red-700 border-red-200'
-                            : 'bg-green-50 text-green-700 border-green-200'
-                          }`}
+                            ${
+                              (item?.line?.quantity_prepare
+                                ? Math.floor(item.DL_QteBL) -
+                                  item.line.quantity_prepare
+                                : Math.floor(item.DL_QteBL)) <
+                              (item?.line?.quantity_prepare
+                                ? Math.floor(item.EU_Qte) -
+                                  item.line.quantity_prepare
+                                : Math.floor(item.EU_Qte))
+                                ? 'bg-red-50 text-red-700 border-red-200'
+                                : 'bg-green-50 text-green-700 border-green-200'
+                            }`}
                       >
                         {item?.line?.quantity_prepare
-                          ? Math.floor(item.DL_QteBL) - item.line.quantity_prepare
+                          ? Math.floor(item.DL_QteBL) -
+                            item.line.quantity_prepare
                           : Math.floor(item.DL_QteBL)}
                       </span>
                     </td>
@@ -763,34 +790,34 @@ function Controller() {
       </div>
 
       {/* Mobile Cards */}
-
-
-
       <div className='block md:hidden space-y-3'>
         <label className='flex items-center justify-between bg-white border-2 border-gray-200 rounded-xl px-4 py-3 cursor-pointer mb-2'>
           <div className='flex items-center gap-3'>
             <Checkbox
               onChange={handleSelectAll}
-              checked={
-                Object.keys(selected).length ===
-                data.doclignes.filter((item) => item.line?.validated !== '1').length &&
-                data.doclignes.filter((item) => item.line?.validated !== '1').length > 0
-              }
+              checked={allSelected}
+              disabled={selectableItems.length === 0}
               className='scale-125'
             />
-            <span className='text-base font-semibold text-gray-700'>Tout sélectionner</span>
+            <span className='text-base font-semibold text-gray-700'>
+              Tout sélectionner
+            </span>
           </div>
 
           {Object.keys(selected).length > 0 && (
             <span className='bg-blue-100 text-blue-700 text-sm font-bold px-3 py-1 rounded-full'>
-              {Object.keys(selected).length} sélectionné{Object.keys(selected).length > 1 ? 's' : ''}
+              {Object.keys(selected).length} sélectionné
+              {Object.keys(selected).length > 1 ? 's' : ''}
             </span>
           )}
         </label>
         {loading ? (
           <div className='space-y-3'>
             {[1, 2, 3].map((i) => (
-              <div key={i} className='bg-white rounded-xl border border-gray-200 p-4 space-y-3 animate-pulse'>
+              <div
+                key={i}
+                className='bg-white rounded-xl border border-gray-200 p-4 space-y-3 animate-pulse'
+              >
                 <div className='flex justify-between'>
                   <div className='h-5 bg-gray-200 rounded w-2/5'></div>
                   <div className='h-6 bg-gray-200 rounded-full w-14'></div>
@@ -806,33 +833,47 @@ function Controller() {
           </div>
         ) : data.doclignes?.length > 0 ? (
           currentItems.map((item, index) => {
-            const lineId = item.line?.id || item.id
+            const lineId = getLineId(item)
             const isSelected = isItemSelected(lineId)
-            const isValidated = item.line?.validated === '1'
+            const isValidated = isValidatedLine(item)
+            const locked = isLocked(item)
 
             return (
               <div
                 key={index}
-                onClick={() => !isValidated && handleSelect(lineId, item)}
+                onClick={() => !isValidated && !locked && handleSelect(lineId, item)}
                 className={`
-            bg-white rounded-xl border-2 p-4 transition-all duration-150 cursor-pointer
-            ${isValidated
-                    ? 'border-green-200 bg-green-50/30 cursor-default'
-                    : isSelected
-                      ? 'border-blue-400 bg-blue-50/40 shadow-sm'
-                      : 'border-gray-200 active:border-gray-300'}
+            bg-white rounded-xl border-2 p-4 transition-all duration-150
+            ${
+              isValidated
+                ? 'border-green-200 bg-green-50/30 cursor-default'
+                : locked
+                  ? 'border-gray-200 opacity-60 cursor-not-allowed'
+                  : isSelected
+                    ? 'border-blue-400 bg-blue-50/40 shadow-sm cursor-pointer'
+                    : 'border-gray-200 active:border-gray-300 cursor-pointer'
+            }
           `}
               >
                 {/* Top Row */}
                 <div className='flex justify-between items-start gap-2 mb-2'>
                   <div className='flex items-center gap-3 min-w-0'>
                     {isValidated ? (
-                      <svg className='w-6 h-6 text-green-500 shrink-0' fill='currentColor' viewBox='0 0 20 20'>
-                        <path fillRule='evenodd' d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z' clipRule='evenodd' />
+                      <svg
+                        className='w-6 h-6 text-green-500 shrink-0'
+                        fill='currentColor'
+                        viewBox='0 0 20 20'
+                      >
+                        <path
+                          fillRule='evenodd'
+                          d='M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z'
+                          clipRule='evenodd'
+                        />
                       </svg>
                     ) : (
                       <Checkbox
                         checked={isSelected}
+                        disabled={locked}
                         onChange={() => handleSelect(lineId, item)}
                         onClick={(e) => e.stopPropagation()}
                         className='shrink-0 scale-125'
@@ -844,8 +885,19 @@ function Controller() {
                   </div>
 
                   <div className='flex items-center gap-2 shrink-0'>
+                    {locked && !isValidated && (
+                      <Tooltip
+                        title={`Date prévue : ${formatDate(item.line.complation_date)}`}
+                      >
+                        <Lock size={14} className='text-gray-500' />
+                      </Tooltip>
+                    )}
                     <Tag
-                      color={getLineColor(item.line?.status?.color, item.line?.role_id, item.line?.status?.id)}
+                      color={getLineColor(
+                        item.line?.status?.color,
+                        item.line?.role_id,
+                        item.line?.status?.id
+                      )}
                       className='!m-0 !text-sm !px-2 !py-0.5'
                     >
                       {item.line?.status?.name}
@@ -857,29 +909,66 @@ function Controller() {
                 </div>
 
                 {/* Sub info */}
-                {(item?.Description || item?.Rotation || item?.Poignee || item?.AR_Ref) && (
+                {(item?.Description ||
+                  item?.Rotation ||
+                  item?.Poignee ||
+                  item?.AR_Ref) && (
                   <p className='text-sm text-gray-500 mb-3 ml-9 truncate'>
-                    {[item?.AR_Ref, item?.Description, item?.Rotation, item?.Poignee].filter(Boolean).join(' · ')}
+                    {[item?.AR_Ref, item?.Description, item?.Rotation, item?.Poignee]
+                      .filter(Boolean)
+                      .join(' · ')}
                   </p>
                 )}
 
                 {/* Dimensions Grid */}
                 <div className='ml-9 grid grid-cols-4 gap-2'>
                   {[
-                    { label: 'Haut.', value: item.Hauteur > 0 ? Math.floor(item.Hauteur) : Math.floor(item.article?.Hauteur) },
-                    { label: 'Larg.', value: item.Largeur > 0 ? Math.floor(item.Largeur) : Math.floor(item?.article?.Largeur) },
-                    { label: 'Prof.', value: Math.floor(item.Profondeur) || Math.floor(item?.article?.Profondeur) },
-                    { label: 'Épais.', value: Math.floor(item?.Episseur) || Math.floor(item?.article?.Episseur) },
+                    {
+                      label: 'Haut.',
+                      value:
+                        item.Hauteur > 0
+                          ? Math.floor(item.Hauteur)
+                          : Math.floor(item.article?.Hauteur),
+                    },
+                    {
+                      label: 'Larg.',
+                      value:
+                        item.Largeur > 0
+                          ? Math.floor(item.Largeur)
+                          : Math.floor(item?.article?.Largeur),
+                    },
+                    {
+                      label: 'Prof.',
+                      value:
+                        Math.floor(item.Profondeur) ||
+                        Math.floor(item?.article?.Profondeur),
+                    },
+                    {
+                      label: 'Épais.',
+                      value:
+                        Math.floor(item?.Episseur) ||
+                        Math.floor(item?.article?.Episseur),
+                    },
                   ].map(({ label, value }) => (
-                    <div key={label} className='bg-gray-50 rounded-lg p-2 text-center border border-gray-400'>
-                      <span className='block text-gray-400 text-xs uppercase tracking-wide font-medium'>{label}</span>
-                      <span className='block text-gray-900 text-base font-bold mt-0.5'>{value || '—'}</span>
+                    <div
+                      key={label}
+                      className='bg-gray-50 rounded-lg p-2 text-center border border-gray-400'
+                    >
+                      <span className='block text-gray-400 text-xs uppercase tracking-wide font-medium'>
+                        {label}
+                      </span>
+                      <span className='block text-gray-900 text-base font-bold mt-0.5'>
+                        {value || '—'}
+                      </span>
                     </div>
                   ))}
                 </div>
 
                 {/* Color & Chant */}
-                {(item.Couleur || item?.article?.Couleur || item.Chant || item?.article?.Chant) && (
+                {(item.Couleur ||
+                  item?.article?.Couleur ||
+                  item.Chant ||
+                  item?.article?.Chant) && (
                   <div className='ml-9 mt-3 flex gap-2 flex-wrap'>
                     {(item.Couleur || item?.article?.Couleur) && (
                       <span className='text-sm bg-gray-100 text-gray-700 font-medium px-3 py-1 rounded-full border border-gray-400'>
